@@ -15,8 +15,17 @@ export async function GET() {
     status: {
       $in: ["awaiting_payment", "confirmed", "started"],
     },
-  }).sort({ createdAt: -1 }).populate("user driver vehicle")
-  
+  }).sort({ createdAt: -1 }).populate("user driver vehicle");
 
-  return NextResponse.json( booking );
+  if (!booking) return NextResponse.json(null);
+
+  const bookingObj = booking.toObject();
+  if (bookingObj.userMobileNumber) {
+    const raw = bookingObj.userMobileNumber;
+    const suffix = raw.slice(-3);
+    const prefix = raw.startsWith("+") ? raw.slice(0, 3) : "";
+    bookingObj.userMobileNumber = `${prefix} ••••• ••${suffix}`;
+  }
+
+  return NextResponse.json(bookingObj);
 }

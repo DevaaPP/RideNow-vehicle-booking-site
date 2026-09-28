@@ -5,7 +5,8 @@ import {
   Phone, Car, User2, ChevronUp,
   Star, MessageCircle, Clock, Zap,
   IndianRupee, XCircle, AlertCircle, AlertTriangle,
-  CheckCircle2, Mic, MicOff, Volume2, PhoneOff
+  CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
+  ShieldAlert, Siren, PhoneCall
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
@@ -38,6 +39,8 @@ interface BookingDetails {
   driverMobileNumber: string;
   pickupOtp?: string;
   dropOtp?: string;
+  isPanicActive?: boolean;
+  panicActivatedAt?: string;
 }
 
 /* ─── STATUS CONFIG ──────────────────────────────────────────────────── */
@@ -84,6 +87,23 @@ export default function RidePage() {
   const [error,            setError]            = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showCancelError, setShowCancelError] = useState<string | null>(null);
+  const [showPanicConfirm, setShowPanicConfirm] = useState(false);
+  const [panicLoading, setPanicLoading] = useState(false);
+
+  const triggerPanic = async () => {
+    try {
+      setPanicLoading(true);
+      const res = await fetch(`/api/booking/${id}/panic`, { method: "POST" });
+      if (res.ok) {
+        setBooking(prev => prev ? { ...prev, isPanicActive: true } : null);
+      }
+    } catch (err) {
+      console.error("Panic trigger error:", err);
+    } finally {
+      setPanicLoading(false);
+      setShowPanicConfirm(false);
+    }
+  };
 
   /* Secure VoIP Call State */
   const [activeCall, setActiveCall] = useState<{ isOpen: boolean } | null>(null);
@@ -286,6 +306,7 @@ export default function RidePage() {
     chatOpen, onChatToggle: () => canChat && setChatOpen(v => !v),
     onCancel: handleCancel, onRetryPayment: fetchBooking, router,
     onCallClick: () => setActiveCall({ isOpen: true }),
+    onPanicClick: () => setShowPanicConfirm(true),
   };
 
   return (
@@ -469,6 +490,59 @@ export default function RidePage() {
                   className="w-full py-3 bg-zinc-900 hover:bg-black text-white rounded-xl text-sm font-bold transition active:scale-[0.98]"
                 >
                   Okay
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Custom Panic / SOS Confirm Modal */}
+      <AnimatePresence>
+        {showPanicConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-zinc-900 border border-red-500/30 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-white"
+            >
+              <div className="p-6 text-center space-y-4">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto text-red-400 animate-bounce">
+                  <Siren size={32} />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-black text-white">Activate Emergency SOS?</h3>
+                  <p className="text-zinc-400 text-xs font-medium leading-relaxed">
+                    This will immediately alert our emergency security response team, log your live location, and notify emergency contacts.
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 pb-6 pt-2 flex flex-col gap-2.5">
+                <button
+                  onClick={triggerPanic}
+                  disabled={panicLoading}
+                  className="w-full py-3.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-xl text-sm font-bold transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2"
+                >
+                  {panicLoading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <ShieldAlert size={18} /> Confirm Emergency Alert
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowPanicConfirm(false)}
+                  disabled={panicLoading}
+                  className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-sm font-semibold transition"
+                >
+                  Cancel
                 </button>
               </div>
             </motion.div>
@@ -753,10 +827,44 @@ function PanelContent({
   booking, status, cfg, isActive, canChat, showDriver,
   displayEta, displayDistance,
   chatOpen, onChatToggle, onCancel, onRetryPayment, router,
-  onCallClick,
+  onCallClick, onPanicClick,
 }: any) {
   return (
     <div className="flex flex-col pt-5 pb-6 gap-3">
+
+      {/* PANIC ALERT ACTIVE BANNER */}
+      {booking?.isPanicActive && (
+        <div className="mx-5 lg:mx-6">
+          <div className="bg-red-950/90 border-2 border-red-600 rounded-2xl p-5 text-white shadow-xl shadow-red-900/30">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center animate-bounce flex-shrink-0">
+                <Siren size={20} className="text-white" />
+              </div>
+              <div>
+                <p className="text-xs font-black uppercase tracking-wider text-red-400">Emergency SOS Triggered</p>
+                <p className="text-sm font-bold text-white">Security Dispatch Notified</p>
+              </div>
+            </div>
+            <p className="text-xs text-red-200 leading-relaxed mb-4">
+              Your live location is actively being tracked by safety dispatch. Local law enforcement hotline is available below.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <a
+                href="tel:112"
+                className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition"
+              >
+                <PhoneCall size={14} /> Call 112
+              </a>
+              <a
+                href="tel:18001234567"
+                className="flex items-center justify-center gap-2 bg-zinc-900 hover:bg-black text-zinc-200 font-bold py-2.5 rounded-xl text-xs border border-red-900 transition"
+              >
+                <ShieldAlert size={14} /> Security Desk
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SEARCHING (requested) */}
       {status === "requested" && (
@@ -948,6 +1056,18 @@ function PanelContent({
             className="w-full bg-zinc-100 hover:bg-red-50 hover:text-red-600 text-zinc-700 py-3.5 rounded-xl text-sm font-semibold active:scale-[0.97] transition-all border border-transparent hover:border-red-100 flex items-center justify-center gap-2"
           >
             Cancel Ride
+          </button>
+        </div>
+      )}
+
+      {/* EMERGENCY SOS BUTTON */}
+      {status === "started" && !booking?.isPanicActive && (
+        <div className="mx-5 lg:mx-6 mt-2">
+          <button
+            onClick={onPanicClick}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 active:scale-[0.97]"
+          >
+            <Siren size={18} className="animate-pulse" /> Emergency SOS Alert
           </button>
         </div>
       )}

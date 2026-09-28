@@ -7,7 +7,7 @@ import {
   CheckCircle2, KeyRound, ArrowRight,
   MapPin, Navigation, MessageCircle,
   AlertCircle, XCircle, AlertTriangle,
-  Mic, MicOff, Volume2, PhoneOff
+  Mic, MicOff, Volume2, PhoneOff, Siren, ShieldAlert
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useEffect, useRef, useState } from "react";
@@ -41,6 +41,8 @@ export interface IBooking {
   paymentDeadline?: Date;
   userMobileNumber: string;
   driverMobileNumber: string;
+  isPanicActive?: boolean;
+  panicActivatedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -795,6 +797,21 @@ function ActionBar({
 function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen, onChatToggle, onCancel, onCallClick }: any) {
   return (
     <div className="flex flex-col pt-5 pb-4 gap-3">
+
+      {/* DRIVER PANIC ALERT BANNER */}
+      {booking?.isPanicActive && (
+        <div className="mx-5 lg:mx-6">
+          <div className="bg-red-950/90 border-2 border-red-600 rounded-2xl p-4 text-white shadow-xl shadow-red-900/30 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center animate-bounce flex-shrink-0">
+              <Siren size={22} className="text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-red-400">Emergency SOS Triggered</p>
+              <p className="text-xs font-medium text-red-100">Passenger requested emergency safety assistance. Please adhere to standard safety guidelines.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ETA + FARE */}
       {isActive && (

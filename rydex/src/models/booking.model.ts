@@ -53,6 +53,8 @@ partnerAmount: number
   dropOtpExpires: Date
   candidateDrivers: Types.ObjectId[];
   currentDriverIndex: number;
+  isPanicActive?: boolean;
+  panicActivatedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -147,6 +149,13 @@ dropOtpExpires: {
     currentDriverIndex: {
       type: Number,
       default: 0,
+    },
+    isPanicActive: {
+      type: Boolean,
+      default: false,
+    },
+    panicActivatedAt: {
+      type: Date,
     },
   },
   { timestamps: true }
