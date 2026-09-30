@@ -31,7 +31,7 @@ function GeoUpdater({ userId }: { userId: string | undefined }) {
           longitude: pos.coords.longitude,
         });
       },
-      (err) => console.log(err),
+      () => {},
       {
         enableHighAccuracy: true,
         maximumAge: 5000,

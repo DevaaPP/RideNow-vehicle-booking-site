@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { email, otp } = body;
-console.log(otp)
+
     /* ---------- VALIDATION ---------- */
 
     if (!email || !otp) {

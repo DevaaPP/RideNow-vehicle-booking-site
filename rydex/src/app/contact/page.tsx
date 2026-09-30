@@ -29,7 +29,6 @@ export default function ContactPage() {
     try {
       // You can send this to your backend API
       // await axios.post('/api/contact', formData);
-      console.log("Form submitted:", formData);
       setSubmitted(true);
       setFormData({ name: "", email: "", subject: "", message: "" });
       setTimeout(() => setSubmitted(false), 5000);

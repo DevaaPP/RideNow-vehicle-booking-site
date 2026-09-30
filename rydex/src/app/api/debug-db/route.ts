@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== "admin") {
+      return NextResponse.json(
+        { message: "Unauthorized: Admin access required" },
+        { status: 401 }
+      );
+    }
+
     await connectDb();
 
     const url = new URL(req.url);
