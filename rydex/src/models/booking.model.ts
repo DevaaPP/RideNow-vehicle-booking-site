@@ -8,7 +8,9 @@ export type BookingStatus =
   | "completed"
   | "cancelled"
   | "rejected"
-  | "expired";
+  | "expired"
+  | "auto_rematching"
+  | "no_drivers_available";
 
 export type PaymentStatus =
   | "pending"
@@ -75,6 +77,9 @@ partnerAmount: number
     instructions: string;
     walkingTimeText: string;
   };
+  isAutoRematching?: boolean;
+  cancelledDriverIds?: Types.ObjectId[];
+  reMatchCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -212,6 +217,17 @@ dropOtpExpires: {
       spotName: { type: String },
       instructions: { type: String },
       walkingTimeText: { type: String },
+    },
+    isAutoRematching: {
+      type: Boolean,
+      default: false,
+    },
+    cancelledDriverIds: [
+      { type: Schema.Types.ObjectId, ref: "User" }
+    ],
+    reMatchCount: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }

@@ -20,7 +20,8 @@ const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr:
 type BookingStatus =
   | "requested" | "awaiting_payment" | "confirmed"
   | "started"   | "completed"        | "cancelled"
-  | "rejected"  | "expired";
+  | "rejected"  | "expired"          | "auto_rematching"
+  | "no_drivers_available";
 
 type PaymentStatus = "pending" | "paid" | "cash" | "failed";
 
@@ -49,14 +50,16 @@ const STATUS_CONFIG: Record<BookingStatus, {
   label: string; sublabel: string; dot: string;
   mapStatus: "arriving" | "ongoing" | "completed";
 }> = {
-  requested:        { label: "Finding Driver",      sublabel: "Searching for nearby drivers",          dot: "bg-amber-400",   mapStatus: "arriving"  },
-  awaiting_payment: { label: "Payment Required",    sublabel: "Complete payment to confirm your ride", dot: "bg-purple-400",  mapStatus: "arriving"  },
-  confirmed:        { label: "Driver on the Way",   sublabel: "Driver is heading to pickup",           dot: "bg-emerald-400", mapStatus: "arriving"  },
-  started:          { label: "On the Way",          sublabel: "Heading to your destination",           dot: "bg-blue-400",    mapStatus: "ongoing"   },
-  completed:        { label: "Ride Completed",      sublabel: "You have reached your destination",     dot: "bg-zinc-400",    mapStatus: "completed" },
-  cancelled:        { label: "Ride Cancelled",      sublabel: "This ride has been cancelled",          dot: "bg-red-400",     mapStatus: "completed" },
-  rejected:         { label: "Ride Rejected",       sublabel: "Driver couldn't accept the ride",       dot: "bg-red-400",     mapStatus: "completed" },
-  expired:          { label: "Request Expired",     sublabel: "Booking request timed out",             dot: "bg-orange-400",  mapStatus: "completed" },
+  requested:            { label: "Finding Driver",      sublabel: "Searching for nearby drivers",          dot: "bg-amber-400",   mapStatus: "arriving"  },
+  awaiting_payment:     { label: "Payment Required",    sublabel: "Complete payment to confirm your ride", dot: "bg-purple-400",  mapStatus: "arriving"  },
+  confirmed:            { label: "Driver on the Way",   sublabel: "Driver is heading to pickup",           dot: "bg-emerald-400", mapStatus: "arriving"  },
+  started:              { label: "On the Way",          sublabel: "Heading to your destination",           dot: "bg-blue-400",    mapStatus: "ongoing"   },
+  completed:            { label: "Ride Completed",      sublabel: "You have reached your destination",     dot: "bg-zinc-400",    mapStatus: "completed" },
+  cancelled:            { label: "Ride Cancelled",      sublabel: "This ride has been cancelled",          dot: "bg-red-400",     mapStatus: "completed" },
+  rejected:             { label: "Ride Rejected",       sublabel: "Driver couldn't accept the ride",       dot: "bg-red-400",     mapStatus: "completed" },
+  expired:              { label: "Request Expired",     sublabel: "Booking request timed out",             dot: "bg-orange-400",  mapStatus: "completed" },
+  auto_rematching:      { label: "Auto Re-matching",    sublabel: "Driver cancelled. Finding a new nearby driver...", dot: "bg-emerald-500 animate-pulse", mapStatus: "arriving" },
+  no_drivers_available: { label: "No Drivers",          sublabel: "No nearby drivers accepted",            dot: "bg-red-500",     mapStatus: "completed" },
 };
 
 const PAYMENT_LABEL: Record<PaymentStatus, { label: string; cls: string }> = {
@@ -227,12 +230,35 @@ export default function RidePage() {
     socket.on("driver-assigned", (data: any) => {
       setBooking(prev => prev ? { ...prev, driver: data.driver, driverMobileNumber: data.driverMobileNumber } : null);
     });
+    socket.on("auto-rematch-started", () => fetchBooking(true));
+    socket.on("auto-rematch-searching", () => fetchBooking(true));
+    socket.on("auto-rematch-success", () => fetchBooking(true));
     return () => {
       socket.off("driver-location");
       socket.off("booking-updated");
       socket.off("driver-assigned");
+      socket.off("auto-rematch-started");
+      socket.off("auto-rematch-searching");
+      socket.off("auto-rematch-success");
     };
   }, [id, booking?._id]);
+
+  const [rematching, setRematching] = useState(false);
+
+  const handleManualRematch = async () => {
+    try {
+      setRematching(true);
+      const res = await fetch(`/api/booking/${id}/rematch`, { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        fetchBooking(true);
+      }
+    } catch (err) {
+      console.error("Manual rematch error:", err);
+    } finally {
+      setRematching(false);
+    }
+  };
 
   const handleCancel = () => {
     setShowCancelConfirm(true);

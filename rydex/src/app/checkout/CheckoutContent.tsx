@@ -19,7 +19,7 @@ const VEHICLE_ICONS: Record<string, any> = {
 type Status =
   | "idle" | "requested" | "awaiting_payment"
   | "rejected" | "expired" | "cancelled"
-  | "payment" | "confirmed";
+  | "payment" | "confirmed" | "auto_rematching";
 
 export default function CheckoutContent() {
   const params = useSearchParams();
@@ -246,13 +246,25 @@ export default function CheckoutContent() {
       }
       if (data.status === "rejected")         setStatus("rejected");
       if (data.status === "confirmed")        setStatus("confirmed");
+      if (data.status === "auto_rematching")  setStatus("auto_rematching");
       if (data.status === "requested") {
         setStatus("requested");
         setCountdown(20); // Reset timer for next driver
       }
     });
+
+    socket.on("auto-rematch-started", () => setStatus("auto_rematching"));
+    socket.on("auto-rematch-searching", () => setStatus("auto_rematching"));
+    socket.on("auto-rematch-success", () => {
+      setStatus("requested");
+      setCountdown(20);
+    });
+
     return () => {
       socket.off("booking-updated");
+      socket.off("auto-rematch-started");
+      socket.off("auto-rematch-searching");
+      socket.off("auto-rematch-success");
     };
   }, [bookingId]);
 
@@ -661,6 +673,43 @@ export default function CheckoutContent() {
                       className="flex items-center gap-2 text-xs font-bold text-zinc-400 hover:text-zinc-900 transition-colors border border-zinc-200 hover:border-zinc-400 px-4 py-2.5 rounded-xl"
                     >
                       <XCircle size={13} /> Cancel Request
+                    </motion.button>
+                  </motion.div>
+                )}
+
+                {/* ── AUTO REMATCHING ── */}
+                {status === "auto_rematching" && (
+                  <motion.div key="auto_rematching"
+                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                    transition={{ duration: 0.35 }}
+                    className="flex flex-col flex-1 items-center justify-center gap-6 text-center"
+                  >
+                    <div className="relative">
+                      <motion.div
+                        animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
+                        transition={{ duration: 1.8, repeat: Infinity }}
+                        className="absolute inset-0 rounded-full bg-emerald-500"
+                      />
+                      <div className="relative w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center">
+                        <RotateCcw size={30} className="text-emerald-600 animate-spin" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 bg-emerald-100 px-3 py-1 rounded-full text-emerald-800 text-[10px] font-black uppercase tracking-wider mb-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                        Driver Cancelled — Auto Re-dispatch
+                      </div>
+                      <h3 className="text-xl font-black text-zinc-900 mb-1">Re-matching New Driver</h3>
+                      <p className="text-zinc-500 text-xs font-medium max-w-xs mx-auto">
+                        Searching nearby online drivers within 15km to take over your trip automatically.
+                      </p>
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleCancelBooking}
+                      className="flex items-center gap-2 text-xs font-bold text-zinc-400 hover:text-zinc-900 transition-colors border border-zinc-200 hover:border-zinc-400 px-4 py-2.5 rounded-xl"
+                    >
+                      <XCircle size={13} /> Cancel Ride
                     </motion.button>
                   </motion.div>
                 )}

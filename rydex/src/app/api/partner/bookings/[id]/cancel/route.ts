@@ -1,0 +1,147 @@
+import { NextRequest, NextResponse } from "next/server";
+import connectDb from "@/lib/db";
+import Booking from "@/models/booking.model";
+import User from "@/models/user.model";
+import Vehicle from "@/models/vehicle.model";
+import { auth } from "@/auth";
+import axios from "axios";
+
+async function notifySocket(userId: string, event: string, data: any) {
+  try {
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
+      { userId, event, data }
+    );
+  } catch (err) {
+    console.error("Socket emit error in partner cancel route:", err);
+  }
+}
+
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  await connectDb();
+  const id = (await context.params).id;
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const driverId = session.user.id;
+
+  const booking = await Booking.findById(id).populate("vehicle");
+  if (!booking) {
+    return NextResponse.json({ message: "Booking not found" }, { status: 404 });
+  }
+
+  if (booking.driver.toString() !== driverId) {
+    return NextResponse.json({ message: "You are not assigned to this booking" }, { status: 403 });
+  }
+
+  // Record this driver in cancelledDriverIds
+  const cancelledIds = booking.cancelledDriverIds ? [...booking.cancelledDriverIds.map((d: any) => d.toString())] : [];
+  if (!cancelledIds.includes(driverId)) {
+    cancelledIds.push(driverId);
+  }
+  booking.cancelledDriverIds = cancelledIds as any;
+  booking.isAutoRematching = true;
+  booking.reMatchCount = (booking.reMatchCount || 0) + 1;
+
+  // 1️⃣ Check candidateDrivers list for an unvisited driver
+  let replacementDriver: any = null;
+  if (booking.candidateDrivers && booking.candidateDrivers.length > 0) {
+    for (const candId of booking.candidateDrivers) {
+      const cStr = candId.toString();
+      if (!cancelledIds.includes(cStr)) {
+        const candidateUser = await User.findOne({ _id: cStr, role: "vendor", isOnline: true });
+        if (candidateUser) {
+          replacementDriver = candidateUser;
+          break;
+        }
+      }
+    }
+  }
+
+  // 2️⃣ Spatial $near fallback search if candidateDrivers list exhausted
+  if (!replacementDriver && booking.pickupLocation?.coordinates) {
+    const [lng, lat] = booking.pickupLocation.coordinates;
+    const vehicleType = (booking.vehicle as any)?.type || "car";
+
+    const activeVehicles = await Vehicle.find({ type: vehicleType }).lean();
+    const vehicleOwnerIds = activeVehicles.map(v => v.owner.toString());
+
+    try {
+      const nearbyVendors = await User.find({
+        _id: { $in: vehicleOwnerIds, $nin: cancelledIds },
+        role: "vendor",
+        isOnline: true,
+        location: {
+          $near: {
+            $geometry: { type: "Point", coordinates: [Number(lng), Number(lat)] },
+            $maxDistance: 15000, // 15km radius
+          },
+        },
+      }).limit(5);
+
+      if (nearbyVendors.length > 0) {
+        replacementDriver = nearbyVendors[0];
+      }
+    } catch (e) {
+      console.warn("Spatial search failed in auto re-match:", e);
+    }
+  }
+
+  // Notify old cancelling driver that cancellation was logged
+  await notifySocket(driverId, "booking-updated", {
+    bookingId: booking._id,
+    status: "cancelled",
+    role: "driver"
+  });
+
+  if (replacementDriver) {
+    // Re-assign driver
+    booking.driver = replacementDriver._id;
+    booking.driverMobileNumber = replacementDriver.mobileNumber || "";
+    booking.status = "requested";
+    await booking.save();
+
+    // Emit new booking request to replacement driver
+    await notifySocket(replacementDriver._id.toString(), "new-booking", booking);
+
+    // Notify passenger that re-match succeeded
+    await notifySocket(booking.user.toString(), "auto-rematch-success", {
+      bookingId: booking._id,
+      status: "requested",
+      newDriverName: replacementDriver.name,
+      newDriverMobile: replacementDriver.mobileNumber,
+      message: "Driver cancelled. Auto re-matched a new nearby driver!",
+    });
+
+    return NextResponse.json({
+      success: true,
+      rematched: true,
+      newDriverId: replacementDriver._id,
+      message: "Driver cancelled ride. Auto re-matched replacement driver successfully.",
+    });
+  } else {
+    // No online driver available immediately
+    booking.status = "auto_rematching";
+    await booking.save();
+
+    // Notify passenger socket of re-matching search
+    await notifySocket(booking.user.toString(), "auto-rematch-searching", {
+      bookingId: booking._id,
+      status: "auto_rematching",
+      message: "Driver cancelled. Searching for a new nearby driver...",
+    });
+
+    return NextResponse.json({
+      success: true,
+      rematched: false,
+      isAutoRematching: true,
+      message: "Driver cancelled. Searching for nearby drivers...",
+    });
+  }
+}
