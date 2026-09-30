@@ -47,6 +47,9 @@ export default function CheckoutContent() {
   const smartPickupDetails = smartPickupDetailsParam ? (() => { try { return JSON.parse(smartPickupDetailsParam); } catch { return null; } })() : null;
   const stopsParam = params.get("stops");
   const stops: Array<{ address: string; lat: number; lng: number; order: number }> = stopsParam ? (() => { try { return JSON.parse(stopsParam); } catch { return []; } })() : [];
+  const isFamilyRideParam = params.get("isFamilyRide") === "true";
+  const familyMemberParam = params.get("familyMember");
+  const familyMemberDetails = familyMemberParam ? (() => { try { return JSON.parse(familyMemberParam); } catch { return null; } })() : null;
 
   const [pickup,   setPickup]   = useState(pickupParam);
   const [drop,     setDrop]     = useState(dropParam);
@@ -130,6 +133,8 @@ export default function CheckoutContent() {
           isSmartPickup: isSmartPickupParam,
           smartPickupDetails,
           stops,
+          isFamilyRide: isFamilyRideParam,
+          familyMemberDetails,
         })
       });
 
@@ -472,6 +477,33 @@ export default function CheckoutContent() {
                     {smartPickupDetails.instructions && (
                       <p className="text-[11px] text-zinc-600 mt-1 font-medium italic bg-white/70 p-2 rounded-lg border border-emerald-100">
                         "{smartPickupDetails.instructions}"
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 👨👩👧 FAMILY RIDE BADGE */}
+              {isFamilyRideParam && familyMemberDetails && (
+                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
+                    👨👩👧
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[9px] font-black uppercase bg-amber-600 text-white px-2 py-0.5 rounded-full tracking-wider">
+                        Family Account Ride
+                      </span>
+                      <span className="text-[10px] text-amber-800 font-bold">
+                        Central Billing
+                      </span>
+                    </div>
+                    <p className="text-sm font-extrabold text-zinc-900 leading-snug">
+                      Booked for: {familyMemberDetails.name} ({familyMemberDetails.relation})
+                    </p>
+                    {familyMemberDetails.phone && (
+                      <p className="text-xs font-semibold text-zinc-600 mt-0.5">
+                        Passenger Phone: {familyMemberDetails.phone}
                       </p>
                     )}
                   </div>

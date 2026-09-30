@@ -7,7 +7,7 @@ import { RootState, AppDispatch } from "@/redux/store";
 import { setUserData } from "@/redux/userSlice";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, User, Phone, Mail, Award, Calendar, Check, Loader2, Save } from "lucide-react";
+import { ArrowLeft, User, Phone, Mail, Award, Calendar, Check, Loader2, Save, Users, UserPlus, Trash2, Plus, ShieldCheck } from "lucide-react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 
@@ -20,6 +20,89 @@ export default function ProfilePage() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  /* ── FAMILY ACCOUNT STATE ── */
+  const [family, setFamily] = useState<any | null>(null);
+  const [loadingFamily, setLoadingFamily] = useState(false);
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [memberName, setMemberName] = useState("");
+  const [memberRelation, setMemberRelation] = useState("Spouse");
+  const [memberPhone, setMemberPhone] = useState("");
+  const [memberEmail, setMemberEmail] = useState("");
+  const [addingMember, setAddingMember] = useState(false);
+  const [familyMsg, setFamilyMsg] = useState<string | null>(null);
+
+  const fetchFamily = async () => {
+    try {
+      setLoadingFamily(true);
+      const res = await axios.get("/api/user/family");
+      if (res.data.success) {
+        setFamily(res.data.family);
+      }
+    } catch (err) {
+      console.error("Fetch family error:", err);
+    } finally {
+      setLoadingFamily(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFamily();
+  }, []);
+
+  const handleAddMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!memberName.trim()) return;
+    try {
+      setAddingMember(true);
+      const res = await axios.post("/api/user/family/member", {
+        name: memberName.trim(),
+        relation: memberRelation,
+        phone: memberPhone.trim(),
+        email: memberEmail.trim(),
+      });
+      if (res.data.success) {
+        setFamily(res.data.family);
+        setMemberName("");
+        setMemberPhone("");
+        setMemberEmail("");
+        setShowAddMember(false);
+        setFamilyMsg("Member added successfully");
+        setTimeout(() => setFamilyMsg(null), 3000);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to add member");
+    } finally {
+      setAddingMember(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    if (!confirm("Are you sure you want to remove this family member?")) return;
+    try {
+      const res = await axios.delete(`/api/user/family/member?memberId=${memberId}`);
+      if (res.data.success) {
+        setFamily(res.data.family);
+      }
+    } catch (err: any) {
+      alert("Failed to remove member");
+    }
+  };
+
+  const handleToggleCentralBilling = async () => {
+    if (!family) return;
+    const nextVal = !family.sharedPaymentEnabled;
+    try {
+      const res = await axios.post("/api/user/family", {
+        sharedPaymentEnabled: nextVal,
+      });
+      if (res.data.success) {
+        setFamily(res.data.family);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     if (userData) {
@@ -210,6 +293,176 @@ export default function ProfilePage() {
             </div>
 
           </form>
+        </motion.div>
+
+        {/* 👨👩👧 FAMILY ACCOUNT HUB */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mt-8 bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden"
+        >
+          <div className="h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 w-full" />
+          <div className="p-6 md:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-100">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-inner">
+                  <Users size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-black text-zinc-900 leading-tight">
+                      {family?.familyName || "Family Account"}
+                    </h3>
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                      {family?.members?.length || 0}/5 Members
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                    Share rides, manage billing, and track loved ones in real-time
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAddMember(!showAddMember)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-zinc-900 hover:bg-black px-4 py-2.5 rounded-xl shadow-md transition self-start sm:self-auto"
+              >
+                <UserPlus size={14} /> {showAddMember ? "Cancel" : "Add Member"}
+              </button>
+            </div>
+
+            {/* Central Shared Billing Toggle */}
+            <div className="flex items-center justify-between p-4 bg-zinc-50 border border-zinc-200/80 rounded-2xl">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-zinc-200 text-zinc-700 flex items-center justify-center">
+                  <ShieldCheck size={16} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-zinc-900">Centralized Family Billing</h4>
+                  <p className="text-[11px] text-zinc-500">Allow family members to ride using organizer's payment</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleCentralBilling}
+                className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 ${family?.sharedPaymentEnabled ? "bg-emerald-500 justify-end" : "bg-zinc-300 justify-start"}`}
+              >
+                <div className="w-5 h-5 rounded-full bg-white shadow-md" />
+              </button>
+            </div>
+
+            {/* Inline Add Member Form */}
+            <AnimatePresence>
+              {showAddMember && (
+                <motion.form
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  onSubmit={handleAddMember}
+                  className="bg-blue-50/50 border border-blue-200 rounded-2xl p-5 space-y-3 overflow-hidden"
+                >
+                  <p className="text-xs font-black uppercase text-blue-900 tracking-wider">Add Family Member</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      required
+                      placeholder="Full Name *"
+                      value={memberName}
+                      onChange={e => setMemberName(e.target.value)}
+                      className="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-blue-500"
+                    />
+                    <select
+                      value={memberRelation}
+                      onChange={e => setMemberRelation(e.target.value)}
+                      className="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:border-blue-500 font-medium"
+                    >
+                      <option value="Spouse">Spouse</option>
+                      <option value="Child">Child</option>
+                      <option value="Parent">Parent</option>
+                      <option value="Sibling">Sibling</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <input
+                      type="tel"
+                      placeholder="Mobile Number (Optional)"
+                      value={memberPhone}
+                      onChange={e => setMemberPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      className="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-blue-500"
+                    />
+                    <input
+                      type="email"
+                      placeholder="Email Address (Optional)"
+                      value={memberEmail}
+                      onChange={e => setMemberEmail(e.target.value)}
+                      className="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddMember(false)}
+                      className="text-xs font-bold text-zinc-600 hover:text-zinc-800 px-4 py-2 rounded-xl transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={addingMember || !memberName.trim()}
+                      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs px-5 py-2 rounded-xl transition shadow"
+                    >
+                      {addingMember ? "Adding..." : "Add to Family"}
+                    </button>
+                  </div>
+                </motion.form>
+              )}
+            </AnimatePresence>
+
+            {/* Member List */}
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                Active Family Members
+              </p>
+              {family?.members && family.members.length > 0 ? (
+                <div className="divide-y divide-zinc-100 border border-zinc-100 rounded-2xl overflow-hidden bg-zinc-50/50">
+                  {family.members.map((m: any) => (
+                    <div key={m._id} className="p-4 flex items-center justify-between hover:bg-zinc-50 transition">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-xs">
+                          {m.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-bold text-zinc-900">{m.name}</p>
+                            <span className="text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                              {m.relation}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-zinc-400">
+                            {m.phone ? `Phone: ${m.phone}` : m.email || "Family Member"}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMember(m._id)}
+                        className="w-8 h-8 rounded-lg hover:bg-rose-50 text-zinc-400 hover:text-rose-600 flex items-center justify-center transition"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 border border-dashed border-zinc-200 rounded-2xl bg-zinc-50/50">
+                  <Users size={28} className="text-zinc-300 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-zinc-600">No family members added yet</p>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">Add your children, spouse, or parents to share rides</p>
+                </div>
+              )}
+            </div>
+          </div>
         </motion.div>
       </main>
 

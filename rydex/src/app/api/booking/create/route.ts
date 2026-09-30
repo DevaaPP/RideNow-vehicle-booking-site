@@ -44,6 +44,8 @@ export async function POST(req: Request) {
     isSmartPickup,
     smartPickupDetails,
     stops,
+    isFamilyRide,
+    familyMemberDetails,
   } = body;
 
   if (
@@ -226,6 +228,12 @@ export async function POST(req: Request) {
     },
     isMultiStop: Boolean(formattedStops && formattedStops.length > 0),
     stops: formattedStops,
+    isFamilyRide: Boolean(isFamilyRide),
+    familyMemberDetails: isFamilyRide && familyMemberDetails ? {
+      name: familyMemberDetails.name,
+      relation: familyMemberDetails.relation,
+      phone: familyMemberDetails.phone || "",
+    } : undefined,
     fare: calculatedFare,
     fareBreakdown: breakdown,
     adminCommission: Number((calculatedFare * 0.10).toFixed(2)),

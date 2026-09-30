@@ -114,6 +114,12 @@ partnerAmount: number
     studentDiscount?: number;
     totalFare: number;
   };
+  isFamilyRide?: boolean;
+  familyMemberDetails?: {
+    name: string;
+    relation: string;
+    phone?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -318,6 +324,15 @@ dropOtpExpires: {
         completed: { type: Boolean, default: false },
       },
     ],
+    isFamilyRide: {
+      type: Boolean,
+      default: false,
+    },
+    familyMemberDetails: {
+      name: { type: String },
+      relation: { type: String },
+      phone: { type: String },
+    },
   },
   { timestamps: true }
 );

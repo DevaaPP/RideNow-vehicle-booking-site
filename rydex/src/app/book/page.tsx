@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, MapPin, Navigation,
   Bike, Car, Truck, LocateFixed, Phone,
   CheckCircle2, ChevronRight, GraduationCap,
-  Plus, Trash2, X
+  Plus, Trash2, X, Users
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -77,6 +77,38 @@ export default function BookPage() {
   const [studentError, setStudentError] = useState<string | null>(null);
   const [studentSuccess, setStudentSuccess] = useState<string | null>(null);
   const [showStudentForm, setShowStudentForm] = useState(false);
+
+  /* ── FAMILY ACCOUNT STATE ── */
+  const [familyAccount, setFamilyAccount] = useState<any>(null);
+  const [selectedFamilyMember, setSelectedFamilyMember] = useState<any | null>(null);
+
+  useEffect(() => {
+    const fetchFamily = async () => {
+      try {
+        const res = await fetch("/api/user/family");
+        const data = await res.json();
+        if (data.success && data.family) {
+          setFamilyAccount(data.family);
+        }
+      } catch (err) {
+        console.error("Failed to load family account:", err);
+      }
+    };
+    fetchFamily();
+  }, []);
+
+  const handleSelectRider = (member: any | null) => {
+    setSelectedFamilyMember(member);
+    if (member?.phone) {
+      const cleaned = member.phone.replace(/\D/g, "");
+      const tenDigits = cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
+      setMobile(tenDigits);
+    } else if (!member && userData?.mobileNumber) {
+      const cleaned = userData.mobileNumber.replace(/\D/g, "");
+      const tenDigits = cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
+      setMobile(tenDigits);
+    }
+  };
 
   useEffect(() => {
     if (userData?.mobileNumber && !mobile) {
@@ -738,8 +770,64 @@ export default function BookPage() {
               <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-[9px] font-black">2</span>
               </div>
-              <label htmlFor="mobileInput" className="text-xs font-bold text-zinc-500 uppercase tracking-widest cursor-pointer">Mobile Number</label>
+              <label htmlFor="mobileInput" className="text-xs font-bold text-zinc-500 uppercase tracking-widest cursor-pointer">Passenger & Contact</label>
             </div>
+
+            {/* 👨👩👧 RIDING FOR / FAMILY ACCOUNT SELECTOR */}
+            {familyAccount?.members && familyAccount.members.length > 0 && (
+              <div className="mb-3 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Users size={14} className="text-amber-700" />
+                    <span className="text-[11px] font-black uppercase tracking-wider text-amber-900">
+                      Riding For
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                    {familyAccount.familyName || "Family Account"}
+                  </span>
+                </div>
+
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  {/* Myself Option */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectRider(null)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+                      selectedFamilyMember === null
+                        ? "bg-zinc-900 text-white shadow-sm"
+                        : "bg-white text-zinc-700 border border-amber-200 hover:border-amber-400"
+                    }`}
+                  >
+                    <span>Myself</span>
+                  </button>
+
+                  {/* Family Members */}
+                  {familyAccount.members.map((member: any, mIdx: number) => {
+                    const isSelected = selectedFamilyMember?.name === member.name && selectedFamilyMember?.relation === member.relation;
+                    return (
+                      <button
+                        key={mIdx}
+                        type="button"
+                        onClick={() => handleSelectRider(member)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 ${
+                          isSelected
+                            ? "bg-amber-600 text-white shadow-sm"
+                            : "bg-white text-zinc-700 border border-amber-200 hover:border-amber-400"
+                        }`}
+                      >
+                        <span>{member.name}</span>
+                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full uppercase font-black ${
+                          isSelected ? "bg-amber-700 text-white" : "bg-amber-100 text-amber-800"
+                        }`}>
+                          {member.relation}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 focus-within:bg-white transition-all">
               <div className="w-8 h-8 rounded-xl bg-zinc-200 flex items-center justify-center flex-shrink-0">
@@ -1188,6 +1276,10 @@ export default function BookPage() {
 
                 if (validStops.length > 0) {
                   checkoutUrl += `&stops=${encodeURIComponent(JSON.stringify(validStops))}`;
+                }
+
+                if (selectedFamilyMember) {
+                  checkoutUrl += `&isFamilyRide=true&familyMember=${encodeURIComponent(JSON.stringify(selectedFamilyMember))}`;
                 }
 
                 router.push(checkoutUrl);

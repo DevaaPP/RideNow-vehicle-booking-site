@@ -51,6 +51,12 @@ interface BookingDetails {
     order: number;
     completed?: boolean;
   }>;
+  isFamilyRide?: boolean;
+  familyMemberDetails?: {
+    name: string;
+    relation: string;
+    phone?: string;
+  };
 }
 
 /* ─── STATUS CONFIG ──────────────────────────────────────────────────── */
@@ -866,6 +872,30 @@ function CompletedScreen({ booking, router }: { booking: BookingDetails; router:
             </div>
           </div>
 
+          {/* Family Account Ride Indicator */}
+          {booking.isFamilyRide && booking.familyMemberDetails && (
+            <div className="bg-amber-950/60 border border-amber-800/80 rounded-2xl p-4 mb-4 flex items-center gap-3 text-left">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shadow-sm flex-shrink-0">
+                👨👩👧
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[9px] font-black uppercase bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full tracking-wider border border-amber-500/30">
+                    Family Account Ride
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-zinc-200 truncate">
+                  Booked for {booking.familyMemberDetails.name} ({booking.familyMemberDetails.relation})
+                </p>
+                {booking.familyMemberDetails.phone && (
+                  <p className="text-[10px] text-zinc-400 font-medium">
+                    Phone: {booking.familyMemberDetails.phone}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Rating */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-4">
             <p className="text-zinc-400 text-sm font-semibold text-center mb-3">How was your experience?</p>
@@ -1259,6 +1289,35 @@ function PanelContent({
           </div>
         </div>
       </div>
+
+      {/* FAMILY ACCOUNT RIDE CARD */}
+      {booking.isFamilyRide && booking.familyMemberDetails && (
+        <div className="mx-5 lg:mx-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shadow-sm flex-shrink-0">
+              👨👩👧
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[9px] font-black uppercase bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full tracking-wider">
+                  Family Account Ride
+                </span>
+                <span className="text-[10px] text-amber-800 font-bold">
+                  Central Billing
+                </span>
+              </div>
+              <p className="text-sm font-bold text-zinc-900 truncate">
+                Rider: {booking.familyMemberDetails.name} ({booking.familyMemberDetails.relation})
+              </p>
+              {booking.familyMemberDetails.phone && (
+                <p className="text-[11px] text-zinc-500 font-medium">
+                  Contact: {booking.familyMemberDetails.phone}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* VEHICLE CARD */}
       {booking.vehicle && showDriver && (
