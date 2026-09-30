@@ -6,6 +6,7 @@ import Vehicle from "@/models/vehicle.model";
 import FareConfig from "@/models/fareConfig.model";
 import { auth } from "@/auth";
 import axios from "axios";
+import { calculateFareBreakdown } from "@/lib/fareEngine";
 
 function haversineDistance(coords1: [number, number], coords2: [number, number]) {
   const [lon1, lat1] = coords1;
@@ -177,9 +178,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const timeMinutes = (routeDistance / 25) * 60; // Travel duration estimation
-
-  const calculatedFare = Math.round((cfg.baseFare + routeDistance * cfg.pricePerKm + timeMinutes * cfg.pricePerMinute) * cfg.multiplier);
+  const breakdown = calculateFareBreakdown(vehicle, routeDistance, ratesMap);
+  const calculatedFare = breakdown.totalFare;
 
   const booking = await Booking.create({
     user: session.user.id,
@@ -196,6 +196,7 @@ export async function POST(req: Request) {
       coordinates: [Number(dropLng), Number(dropLat)],
     },
     fare: calculatedFare,
+    fareBreakdown: breakdown,
     adminCommission: Number((calculatedFare * 0.10).toFixed(2)),
     partnerAmount: Number((calculatedFare - (calculatedFare * 0.10)).toFixed(2)),
     userMobileNumber: mobileNumber,

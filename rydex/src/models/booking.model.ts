@@ -84,6 +84,22 @@ partnerAmount: number
   safetyStatus?: "normal" | "deviation_detected" | "passenger_confirmed_safe" | "sos_activated";
   lastSafetyCheckInAt?: Date;
   safetyNotes?: string;
+  fareBreakdown?: {
+    vehicleType: string;
+    baseFare: number;
+    distanceKm: number;
+    pricePerKm: number;
+    distanceFare: number;
+    timeMinutes: number;
+    pricePerMinute: number;
+    timeFare: number;
+    platformFee: number;
+    surgeMultiplier: number;
+    surgeAmount: number;
+    taxes: number;
+    discount: number;
+    totalFare: number;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -247,6 +263,22 @@ dropOtpExpires: {
     },
     safetyNotes: {
       type: String,
+    },
+    fareBreakdown: {
+      vehicleType: { type: String },
+      baseFare: { type: Number },
+      distanceKm: { type: Number },
+      pricePerKm: { type: Number },
+      distanceFare: { type: Number },
+      timeMinutes: { type: Number },
+      pricePerMinute: { type: Number },
+      timeFare: { type: Number },
+      platformFee: { type: Number },
+      surgeMultiplier: { type: Number },
+      surgeAmount: { type: Number },
+      taxes: { type: Number },
+      discount: { type: Number },
+      totalFare: { type: Number },
     },
   },
   { timestamps: true }

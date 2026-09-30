@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import useGetMe from "@/hooks/useGetMe";
+import { calculateFareBreakdown } from "@/lib/fareEngine";
 
 const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
 
@@ -488,60 +489,108 @@ export default function BookPage() {
                 <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection or driving route found between these locations.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2.5">
-                {VEHICLES.map((v, i) => {
-                  const active = vehicle === v.id;
-                  const distanceKm = (routeDistance !== null && routeDistance >= 0)
-                    ? routeDistance
-                    : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
-                  const isLimitOk = distanceKm !== null ? checkLimit(v.id, distanceKm) : true;
-                  return (
-                    <motion.button
-                      key={v.id}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.07 + i * 0.05 }}
-                      whileTap={isLimitOk ? { scale: 0.95 } : {}}
-                      onClick={() => setVehicle(v.id as VehicleType)}
-                      className={`relative p-3.5 rounded-2xl border flex items-center gap-3 text-left transition-all duration-200 ${
-                        active
-                          ? "bg-zinc-900 border-zinc-900 shadow-lg"
-                          : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
-                      } ${!isLimitOk ? "opacity-45 hover:border-zinc-200 cursor-not-allowed" : ""}`}
-                    >
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                        active ? "bg-white" : "bg-zinc-200"
-                      }`}>
-                        <v.Icon size={18} className={active ? "text-zinc-900" : "text-zinc-600"} />
-                      </div>
-                      <div className="min-w-0 font-sans">
-                        <p className={`text-sm font-bold truncate ${active ? "text-white" : "text-zinc-900"}`}>{v.label}</p>
-                        <p className={`text-[10px] truncate ${active ? "text-zinc-400" : "text-zinc-400"}`}>{v.desc}</p>
-                        {distanceKm !== null && (
-                          <div className="mt-1.5 flex flex-wrap gap-1 items-center">
-                            <p className={`text-xs font-black leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
-                              ₹{estimateFare(v.id, distanceKm)}
-                            </p>
-                            {!isLimitOk && (
-                              <span className="text-[8px] font-black uppercase tracking-wider bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-md leading-none border border-rose-200 shadow-sm">
-                                Limit Exceeded
-                              </span>
-                            )}
-                          </div>
+              <>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {VEHICLES.map((v, i) => {
+                    const active = vehicle === v.id;
+                    const distanceKm = (routeDistance !== null && routeDistance >= 0)
+                      ? routeDistance
+                      : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
+                    const isLimitOk = distanceKm !== null ? checkLimit(v.id, distanceKm) : true;
+                    return (
+                      <motion.button
+                        key={v.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.07 + i * 0.05 }}
+                        whileTap={isLimitOk ? { scale: 0.95 } : {}}
+                        onClick={() => setVehicle(v.id as VehicleType)}
+                        className={`relative p-3.5 rounded-2xl border flex items-center gap-3 text-left transition-all duration-200 ${
+                          active
+                            ? "bg-zinc-900 border-zinc-900 shadow-lg"
+                            : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
+                        } ${!isLimitOk ? "opacity-45 hover:border-zinc-200 cursor-not-allowed" : ""}`}
+                      >
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                          active ? "bg-white" : "bg-zinc-200"
+                        }`}>
+                          <v.Icon size={18} className={active ? "text-zinc-900" : "text-zinc-600"} />
+                        </div>
+                        <div className="min-w-0 font-sans">
+                          <p className={`text-sm font-bold truncate ${active ? "text-white" : "text-zinc-900"}`}>{v.label}</p>
+                          <p className={`text-[10px] truncate ${active ? "text-zinc-400" : "text-zinc-400"}`}>{v.desc}</p>
+                          {distanceKm !== null && (
+                            <div className="mt-1.5 flex flex-wrap gap-1 items-center">
+                              <p className={`text-xs font-black leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
+                                ₹{estimateFare(v.id, distanceKm)}
+                              </p>
+                              {!isLimitOk && (
+                                <span className="text-[8px] font-black uppercase tracking-wider bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-md leading-none border border-rose-200 shadow-sm">
+                                  Limit Exceeded
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        {active && (
+                          <motion.div
+                            initial={{ scale: 0 }} animate={{ scale: 1 }}
+                            className="absolute top-2.5 right-2.5"
+                          >
+                            <CheckCircle2 size={13} className="text-white fill-white/20" />
+                          </motion.div>
                         )}
-                      </div>
-                      {active && (
-                        <motion.div
-                          initial={{ scale: 0 }} animate={{ scale: 1 }}
-                          className="absolute top-2.5 right-2.5"
-                        >
-                          <CheckCircle2 size={13} className="text-white fill-white/20" />
-                        </motion.div>
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                {/* Itemized Fare Breakdown Line-Item Receipt */}
+                {vehicle && pickupLat && pickupLng && dropLat && dropLng && (
+                  <div className="mt-3.5 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl shadow-sm">
+                    <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-zinc-200">
+                      <p className="text-[11px] font-black uppercase text-zinc-900 tracking-wider flex items-center gap-1.5">
+                        <span>💰</span> Transparent Fare Receipt
+                      </p>
+                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">No Hidden Charges</span>
+                    </div>
+                    {(() => {
+                      const distKm = (routeDistance !== null && routeDistance >= 0)
+                        ? routeDistance
+                        : getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+                      const breakdown = calculateFareBreakdown(vehicle, distKm, rates);
+                      return (
+                        <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
+                          <div className="flex justify-between">
+                            <span>Base Fare</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span>Distance ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span>Duration (~{breakdown.timeMinutes} min × ₹{breakdown.pricePerMinute}/min)</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.timeFare}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span>Platform Service Fee</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.platformFee}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span>Govt GST / Taxes (5%)</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
+                          </div>
+                          <div className="pt-2 mt-1 border-t border-zinc-200 flex justify-between font-black text-sm text-zinc-900">
+                            <span>Estimated Total</span>
+                            <span className="text-zinc-900 font-black">₹{breakdown.totalFare}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </>
             )}
           </motion.div>
 

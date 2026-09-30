@@ -11,6 +11,7 @@ import {
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { getSocket } from "@/lib/socket";
+import { calculateFareBreakdown } from "@/lib/fareEngine";
 
 const VEHICLE_ICONS: Record<string, any> = {
   bike: Bike, auto: Car, car: Car, loading: Truck, truck: Truck,
@@ -464,6 +465,49 @@ export default function CheckoutContent() {
                   <span className="text-zinc-900 text-5xl font-black tracking-tight leading-none">{fare}</span>
                 </motion.div>
               </div>
+
+              {/* 💰 ITEMIZED FARE BREAKDOWN RECEIPT CARD */}
+              {pickupLat && pickupLng && dropLat && dropLng && (
+                <div className="mt-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-900 mb-2.5 pb-1.5 border-b border-zinc-200 flex items-center justify-between">
+                    <span>Itemized Cost Receipt</span>
+                    <span className="text-emerald-600">Verified Fare</span>
+                  </p>
+                  {(() => {
+                    const R = 6371;
+                    const dLat = (dropLat - pickupLat) * Math.PI / 180;
+                    const dLon = (dropLng - pickupLng) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(pickupLat * Math.PI / 180) * Math.cos(dropLat * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    const distKm = +(R * c).toFixed(1);
+                    const breakdown = calculateFareBreakdown(vehicle, distKm);
+                    return (
+                      <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
+                        <div className="flex justify-between">
+                          <span>Base Fare</span>
+                          <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
+                        </div>
+                        <div className="flex justify-between text-[11px]">
+                          <span>Distance Fare ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
+                          <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
+                        </div>
+                        <div className="flex justify-between text-[11px]">
+                          <span>Duration Fare (~{breakdown.timeMinutes} min × ₹{breakdown.pricePerMinute}/min)</span>
+                          <span className="font-bold text-zinc-900">₹{breakdown.timeFare}</span>
+                        </div>
+                        <div className="flex justify-between text-[11px]">
+                          <span>Platform Service Fee</span>
+                          <span className="font-bold text-zinc-900">₹{breakdown.platformFee}</span>
+                        </div>
+                        <div className="flex justify-between text-[11px]">
+                          <span>Govt GST / Taxes (5%)</span>
+                          <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
 
               {/* 🧑🤝🧑 GROUP RIDE & SPLIT FARE CARD */}
               <div className="mt-6 border-t border-zinc-100 pt-6">
