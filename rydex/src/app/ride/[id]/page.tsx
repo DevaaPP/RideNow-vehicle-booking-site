@@ -22,7 +22,7 @@ type BookingStatus =
   | "requested" | "awaiting_payment" | "confirmed"
   | "started"   | "completed"        | "cancelled"
   | "rejected"  | "expired"          | "auto_rematching"
-  | "no_drivers_available";
+  | "no_drivers_available" | "scheduled";
 
 type PaymentStatus = "pending" | "paid" | "cash" | "failed";
 
@@ -57,6 +57,8 @@ interface BookingDetails {
     relation: string;
     phone?: string;
   };
+  isScheduled?: boolean;
+  scheduledPickupTime?: string;
 }
 
 /* ─── STATUS CONFIG ──────────────────────────────────────────────────── */
@@ -64,6 +66,7 @@ const STATUS_CONFIG: Record<BookingStatus, {
   label: string; sublabel: string; dot: string;
   mapStatus: "arriving" | "ongoing" | "completed";
 }> = {
+  scheduled:            { label: "Ride Scheduled",      sublabel: "Driver will be dispatched 15-30 min before pickup", dot: "bg-amber-500",   mapStatus: "arriving"  },
   requested:            { label: "Finding Driver",      sublabel: "Searching for nearby drivers",          dot: "bg-amber-400",   mapStatus: "arriving"  },
   awaiting_payment:     { label: "Payment Required",    sublabel: "Complete payment to confirm your ride", dot: "bg-purple-400",  mapStatus: "arriving"  },
   confirmed:            { label: "Driver on the Way",   sublabel: "Driver is heading to pickup",           dot: "bg-emerald-400", mapStatus: "arriving"  },
@@ -404,7 +407,7 @@ export default function RidePage() {
   const status      = booking.status;
   const cfg         = STATUS_CONFIG[status];
   const mapStatus   = cfg.mapStatus;
-  const isActive    = ["requested", "awaiting_payment", "confirmed", "started"].includes(status);
+  const isActive    = ["requested", "awaiting_payment", "confirmed", "started", "scheduled"].includes(status);
   const isFailed    = ["cancelled", "rejected", "expired"].includes(status);
   const isCompleted = status === "completed";
   /* chat only when driver heading to pickup, not yet started */
@@ -1085,6 +1088,62 @@ function PanelContent({
         </div>
       )}
 
+      {/* ⏰ ADVANCE SCHEDULED RIDE CARD */}
+      {status === "scheduled" && (
+        <div className="mx-5 lg:mx-6">
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                  ⏰
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-black text-amber-950 uppercase tracking-wider">
+                      Ride Scheduled
+                    </h3>
+                    <span className="text-[9px] font-black uppercase bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full tracking-wider">
+                      Confirmed
+                    </span>
+                  </div>
+                  <p className="text-xs text-amber-800 font-semibold mt-0.5">
+                    {booking.scheduledPickupTime
+                      ? new Date(booking.scheduledPickupTime).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "Upcoming Scheduled Time"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/80 rounded-xl p-3.5 border border-amber-200/80 space-y-2 text-xs">
+              <div className="flex items-center justify-between text-zinc-600">
+                <span className="font-medium">Total Fare</span>
+                <span className="font-extrabold text-zinc-900 text-sm">₹{booking.fare}</span>
+              </div>
+              <div className="flex items-center justify-between text-zinc-600">
+                <span className="font-medium">Driver Dispatch</span>
+                <span className="font-bold text-amber-900">15–30 min before pickup</span>
+              </div>
+              <div className="flex items-center justify-between text-emerald-700 font-bold pt-1 border-t border-amber-100">
+                <span>Free Cancellation</span>
+                <span>Up to 60 mins prior</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-amber-900/80 leading-snug">
+              ✨ You don't need to do anything right now. When the scheduled pickup time nears, our system will automatically pair you with the best available driver and send you live tracking details!
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* SEARCHING (requested) */}
       {status === "requested" && (
         <div className="mx-5 lg:mx-6">
@@ -1114,8 +1173,8 @@ function PanelContent({
         </div>
       )}
 
-      {/* ETA + FARE (active, not requested/payment) */}
-      {isActive && !["requested", "awaiting_payment"].includes(status) && (
+      {/* ETA + FARE (active, not requested/payment/scheduled) */}
+      {isActive && !["requested", "awaiting_payment", "scheduled"].includes(status) && (
         <div className="mx-5 lg:mx-6 grid grid-cols-2 gap-2">
           <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center flex-shrink-0">
@@ -1338,13 +1397,13 @@ function PanelContent({
       )}
 
       {/* CANCEL BUTTON */}
-      {["requested", "awaiting_payment", "confirmed"].includes(status) && (
+      {["requested", "awaiting_payment", "confirmed", "scheduled"].includes(status) && (
         <div className="mx-5 lg:mx-6 mt-2">
           <button
             onClick={onCancel}
             className="w-full bg-zinc-100 hover:bg-red-50 hover:text-red-600 text-zinc-700 py-3.5 rounded-xl text-sm font-semibold active:scale-[0.97] transition-all border border-transparent hover:border-red-100 flex items-center justify-center gap-2"
           >
-            Cancel Ride
+            {status === "scheduled" ? "Cancel Scheduled Ride" : "Cancel Ride"}
           </button>
         </div>
       )}

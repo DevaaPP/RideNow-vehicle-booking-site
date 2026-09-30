@@ -46,7 +46,27 @@ export async function POST(req: Request) {
     stops,
     isFamilyRide,
     familyMemberDetails,
+    isScheduled,
+    scheduledPickupTime,
   } = body;
+
+  let parsedScheduledTime: Date | undefined;
+  if (isScheduled) {
+    if (!scheduledPickupTime) {
+      return NextResponse.json(
+        { message: "Scheduled pickup time is required" },
+        { status: 400 }
+      );
+    }
+    parsedScheduledTime = new Date(scheduledPickupTime);
+    const minAdvanceMs = 20 * 60 * 1000; // at least 20 minutes in advance
+    if (isNaN(parsedScheduledTime.getTime()) || parsedScheduledTime.getTime() < Date.now() + minAdvanceMs) {
+      return NextResponse.json(
+        { message: "Scheduled pickup time must be at least 30 minutes in advance" },
+        { status: 400 }
+      );
+    }
+  }
 
   if (
     !pickup ||
@@ -63,16 +83,19 @@ export async function POST(req: Request) {
     );
   }
 
-  // Prevent duplicate active booking
-  const existing = await Booking.findOne({
-    user: session.user.id,
-    status: {
-      $in: ["requested", "awaiting_payment", "confirmed", "started"],
-    },
-  });
+  // Prevent duplicate active booking for instant rides
+  if (!isScheduled) {
+    const existing = await Booking.findOne({
+      user: session.user.id,
+      status: {
+        $in: ["requested", "awaiting_payment", "confirmed", "started"],
+      },
+      isScheduled: { $ne: true },
+    });
 
-  if (existing) {
-    return NextResponse.json({ success: true, booking: existing });
+    if (existing) {
+      return NextResponse.json({ success: true, booking: existing });
+    }
   }
 
   // 1️⃣ Find all vehicles of this type
@@ -250,19 +273,34 @@ export async function POST(req: Request) {
       instructions: smartPickupDetails.instructions,
       walkingTimeText: smartPickupDetails.walkingTimeText,
     } : undefined,
-    status: "requested",
+    isScheduled: Boolean(isScheduled),
+    scheduledPickupTime: parsedScheduledTime,
+    status: isScheduled ? "scheduled" : "requested",
   });
 
-  // 4️⃣ Emit booking request to nearest driver
+  // 4️⃣ Emit booking request to driver
   try {
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-      {
-        userId: nearestVendor._id.toString(),
-        event: "new-booking",
-        data: booking,
-      }
-    );
+    if (isScheduled) {
+      // Advance scheduled ride alert
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
+        {
+          userId: nearestVendor._id.toString(),
+          event: "new-scheduled-booking",
+          data: booking,
+        }
+      );
+    } else {
+      // Instant on-demand dispatch
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
+        {
+          userId: nearestVendor._id.toString(),
+          event: "new-booking",
+          data: booking,
+        }
+      );
+    }
   } catch (err) {
     console.error("Socket emission error:", err);
   }

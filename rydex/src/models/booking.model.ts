@@ -10,7 +10,8 @@ export type BookingStatus =
   | "rejected"
   | "expired"
   | "auto_rematching"
-  | "no_drivers_available";
+  | "no_drivers_available"
+  | "scheduled";
 
 export type PaymentStatus =
   | "pending"
@@ -120,6 +121,9 @@ partnerAmount: number
     relation: string;
     phone?: string;
   };
+  isScheduled?: boolean;
+  scheduledPickupTime?: Date;
+  scheduledReminderSent?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -332,6 +336,19 @@ dropOtpExpires: {
       name: { type: String },
       relation: { type: String },
       phone: { type: String },
+    },
+    isScheduled: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    scheduledPickupTime: {
+      type: Date,
+      index: true,
+    },
+    scheduledReminderSent: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

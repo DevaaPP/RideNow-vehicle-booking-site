@@ -33,6 +33,8 @@ interface Booking {
   driver?: {
     name: string;
   };
+  isScheduled?: boolean;
+  scheduledPickupTime?: string;
 }
 
 export default function MyBookingsPage() {
@@ -58,6 +60,7 @@ export default function MyBookingsPage() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
+      scheduled: "bg-amber-100 text-amber-900 border-amber-300 font-bold",
       confirmed: "bg-emerald-50 text-emerald-700 border-emerald-200",
       completed: "bg-teal-50 text-teal-700 border-teal-200",
       requested: "bg-amber-50 text-amber-700 border-amber-200",
@@ -114,6 +117,7 @@ export default function MyBookingsPage() {
               className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option>All</option>
+              <option>Scheduled</option>
               <option>Confirmed</option>
               <option>Completed</option>
               <option>Requested</option>
@@ -182,6 +186,11 @@ export default function MyBookingsPage() {
                         <p className="text-sm text-gray-500 mt-1">
                           {booking.driver?.name ? `Driver: ${booking.driver.name}` : 'Driver assigning...'}
                         </p>
+                        {booking.isScheduled && booking.scheduledPickupTime && (
+                          <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-1 rounded-lg mt-2">
+                            <span>⏰ Scheduled: {formatDate(booking.scheduledPickupTime)}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 

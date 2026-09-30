@@ -50,6 +50,9 @@ export default function CheckoutContent() {
   const isFamilyRideParam = params.get("isFamilyRide") === "true";
   const familyMemberParam = params.get("familyMember");
   const familyMemberDetails = familyMemberParam ? (() => { try { return JSON.parse(familyMemberParam); } catch { return null; } })() : null;
+  const isScheduledParam = params.get("isScheduled") === "true";
+  const scheduledTimeParam = params.get("scheduledTime");
+  const scheduledPickupDate = scheduledTimeParam ? new Date(scheduledTimeParam) : null;
 
   const [pickup,   setPickup]   = useState(pickupParam);
   const [drop,     setDrop]     = useState(dropParam);
@@ -135,6 +138,8 @@ export default function CheckoutContent() {
           stops,
           isFamilyRide: isFamilyRideParam,
           familyMemberDetails,
+          isScheduled: isScheduledParam,
+          scheduledPickupTime: scheduledTimeParam,
         })
       });
 
@@ -145,8 +150,12 @@ export default function CheckoutContent() {
         setFare(data.booking.fare);
         if (data.booking.pickupAddress) setPickup(data.booking.pickupAddress);
         if (data.booking.dropAddress) setDrop(data.booking.dropAddress);
-        setStatus("requested");
-        setCountdown(20);
+        if (isScheduledParam) {
+          window.location.href = `/ride/${data.booking._id}`;
+        } else {
+          setStatus("requested");
+          setCountdown(20);
+        }
       }
 
     } catch(err){
@@ -506,6 +515,38 @@ export default function CheckoutContent() {
                         Passenger Phone: {familyMemberDetails.phone}
                       </p>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* ⏰ SCHEDULED RIDE BADGE */}
+              {isScheduledParam && scheduledPickupDate && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
+                    ⏰
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[9px] font-black uppercase bg-amber-600 text-white px-2 py-0.5 rounded-full tracking-wider">
+                        Scheduled Ride
+                      </span>
+                      <span className="text-[10px] text-amber-800 font-bold">
+                        Advance Booking
+                      </span>
+                    </div>
+                    <p className="text-sm font-black text-zinc-900 leading-snug">
+                      Pickup: {scheduledPickupDate.toLocaleDateString("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    <p className="text-[11px] text-amber-800 mt-1 font-medium">
+                      Driver assigned 15–30 mins before pickup. Free cancellation up to 60 mins before.
+                    </p>
                   </div>
                 </div>
               )}

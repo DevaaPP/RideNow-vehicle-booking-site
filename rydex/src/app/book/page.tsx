@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, MapPin, Navigation,
   Bike, Car, Truck, LocateFixed, Phone,
   CheckCircle2, ChevronRight, GraduationCap,
-  Plus, Trash2, X, Users
+  Plus, Trash2, X, Users, Clock, Calendar, Sparkles
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -148,6 +148,39 @@ export default function BookPage() {
       setVerifyingStudent(false);
     }
   };
+
+  /* ── SCHEDULED RIDE (ADVANCE BOOKING) STATE ── */
+  const [bookingMode, setBookingMode] = useState<"now" | "schedule">("now");
+
+  const getDefaultScheduledTime = () => {
+    const d = new Date(Date.now() + 60 * 60 * 1000);
+    const minutes = d.getMinutes();
+    const rounded = Math.ceil(minutes / 15) * 15;
+    d.setMinutes(rounded);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+  };
+
+  const [scheduledDateTime, setScheduledDateTime] = useState<string>(getDefaultScheduledTime());
+
+  const getMinScheduledDateTime = () => {
+    const minD = new Date(Date.now() + 30 * 60 * 1000);
+    const tzOffset = minD.getTimezoneOffset() * 60000;
+    return new Date(minD.getTime() - tzOffset).toISOString().slice(0, 16);
+  };
+
+  const getMaxScheduledDateTime = () => {
+    const maxD = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const tzOffset = maxD.getTimezoneOffset() * 60000;
+    return new Date(maxD.getTime() - tzOffset).toISOString().slice(0, 16);
+  };
+
+  const isScheduleValid = bookingMode === "now" || (
+    Boolean(scheduledDateTime) &&
+    new Date(scheduledDateTime).getTime() >= Date.now() + 25 * 60 * 1000
+  );
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -364,7 +397,8 @@ export default function BookPage() {
     dropLng &&
     allStopsValid &&
     distanceValidity.valid &&
-    routeDistance !== -1
+    routeDistance !== -1 &&
+    isScheduleValid
   );
 
   /* ── SEARCH ── */
@@ -641,6 +675,102 @@ export default function BookPage() {
 
         {/* Scrollable Form Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+
+          {/* ══ BOOKING MODE: RIDE NOW vs SCHEDULE ══ */}
+          <div className="bg-zinc-100 p-1 rounded-2xl flex items-center gap-1 border border-zinc-200">
+            <button
+              type="button"
+              onClick={() => setBookingMode("now")}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+                bookingMode === "now"
+                  ? "bg-zinc-900 text-white shadow-sm"
+                  : "text-zinc-600 hover:text-zinc-900"
+              }`}
+            >
+              <span>⚡ Ride Now</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setBookingMode("schedule")}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+                bookingMode === "schedule"
+                  ? "bg-zinc-900 text-white shadow-sm"
+                  : "text-zinc-600 hover:text-zinc-900"
+              }`}
+            >
+              <Clock size={14} className={bookingMode === "schedule" ? "text-amber-400" : ""} />
+              <span>Schedule Ride</span>
+            </button>
+          </div>
+
+          {/* SCHEDULE PICKUP DETAILS CARD */}
+          <AnimatePresence>
+            {bookingMode === "schedule" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                        <Calendar size={15} />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-amber-950 uppercase tracking-wider">
+                          Advance Pickup Schedule
+                        </h4>
+                        <p className="text-[10px] text-amber-800 font-semibold">
+                          Book up to 7 days ahead
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-black uppercase bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full tracking-wider">
+                      Scheduled
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-amber-900 uppercase tracking-wider block mb-1">
+                      Select Date & Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={scheduledDateTime}
+                      min={getMinScheduledDateTime()}
+                      max={getMaxScheduledDateTime()}
+                      onChange={(e) => setScheduledDateTime(e.target.value)}
+                      className="w-full bg-white border border-amber-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-zinc-900 outline-none focus:ring-2 focus:ring-amber-500 transition"
+                    />
+                  </div>
+
+                  {scheduledDateTime && (
+                    <div className="bg-white/80 p-2.5 rounded-xl border border-amber-200/60 text-[11px] text-amber-950 font-medium flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 font-bold">
+                        <Clock size={13} className="text-amber-600" />
+                        {new Date(scheduledDateTime).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        Free Cancellation
+                      </span>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-amber-800/80 leading-tight">
+                    💡 Driver will be assigned automatically 15–30 minutes prior to pickup. Cancel free up to 60 minutes before scheduled time.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* ══ STEP 1 — VEHICLE ══ */}
           <motion.div variants={stepVariants} initial="hidden" animate="visible" transition={{ delay: 0.05 }}>
@@ -1282,11 +1412,15 @@ export default function BookPage() {
                   checkoutUrl += `&isFamilyRide=true&familyMember=${encodeURIComponent(JSON.stringify(selectedFamilyMember))}`;
                 }
 
+                if (bookingMode === "schedule" && scheduledDateTime) {
+                  checkoutUrl += `&isScheduled=true&scheduledTime=${encodeURIComponent(new Date(scheduledDateTime).toISOString())}`;
+                }
+
                 router.push(checkoutUrl);
               }}
               className="w-full h-14 rounded-2xl bg-zinc-900 hover:bg-black disabled:opacity-35 text-white font-black text-sm tracking-wide flex items-center justify-center gap-2.5 transition-colors shadow-lg disabled:shadow-none"
             >
-              <span>Request Ride</span>
+              <span>{bookingMode === "schedule" ? "Schedule Ride" : "Request Ride"}</span>
               <motion.div
                 animate={canContinue ? { x: [0, 4, 0] } : {}}
                 transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1 }}
@@ -1308,6 +1442,7 @@ export default function BookPage() {
                    !pickup ? "Set pickup location" :
                    !drop ? "Set drop location" :
                    !allStopsValid ? "Please complete all added intermediate stops" :
+                   !isScheduleValid ? "Scheduled pickup time must be at least 30 minutes in advance" :
                    routeDistance === -1 ? "No rides available (impossible route - no road connection found)" :
                    !distanceValidity.valid ? distanceValidity.message : ""}
                 </motion.p>
