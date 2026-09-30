@@ -196,7 +196,14 @@ export default function Nav() {
 
           {/* LOGO */}
           <Link href={userData?.role === "vendor" ? "/partners/dashboard" : "/"} className="flex items-center">
-            <Image src="/logo.jpeg" alt="RideNow" width={44} height={44} priority />
+            <Image
+              src="/logo.jpeg"
+              alt="RideNow"
+              width={140}
+              height={44}
+              className="h-9 md:h-10 w-auto object-contain"
+              priority
+            />
           </Link>
 
           {/* DESKTOP NAV */}
