@@ -18,6 +18,30 @@ export function haversineMeters(
 }
 
 /**
+ * Calculates distance in kilometers between two lat/lon coordinates.
+ */
+export function haversineKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  return haversineMeters(lat1, lon1, lat2, lon2) / 1000;
+}
+
+/**
+ * Calculates distance in kilometers between two [lon, lat] GeoJSON coordinates.
+ */
+export function haversineDistance(
+  coords1: [number, number],
+  coords2: [number, number]
+): number {
+  const [lon1, lat1] = coords1;
+  const [lon2, lat2] = coords2;
+  return haversineKm(lat1, lon1, lat2, lon2);
+}
+
+/**
  * Calculates perpendicular distance in meters from a point P to segment AB.
  */
 export function getPerpendicularDistanceToSegment(
