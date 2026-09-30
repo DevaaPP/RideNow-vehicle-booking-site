@@ -26,6 +26,16 @@ export interface IGroupMember {
   shareAmount: number;
 }
 
+export interface IIntermediateStop {
+  address: string;
+  location: {
+    type: "Point";
+    coordinates: [number, number]; // [lng, lat]
+  };
+  order: number;
+  completed?: boolean;
+}
+
 export interface IBooking extends Document {
   user: Types.ObjectId;
   driver: Types.ObjectId;
@@ -33,6 +43,8 @@ export interface IBooking extends Document {
 
   pickupAddress: string;
   dropAddress: string;
+  isMultiStop?: boolean;
+  stops?: IIntermediateStop[];
 
   pickupLocation: {
     type: "Point";
@@ -284,6 +296,28 @@ dropOtpExpires: {
       studentDiscount: { type: Number, default: 0 },
       totalFare: { type: Number },
     },
+    isMultiStop: {
+      type: Boolean,
+      default: false,
+    },
+    stops: [
+      {
+        address: { type: String, required: true },
+        location: {
+          type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point",
+          },
+          coordinates: {
+            type: [Number], // [lng, lat]
+            required: true,
+          },
+        },
+        order: { type: Number, required: true },
+        completed: { type: Boolean, default: false },
+      },
+    ],
   },
   { timestamps: true }
 );

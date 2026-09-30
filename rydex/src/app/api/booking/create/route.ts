@@ -43,6 +43,7 @@ export async function POST(req: Request) {
     dropLng,
     isSmartPickup,
     smartPickupDetails,
+    stops,
   } = body;
 
   if (
@@ -160,7 +161,20 @@ export async function POST(req: Request) {
   };
 
   const cfg = ratesMap[vehicle.toLowerCase()] || DEFAULT_RATES[vehicle.toLowerCase() as keyof typeof DEFAULT_RATES] || DEFAULT_RATES.car;
-  const routeDistance = haversineDistance([Number(pickupLng), Number(pickupLat)], [Number(dropLng), Number(dropLat)]);
+  
+  let routeDistance = 0;
+  if (Array.isArray(stops) && stops.length > 0) {
+    const allCoords: [number, number][] = [
+      [Number(pickupLng), Number(pickupLat)],
+      ...stops.map((s: any) => [Number(s.lng), Number(s.lat)] as [number, number]),
+      [Number(dropLng), Number(dropLat)],
+    ];
+    for (let i = 0; i < allCoords.length - 1; i++) {
+      routeDistance += haversineDistance(allCoords[i], allCoords[i + 1]);
+    }
+  } else {
+    routeDistance = haversineDistance([Number(pickupLng), Number(pickupLat)], [Number(dropLng), Number(dropLat)]);
+  }
 
   // Validate distance limits
   const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
@@ -184,6 +198,18 @@ export async function POST(req: Request) {
   const breakdown = calculateFareBreakdown(vehicle, routeDistance, ratesMap, undefined, 0, isStudent);
   const calculatedFare = breakdown.totalFare;
 
+  const formattedStops = (Array.isArray(stops) && stops.length > 0)
+    ? stops.map((s: any, idx: number) => ({
+        address: s.address,
+        location: {
+          type: "Point" as const,
+          coordinates: [Number(s.lng), Number(s.lat)],
+        },
+        order: s.order || idx + 1,
+        completed: false,
+      }))
+    : undefined;
+
   const booking = await Booking.create({
     user: session.user.id,
     driver: nearestVendor._id,
@@ -198,6 +224,8 @@ export async function POST(req: Request) {
       type: "Point",
       coordinates: [Number(dropLng), Number(dropLat)],
     },
+    isMultiStop: Boolean(formattedStops && formattedStops.length > 0),
+    stops: formattedStops,
     fare: calculatedFare,
     fareBreakdown: breakdown,
     adminCommission: Number((calculatedFare * 0.10).toFixed(2)),

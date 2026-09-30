@@ -45,6 +45,8 @@ export default function CheckoutContent() {
   const isSmartPickupParam = params.get("isSmartPickup") === "true";
   const smartPickupDetailsParam = params.get("smartPickupDetails");
   const smartPickupDetails = smartPickupDetailsParam ? (() => { try { return JSON.parse(smartPickupDetailsParam); } catch { return null; } })() : null;
+  const stopsParam = params.get("stops");
+  const stops: Array<{ address: string; lat: number; lng: number; order: number }> = stopsParam ? (() => { try { return JSON.parse(stopsParam); } catch { return []; } })() : [];
 
   const [pickup,   setPickup]   = useState(pickupParam);
   const [drop,     setDrop]     = useState(dropParam);
@@ -127,6 +129,7 @@ export default function CheckoutContent() {
           pickupLat, pickupLng, dropLat, dropLng,
           isSmartPickup: isSmartPickupParam,
           smartPickupDetails,
+          stops,
         })
       });
 
@@ -413,6 +416,26 @@ export default function CheckoutContent() {
                   </div>
                   <MapPin size={14} className="text-zinc-400 flex-shrink-0 mt-1" />
                 </div>
+
+                {/* Intermediate Stops */}
+                {stops && stops.length > 0 && stops.map((stop, idx) => (
+                  <div key={idx} className="flex gap-4 px-5 py-3.5 border-b border-zinc-100 bg-blue-50/40">
+                    <div className="flex flex-col items-center flex-shrink-0 pt-0.5">
+                      <div className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-black shadow-sm">
+                        {idx + 1}
+                      </div>
+                      <div className="w-px flex-1 bg-blue-200 my-1" style={{ minHeight: 10 }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-blue-600 mb-0.5">Stop {idx + 1}</p>
+                      <p className="text-sm font-semibold text-zinc-900 leading-snug truncate">{stop.address}</p>
+                    </div>
+                    <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full flex-shrink-0 self-center">
+                      Waypoint
+                    </span>
+                  </div>
+                ))}
+
                 <div className="flex gap-4 px-5 py-4">
                   <div className="flex-shrink-0 pt-0.5">
                     <div className="w-3 h-3 rounded-sm bg-zinc-900 border-2 border-white ring-1 ring-zinc-300" />
@@ -480,12 +503,24 @@ export default function CheckoutContent() {
                     <span className="text-emerald-600">Verified Fare</span>
                   </p>
                   {(() => {
-                    const R = 6371;
-                    const dLat = (dropLat - pickupLat) * Math.PI / 180;
-                    const dLon = (dropLng - pickupLng) * Math.PI / 180;
-                    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(pickupLat * Math.PI / 180) * Math.cos(dropLat * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                    const distKm = +(R * c).toFixed(1);
+                    const allPoints: [number, number][] = [
+                      [pickupLat, pickupLng],
+                      ...stops.map((s) => [s.lat, s.lng] as [number, number]),
+                      [dropLat, dropLng],
+                    ];
+                    let totalDist = 0;
+                    for (let i = 0; i < allPoints.length - 1; i++) {
+                      const lat1 = allPoints[i][0];
+                      const lon1 = allPoints[i][1];
+                      const lat2 = allPoints[i + 1][0];
+                      const lon2 = allPoints[i + 1][1];
+                      const dLat = (lat2 - lat1) * Math.PI / 180;
+                      const dLon = (lon2 - lon1) * Math.PI / 180;
+                      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(dropLat * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                      totalDist += 6371 * c;
+                    }
+                    const distKm = +totalDist.toFixed(1);
                     const breakdown = calculateFareBreakdown(vehicle, distKm, undefined, undefined, 0, Boolean(userData?.isStudent));
                     return (
                       <div className="space-y-1.5 text-xs text-zinc-600 font-medium">

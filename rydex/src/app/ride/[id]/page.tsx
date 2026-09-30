@@ -44,6 +44,13 @@ interface BookingDetails {
   isPanicActive?: boolean;
   panicActivatedAt?: string;
   shareToken?: string;
+  isMultiStop?: boolean;
+  stops?: Array<{
+    address: string;
+    location: { coordinates: [number, number] };
+    order: number;
+    completed?: boolean;
+  }>;
 }
 
 /* ─── STATUS CONFIG ──────────────────────────────────────────────────── */
@@ -959,6 +966,21 @@ function FailedScreen({ booking, status, cfg, router }: { booking: BookingDetail
               <p className="text-sm text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
             </div>
           </div>
+
+          {/* Intermediate Stops recap */}
+          {booking.stops && booking.stops.length > 0 && booking.stops.map((stop: any, idx: number) => (
+            <div key={idx} className="flex gap-3 p-4 border-b border-zinc-800 bg-zinc-900/50">
+              <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <div className="w-px bg-zinc-700 mt-1" style={{ height: 16 }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-0.5">Stop {idx + 1}</p>
+                <p className="text-sm text-zinc-300 leading-snug">{stop.address || "—"}</p>
+              </div>
+            </div>
+          ))}
+
           <div className="flex gap-3 p-4">
             <div className="flex-shrink-0 pt-1">
               <div className="w-2.5 h-2.5 rounded-sm bg-zinc-600" />
@@ -1196,6 +1218,30 @@ function PanelContent({
               )}
             </div>
           </div>
+
+          {/* Intermediate Stops */}
+          {booking.stops && booking.stops.length > 0 && booking.stops.map((stop: any, idx: number) => (
+            <div key={idx} className="flex gap-3 p-4 border-b border-zinc-100 bg-blue-50/20">
+              <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                <div className="w-3.5 h-3.5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[8px] font-black shadow-sm">
+                  {idx + 1}
+                </div>
+                <div className="w-px bg-blue-200 mt-1" style={{ height: 16 }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-wider">Stop {idx + 1}</p>
+                  {stop.completed && (
+                    <span className="text-[9px] font-black bg-emerald-100 text-emerald-700 px-1.5 py-0.2 rounded-full uppercase">
+                      Visited
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-zinc-800 leading-snug">{stop.address || "—"}</p>
+              </div>
+            </div>
+          ))}
+
           <div className="flex gap-3 p-4">
             <div className="flex-shrink-0 pt-1">
               <div className="w-3 h-3 rounded-sm bg-zinc-900 border-2 border-white shadow-sm" />

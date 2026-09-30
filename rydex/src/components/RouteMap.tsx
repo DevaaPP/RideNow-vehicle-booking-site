@@ -25,9 +25,33 @@ type Props = {
   disableFallbackGeocode?: boolean;
   smartPickups?: any[];
   onSelectSmartPickup?: (spot: any) => void;
+  stops?: Array<{ address: string; lat: number; lng: number }>;
 };
 
 /* ─── ICONS ── black/white theme ─────────────────────────────────── */
+
+const createStopIcon = (index: number) => new L.DivIcon({
+  html: `
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.22))">
+      <div style="
+        background:#2563eb;color:#fff;
+        padding:4px 10px;border-radius:100px;
+        font-size:9px;font-weight:900;letter-spacing:0.12em;
+        text-transform:uppercase;white-space:nowrap;
+        font-family:-apple-system,system-ui,sans-serif;
+        box-shadow:0 2px 10px rgba(37,99,235,0.35);
+      ">STOP ${index + 1}</div>
+      <div style="width:2px;height:8px;background:#2563eb;opacity:0.6"></div>
+      <div style="
+        width:12px;height:12px;background:#2563eb;border-radius:50%;
+        border:2.5px solid #fff;
+        box-shadow:0 0 0 2px rgba(37,99,235,0.2), 0 3px 8px rgba(0,0,0,0.25);
+      "></div>
+    </div>`,
+  className: "",
+  iconSize: [70, 50],
+  iconAnchor: [35, 50],
+});
 
 const pickupIcon = new L.DivIcon({
   html: `
@@ -216,6 +240,7 @@ export default function RouteMap({
   disableFallbackGeocode,
   smartPickups,
   onSelectSmartPickup,
+  stops,
 }: Props) {
   const [p1,    setP1]    = useState<[number, number] | null>(null);
   const [p2,    setP2]    = useState<[number, number] | null>(null);
@@ -259,13 +284,27 @@ export default function RouteMap({
     return "";
   };
 
-  const loadRoute = async (a: [number, number], b: [number, number]) => {
+  const loadRoute = async (
+    a: [number, number],
+    b: [number, number],
+    intermediateStops?: Array<{ address: string; lat: number; lng: number }>
+  ) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
 
+    const validWaypoints = (intermediateStops || []).filter(
+      (s) => s && typeof s.lat === "number" && typeof s.lng === "number"
+    );
+    const allPoints: [number, number][] = [
+      a,
+      ...validWaypoints.map((s) => [s.lat, s.lng] as [number, number]),
+      b,
+    ];
+    const coordString = allPoints.map(([lat, lon]) => `${lon},${lat}`).join(";");
+
     try {
       const r = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`,
+        `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`,
         { signal: controller.signal }
       );
       clearTimeout(timeoutId);
@@ -277,7 +316,9 @@ export default function RouteMap({
         throw new Error("No routes returned by OSRM");
       }
 
-      const coords: [number, number][] = d.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon]);
+      const coords: [number, number][] = d.routes[0].geometry.coordinates.map(
+        ([lon, lat]: number[]) => [lat, lon]
+      );
       const distKm = +((d.routes[0].distance / 1000).toFixed(2));
 
       setRoute(coords);
@@ -287,11 +328,20 @@ export default function RouteMap({
       clearTimeout(timeoutId);
       console.warn("OSRM routing unavailable or timed out, using fallback routing:", err);
 
-      const directDist = getHaversineDistance(a[0], a[1], b[0], b[1]);
-      const estimatedRoadKm = +((directDist * 1.25).toFixed(2));
-      const fallbackPoints = generateInterpolatedRoute(a, b);
+      let totalDirectDist = 0;
+      let combinedFallback: [number, number][] = [];
 
-      setRoute(fallbackPoints);
+      for (let i = 0; i < allPoints.length - 1; i++) {
+        const pStart = allPoints[i];
+        const pEnd = allPoints[i + 1];
+        totalDirectDist += getHaversineDistance(pStart[0], pStart[1], pEnd[0], pEnd[1]);
+        const legPoints = generateInterpolatedRoute(pStart, pEnd);
+        combinedFallback = i === 0 ? legPoints : [...combinedFallback, ...legPoints.slice(1)];
+      }
+
+      const estimatedRoadKm = +((totalDirectDist * 1.25).toFixed(2));
+
+      setRoute(combinedFallback.length ? combinedFallback : generateInterpolatedRoute(a, b));
       setKm(estimatedRoadKm);
       onDistance?.(estimatedRoadKm);
     }
@@ -329,12 +379,12 @@ export default function RouteMap({
 
   useEffect(() => {
     if (p1 && p2) {
-      loadRoute(p1, p2);
+      loadRoute(p1, p2, stops);
     } else {
       setRoute([]);
       setKm(null);
     }
-  }, [p1, p2]);
+  }, [p1, p2, stops]);
 
   const onDragPickup = async (lat: number, lon: number) => {
     try {
@@ -450,6 +500,28 @@ export default function RouteMap({
             </Tooltip>
           </Marker>
         ))}
+
+        {/* Intermediate Stop Markers */}
+        {stops &&
+          stops.map((stop, idx) => {
+            if (typeof stop.lat !== "number" || typeof stop.lng !== "number") return null;
+            return (
+              <Marker
+                key={`multi-stop-${idx}`}
+                position={[stop.lat, stop.lng]}
+                icon={createStopIcon(idx)}
+              >
+                <Tooltip direction="top" offset={[0, -20]} permanent={false}>
+                  <div className="p-1 font-sans">
+                    <p className="font-black text-xs text-blue-600">STOP {idx + 1}</p>
+                    <p className="text-[11px] text-zinc-800 font-medium truncate max-w-[180px]">
+                      {stop.address}
+                    </p>
+                  </div>
+                </Tooltip>
+              </Marker>
+            );
+          })}
 
         {/* Route — black triple layer on white map */}
         {route.length > 0 && (

@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, MapPin, Navigation,
   Bike, Car, Truck, LocateFixed, Phone,
-  CheckCircle2, ChevronRight, GraduationCap
+  CheckCircle2, ChevronRight, GraduationCap,
+  Plus, Trash2, X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -226,8 +227,113 @@ export default function BookPage() {
     setPickupResults([]);
   };
 
+  /* ── MULTI-STOP TRIP STATE ── */
+  type StopItem = {
+    id: string;
+    address: string;
+    lat: number | null;
+    lng: number | null;
+    results: Place[];
+  };
+  const [stops, setStops] = useState<StopItem[]>([]);
+
+  const handleAddStop = () => {
+    if (stops.length >= 2) return;
+    setStops(prev => [
+      ...prev,
+      {
+        id: Math.random().toString(36).substring(2, 9),
+        address: "",
+        lat: null,
+        lng: null,
+        results: [],
+      },
+    ]);
+  };
+
+  const handleRemoveStop = (id: string) => {
+    setStops(prev => prev.filter(s => s.id !== id));
+  };
+
+  const handleStopChange = (id: string, value: string) => {
+    setStops(prev =>
+      prev.map(s => {
+        if (s.id !== id) return s;
+        return { ...s, address: value, lat: null, lng: null };
+      })
+    );
+    if (!value || value.trim().length < 3) {
+      setStops(prev => prev.map(s => (s.id === id ? { ...s, results: [] } : s)));
+    } else {
+      searchAddress(
+        value,
+        (res) => {
+          setStops(prev => prev.map(s => (s.id === id ? { ...s, results: res } : s)));
+        },
+        pickupCountry || "in"
+      );
+    }
+  };
+
+  const selectStopPlace = async (stopId: string, p: Place) => {
+    try {
+      const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
+      const data = await res.json();
+      if (data.status === "OK" && data.result) {
+        const result = data.result;
+        const formattedAddress = result.formatted_address;
+        const lat = result.geometry.location.lat;
+        const lng = result.geometry.location.lng;
+
+        setStops(prev =>
+          prev.map(s =>
+            s.id === stopId
+              ? {
+                  ...s,
+                  address: formattedAddress,
+                  lat,
+                  lng,
+                  results: [],
+                }
+              : s
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Error fetching stop place details:", err);
+    }
+  };
+
+  const getMultiStopHaversineDistance = () => {
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng) return null;
+    let total = 0;
+    const validStops = stops.filter(s => s.lat !== null && s.lng !== null);
+    const pts: [number, number][] = [
+      [pickupLat, pickupLng],
+      ...validStops.map(s => [s.lat!, s.lng!] as [number, number]),
+      [dropLat, dropLng],
+    ];
+    for (let i = 0; i < pts.length - 1; i++) {
+      total += getHaversineDistance(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]);
+    }
+    return Number(total.toFixed(1));
+  };
+
+  const allStopsValid = stops.every(s => s.address.trim().length > 0 && s.lat !== null && s.lng !== null);
   const distanceValidity = getDistanceValidity();
-  const canContinue = !!(pickup && drop && vehicle && mobile.length === 10 && pickupLat && pickupLng && dropLat && dropLng && distanceValidity.valid && routeDistance !== -1);
+  const canContinue = !!(
+    pickup &&
+    drop &&
+    vehicle &&
+    mobile.length === 10 &&
+    pickupLat &&
+    pickupLng &&
+    dropLat &&
+    dropLng &&
+    allStopsValid &&
+    distanceValidity.valid &&
+    routeDistance !== -1
+  );
 
   /* ── SEARCH ── */
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null, isDrop?: boolean) => {
@@ -732,6 +838,63 @@ export default function BookPage() {
                 </AnimatePresence>
               </div>
 
+              {/* Intermediate Stops */}
+              {stops.map((stop, index) => (
+                <div key={stop.id} className="relative z-20">
+                  <div className="h-px bg-zinc-200 mx-4" />
+                  <div className="flex items-center gap-3 px-4 py-3.5 focus-within:bg-white transition-colors">
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-black shadow-sm">
+                        {index + 1}
+                      </div>
+                      <div className="w-px h-4 bg-blue-200 mt-1" />
+                    </div>
+                    <input
+                      id={`stopInput-${stop.id}`}
+                      aria-label={`Stop ${index + 1} location`}
+                      value={stop.address}
+                      onChange={e => handleStopChange(stop.id, e.target.value)}
+                      placeholder={`Stop ${index + 1} location`}
+                      className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveStop(stop.id)}
+                      className="w-7 h-7 rounded-lg hover:bg-zinc-200 text-zinc-400 hover:text-zinc-700 flex items-center justify-center transition"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  <AnimatePresence>
+                    {stop.results && stop.results.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                        className="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-2xl shadow-xl max-h-52 overflow-y-auto z-50"
+                      >
+                        {stop.results.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onMouseDown={e => {
+                              e.preventDefault();
+                              selectStopPlace(stop.id, p);
+                            }}
+                            className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
+                          >
+                            <MapPin size={13} className="text-blue-500 flex-shrink-0" />
+                            <span className="text-sm text-zinc-800 font-medium truncate">{fmt(p)}</span>
+                            <ChevronRight size={13} className="text-zinc-300 flex-shrink-0 ml-auto" />
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+
               <div className="h-px bg-zinc-200 mx-4" />
 
               {/* Drop input */}
@@ -788,6 +951,22 @@ export default function BookPage() {
               </div>
 
             </div>
+
+            {/* Add Stop Button */}
+            {stops.length < 2 && (
+              <div className="flex justify-between items-center px-1">
+                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
+                  {stops.length === 0 ? "Multi-stop trips supported" : `${stops.length}/2 Stops Added`}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleAddStop}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200 transition"
+                >
+                  <Plus size={13} /> Add Stop
+                </button>
+              </div>
+            )}
 
             {/* Smart Pickup Selector UI */}
             {smartPickups.length > 0 && (
@@ -930,7 +1109,7 @@ export default function BookPage() {
               {(() => {
                 const distanceKm = (routeDistance !== null && routeDistance >= 0)
                   ? routeDistance
-                  : getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+                  : (getMultiStopHaversineDistance() || getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng));
                 const breakdown = calculateFareBreakdown(vehicle, distanceKm, rates, undefined, 0, isStudent);
 
                 return (
@@ -989,13 +1168,26 @@ export default function BookPage() {
                 if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return;
                 const distanceKm = (routeDistance !== null && routeDistance >= 0)
                   ? routeDistance
-                  : getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+                  : (getMultiStopHaversineDistance() || getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng));
                 const estFare = estimateFare(vehicle, distanceKm);
                 
                 let checkoutUrl = `/checkout?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}&fare=${estFare}`;
                 
                 if (selectedSmartPickup) {
                   checkoutUrl += `&isSmartPickup=true&smartPickupDetails=${encodeURIComponent(JSON.stringify(selectedSmartPickup))}`;
+                }
+
+                const validStops = stops
+                  .filter(s => s.address && s.lat !== null && s.lng !== null)
+                  .map((s, idx) => ({
+                    address: s.address,
+                    lat: s.lat,
+                    lng: s.lng,
+                    order: idx + 1,
+                  }));
+
+                if (validStops.length > 0) {
+                  checkoutUrl += `&stops=${encodeURIComponent(JSON.stringify(validStops))}`;
                 }
 
                 router.push(checkoutUrl);
@@ -1023,6 +1215,7 @@ export default function BookPage() {
                    mobile.length !== 10 ? "Enter a 10-digit mobile number" :
                    !pickup ? "Set pickup location" :
                    !drop ? "Set drop location" :
+                   !allStopsValid ? "Please complete all added intermediate stops" :
                    routeDistance === -1 ? "No rides available (impossible route - no road connection found)" :
                    !distanceValidity.valid ? distanceValidity.message : ""}
                 </motion.p>
@@ -1046,6 +1239,7 @@ export default function BookPage() {
           disableFallbackGeocode={true}
           smartPickups={smartPickups}
           onSelectSmartPickup={handleSelectSmartPickup}
+          stops={stops.filter(s => s.lat !== null && s.lng !== null).map(s => ({ address: s.address, lat: s.lat!, lng: s.lng! }))}
         />
       </div>
 
