@@ -80,6 +80,10 @@ partnerAmount: number
   isAutoRematching?: boolean;
   cancelledDriverIds?: Types.ObjectId[];
   reMatchCount?: number;
+  isRouteDeviated?: boolean;
+  safetyStatus?: "normal" | "deviation_detected" | "passenger_confirmed_safe" | "sos_activated";
+  lastSafetyCheckInAt?: Date;
+  safetyNotes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -228,6 +232,21 @@ dropOtpExpires: {
     reMatchCount: {
       type: Number,
       default: 0,
+    },
+    isRouteDeviated: {
+      type: Boolean,
+      default: false,
+    },
+    safetyStatus: {
+      type: String,
+      enum: ["normal", "deviation_detected", "passenger_confirmed_safe", "sos_activated"],
+      default: "normal",
+    },
+    lastSafetyCheckInAt: {
+      type: Date,
+    },
+    safetyNotes: {
+      type: String,
     },
   },
   { timestamps: true }

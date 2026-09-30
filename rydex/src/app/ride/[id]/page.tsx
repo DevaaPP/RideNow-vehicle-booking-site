@@ -13,6 +13,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RideChat from "@/components/RideChat";
+import { getMinDistanceToPolyline } from "@/lib/routeUtils";
 
 const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr: false });
 
@@ -93,6 +94,54 @@ export default function RidePage() {
   const [showCancelError, setShowCancelError] = useState<string | null>(null);
   const [showPanicConfirm, setShowPanicConfirm] = useState(false);
   const [panicLoading, setPanicLoading] = useState(false);
+
+  /* ── SAFETY CHECK-IN STATE & ROUTE DEVIATION ── */
+  const [showSafetyCheckIn, setShowSafetyCheckIn] = useState(false);
+  const [safetyStatus, setSafetyStatus] = useState<string>("normal");
+  const [deviationDistance, setDeviationDistance] = useState<number | null>(null);
+  const [safetyLoading, setSafetyLoading] = useState(false);
+  const [routePolyline, setRoutePolyline] = useState<[number, number][]>([]);
+
+  const handleConfirmSafe = async () => {
+    try {
+      setSafetyLoading(true);
+      const res = await fetch(`/api/booking/${id}/safety-checkin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "confirm_safe", notes: "Passenger confirmed safe on detour" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSafetyStatus("passenger_confirmed_safe");
+        setShowSafetyCheckIn(false);
+      }
+    } catch (err) {
+      console.error("Safety checkin confirm error:", err);
+    } finally {
+      setSafetyLoading(false);
+    }
+  };
+
+  const handleTriggerSosFromCheckin = async () => {
+    try {
+      setSafetyLoading(true);
+      const res = await fetch(`/api/booking/${id}/safety-checkin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "trigger_sos", notes: "Emergency SOS triggered from Route Deviation check-in" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSafetyStatus("sos_activated");
+        setBooking(prev => prev ? { ...prev, isPanicActive: true } : null);
+        setShowSafetyCheckIn(false);
+      }
+    } catch (err) {
+      console.error("SOS trigger error:", err);
+    } finally {
+      setSafetyLoading(false);
+    }
+  };
 
   const triggerPanic = async () => {
     try {
@@ -233,6 +282,10 @@ export default function RidePage() {
     socket.on("auto-rematch-started", () => fetchBooking(true));
     socket.on("auto-rematch-searching", () => fetchBooking(true));
     socket.on("auto-rematch-success", () => fetchBooking(true));
+    socket.on("safety-checkin-updated", (data: any) => {
+      if (data.safetyStatus) setSafetyStatus(data.safetyStatus);
+      if (data.isPanicActive) setBooking(prev => prev ? { ...prev, isPanicActive: true } : null);
+    });
     return () => {
       socket.off("driver-location");
       socket.off("booking-updated");
@@ -240,8 +293,42 @@ export default function RidePage() {
       socket.off("auto-rematch-started");
       socket.off("auto-rematch-searching");
       socket.off("auto-rematch-success");
+      socket.off("safety-checkin-updated");
     };
   }, [id, booking?._id]);
+
+  /* ── ROUTE DEVIATION MONITORING EFFECT ── */
+  useEffect(() => {
+    if (!driverPos || !pickupPos || !dropPos) return;
+    if (booking?.status !== "started" && booking?.status !== "confirmed") return;
+
+    if (routePolyline.length === 0) {
+      const fetchPolyline = async () => {
+        try {
+          const start = booking?.status === "started" ? driverPos : pickupPos;
+          const end = dropPos;
+          const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson`);
+          const d = await r.json();
+          if (d?.routes?.[0]?.geometry?.coordinates) {
+            const coords: [number, number][] = d.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon]);
+            setRoutePolyline(coords);
+          }
+        } catch (e) {
+          console.warn("Polyline fetch error for route deviation check:", e);
+        }
+      };
+      fetchPolyline();
+    }
+
+    if (routePolyline.length > 0) {
+      const distMeters = getMinDistanceToPolyline(driverPos, routePolyline);
+      setDeviationDistance(distMeters);
+
+      if (distMeters > 500 && safetyStatus !== "passenger_confirmed_safe" && safetyStatus !== "sos_activated") {
+        setShowSafetyCheckIn(true);
+      }
+    }
+  }, [driverPos, pickupPos, dropPos, booking?.status, routePolyline, safetyStatus]);
 
   const [rematching, setRematching] = useState(false);
 
@@ -570,6 +657,59 @@ export default function RidePage() {
                   className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-sm font-semibold transition"
                 >
                   Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── SAFETY CHECK-IN OVERLAY MODAL ── */}
+      <AnimatePresence>
+        {showSafetyCheckIn && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-5"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl border border-rose-100 text-center relative overflow-hidden"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-rose-100 border border-rose-200 text-rose-600 mx-auto flex items-center justify-center mb-4 shadow-inner">
+                <ShieldAlert size={32} className="animate-pulse" />
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full text-rose-700 text-[10px] font-black uppercase tracking-wider mb-2">
+                <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
+                Route Deviation Detected
+              </div>
+
+              <h3 className="text-xl font-black text-zinc-900 mb-1">Are You Safe?</h3>
+              <p className="text-zinc-500 text-xs leading-relaxed font-medium mb-5">
+                Your driver appears to have taken an unexpected route
+                {deviationDistance ? ` (${deviationDistance}m off planned route)` : ""}.
+                Please confirm your safety status.
+              </p>
+
+              <div className="space-y-2.5">
+                <button
+                  onClick={handleConfirmSafe}
+                  disabled={safetyLoading}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl text-xs tracking-wide shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  <CheckCircle2 size={16} /> I'm Safe (Road Detour)
+                </button>
+
+                <button
+                  onClick={handleTriggerSosFromCheckin}
+                  disabled={safetyLoading}
+                  className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-2xl text-xs tracking-wide shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  <Siren size={16} /> Get Help / Emergency SOS
                 </button>
               </div>
             </motion.div>
