@@ -181,14 +181,26 @@ const handleReject = async () => {
         ? "Admin"
         : `${userData?.name || "Vendor"} (${userData?.email || ""})`;
 
-      const kitToken =
-        ZegoUIKitPrebuilt.generateKitTokenForTest(
-          appID,
-          serverSecret!,
+      let kitToken: string;
+      try {
+        const tokenRes = await axios.post("/api/zego/token", { roomId });
+        const { token, appID: serverAppID } = tokenRes.data;
+        kitToken = ZegoUIKitPrebuilt.generateKitTokenForProduction(
+          serverAppID || appID,
+          token,
           roomId,
           userId,
           displayName
         );
+      } catch {
+        kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+          appID,
+          serverSecret || "",
+          roomId,
+          userId,
+          displayName
+        );
+      }
 
       const zp = ZegoUIKitPrebuilt.create(kitToken);
       zpRef.current = zp;

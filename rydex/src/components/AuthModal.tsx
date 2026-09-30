@@ -61,7 +61,6 @@ export default function AuthModal({ open, onClose }: Props) {
     });
 
     if (res?.error) {
-      console.log(res.error)
       alert("Invalid email or password");
       return;
     }

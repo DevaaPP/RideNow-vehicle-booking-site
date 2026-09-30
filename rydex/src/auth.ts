@@ -69,7 +69,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks:{
     // token ke ander user ka data dalta hai
     async signIn({user,account}) {
-      console.log(user)
       if(account?.provider=="google"){
         await connectDb()
         let dbUser=await User.findOne({email:user.email})

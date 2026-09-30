@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { auth } from "./auth";
 
 /* ================= CONFIG ================= */
@@ -84,7 +83,7 @@ export const proxy = auth(async (req) => {
     if (role === "vendor") {
       return NextResponse.redirect(new URL("/partners/dashboard", req.nextUrl));
     } else {
-      return NextResponse.redirect(new URL("/partner/onboard/vehicle", req.nextUrl));
+      return NextResponse.redirect(new URL(VENDOR_ONBOARDING_START, req.nextUrl));
     }
   }
 
