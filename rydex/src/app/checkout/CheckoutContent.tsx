@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import useGetMe from "@/hooks/useGetMe";
 import { getSocket } from "@/lib/socket";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 
@@ -23,6 +26,9 @@ type Status =
   | "payment" | "confirmed" | "auto_rematching";
 
 export default function CheckoutContent() {
+  const { userData } = useSelector((state: RootState) => state.user);
+  useGetMe(true);
+
   const params = useSearchParams();
 
   const pickupParam    = params.get("pickup")    || "Pickup Location";
@@ -480,7 +486,7 @@ export default function CheckoutContent() {
                     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(pickupLat * Math.PI / 180) * Math.cos(dropLat * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
                     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                     const distKm = +(R * c).toFixed(1);
-                    const breakdown = calculateFareBreakdown(vehicle, distKm);
+                    const breakdown = calculateFareBreakdown(vehicle, distKm, undefined, undefined, 0, Boolean(userData?.isStudent));
                     return (
                       <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
                         <div className="flex justify-between">
@@ -503,6 +509,12 @@ export default function CheckoutContent() {
                           <span>Govt GST / Taxes (5%)</span>
                           <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
                         </div>
+                        {breakdown.isStudentDiscountApplied && (
+                          <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
+                            <span>🎓 Student Pass Discount (-10%)</span>
+                            <span>-₹{breakdown.studentDiscount}</span>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}

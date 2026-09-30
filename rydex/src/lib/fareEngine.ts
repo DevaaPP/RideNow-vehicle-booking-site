@@ -12,6 +12,8 @@ export interface IFareBreakdown {
   surgeAmount: number;
   taxes: number;
   discount: number;
+  isStudentDiscountApplied?: boolean;
+  studentDiscount?: number;
   totalFare: number;
 }
 
@@ -38,7 +40,8 @@ export function calculateFareBreakdown(
   distanceKm: number,
   customRates?: any,
   overrideSurge?: number,
-  discountAmount: number = 0
+  discountAmount: number = 0,
+  isStudent: boolean = false
 ): IFareBreakdown {
   const vType = (vehicleType || "car").toLowerCase();
   const source = customRates || DEFAULT_VEHICLE_RATES;
@@ -64,8 +67,12 @@ export function calculateFareBreakdown(
   const subtotalWithSurge = rawSubtotal + surgeAmount;
   const taxes = Math.round((subtotalWithSurge + platformFee) * 0.05); // 5% GST
 
+  // 🎓 Student Pass: 10% discount on raw subtotal + surge
+  const studentDiscount = isStudent ? Math.round(subtotalWithSurge * 0.10) : 0;
+  const effectiveDiscount = discountAmount + studentDiscount;
+
   const totalBeforeDiscount = subtotalWithSurge + platformFee + taxes;
-  const totalFare = Math.max(0, Math.round(totalBeforeDiscount - discountAmount));
+  const totalFare = Math.max(0, Math.round(totalBeforeDiscount - effectiveDiscount));
 
   return {
     vehicleType: vType,
@@ -80,7 +87,9 @@ export function calculateFareBreakdown(
     surgeMultiplier,
     surgeAmount,
     taxes,
-    discount: discountAmount,
+    discount: effectiveDiscount,
+    isStudentDiscountApplied: isStudent && studentDiscount > 0,
+    studentDiscount,
     totalFare,
   };
 }

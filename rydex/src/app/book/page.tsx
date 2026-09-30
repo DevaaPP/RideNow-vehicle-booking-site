@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, MapPin, Navigation,
   Bike, Car, Truck, LocateFixed, Phone,
-  CheckCircle2, ChevronRight
+  CheckCircle2, ChevronRight, GraduationCap
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -67,13 +67,54 @@ export default function BookPage() {
   const [rates, setRates] = useState<any>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
 
+  /* ── STUDENT MODE STATE ── */
+  const [isStudent, setIsStudent] = useState<boolean>(false);
+  const [studentDetails, setStudentDetails] = useState<any>(null);
+  const [eduEmailInput, setEduEmailInput] = useState("");
+  const [institutionInput, setInstitutionInput] = useState("");
+  const [verifyingStudent, setVerifyingStudent] = useState(false);
+  const [studentError, setStudentError] = useState<string | null>(null);
+  const [studentSuccess, setStudentSuccess] = useState<string | null>(null);
+  const [showStudentForm, setShowStudentForm] = useState(false);
+
   useEffect(() => {
     if (userData?.mobileNumber && !mobile) {
       const cleaned = userData.mobileNumber.replace(/\D/g, "");
       const tenDigits = cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
       setMobile(tenDigits);
     }
+    if (userData?.isStudent !== undefined) {
+      setIsStudent(Boolean(userData.isStudent));
+      setStudentDetails((userData as any).studentDetails || null);
+    }
   }, [userData]);
+
+  const handleVerifyStudent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStudentError(null);
+    setStudentSuccess(null);
+    setVerifyingStudent(true);
+    try {
+      const res = await fetch("/api/user/verify-student", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eduEmail: eduEmailInput, institution: institutionInput }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsStudent(true);
+        setStudentDetails(data.studentDetails);
+        setStudentSuccess(data.message || "Student status verified! 10% discount applied.");
+        setShowStudentForm(false);
+      } else {
+        setStudentError(data.message || "Verification failed");
+      }
+    } catch (err: any) {
+      setStudentError("Network error during student verification");
+    } finally {
+      setVerifyingStudent(false);
+    }
+  };
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -91,19 +132,8 @@ export default function BookPage() {
   }, []);
 
   const estimateFare = (type: string, distanceKm: number) => {
-    const defaultRates: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number; minDistance: number; maxDistance: number }> = {
-      bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0, minDistance: 0, maxDistance: 15 },
-      auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2, minDistance: 0, maxDistance: 30 },
-      car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5, minDistance: 0, maxDistance: 100 },
-      loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8, minDistance: 0, maxDistance: 150 },
-      truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2, minDistance: 0, maxDistance: 500 },
-    };
-
-    const source = rates || defaultRates;
-    const cfg = source[type.toLowerCase()] || defaultRates.car;
-    const timeMinutes = (distanceKm / 25) * 60;
-    const fare = (cfg.baseFare + distanceKm * cfg.pricePerKm + timeMinutes * cfg.pricePerMinute) * cfg.multiplier;
-    return Math.round(fare);
+    const bd = calculateFareBreakdown(type, distanceKm, rates, undefined, 0, isStudent);
+    return bd.totalFare;
   };
 
   const checkLimit = (type: string, dist: number) => {
@@ -806,6 +836,148 @@ export default function BookPage() {
               </div>
             )}
           </motion.div>
+
+          {/* 🎓 STUDENT MODE & FARE BREAKDOWN CARD */}
+          {pickupLat && pickupLng && dropLat && dropLng && vehicle && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-3"
+            >
+              {/* Student Mode Card */}
+              <div className={`p-4 rounded-2xl border transition-all ${isStudent ? "bg-indigo-950 text-white border-indigo-800 shadow-md" : "bg-zinc-900 text-white border-zinc-800 shadow-sm"}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isStudent ? "bg-indigo-600 text-white" : "bg-zinc-800 text-amber-400"}`}>
+                      <GraduationCap size={18} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-black uppercase tracking-wider">Student Pass (10% OFF)</h4>
+                        {isStudent && (
+                          <span className="text-[9px] font-black bg-emerald-500 text-zinc-950 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                            ACTIVE
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-zinc-400">
+                        {isStudent
+                          ? `Verified: ${studentDetails?.eduEmail || "Student Pass"}`
+                          : "Save 10% on every ride with your college email"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {!isStudent && (
+                    <button
+                      type="button"
+                      onClick={() => setShowStudentForm(!showStudentForm)}
+                      className="bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs px-3 py-1.5 rounded-xl transition shadow"
+                    >
+                      {showStudentForm ? "Close" : "Verify ID"}
+                    </button>
+                  )}
+                </div>
+
+                {/* Inline Student Verification Form */}
+                <AnimatePresence>
+                  {!isStudent && showStudentForm && (
+                    <motion.form
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      onSubmit={handleVerifyStudent}
+                      className="mt-3 pt-3 border-t border-zinc-800 space-y-2.5"
+                    >
+                      <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
+                        Enter your .edu or .ac.in Student Email
+                      </p>
+                      <div className="space-y-2">
+                        <input
+                          type="email"
+                          required
+                          placeholder="e.g. alex@university.edu or student@college.ac.in"
+                          value={eduEmailInput}
+                          onChange={(e) => setEduEmailInput(e.target.value)}
+                          className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-amber-400"
+                        />
+                        <input
+                          type="text"
+                          placeholder="University / College Name (Optional)"
+                          value={institutionInput}
+                          onChange={(e) => setInstitutionInput(e.target.value)}
+                          className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      {studentError && (
+                        <p className="text-[10px] font-bold text-rose-400">{studentError}</p>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={verifyingStudent || !eduEmailInput}
+                        className="w-full bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-zinc-950 font-black text-xs py-2 rounded-xl transition flex items-center justify-center gap-1.5"
+                      >
+                        {verifyingStudent ? "Verifying..." : "🎓 Verify & Activate 10% OFF"}
+                      </button>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Itemized Fare Receipt Card */}
+              {(() => {
+                const distanceKm = (routeDistance !== null && routeDistance >= 0)
+                  ? routeDistance
+                  : getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+                const breakdown = calculateFareBreakdown(vehicle, distanceKm, rates, undefined, 0, isStudent);
+
+                return (
+                  <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-2xl shadow-sm">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-900 mb-2.5 pb-1.5 border-b border-zinc-200 flex items-center justify-between">
+                      <span>Itemized Cost Receipt</span>
+                      <span className="text-emerald-600 font-bold">Verified Fare</span>
+                    </p>
+                    <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
+                      <div className="flex justify-between">
+                        <span>Base Fare</span>
+                        <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span>Distance Fare ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
+                        <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span>Duration Fare (~{breakdown.timeMinutes} min × ₹{breakdown.pricePerMinute}/min)</span>
+                        <span className="font-bold text-zinc-900">₹{breakdown.timeFare}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span>Platform Service Fee</span>
+                        <span className="font-bold text-zinc-900">₹{breakdown.platformFee}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span>Govt GST / Taxes (5%)</span>
+                        <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
+                      </div>
+
+                      {breakdown.isStudentDiscountApplied && (
+                        <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
+                          <span className="flex items-center gap-1">🎓 Student Pass Discount (-10%)</span>
+                          <span>-₹{breakdown.studentDiscount}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between text-sm font-black text-zinc-900 pt-2 border-t border-zinc-200">
+                        <span>Total Fare</span>
+                        <span className="text-emerald-600">₹{breakdown.totalFare}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </motion.div>
+          )}
 
           {/* ══ CONTINUE CTA ══ */}
           <motion.div variants={stepVariants} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>

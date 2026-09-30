@@ -98,6 +98,8 @@ partnerAmount: number
     surgeAmount: number;
     taxes: number;
     discount: number;
+    isStudentDiscountApplied?: boolean;
+    studentDiscount?: number;
     totalFare: number;
   };
   createdAt: Date;
@@ -278,6 +280,8 @@ dropOtpExpires: {
       surgeAmount: { type: Number },
       taxes: { type: Number },
       discount: { type: Number },
+      isStudentDiscountApplied: { type: Boolean, default: false },
+      studentDiscount: { type: Number, default: 0 },
       totalFare: { type: Number },
     },
   },

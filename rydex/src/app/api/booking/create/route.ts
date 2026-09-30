@@ -178,7 +178,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const breakdown = calculateFareBreakdown(vehicle, routeDistance, ratesMap);
+  const currentUser = await User.findById(session.user.id).select("isStudent").lean();
+  const isStudent = Boolean(currentUser?.isStudent);
+
+  const breakdown = calculateFareBreakdown(vehicle, routeDistance, ratesMap, undefined, 0, isStudent);
   const calculatedFare = breakdown.totalFare;
 
   const booking = await Booking.create({

@@ -54,6 +54,14 @@ socketId:string | null
   otp?: string;
   otpExpiresAt?: Date;
 
+  /* ===== STUDENT MODE ===== */
+  isStudent?: boolean;
+  studentDetails?: {
+    eduEmail?: string;
+    institution?: string;
+    verifiedAt?: Date;
+  };
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -170,6 +178,17 @@ const UserSchema = new Schema<IUser>(
 
     otp: String,
     otpExpiresAt: Date,
+
+    /* ===== STUDENT MODE ===== */
+    isStudent: {
+      type: Boolean,
+      default: false,
+    },
+    studentDetails: {
+      eduEmail: String,
+      institution: String,
+      verifiedAt: Date,
+    },
   },
   { timestamps: true }
 );
