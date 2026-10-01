@@ -97,6 +97,47 @@ function AutoFollow({ pos }: { pos: [number, number] | null }) {
   return null;
 }
 
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    const t1 = setTimeout(() => map.invalidateSize(), 150);
+    const t2 = setTimeout(() => map.invalidateSize(), 450);
+    const handleResize = () => map.invalidateSize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [map]);
+  return null;
+}
+
+function InitialBoundsFit({
+  pickup,
+  drop,
+  driver,
+}: {
+  pickup: [number, number];
+  drop: [number, number];
+  driver: [number, number] | null;
+}) {
+  const map = useMap();
+  const fitted = useRef(false);
+
+  useEffect(() => {
+    if (fitted.current) return;
+    const pts: [number, number][] = [pickup, drop];
+    if (driver) pts.push(driver);
+    try {
+      map.fitBounds(pts, { padding: [60, 60], maxZoom: 15, animate: false });
+      fitted.current = true;
+    } catch {}
+  }, [pickup, drop, driver, map]);
+
+  return null;
+}
+
 /* ─── MAIN ────────────────────────────────────────────────────────── */
 
 export default function LiveRideMap({
@@ -123,7 +164,15 @@ export default function LiveRideMap({
   const showDropRoute    = status !== "completed" && routeToDrop.length > 0;
 
   const rotateCar = (from: [number, number], to: [number, number]) => {
-    const angle = Math.atan2(to[0] - from[0], to[1] - from[1]) * (180 / Math.PI);
+    const [lat1, lng1] = from;
+    const [lat2, lng2] = to;
+    if (lat1 === lat2 && lng1 === lng2) return;
+    const dLng = (lng2 - lng1) * (Math.PI / 180);
+    const y = Math.sin(dLng) * Math.cos(lat2 * (Math.PI / 180));
+    const x =
+      Math.cos(lat1 * (Math.PI / 180)) * Math.sin(lat2 * (Math.PI / 180)) -
+      Math.sin(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.cos(dLng);
+    const angle = (Math.atan2(y, x) * (180 / Math.PI) + 360) % 360;
     const el = document.getElementById("car-marker");
     if (el) el.style.transform = `rotate(${angle}deg)`;
   };
@@ -238,9 +287,14 @@ function calcDistance(a: [number, number], b: [number, number]) {
       scrollWheelZoom
       zoomControl={false}
     >
+      <MapResizer />
+      <InitialBoundsFit pickup={pickupLocation} drop={dropLocation} driver={driverLocation} />
+
       <TileLayer
-        attribution="&copy; Google Maps"
-        url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        subdomains={["a", "b", "c", "d"]}
+        maxZoom={20}
       />
 
       <AutoFollow pos={driverLocation} />

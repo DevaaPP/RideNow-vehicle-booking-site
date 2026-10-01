@@ -39,6 +39,22 @@ function CenterMap({ center }: { center: [number, number] | null }) {
   return null;
 }
 
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    const t1 = setTimeout(() => map.invalidateSize(), 150);
+    const t2 = setTimeout(() => map.invalidateSize(), 450);
+    const handleResize = () => map.invalidateSize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [map]);
+  return null;
+}
+
 export default function DriverLocationMap({ coords }: Props) {
   const defaultCenter: [number, number] = [20.5937, 78.9629];
   const center: [number, number] | null = coords
@@ -55,9 +71,12 @@ export default function DriverLocationMap({ coords }: Props) {
         zoomControl={false}
       >
         <CenterMap center={center} />
+        <MapResizer />
         <TileLayer
-          attribution="&copy; Google Maps"
-          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          subdomains={["a", "b", "c", "d"]}
+          maxZoom={20}
         />
         {center && (
           <Marker 

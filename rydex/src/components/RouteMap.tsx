@@ -145,13 +145,15 @@ const smartPickupIcon = new L.DivIcon({
 });
 
 /* ─── FIT BOUNDS ──────────────────────────────────────────────────── */
-function FitBounds({ p1, p2, route }: { p1: [number, number]; p2: [number, number]; route?: [number, number][] }) {
+function FitBounds({ p1, p2, route, stops }: { p1: [number, number]; p2: [number, number]; route?: [number, number][]; stops?: Array<{ lat: number; lng: number }> }) {
   const map = useMap();
   useEffect(() => {
     map.invalidateSize();
-    const allPoints = (route && route.length > 0) ? route : [p1, p2];
-    map.fitBounds(allPoints as L.LatLngBoundsExpression, { padding: [60, 60], maxZoom: 15, animate: true, duration: 0.8 });
-  }, [p1, p2, route, map]);
+    const pts: [number, number][] = (route && route.length > 0)
+      ? route
+      : [p1, ...(stops ? stops.map(s => [s.lat, s.lng] as [number, number]) : []), p2];
+    map.fitBounds(pts as L.LatLngBoundsExpression, { padding: [60, 60], maxZoom: 15, animate: true, duration: 0.8 });
+  }, [p1, p2, route, stops, map]);
   return null;
 }
 
@@ -162,6 +164,22 @@ function CenterMap({ center }: { center: [number, number] | null }) {
       map.setView(center, map.getZoom() < 13 ? 13 : map.getZoom(), { animate: true });
     }
   }, [center, map]);
+  return null;
+}
+
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    const t1 = setTimeout(() => map.invalidateSize(), 150);
+    const t2 = setTimeout(() => map.invalidateSize(), 450);
+    const handleResize = () => map.invalidateSize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [map]);
   return null;
 }
 
@@ -437,13 +455,16 @@ export default function RouteMap({
         zoomControl={false}
       >
         <CenterMap center={p1} />
+        <MapResizer />
 
         <TileLayer
-          attribution="&copy; Google Maps"
-          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          subdomains={["a", "b", "c", "d"]}
+          maxZoom={20}
         />
 
-        {p1 && p2 && <FitBounds p1={p1} p2={p2} route={route} />}
+        {p1 && p2 && <FitBounds p1={p1} p2={p2} route={route} stops={stops} />}
 
         {p1 && (
           <Marker
