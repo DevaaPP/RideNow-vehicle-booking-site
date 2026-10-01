@@ -167,9 +167,9 @@ export default function LiveTrackingMap({
           source: "trip-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#ffffff",
-            "line-width": 7.5,
-            "line-opacity": 0.95,
+            "line-color": "#000000",
+            "line-width": 8.0,
+            "line-opacity": 0.85,
           },
         });
 
@@ -179,8 +179,8 @@ export default function LiveTrackingMap({
           source: "trip-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#09090b",
-            "line-width": 4.5,
+            "line-color": "#090d16", // Inverts to silver-white road line
+            "line-width": 4.8,
             "line-opacity": 1.0,
           },
         });
@@ -203,9 +203,9 @@ export default function LiveTrackingMap({
           source: "driver-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#ffffff",
-            "line-width": 6.5,
-            "line-opacity": 0.9,
+            "line-color": "#000000",
+            "line-width": 7.0,
+            "line-opacity": 0.85,
           },
         });
 
@@ -215,8 +215,8 @@ export default function LiveTrackingMap({
           source: "driver-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#2563eb", // Blue approach line for driver arriving
-            "line-width": 4.0,
+            "line-color": "#ea580c", // Inverts to vivid cyan-blue on dark canvas
+            "line-width": 4.2,
             "line-opacity": 0.95,
           },
         });
@@ -420,7 +420,7 @@ export default function LiveTrackingMap({
   }, [ready, pickupLocation, dropLocation, status]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden select-none bg-zinc-100">
+    <div className="uber-dark-map relative w-full h-full overflow-hidden select-none">
       <div ref={mapContainerRef} className="w-full h-full" />
     </div>
   );
