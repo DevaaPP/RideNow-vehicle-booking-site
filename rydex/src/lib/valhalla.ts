@@ -1,6 +1,6 @@
 /**
- * Valhalla Routing Engine Client with OSRM & Geodesic Fallbacks
- * Free, open-source routing powered by OpenStreetMap data.
+ * Valhalla & OSRM Open Routing Engine
+ * Free, open-source routing powered by OpenStreetMap road network data.
  */
 
 export interface LatLngPoint {
@@ -13,7 +13,7 @@ export interface RouteResult {
   durationMinutes: number;
   coordinates: [number, number][]; // [lat, lng][]
   geojsonCoords: [number, number][]; // [lng, lat][] for MapLibre GeoJSON LineString
-  engine: "valhalla" | "osrm" | "fallback";
+  engine: "osrm" | "valhalla" | "fallback";
   summary?: string;
 }
 
@@ -115,124 +115,11 @@ function directHaversineKm(
 }
 
 /**
- * Fetch route via Valhalla routing engine with alternatives.
+ * OSRM Driving Engine: High-speed, road-following OpenStreetMap router.
  */
-export async function getValhallaRoute(
-  waypoints: [number, number][], // [lat, lng][]
-  options: { alternates?: number; timeoutMs?: number } = {}
-): Promise<MultiRouteResult> {
-  const { alternates = 2, timeoutMs = 5000 } = options;
-
-  if (waypoints.length < 2) {
-    throw new Error("At least 2 points (pickup and destination) required.");
-  }
-
-  const locations = waypoints.map(([lat, lon]) => ({
-    lat,
-    lon,
-    type: "break",
-  }));
-
-  const payload = {
-    locations,
-    costing: "auto",
-    costing_options: {
-      auto: {
-        country_crossing_penalty: 2000,
-      },
-    },
-    alternates,
-    directions_options: {
-      units: "kilometers",
-    },
-  };
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch("https://valhalla1.openstreetmap.de/route", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (!res.ok) {
-      throw new Error(`Valhalla status ${res.status}`);
-    }
-
-    const data = await res.json();
-    if (!data.trip?.legs?.length) {
-      throw new Error("No trip found in Valhalla response");
-    }
-
-    // Process primary route
-    const primaryTrip = data.trip;
-    const primaryCoords: [number, number][] = [];
-    for (const leg of primaryTrip.legs) {
-      if (leg.shape) {
-        primaryCoords.push(...decodePolyline(leg.shape, 6));
-      }
-    }
-
-    const primaryDistance = +(primaryTrip.summary.length.toFixed(2));
-    const primaryDuration = Math.max(
-      2,
-      Math.round(primaryTrip.summary.time / 60)
-    );
-
-    const primary: RouteResult = {
-      distanceKm: primaryDistance,
-      durationMinutes: primaryDuration,
-      coordinates: primaryCoords,
-      geojsonCoords: primaryCoords.map(([lat, lng]) => [lng, lat]),
-      engine: "valhalla",
-      summary: "Fastest route via Valhalla",
-    };
-
-    // Process alternatives
-    const alternatives: RouteResult[] = [];
-    if (data.alternates && Array.isArray(data.alternates)) {
-      for (const alt of data.alternates) {
-        if (alt.trip?.legs) {
-          const altCoords: [number, number][] = [];
-          for (const leg of alt.trip.legs) {
-            if (leg.shape) {
-              altCoords.push(...decodePolyline(leg.shape, 6));
-            }
-          }
-          if (altCoords.length > 0) {
-            const altDist = +(alt.trip.summary.length.toFixed(2));
-            const altDur = Math.max(2, Math.round(alt.trip.summary.time / 60));
-            alternatives.push({
-              distanceKm: altDist,
-              durationMinutes: altDur,
-              coordinates: altCoords,
-              geojsonCoords: altCoords.map(([lat, lng]) => [lng, lat]),
-              engine: "valhalla",
-              summary: "Alternative route",
-            });
-          }
-        }
-      }
-    }
-
-    return { primary, alternatives };
-  } catch (valhallaErr) {
-    clearTimeout(timer);
-    console.warn("Valhalla routing engine query failed, switching to OSRM fallback:", valhallaErr);
-    return getOsrmFallbackRoute(waypoints, timeoutMs);
-  }
-}
-
-/**
- * Secondary Fallback: OSRM Public Routing
- */
-async function getOsrmFallbackRoute(
+async function fetchOsrmRoute(
   waypoints: [number, number][],
-  timeoutMs = 5000
+  timeoutMs = 4000
 ): Promise<MultiRouteResult> {
   const coordString = waypoints
     .map(([lat, lon]) => `${lon},${lat}`)
@@ -243,8 +130,13 @@ async function getOsrmFallbackRoute(
 
   try {
     const res = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson&alternatives=true`,
-      { signal: controller.signal }
+      `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson&alternatives=true&steps=true`,
+      {
+        headers: {
+          "User-Agent": "RideNow-Vehicle-Booking-Site/1.0",
+        },
+        signal: controller.signal,
+      }
     );
     clearTimeout(timer);
 
@@ -265,7 +157,7 @@ async function getOsrmFallbackRoute(
       coordinates: coords,
       geojsonCoords: primaryRoute.geometry.coordinates,
       engine: "osrm",
-      summary: "Route via OSRM",
+      summary: primaryRoute.legs?.[0]?.summary || "Fastest road route via OSRM",
     };
 
     const alternatives: RouteResult[] = [];
@@ -281,21 +173,114 @@ async function getOsrmFallbackRoute(
           coordinates: altCoords,
           geojsonCoords: alt.geometry.coordinates,
           engine: "osrm",
-          summary: `Alt route ${i}`,
+          summary: alt.legs?.[0]?.summary || `Alternative route ${i}`,
         });
       }
     }
 
     return { primary, alternatives };
-  } catch (osrmErr) {
+  } catch (err) {
     clearTimeout(timer);
-    console.warn("OSRM routing unavailable, generating synthetic curve fallback:", osrmErr);
-    return getSyntheticFallbackRoute(waypoints);
+    throw err;
   }
 }
 
 /**
- * Tertiary Fallback: Geodesic Bezier interpolation (guarantees a continuous valid line).
+ * Valhalla Routing Engine Fallback
+ */
+async function fetchValhallaRoute(
+  waypoints: [number, number][],
+  timeoutMs = 2500
+): Promise<MultiRouteResult> {
+  const locations = waypoints.map(([lat, lon]) => ({
+    lat,
+    lon,
+    type: "break",
+  }));
+
+  const payload = {
+    locations,
+    costing: "auto",
+    costing_options: {
+      auto: {
+        country_crossing_penalty: 2000,
+      },
+    },
+    alternates: 1,
+    directions_options: {
+      units: "kilometers",
+    },
+  };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch("https://valhalla1.openstreetmap.de/route", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+
+    if (!res.ok) throw new Error(`Valhalla status ${res.status}`);
+    const data = await res.json();
+    if (!data.trip?.legs?.length) throw new Error("No trip found in Valhalla response");
+
+    const primaryTrip = data.trip;
+    const primaryCoords: [number, number][] = [];
+    for (const leg of primaryTrip.legs) {
+      if (leg.shape) {
+        primaryCoords.push(...decodePolyline(leg.shape, 6));
+      }
+    }
+
+    const primaryDistance = +(primaryTrip.summary.length.toFixed(2));
+    const primaryDuration = Math.max(2, Math.round(primaryTrip.summary.time / 60));
+
+    const primary: RouteResult = {
+      distanceKm: primaryDistance,
+      durationMinutes: primaryDuration,
+      coordinates: primaryCoords,
+      geojsonCoords: primaryCoords.map(([lat, lng]) => [lng, lat]),
+      engine: "valhalla",
+      summary: "Route via Valhalla",
+    };
+
+    const alternatives: RouteResult[] = [];
+    if (data.alternates && Array.isArray(data.alternates)) {
+      for (const alt of data.alternates) {
+        if (alt.trip?.legs) {
+          const altCoords: [number, number][] = [];
+          for (const leg of alt.trip.legs) {
+            if (leg.shape) {
+              altCoords.push(...decodePolyline(leg.shape, 6));
+            }
+          }
+          if (altCoords.length > 0) {
+            alternatives.push({
+              distanceKm: +(alt.trip.summary.length.toFixed(2)),
+              durationMinutes: Math.max(2, Math.round(alt.trip.summary.time / 60)),
+              coordinates: altCoords,
+              geojsonCoords: altCoords.map(([lat, lng]) => [lng, lat]),
+              engine: "valhalla",
+              summary: "Alternative route",
+            });
+          }
+        }
+      }
+    }
+
+    return { primary, alternatives };
+  } catch (err) {
+    clearTimeout(timer);
+    throw err;
+  }
+}
+
+/**
+ * High-resolution geodesic road curve fallback (guarantees a continuous valid line).
  */
 function getSyntheticFallbackRoute(waypoints: [number, number][]): MultiRouteResult {
   let totalKm = 0;
@@ -320,8 +305,45 @@ function getSyntheticFallbackRoute(waypoints: [number, number][]): MultiRouteRes
     coordinates: allCoords,
     geojsonCoords: allCoords.map(([lat, lng]) => [lng, lat]),
     engine: "fallback",
-    summary: "Direct estimated route",
+    summary: "Direct road estimate",
   };
 
   return { primary, alternatives: [] };
 }
+
+/**
+ * Fetch the best road driving route.
+ * Tries OSRM first (<1s, full OSM roads), falls back to Valhalla, then synthetic curve.
+ */
+export async function getBestRoute(
+  waypoints: [number, number][],
+  options: { alternates?: number; timeoutMs?: number } = {}
+): Promise<MultiRouteResult> {
+  if (waypoints.length < 2) {
+    throw new Error("At least 2 points (pickup and destination) required.");
+  }
+
+  const { timeoutMs = 4000 } = options;
+
+  // 1. Primary: OSRM Road Router
+  try {
+    const osrmResult = await fetchOsrmRoute(waypoints, timeoutMs);
+    return osrmResult;
+  } catch (osrmErr) {
+    console.warn("OSRM primary route attempt failed, trying Valhalla:", osrmErr);
+  }
+
+  // 2. Secondary: Valhalla Router
+  try {
+    const valhallaResult = await fetchValhallaRoute(waypoints, 2500);
+    return valhallaResult;
+  } catch (valhallaErr) {
+    console.warn("Valhalla fallback route failed, using synthetic curve:", valhallaErr);
+  }
+
+  // 3. Tertiary: High-resolution road interpolation
+  return getSyntheticFallbackRoute(waypoints);
+}
+
+// Backward compatible export alias
+export const getValhallaRoute = getBestRoute;

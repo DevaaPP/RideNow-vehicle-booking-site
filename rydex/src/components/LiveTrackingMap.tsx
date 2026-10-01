@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
-import { VOYAGER_MAP_STYLE } from "@/lib/mapConfig";
-import { getValhallaRoute } from "@/lib/valhalla";
+import { UBER_MINIMAL_MAP_STYLE } from "@/lib/mapConfig";
 
 type Props = {
   driverLocation: [number, number] | null;
@@ -46,24 +45,24 @@ function createDriverMarkerEl(): { container: HTMLElement; carIcon: HTMLElement 
   container.style.justifyContent = "center";
 
   const carIcon = document.createElement("div");
-  carIcon.style.width = "42px";
-  carIcon.style.height = "42px";
-  carIcon.style.background = "#0a0a0a";
+  carIcon.style.width = "40px";
+  carIcon.style.height = "40px";
+  carIcon.style.background = "#09090b";
   carIcon.style.borderRadius = "50%";
   carIcon.style.display = "flex";
   carIcon.style.alignItems = "center";
   carIcon.style.justifyContent = "center";
   carIcon.style.boxShadow =
-    "0 0 0 3px #ffffff, 0 0 0 5px #0a0a0a, 0 8px 24px rgba(0,0,0,0.4)";
+    "0 0 0 3px #ffffff, 0 0 0 5px #09090b, 0 8px 24px rgba(0,0,0,0.45)";
   carIcon.style.transition = "transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)";
 
   carIcon.innerHTML = `
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M5 11L6.5 6.5H17.5L19 11" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
-      <rect x="3" y="11" width="18" height="7" rx="2" stroke="white" stroke-width="1.6"/>
+      <path d="M5 11L6.5 6.5H17.5L19 11" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      <rect x="3" y="11" width="18" height="7" rx="2" stroke="white" stroke-width="1.8"/>
       <circle cx="7.5" cy="18.5" r="1.5" fill="white"/>
       <circle cx="16.5" cy="18.5" r="1.5" fill="white"/>
-      <path d="M3 14H21" stroke="white" stroke-width="1" opacity="0.35"/>
+      <path d="M3 14H21" stroke="white" stroke-width="1" opacity="0.4"/>
     </svg>
   `;
 
@@ -71,30 +70,39 @@ function createDriverMarkerEl(): { container: HTMLElement; carIcon: HTMLElement 
   return { container, carIcon };
 }
 
-function createPinEl(text: string, isBlack: boolean): HTMLElement {
+function createPinEl(text: string, isPickup: boolean): HTMLElement {
   const el = document.createElement("div");
   el.style.display = "flex";
   el.style.flexDirection = "column";
   el.style.alignItems = "center";
-  el.style.filter = "drop-shadow(0 4px 14px rgba(0,0,0,0.22))";
+  el.style.filter = "drop-shadow(0 6px 14px rgba(0,0,0,0.25))";
+
+  const dotColor = isPickup ? "#22c55e" : "#ef4444";
+  const bgColor = isPickup ? "#09090b" : "#ffffff";
+  const textColor = isPickup ? "#ffffff" : "#09090b";
+  const border = isPickup ? "none" : "1.5px solid #09090b";
 
   el.innerHTML = `
     <div style="
-      background:${isBlack ? "#0a0a0a" : "#ffffff"};
-      color:${isBlack ? "#ffffff" : "#0a0a0a"};
-      padding:4px 12px;border-radius:100px;
-      font-size:9.5px;font-weight:800;letter-spacing:0.12em;
+      background:${bgColor};
+      color:${textColor};
+      padding:4px 11px;border-radius:100px;
+      font-size:9.5px;font-weight:900;letter-spacing:0.12em;
       text-transform:uppercase;white-space:nowrap;
-      border:${isBlack ? "none" : "1.5px solid #0a0a0a"};
-      box-shadow:0 2px 10px rgba(0,0,0,0.18);
+      border:${border};
+      box-shadow:0 2px 8px rgba(0,0,0,0.18);
       font-family:system-ui,-apple-system,sans-serif;
-    ">${text}</div>
-    <div style="width:2px;height:8px;background:#0a0a0a;opacity:0.6"></div>
+      display:flex;align-items:center;gap:4px;
+    ">
+      <span style="width:6px;height:6px;background:${dotColor};border-radius:50%;display:inline-block;"></span>
+      ${text}
+    </div>
+    <div style="width:2px;height:8px;background:#09090b;opacity:0.65"></div>
     <div style="
-      width:11px;height:11px;
-      background:${isBlack ? "#0a0a0a" : "#ffffff"};
+      width:12px;height:12px;
+      background:${bgColor};
       border-radius:50%;
-      border:2.5px solid ${isBlack ? "#ffffff" : "#0a0a0a"};
+      border:2.5px solid ${isPickup ? "#ffffff" : "#09090b"};
       box-shadow:0 2px 6px rgba(0,0,0,0.25);
     "></div>
   `;
@@ -129,10 +137,10 @@ export default function LiveTrackingMap({
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: VOYAGER_MAP_STYLE,
+      style: UBER_MINIMAL_MAP_STYLE,
       center: initialCenter,
-      zoom: 15.5,
-      pitch: 30, // 30-degree Uber-style road tracking angle
+      zoom: 15.0,
+      pitch: 25, // 25-degree Uber-style road tracking view
       attributionControl: false,
     });
 
@@ -141,10 +149,10 @@ export default function LiveTrackingMap({
       "bottom-right"
     );
 
-    map.on("load", () => {
-      // Add route source and styling layers
-      if (!map.getSource("tracking-route")) {
-        map.addSource("tracking-route", {
+    const setupLayers = () => {
+      // 1. Persistent Trip Route (Pickup -> Drop)
+      if (!map.getSource("trip-route")) {
+        map.addSource("trip-route", {
           type: "geojson",
           data: {
             type: "Feature",
@@ -153,47 +161,75 @@ export default function LiveTrackingMap({
           },
         });
 
-        // 1. Soft Shadow
         map.addLayer({
-          id: "tracking-shadow",
+          id: "trip-casing",
           type: "line",
-          source: "tracking-route",
+          source: "trip-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#0a0a0a",
-            "line-width": 12,
-            "line-opacity": 0.08,
+            "line-color": "#ffffff",
+            "line-width": 7.5,
+            "line-opacity": 0.95,
           },
         });
 
-        // 2. Casing
         map.addLayer({
-          id: "tracking-casing",
+          id: "trip-core",
           type: "line",
-          source: "tracking-route",
+          source: "trip-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#18181b",
-            "line-width": 5.5,
-            "line-opacity": 0.3,
+            "line-color": "#09090b",
+            "line-width": 4.5,
+            "line-opacity": 1.0,
+          },
+        });
+      }
+
+      // 2. Driver Approach Route (Driver -> Pickup)
+      if (!map.getSource("driver-route")) {
+        map.addSource("driver-route", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: [] },
           },
         });
 
-        // 3. Vibrant Core
         map.addLayer({
-          id: "tracking-core",
+          id: "driver-casing",
           type: "line",
-          source: "tracking-route",
+          source: "driver-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#0a0a0a",
-            "line-width": 3.5,
-            "line-opacity": 1,
+            "line-color": "#ffffff",
+            "line-width": 6.5,
+            "line-opacity": 0.9,
+          },
+        });
+
+        map.addLayer({
+          id: "driver-core",
+          type: "line",
+          source: "driver-route",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#2563eb", // Blue approach line for driver arriving
+            "line-width": 4.0,
+            "line-opacity": 0.95,
           },
         });
       }
 
       setReady(true);
+    };
+
+    map.on("load", setupLayers);
+    map.on("styledata", () => {
+      if (map.isStyleLoaded()) {
+        setupLayers();
+      }
     });
 
     mapRef.current = map;
@@ -270,66 +306,118 @@ export default function LiveTrackingMap({
     } else {
       driverMarkerRef.current.setLngLat([driverLocation[1], driverLocation[0]]);
     }
-
-    // Smooth auto-follow camera tracking
-    map.easeTo({
-      center: [driverLocation[1], driverLocation[0]],
-      zoom: Math.max(map.getZoom(), 15.5),
-      duration: 800,
-    });
   }, [driverLocation, ready]);
 
-  /* ─── RE-ROUTE CALCULATION WITH VALHALLA ─── */
-  const updateRoute = useCallback(async () => {
+  /* ─── PERSISTENT MAIN TRIP ROUTE (PICKUP -> DROP) ─── */
+  const updateTripRoute = useCallback(async () => {
     const map = mapRef.current;
-    if (!map || !ready) return;
-
-    const currentOrigin = driverLocation || pickupLocation;
-    const currentDest = status === "arriving" ? pickupLocation : dropLocation;
+    if (!map || !ready || !pickupLocation || !dropLocation) return;
 
     try {
-      const routeData = await getValhallaRoute([currentOrigin, currentDest], {
-        alternates: 0,
-      });
-      const active = routeData.primary;
+      const ptsParam = `${pickupLocation[0]},${pickupLocation[1]};${dropLocation[0]},${dropLocation[1]}`;
+      const res = await fetch(`/api/route?points=${encodeURIComponent(ptsParam)}`);
+      const data = await res.json();
 
-      const source = map.getSource("tracking-route") as maplibregl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: active.geojsonCoords,
-          },
-        });
-      }
-
-      if (onStats) {
-        if (status === "arriving") {
-          onStats({
-            distanceToPickup: active.distanceKm,
-            durationToPickup: active.durationMinutes,
-            distanceToDrop: 0,
-            durationToDrop: 0,
+      if (data.success && data.primary) {
+        const coords = data.primary.geojsonCoords;
+        const source = map.getSource("trip-route") as maplibregl.GeoJSONSource;
+        if (source) {
+          source.setData({
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: coords },
           });
-        } else {
+        }
+
+        // Send stats
+        if (onStats) {
           onStats({
             distanceToPickup: 0,
             durationToPickup: 0,
-            distanceToDrop: active.distanceKm,
-            durationToDrop: active.durationMinutes,
+            distanceToDrop: data.primary.distanceKm,
+            durationToDrop: data.primary.durationMinutes,
           });
         }
       }
     } catch (err) {
-      console.error("Live route update error:", err);
+      console.warn("Trip route fetch error:", err);
     }
-  }, [driverLocation, pickupLocation, dropLocation, status, ready, onStats]);
+  }, [pickupLocation, dropLocation, ready, onStats]);
+
+  /* ─── DRIVER APPROACH ROUTE (DRIVER -> PICKUP) ─── */
+  const updateDriverRoute = useCallback(async () => {
+    const map = mapRef.current;
+    if (!map || !ready || !driverLocation || !pickupLocation) return;
+
+    if (status === "arriving") {
+      try {
+        const ptsParam = `${driverLocation[0]},${driverLocation[1]};${pickupLocation[0]},${pickupLocation[1]}`;
+        const res = await fetch(`/api/route?points=${encodeURIComponent(ptsParam)}`);
+        const data = await res.json();
+
+        if (data.success && data.primary) {
+          const coords = data.primary.geojsonCoords;
+          const source = map.getSource("driver-route") as maplibregl.GeoJSONSource;
+          if (source) {
+            source.setData({
+              type: "Feature",
+              properties: {},
+              geometry: { type: "LineString", coordinates: coords },
+            });
+          }
+
+          if (onStats) {
+            onStats({
+              distanceToPickup: data.primary.distanceKm,
+              durationToPickup: data.primary.durationMinutes,
+              distanceToDrop: 0,
+              durationToDrop: 0,
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("Driver approach route error:", err);
+      }
+    } else {
+      // Clear driver approach line once ride is ongoing or completed
+      const source = map.getSource("driver-route") as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: [] },
+        });
+      }
+    }
+  }, [driverLocation, pickupLocation, status, ready, onStats]);
+
+  // Initial and reactive route updates
+  useEffect(() => {
+    updateTripRoute();
+  }, [updateTripRoute]);
 
   useEffect(() => {
-    updateRoute();
-  }, [updateRoute]);
+    updateDriverRoute();
+  }, [updateDriverRoute]);
+
+  // Dynamic Camera Framing
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !pickupLocation || !dropLocation) return;
+
+    const bounds = new maplibregl.LngLatBounds();
+    bounds.extend([pickupLocation[1], pickupLocation[0]]);
+    bounds.extend([dropLocation[1], dropLocation[0]]);
+    if (driverLocation) {
+      bounds.extend([driverLocation[1], driverLocation[0]]);
+    }
+
+    map.fitBounds(bounds, {
+      padding: { top: 90, bottom: 90, left: 70, right: 70 },
+      duration: 1000,
+      maxZoom: 16.5,
+    });
+  }, [ready, pickupLocation, dropLocation, status]);
 
   return (
     <div className="relative w-full h-full overflow-hidden select-none bg-zinc-100">

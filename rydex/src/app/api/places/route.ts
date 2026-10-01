@@ -171,46 +171,80 @@ export async function GET(req: NextRequest) {
         
         return NextResponse.json({ results, status: "OK" });
       } else if (lat && lng) {
-        const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`;
-        const res = await fetch(url, { headers });
-        if (!res.ok) {
-          return NextResponse.json({ results: [], status: "OK" });
+        let results: any[] = [];
+        try {
+          const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`;
+          const res = await fetch(url, { headers });
+          if (res.ok) {
+            const data = await res.json();
+            results = (data?.features || []).map((feature: any) => {
+              const props = feature.properties || {};
+              const coords = feature.geometry?.coordinates || [0, 0];
+              const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+              const localArea = props.district || props.suburb || props.locality;
+              const cityTown = props.city || props.town || props.village;
+              const parts: string[] = [props.name];
+              if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+              if (localArea && localArea !== props.name) parts.push(localArea);
+              if (cityTown && cityTown !== props.name) parts.push(cityTown);
+              if (props.postcode) parts.push(props.postcode);
+              if (props.state && props.state !== props.name) parts.push(props.state);
+              if (props.country && props.country !== props.name) parts.push(props.country);
+              const description = parts.filter(Boolean).join(", ");
+              
+              return {
+                formatted_address: description,
+                geometry: {
+                  location: {
+                    lat: coords[1],
+                    lng: coords[0],
+                  },
+                },
+                address_components: [
+                  {
+                    long_name: props.country || "India",
+                    short_name: String(props.countrycode || "in").toLowerCase(),
+                    types: ["country"],
+                  },
+                ],
+              };
+            });
+          }
+        } catch (e) {
+          console.warn("Photon reverse failed, falling back to Nominatim:", e);
         }
-        
-        const data = await res.json();
-        const results = (data?.features || []).map((feature: any) => {
-          const props = feature.properties || {};
-          const coords = feature.geometry?.coordinates || [0, 0];
-          const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-          const localArea = props.district || props.suburb || props.locality;
-          const cityTown = props.city || props.town || props.village;
-          const parts: string[] = [props.name];
-          if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-          if (localArea && localArea !== props.name) parts.push(localArea);
-          if (cityTown && cityTown !== props.name) parts.push(cityTown);
-          if (props.postcode) parts.push(props.postcode);
-          if (props.state && props.state !== props.name) parts.push(props.state);
-          if (props.country && props.country !== props.name) parts.push(props.country);
-          const description = parts.filter(Boolean).join(", ");
-          
-          return {
-            formatted_address: description,
-            geometry: {
-              location: {
-                lat: coords[1],
-                lng: coords[0],
-              },
-            },
-            address_components: [
-              {
-                long_name: props.country || "India",
-                short_name: String(props.countrycode || "in").toLowerCase(),
-                types: ["country"],
-              },
-            ],
-          };
-        });
-        
+
+        // Secondary fallback: Nominatim OpenStreetMap reverse geocoding
+        if (results.length === 0) {
+          try {
+            const nomUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+            const nomRes = await fetch(nomUrl, { headers });
+            if (nomRes.ok) {
+              const nomData = await nomRes.json();
+              if (nomData?.display_name) {
+                results.push({
+                  formatted_address: nomData.display_name,
+                  geometry: {
+                    location: {
+                      lat: parseFloat(nomData.lat || String(lat)),
+                      lng: parseFloat(nomData.lon || String(lng)),
+                    },
+                  },
+                  address_components: [
+                    {
+                      long_name: nomData.address?.country || "India",
+                      short_name: String(nomData.address?.country_code || "in").toLowerCase(),
+                      types: ["country"],
+                    },
+                  ],
+                });
+              }
+            }
+          } catch (nomErr) {
+            console.warn("Nominatim reverse fallback error:", nomErr);
+          }
+        }
+
         return NextResponse.json({ results, status: "OK" });
       }
       return NextResponse.json({ status: "INVALID_REQUEST", message: "Missing coordinates or address" }, { status: 400 });
