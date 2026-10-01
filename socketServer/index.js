@@ -42,8 +42,9 @@ app.post("/emit", async (req, res) => {
   const { userId, event, data } = req.body;
 
   try {
-    // 1. Emit to specific user if socketId is set
+    // 1. Emit to user room and specific user socketId
     if (userId) {
+      io.to(`user-${userId}`).emit(event, data);
       const user = await User.findById(userId);
       if (user?.socketId) {
         io.to(user.socketId).emit(event, data);
@@ -67,6 +68,7 @@ io.on("connection", (socket) => {
 
   socket.on("identity", async (userId) => {
     socket.userId = userId;
+    socket.join(`user-${userId}`);
     try {
       const user = await User.findById(userId);
       const updateData = { socketId: socket.id };
@@ -77,28 +79,45 @@ io.on("connection", (socket) => {
     } catch (err) {
       console.error("Socket identity error:", err);
     }
-  })
+  });
 
-// server.js — sab jagah ek hi format rakho
+  socket.on("join-booking", (bookingId) => {
+    console.log("joining room:", `booking-${bookingId}`);
+    socket.join(`booking-${bookingId}`);
+  });
 
-socket.on("join-booking", (bookingId) => {
-  console.log("joining room:", `booking-${bookingId}`);
-  socket.join(`booking-${bookingId}`);  // ← prefix add karo
-});
+  socket.on("driver-location-update", (data) => {
+    io.to(`booking-${data.bookingId}`)
+      .emit("driver-location", {
+        latitude: data.latitude,
+        longitude: data.longitude,
+        status: data.status || "arriving"
+      });
+  });
 
-socket.on("driver-location-update", (data) => {
-  io.to(`booking-${data.bookingId}`)   // ✅ already sahi
-    .emit("driver-location", {
-      latitude: data.latitude,
-      longitude: data.longitude,
-      status: data.status || "arriving"
-    });
-});
+  socket.on("chat-message", (msg) => {
+    const bookingId = msg.rideId || msg.bookingId;
+    console.log("chat to room:", `booking-${bookingId}`);
+    io.to(`booking-${bookingId}`).emit("chat-message", msg);
+  });
 
-socket.on("chat-message", (msg) => {
-  console.log("chat to room:", `booking-${msg.rideId}`);
-  io.to(`booking-${msg.rideId}`).emit("chat-message", msg);  // ← prefix add karo
-});
+  // Call Signaling (WebRTC in-ride call)
+  socket.on("call-user", (data) => {
+    console.log("call-user in room:", `booking-${data.bookingId}`);
+    socket.to(`booking-${data.bookingId}`).emit("incoming-call", data);
+  });
+
+  socket.on("accept-call", (data) => {
+    socket.to(`booking-${data.bookingId}`).emit("call-accepted", data);
+  });
+
+  socket.on("reject-call", (data) => {
+    socket.to(`booking-${data.bookingId}`).emit("call-rejected", data);
+  });
+
+  socket.on("end-call", (data) => {
+    socket.to(`booking-${data.bookingId}`).emit("call-ended", data);
+  });
 
   socket.on("update-location", async ({ latitude, longitude }) => {
 

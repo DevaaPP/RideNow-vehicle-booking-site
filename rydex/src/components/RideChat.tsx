@@ -50,31 +50,96 @@ export default function RideChat({
   }, [messages, isTyping]);
 
   useEffect(() => {
+    if (!rideId) return;
+    const socket = getSocket();
+
+    // 1. Join booking room on socket server
+    socket.emit("join-booking", rideId);
+
+    // 2. Fetch all historical messages for this ride
     axios
       .post(`/api/chat/get-all`, { rideId })
-      .then(res => setMessages(res.data.messages));
-  }, []);
+      .then(res => {
+        if (res.data?.messages) {
+          setMessages(res.data.messages.map((m: any) => ({
+            id: m._id || m.id,
+            text: m.text,
+            sender: m.sender,
+            createdAt: m.createdAt,
+            status: "delivered",
+          })));
+        }
+      })
+      .catch(err => console.error("Error fetching chat messages:", err));
 
-  useEffect(() => {
-    const socket = getSocket();
-    socket.on("chat-message", (message: Message) => {
-      setMessages(prev => [...prev, message]);
-    });
-    return () => { socket.off("chat-message"); };
-  }, []);
+    // 3. Listen for real-time incoming messages
+    const handleIncomingMessage = (message: any) => {
+      const msgRideId = String(message.rideId || message.bookingId || "");
+      if (msgRideId === String(rideId)) {
+        setMessages(prev => {
+          const msgId = message._id || message.id;
+          if (msgId && prev.some(m => m.id === msgId)) {
+            return prev;
+          }
+          return [
+            ...prev,
+            {
+              id: msgId || `msg_${Date.now()}_${Math.random()}`,
+              text: message.text,
+              sender: message.sender,
+              createdAt: message.createdAt || new Date(),
+              status: "delivered",
+            },
+          ];
+        });
+      }
+    };
+
+    socket.on("chat-message", handleIncomingMessage);
+
+    return () => {
+      socket.off("chat-message", handleIncomingMessage);
+    };
+  }, [rideId]);
 
   const sendMessage = async (text: string) => {
+    if (!text.trim() || !rideId) return;
     const socket = getSocket();
-    if (!text.trim()) return;
 
-    const res = await axios.post("/api/chat/send", {
-      rideId,
-      text,
-      sender: currentRole,
-    });
+    try {
+      const res = await axios.post("/api/chat/send", {
+        rideId,
+        text,
+        sender: currentRole,
+      });
 
-    const message = res.data.message;
-    socket.emit("chat-message", message);
+      const message = res.data?.message;
+      if (message) {
+        socket.emit("chat-message", {
+          ...message,
+          rideId,
+        });
+
+        setMessages(prev => {
+          const msgId = message._id || message.id;
+          if (msgId && prev.some(m => m.id === msgId)) {
+            return prev;
+          }
+          return [
+            ...prev,
+            {
+              id: msgId || `msg_${Date.now()}`,
+              text: message.text,
+              sender: message.sender,
+              createdAt: message.createdAt || new Date(),
+              status: "sent",
+            },
+          ];
+        });
+      }
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    }
    
     setInput("");
     setShowAI(false);

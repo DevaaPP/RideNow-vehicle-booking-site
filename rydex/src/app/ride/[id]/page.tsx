@@ -176,9 +176,43 @@ export default function RidePage() {
 
   /* Secure VoIP Call State */
   const [activeCall, setActiveCall] = useState<{ isOpen: boolean } | null>(null);
+  const [incomingCall, setIncomingCall] = useState<{
+    isOpen: boolean;
+    callerName: string;
+    callerRole: "user" | "driver";
+  } | null>(null);
   const [zegoContainer, setZegoContainer] = useState<HTMLDivElement | null>(null);
   const zegoCallJoined = useRef(false);
   const zpRef = useRef<any>(null);
+
+  const playRingTone = () => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.setValueAtTime(480, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6);
+    } catch {}
+  };
+
+  const startVoipCall = () => {
+    setActiveCall({ isOpen: true });
+    const socket = getSocket();
+    if (booking?._id) {
+      socket.emit("call-user", {
+        bookingId: booking._id,
+        callerName: "Passenger",
+        callerRole: "user",
+      });
+    }
+  };
 
   useEffect(() => {
     if (!activeCall?.isOpen || !zegoContainer || zegoCallJoined.current) return;
@@ -302,6 +336,33 @@ export default function RidePage() {
       if (data.safetyStatus) setSafetyStatus(data.safetyStatus);
       if (data.isPanicActive) setBooking(prev => prev ? { ...prev, isPanicActive: true } : null);
     });
+
+    const handleIncomingCall = (data: any) => {
+      if (data && data.callerRole === "driver") {
+        setIncomingCall({
+          isOpen: true,
+          callerName: data.callerName || booking?.driver?.name || "Driver",
+          callerRole: "driver",
+        });
+        playRingTone();
+      }
+    };
+
+    const handleCallRejected = () => {
+      alert("Call was declined.");
+      setActiveCall(null);
+      setIncomingCall(null);
+    };
+
+    const handleCallEnded = () => {
+      setActiveCall(null);
+      setIncomingCall(null);
+    };
+
+    socket.on("incoming-call", handleIncomingCall);
+    socket.on("call-rejected", handleCallRejected);
+    socket.on("call-ended", handleCallEnded);
+
     return () => {
       socket.off("driver-location");
       socket.off("booking-updated");
@@ -310,6 +371,9 @@ export default function RidePage() {
       socket.off("auto-rematch-searching");
       socket.off("auto-rematch-success");
       socket.off("safety-checkin-updated");
+      socket.off("incoming-call", handleIncomingCall);
+      socket.off("call-rejected", handleCallRejected);
+      socket.off("call-ended", handleCallEnded);
     };
   }, [id, booking?._id]);
 
@@ -435,7 +499,7 @@ export default function RidePage() {
     displayEta, displayDistance,
     chatOpen, onChatToggle: () => canChat && setChatOpen(v => !v),
     onCancel: handleCancel, onRetryPayment: fetchBooking, router,
-    onCallClick: () => setActiveCall({ isOpen: true }),
+    onCallClick: startVoipCall,
     onPanicClick: () => setShowPanicConfirm(true),
   };
 
@@ -758,6 +822,10 @@ export default function RidePage() {
               {/* Close button */}
               <button
                 onClick={() => {
+                  if (booking?._id) {
+                    const socket = getSocket();
+                    socket.emit("end-call", { bookingId: booking._id });
+                  }
                   if (zpRef.current && typeof zpRef.current.destroy === 'function') {
                     try {
                       zpRef.current.destroy();
@@ -770,9 +838,66 @@ export default function RidePage() {
                 }}
                 className="mt-4 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition active:scale-95"
               >
-                Close Call Screen
+                End / Close Call
               </button>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── INCOMING VOICE CALL RINGING MODAL ── */}
+      <AnimatePresence>
+        {incomingCall && incomingCall.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl flex flex-col items-center"
+            >
+              <div className="relative mb-5">
+                <span className="animate-ping absolute inline-flex h-16 w-16 rounded-full bg-emerald-500 opacity-40"></span>
+                <div className="w-16 h-16 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg">
+                  <Phone size={28} className="animate-bounce" />
+                </div>
+              </div>
+              <p className="text-[11px] font-black uppercase tracking-widest text-emerald-400 mb-1">Incoming Voice Call</p>
+              <h3 className="text-xl font-black text-white">{incomingCall.callerName}</h3>
+              <p className="text-xs text-zinc-400 mt-1 font-medium">In-ride secure audio bridge</p>
+
+              <div className="flex gap-3 w-full mt-6">
+                <button
+                  onClick={() => {
+                    if (booking?._id) {
+                      const socket = getSocket();
+                      socket.emit("reject-call", { bookingId: booking._id });
+                    }
+                    setIncomingCall(null);
+                  }}
+                  className="flex-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 font-bold py-3 rounded-2xl text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+                >
+                  <PhoneOff size={16} /> Decline
+                </button>
+                <button
+                  onClick={() => {
+                    if (booking?._id) {
+                      const socket = getSocket();
+                      socket.emit("accept-call", { bookingId: booking._id });
+                    }
+                    setIncomingCall(null);
+                    setActiveCall({ isOpen: true });
+                  }}
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 active:scale-95 transition-all"
+                >
+                  <PhoneCall size={16} /> Answer
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1235,13 +1360,20 @@ function PanelContent({
           {/* Call, Message & Share Trip */}
           {isActive && (
             <div className="flex gap-2 mt-2 flex-wrap">
+              <button
+                onClick={onCallClick}
+                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 active:scale-[0.97] transition-all text-white py-3 rounded-xl text-sm font-semibold shadow-sm"
+              >
+                <Phone size={15} /> In-App Call
+              </button>
               {booking.driverMobileNumber && (
-                <button
-                  onClick={onCallClick}
-                  className="flex-1 flex items-center justify-center gap-2 bg-zinc-100 hover:bg-zinc-200 active:scale-[0.97] transition-all text-zinc-900 py-3 rounded-xl text-sm font-semibold"
+                <a
+                  href={`tel:${booking.driverMobileNumber}`}
+                  className="flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 active:scale-[0.97] transition-all px-3.5 py-3 rounded-xl text-xs font-bold shadow-sm"
+                  title="Direct Cellular Phone Call"
                 >
-                  <Phone size={15} /> Call
-                </button>
+                  <PhoneCall size={14} /> Phone
+                </a>
               )}
               {canChat && (
                 <button onClick={onChatToggle}

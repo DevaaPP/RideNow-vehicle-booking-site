@@ -659,6 +659,23 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     }
   };
 
+  const playChime = () => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.35);
+    } catch {}
+  };
+
   useEffect(() => {
     // 1. Check if there is an active booking on mount
     const checkActiveRide = () => {
@@ -684,8 +701,24 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
     // 3. Setup socket listener for incoming requests
     const socket = getSocket();
+    if (userData?._id) {
+      socket.emit("identity", userData._id);
+    }
+    const handleConnect = () => {
+      if (userData?._id) {
+        socket.emit("identity", userData._id);
+      }
+    };
+    socket.on("connect", handleConnect);
+
     socket.on("new-booking", (booking: any) => {
       setPendingRequest(booking);
+      playChime();
+    });
+
+    socket.on("new-scheduled-booking", (booking: any) => {
+      setPendingRequest(booking);
+      playChime();
     });
 
     socket.on("booking-updated", (data: any) => {
@@ -699,10 +732,12 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
     return () => {
       clearInterval(interval);
+      socket.off("connect", handleConnect);
       socket.off("new-booking");
+      socket.off("new-scheduled-booking");
       socket.off("booking-updated");
     };
-  }, []);
+  }, [userData?._id]);
 
   const handleRequestAction = async (bookingId: string, action: "accept" | "reject") => {
     try {
@@ -784,32 +819,61 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       const nextOnline = !isOnline;
       let updatePayload: any = { isOnline: nextOnline };
 
-      if (nextOnline && navigator.geolocation) {
+      if (nextOnline) {
+        if (!navigator.geolocation) {
+          alert("Geolocation is not supported by your browser. Please use a location-enabled browser to receive rides.");
+          setLoading(false);
+          return;
+        }
+
+        let geoSuccess = false;
         await new Promise<void>((resolve) => {
           navigator.geolocation.getCurrentPosition(
-            async (position) => {
+            (position) => {
               const { latitude, longitude } = position.coords;
               setCoords({ latitude, longitude });
               updatePayload.latitude = latitude;
               updatePayload.longitude = longitude;
+              geoSuccess = true;
               resolve();
             },
             (error) => {
-              console.error("Geolocation error:", error);
+              console.error("Geolocation check error:", error);
               resolve();
             },
-            { enableHighAccuracy: true, timeout: 5000 }
+            { enableHighAccuracy: true, timeout: 8000 }
           );
         });
+
+        if (!geoSuccess && !coords) {
+          alert("Please allow device location access to go online. Location is required so nearby riders can find and match with you.");
+          setLoading(false);
+          return;
+        }
+
+        if (!geoSuccess && coords) {
+          updatePayload.latitude = coords.latitude;
+          updatePayload.longitude = coords.longitude;
+        }
       }
 
       const res = await axios.patch("/api/partner/status", updatePayload);
       if (res.data.success) {
         setIsOnline(res.data.isOnline);
+        const socket = getSocket();
+        if (userData?._id) {
+          socket.emit("identity", userData._id);
+        }
+        if (updatePayload.latitude && updatePayload.longitude) {
+          socket.emit("update-location", {
+            latitude: updatePayload.latitude,
+            longitude: updatePayload.longitude,
+          });
+        }
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to update status");
+      alert("Failed to update status. Please try again.");
     } finally {
       setLoading(false);
     }
