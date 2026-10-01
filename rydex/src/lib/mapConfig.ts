@@ -1,42 +1,40 @@
 import type { StyleSpecification } from "maplibre-gl";
 
 /**
- * Uber-Style Clean Road & Street Map Specification.
- * - Pure roads, streets, highways, and street labels only.
- * - Zero terrain clutter, zero elevation contours, zero distracting vegetation patches.
- * - High-contrast street cartography modeled after Uber & Google Maps.
+ * Uber-Style Clean OpenStreetMap Cartography.
  * - 100% Free, zero API key required, zero watermarks.
- * - Built on OpenStreetMap data via Carto Positron CDN.
+ * - Direct OpenStreetMap tiles with custom raster styling.
+ * - Suppresses terrain clutter, elevation noise, and bright foliage to a clean neutral tone.
+ * - Keeps all roads, expressways, residential streets, and road labels sharp and legible.
  */
 export const UBER_MINIMAL_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    "uber-streets": {
+    "osm-streets": {
       type: "raster",
       tiles: [
-        "https://a.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
-        "https://b.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
-        "https://c.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
-        "https://d.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
+        "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
       ],
       tileSize: 256,
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
+        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
     },
   },
   layers: [
     {
-      id: "uber-streets-layer",
+      id: "osm-streets-layer",
       type: "raster",
-      source: "uber-streets",
+      source: "osm-streets",
       minzoom: 0,
-      maxzoom: 20,
+      maxzoom: 19,
       paint: {
-        // Crisp, high-clarity roads with minimal background noise
-        "raster-contrast": 0.1,
-        "raster-saturation": 0.05,
-        "raster-brightness-min": 0.0,
-        "raster-brightness-max": 1.0,
+        // Mute bright green vegetation to a neutral gray-beige tone so roads stand out like Uber
+        "raster-saturation": -0.65,
+        "raster-contrast": 0.18,
+        "raster-brightness-min": 0.04,
+        "raster-brightness-max": 0.98,
       },
     },
   ],
