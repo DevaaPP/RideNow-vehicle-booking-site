@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Polyline,
-  Tooltip,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import * as maplibregl from "maplibre-gl";
+import { VOYAGER_MAP_STYLE } from "@/lib/mapConfig";
+import { getValhallaRoute } from "@/lib/valhalla";
 
 type Props = {
   driverLocation: [number, number] | null;
@@ -24,315 +18,322 @@ type Props = {
   }) => void;
 };
 
-/* ─── ICONS ────────────────────────────────────────────────────────── */
-
-const driverIcon = new L.DivIcon({
-  html: `
-    <div id="car-marker" style="
-      width:52px; height:52px;
-      display:flex; align-items:center; justify-content:center;
-      transform-origin:center;
-      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.5));
-    ">
-      <div style="
-        background:#0a0a0a;
-        width:46px; height:46px;
-        border-radius:50%;
-        display:flex; align-items:center; justify-content:center;
-        box-shadow:0 0 0 3px #fff,0 0 0 5px #0a0a0a,0 8px 28px rgba(0,0,0,0.5);
-      ">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 11L6.5 6.5H17.5L19 11" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
-          <rect x="3" y="11" width="18" height="7" rx="2" stroke="white" stroke-width="1.6"/>
-          <circle cx="7.5" cy="18.5" r="1.5" fill="white"/>
-          <circle cx="16.5" cy="18.5" r="1.5" fill="white"/>
-          <path d="M3 14H21" stroke="white" stroke-width="1" opacity="0.35"/>
-        </svg>
-      </div>
-    </div>`,
-  className: "",
-  iconSize: [52, 52],
-  iconAnchor: [26, 26],
-});
-
-const pickupIcon = new L.DivIcon({
-  html: `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.28))">
-      <div style="background:#0a0a0a;color:#fff;padding:5px 13px;border-radius:100px;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;font-family:system-ui">
-        PICKUP
-      </div>
-      <div style="width:2px;height:9px;background:#0a0a0a"></div>
-      <div style="width:10px;height:10px;background:#0a0a0a;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>
-    </div>`,
-  className: "",
-  iconSize: [80, 50],
-  iconAnchor: [40, 50],
-});
-
-const dropIcon = new L.DivIcon({
-  html: `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.25))">
-      <div style="background:#fff;color:#0a0a0a;padding:5px 13px;border-radius:100px;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;border:1.5px solid #0a0a0a;font-family:system-ui">
-        DROP
-      </div>
-      <div style="width:2px;height:9px;background:#0a0a0a"></div>
-      <div style="width:10px;height:10px;background:#fff;border-radius:50%;border:2.5px solid #0a0a0a;box-shadow:0 2px 6px rgba(0,0,0,0.25)"></div>
-    </div>`,
-  className: "",
-  iconSize: [70, 50],
-  iconAnchor: [35, 50],
-});
-
-/* ─── AUTO FOLLOW ─────────────────────────────────────────────────── */
-
-function AutoFollow({ pos }: { pos: [number, number] | null }) {
-  const map = useMap();
-  useEffect(() => {
-    if (pos) {
-      const z = map.getZoom() < 15 ? 15 : map.getZoom();
-      map.flyTo(pos, z, { duration: 0.7, easeLinearity: 0.25 });
-    }
-  }, [pos, map]);
-  return null;
+/* ─── BEARING FORMULA ──────────────────────────────────────────────── */
+function calculateBearing(
+  start: [number, number],
+  end: [number, number]
+): number {
+  const startLat = (start[0] * Math.PI) / 180;
+  const startLng = (start[1] * Math.PI) / 180;
+  const endLat = (end[0] * Math.PI) / 180;
+  const endLng = (end[1] * Math.PI) / 180;
+  const dLng = endLng - startLng;
+  const y = Math.sin(dLng) * Math.cos(endLat);
+  const x =
+    Math.cos(startLat) * Math.sin(endLat) -
+    Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+  const brng = (Math.atan2(y, x) * 180) / Math.PI;
+  return (brng + 360) % 360;
 }
 
-function MapResizer() {
-  const map = useMap();
-  useEffect(() => {
-    const t1 = setTimeout(() => map.invalidateSize(), 150);
-    const t2 = setTimeout(() => map.invalidateSize(), 450);
-    const handleResize = () => map.invalidateSize();
-    window.addEventListener("resize", handleResize);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [map]);
-  return null;
+/* ─── MARKER GENERATORS ────────────────────────────────────────────── */
+function createDriverMarkerEl(): { container: HTMLElement; carIcon: HTMLElement } {
+  const container = document.createElement("div");
+  container.style.width = "48px";
+  container.style.height = "48px";
+  container.style.display = "flex";
+  container.style.alignItems = "center";
+  container.style.justifyContent = "center";
+
+  const carIcon = document.createElement("div");
+  carIcon.style.width = "42px";
+  carIcon.style.height = "42px";
+  carIcon.style.background = "#0a0a0a";
+  carIcon.style.borderRadius = "50%";
+  carIcon.style.display = "flex";
+  carIcon.style.alignItems = "center";
+  carIcon.style.justifyContent = "center";
+  carIcon.style.boxShadow =
+    "0 0 0 3px #ffffff, 0 0 0 5px #0a0a0a, 0 8px 24px rgba(0,0,0,0.4)";
+  carIcon.style.transition = "transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)";
+
+  carIcon.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 11L6.5 6.5H17.5L19 11" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+      <rect x="3" y="11" width="18" height="7" rx="2" stroke="white" stroke-width="1.6"/>
+      <circle cx="7.5" cy="18.5" r="1.5" fill="white"/>
+      <circle cx="16.5" cy="18.5" r="1.5" fill="white"/>
+      <path d="M3 14H21" stroke="white" stroke-width="1" opacity="0.35"/>
+    </svg>
+  `;
+
+  container.appendChild(carIcon);
+  return { container, carIcon };
 }
 
-function InitialBoundsFit({
-  pickup,
-  drop,
-  driver,
-}: {
-  pickup: [number, number];
-  drop: [number, number];
-  driver: [number, number] | null;
-}) {
-  const map = useMap();
-  const fitted = useRef(false);
+function createPinEl(text: string, isBlack: boolean): HTMLElement {
+  const el = document.createElement("div");
+  el.style.display = "flex";
+  el.style.flexDirection = "column";
+  el.style.alignItems = "center";
+  el.style.filter = "drop-shadow(0 4px 14px rgba(0,0,0,0.22))";
 
-  useEffect(() => {
-    if (fitted.current) return;
-    const pts: [number, number][] = [pickup, drop];
-    if (driver) pts.push(driver);
-    try {
-      map.fitBounds(pts, { padding: [60, 60], maxZoom: 15, animate: false });
-      fitted.current = true;
-    } catch {}
-  }, [pickup, drop, driver, map]);
-
-  return null;
+  el.innerHTML = `
+    <div style="
+      background:${isBlack ? "#0a0a0a" : "#ffffff"};
+      color:${isBlack ? "#ffffff" : "#0a0a0a"};
+      padding:4px 12px;border-radius:100px;
+      font-size:9.5px;font-weight:800;letter-spacing:0.12em;
+      text-transform:uppercase;white-space:nowrap;
+      border:${isBlack ? "none" : "1.5px solid #0a0a0a"};
+      box-shadow:0 2px 10px rgba(0,0,0,0.18);
+      font-family:system-ui,-apple-system,sans-serif;
+    ">${text}</div>
+    <div style="width:2px;height:8px;background:#0a0a0a;opacity:0.6"></div>
+    <div style="
+      width:11px;height:11px;
+      background:${isBlack ? "#0a0a0a" : "#ffffff"};
+      border-radius:50%;
+      border:2.5px solid ${isBlack ? "#ffffff" : "#0a0a0a"};
+      box-shadow:0 2px 6px rgba(0,0,0,0.25);
+    "></div>
+  `;
+  return el;
 }
 
-/* ─── MAIN ────────────────────────────────────────────────────────── */
-
-export default function LiveRideMap({
+export default function LiveTrackingMap({
   driverLocation,
   pickupLocation,
   dropLocation,
   status,
   onStats,
 }: Props) {
-  const [routeToPickup, setRouteToPickup] = useState<[number, number][]>([]);
-  const [routeToDrop,   setRouteToDrop]   = useState<[number, number][]>([]);
-  const prevLocation = useRef<[number, number] | null>(null);
-  const prevStatus   = useRef<string | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
 
-  /*
-   * Status-based display logic:
-   *
-   * arriving  → show pickup marker + dashed line to pickup + solid line to drop
-   * ongoing   → hide pickup marker, clear pickup route, solid line to drop only
-   * completed → hide both routes, show only drop marker (and driver position)
-   */
-  const showPickupMarker = status === "arriving";
-  const showPickupRoute  = status === "arriving" && routeToPickup.length > 0;
-  const showDropRoute    = status !== "completed" && routeToDrop.length > 0;
+  const driverMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const carIconRef = useRef<HTMLElement | null>(null);
+  const pickupMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const dropMarkerRef = useRef<maplibregl.Marker | null>(null);
 
-  const rotateCar = (from: [number, number], to: [number, number]) => {
-    const [lat1, lng1] = from;
-    const [lat2, lng2] = to;
-    if (lat1 === lat2 && lng1 === lng2) return;
-    const dLng = (lng2 - lng1) * (Math.PI / 180);
-    const y = Math.sin(dLng) * Math.cos(lat2 * (Math.PI / 180));
-    const x =
-      Math.cos(lat1 * (Math.PI / 180)) * Math.sin(lat2 * (Math.PI / 180)) -
-      Math.sin(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.cos(dLng);
-    const angle = (Math.atan2(y, x) * (180 / Math.PI) + 360) % 360;
-    const el = document.getElementById("car-marker");
-    if (el) el.style.transform = `rotate(${angle}deg)`;
-  };
+  const lastPosRef = useRef<[number, number] | null>(null);
+  const [ready, setReady] = useState(false);
 
-function calcDistance(a: [number, number], b: [number, number]) {
-  const R = 6371;
-  const dLat = (b[0] - a[0]) * Math.PI / 180;
-  const dLon = (b[1] - a[1]) * Math.PI / 180;
-  const val =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(a[0] * Math.PI / 180) * Math.cos(b[0] * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(val), Math.sqrt(1 - val));
-  return R * c;
-}
-
+  /* ─── INITIALIZE MAP ─── */
   useEffect(() => {
-    if (!driverLocation) return;
+    if (!mapContainerRef.current || mapRef.current) return;
 
-    const base = "https://router.project-osrm.org/route/v1/driving/";
-    const qs   = "?overview=full&geometries=geojson";
-    const [dlat, dlng]   = driverLocation;
-    const [plat, plng]   = pickupLocation;
-    const [drlat, drlng] = dropLocation;
+    const initialCenter: [number, number] = driverLocation
+      ? [driverLocation[1], driverLocation[0]]
+      : [pickupLocation[1], pickupLocation[0]];
 
-    const statusChanged = prevStatus.current !== status;
-    prevStatus.current  = status;
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: VOYAGER_MAP_STYLE,
+      center: initialCenter,
+      zoom: 15.5,
+      pitch: 30, // 30-degree Uber-style road tracking angle
+      attributionControl: false,
+    });
 
-    if (status === "arriving") {
-      // Fetch route to pickup AND route to drop (for ETA display)
-      Promise.all([
-        fetch(`${base}${dlng},${dlat};${plng},${plat}${qs}`).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${base}${dlng},${dlat};${drlng},${drlat}${qs}`).then(r => r.ok ? r.json() : null).catch(() => null),
-      ]).then(([pData, dData]) => {
-        let pDist = 0;
-        let pDur = 0;
-        let dDist = 0;
-        let dDur = 0;
+    map.addControl(
+      new maplibregl.AttributionControl({ compact: true }),
+      "bottom-right"
+    );
 
-        if (pData?.routes?.length) {
-          setRouteToPickup(
-            pData.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon])
-          );
-          pDist = (pData.routes[0].distance ?? 0) / 1000;
-          pDur  = (pData.routes[0].duration ?? 0) / 60;
-        } else {
-          setRouteToPickup([driverLocation, pickupLocation]);
-          pDist = calcDistance(driverLocation, pickupLocation) * 1.25;
-          pDur  = (pDist / 25) * 60;
-        }
-
-        if (dData?.routes?.length) {
-          setRouteToDrop(
-            dData.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon])
-          );
-          dDist = (dData.routes[0].distance ?? 0) / 1000;
-          dDur  = (dData.routes[0].duration ?? 0) / 60;
-        } else {
-          setRouteToDrop([driverLocation, dropLocation]);
-          dDist = calcDistance(driverLocation, dropLocation) * 1.25;
-          dDur  = (dDist / 25) * 60;
-        }
-
-        onStats?.({
-          distanceToPickup: pDist,
-          durationToPickup: pDur,
-          distanceToDrop: dDist,
-          durationToDrop: dDur,
+    map.on("load", () => {
+      // Add route source and styling layers
+      if (!map.getSource("tracking-route")) {
+        map.addSource("tracking-route", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: [] },
+          },
         });
-      });
 
-    } else {
-      // ongoing / completed — only need driver→drop
-      if (statusChanged) setRouteToPickup([]);
-
-      fetch(`${base}${dlng},${dlat};${drlng},${drlat}${qs}`)
-        .then(r => r.ok ? r.json() : null)
-        .catch(() => null)
-        .then(dData => {
-          let dDist = 0;
-          let dDur = 0;
-          if (dData?.routes?.length) {
-            setRouteToDrop(
-              dData.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon])
-            );
-            dDist = (dData.routes[0].distance ?? 0) / 1000;
-            dDur  = (dData.routes[0].duration ?? 0) / 60;
-          } else {
-            setRouteToDrop([driverLocation, dropLocation]);
-            dDist = calcDistance(driverLocation, dropLocation) * 1.25;
-            dDur  = (dDist / 25) * 60;
-          }
-
-          onStats?.({
-            distanceToPickup: 0,
-            durationToPickup: 0,
-            distanceToDrop: dDist,
-            durationToDrop: dDur,
-          });
+        // 1. Soft Shadow
+        map.addLayer({
+          id: "tracking-shadow",
+          type: "line",
+          source: "tracking-route",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#0a0a0a",
+            "line-width": 12,
+            "line-opacity": 0.08,
+          },
         });
+
+        // 2. Casing
+        map.addLayer({
+          id: "tracking-casing",
+          type: "line",
+          source: "tracking-route",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#18181b",
+            "line-width": 5.5,
+            "line-opacity": 0.3,
+          },
+        });
+
+        // 3. Vibrant Core
+        map.addLayer({
+          id: "tracking-core",
+          type: "line",
+          source: "tracking-route",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#0a0a0a",
+            "line-width": 3.5,
+            "line-opacity": 1,
+          },
+        });
+      }
+
+      setReady(true);
+    });
+
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  /* ─── RESIZE OBSERVER ─── */
+  useEffect(() => {
+    const handleResize = () => {
+      mapRef.current?.resize();
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  /* ─── STATIC PINS (PICKUP & DROP) ─── */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    if (!pickupMarkerRef.current && pickupLocation) {
+      const el = createPinEl("PICKUP", true);
+      pickupMarkerRef.current = new maplibregl.Marker({
+        element: el,
+        anchor: "bottom",
+      })
+        .setLngLat([pickupLocation[1], pickupLocation[0]])
+        .addTo(map);
     }
 
-    if (prevLocation.current) rotateCar(prevLocation.current, driverLocation);
-    prevLocation.current = driverLocation;
-  }, [driverLocation, status]);
+    if (!dropMarkerRef.current && dropLocation) {
+      const el = createPinEl("DROP", false);
+      dropMarkerRef.current = new maplibregl.Marker({
+        element: el,
+        anchor: "bottom",
+      })
+        .setLngLat([dropLocation[1], dropLocation[0]])
+        .addTo(map);
+    }
+  }, [pickupLocation, dropLocation, ready]);
+
+  /* ─── DYNAMIC DRIVER MOVEMENT & BEARING ─── */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !driverLocation) return;
+
+    // Calculate heading / bearing angle
+    if (lastPosRef.current && carIconRef.current) {
+      const dist = Math.hypot(
+        driverLocation[0] - lastPosRef.current[0],
+        driverLocation[1] - lastPosRef.current[1]
+      );
+      if (dist > 0.00005) {
+        const bearing = calculateBearing(lastPosRef.current, driverLocation);
+        carIconRef.current.style.transform = `rotate(${Math.round(bearing)}deg)`;
+      }
+    }
+    lastPosRef.current = driverLocation;
+
+    // Initialize or update driver marker
+    if (!driverMarkerRef.current) {
+      const { container, carIcon } = createDriverMarkerEl();
+      carIconRef.current = carIcon;
+      driverMarkerRef.current = new maplibregl.Marker({
+        element: container,
+        anchor: "center",
+      })
+        .setLngLat([driverLocation[1], driverLocation[0]])
+        .addTo(map);
+    } else {
+      driverMarkerRef.current.setLngLat([driverLocation[1], driverLocation[0]]);
+    }
+
+    // Smooth auto-follow camera tracking
+    map.easeTo({
+      center: [driverLocation[1], driverLocation[0]],
+      zoom: Math.max(map.getZoom(), 15.5),
+      duration: 800,
+    });
+  }, [driverLocation, ready]);
+
+  /* ─── RE-ROUTE CALCULATION WITH VALHALLA ─── */
+  const updateRoute = useCallback(async () => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    const currentOrigin = driverLocation || pickupLocation;
+    const currentDest = status === "arriving" ? pickupLocation : dropLocation;
+
+    try {
+      const routeData = await getValhallaRoute([currentOrigin, currentDest], {
+        alternates: 0,
+      });
+      const active = routeData.primary;
+
+      const source = map.getSource("tracking-route") as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData({
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: active.geojsonCoords,
+          },
+        });
+      }
+
+      if (onStats) {
+        if (status === "arriving") {
+          onStats({
+            distanceToPickup: active.distanceKm,
+            durationToPickup: active.durationMinutes,
+            distanceToDrop: 0,
+            durationToDrop: 0,
+          });
+        } else {
+          onStats({
+            distanceToPickup: 0,
+            durationToPickup: 0,
+            distanceToDrop: active.distanceKm,
+            durationToDrop: active.durationMinutes,
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Live route update error:", err);
+    }
+  }, [driverLocation, pickupLocation, dropLocation, status, ready, onStats]);
+
+  useEffect(() => {
+    updateRoute();
+  }, [updateRoute]);
 
   return (
-    <MapContainer
-      center={pickupLocation}
-      zoom={14}
-      style={{ height: "100%", width: "100%" }}
-      scrollWheelZoom
-      zoomControl={false}
-    >
-      <MapResizer />
-      <InitialBoundsFit pickup={pickupLocation} drop={dropLocation} driver={driverLocation} />
-
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        subdomains={["a", "b", "c", "d"]}
-        maxZoom={20}
-      />
-
-      <AutoFollow pos={driverLocation} />
-
-      {/* Driver */}
-      {driverLocation && (
-        <Marker position={driverLocation} icon={driverIcon}>
-          <Tooltip permanent={false} direction="top" offset={[0, -32]}>
-            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", fontFamily: "system-ui" }}>
-              YOUR DRIVER
-            </span>
-          </Tooltip>
-        </Marker>
-      )}
-
-      {/* Pickup marker — only while driver is still arriving */}
-      {showPickupMarker && (
-        <Marker position={pickupLocation} icon={pickupIcon} />
-      )}
-
-      {/* Drop marker — always visible */}
-      <Marker position={dropLocation} icon={dropIcon} />
-
-      {/* Dashed line → pickup (arriving only) */}
-      {showPickupRoute && (
-        <Polyline
-          positions={routeToPickup}
-          pathOptions={{ color: "#888", weight: 4, dashArray: "2 10", lineCap: "round" }}
-        />
-      )}
-
-      {/* Solid line → drop (arriving + ongoing) */}
-      {showDropRoute && (
-        <Polyline
-          positions={routeToDrop}
-          pathOptions={{ color: "#0a0a0a", weight: 5, lineCap: "round", lineJoin: "round" }}
-        />
-      )}
-    </MapContainer>
+    <div className="relative w-full h-full overflow-hidden select-none bg-zinc-100">
+      <div ref={mapContainerRef} className="w-full h-full" />
+    </div>
   );
 }

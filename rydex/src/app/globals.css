@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
 @import "leaflet/dist/leaflet.css";
 /* Hide scrollbar but keep scroll */
 .scrollbar-hide {

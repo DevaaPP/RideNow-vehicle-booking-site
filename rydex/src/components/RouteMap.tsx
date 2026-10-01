@@ -1,17 +1,11 @@
 "use client";
 
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Polyline,
-  Tooltip,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import * as maplibregl from "maplibre-gl";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Navigation2 } from "lucide-react";
+import { MapPin, Navigation2, Compass, Layers } from "lucide-react";
+import { VOYAGER_MAP_STYLE } from "@/lib/mapConfig";
+import { getValhallaRoute, MultiRouteResult, RouteResult } from "@/lib/valhalla";
 
 type Props = {
   pickup: string;
@@ -19,8 +13,17 @@ type Props = {
   pickupCoords?: [number, number] | null;
   dropCoords?: [number, number] | null;
   onDistance?: (km: number) => void;
-  onChange?: (pickup: string, drop: string, p1?: [number, number] | null, p2?: [number, number] | null, pickupCountry?: string | null) => void;
-  onCoordinatesChange?: (p1: [number, number] | null, p2: [number, number] | null) => void;
+  onChange?: (
+    pickup: string,
+    drop: string,
+    p1?: [number, number] | null,
+    p2?: [number, number] | null,
+    pickupCountry?: string | null
+  ) => void;
+  onCoordinatesChange?: (
+    p1: [number, number] | null,
+    p2: [number, number] | null
+  ) => void;
   vehicles?: any[];
   disableFallbackGeocode?: boolean;
   smartPickups?: any[];
@@ -28,11 +31,61 @@ type Props = {
   stops?: Array<{ address: string; lat: number; lng: number }>;
 };
 
-/* ─── ICONS ── black/white theme ─────────────────────────────────── */
+/* ─── DOM MARKER GENERATORS ────────────────────────────────────────── */
 
-const createStopIcon = (index: number) => new L.DivIcon({
-  html: `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.22))">
+function createPickupEl(): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "cursor-grab active:cursor-grabbing select-none";
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,0.28));">
+      <div style="
+        background:#0a0a0a;color:#fff;
+        padding:5px 14px;border-radius:100px;
+        font-size:10px;font-weight:800;letter-spacing:0.14em;
+        text-transform:uppercase;white-space:nowrap;
+        font-family:-apple-system,system-ui,sans-serif;
+        box-shadow:0 2px 12px rgba(0,0,0,0.25);
+      ">PICKUP</div>
+      <div style="width:2px;height:10px;background:#0a0a0a;opacity:0.6"></div>
+      <div style="
+        width:13px;height:13px;background:#0a0a0a;border-radius:50%;
+        border:3px solid #fff;
+        box-shadow:0 0 0 2px rgba(0,0,0,0.18), 0 3px 8px rgba(0,0,0,0.3);
+      "></div>
+    </div>
+  `;
+  return el;
+}
+
+function createDropEl(): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "cursor-grab active:cursor-grabbing select-none";
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,0.2));">
+      <div style="
+        background:#fff;color:#0a0a0a;
+        padding:5px 14px;border-radius:100px;
+        font-size:10px;font-weight:800;letter-spacing:0.14em;
+        text-transform:uppercase;white-space:nowrap;
+        font-family:-apple-system,system-ui,sans-serif;
+        border:1.5px solid #0a0a0a;
+        box-shadow:0 2px 12px rgba(0,0,0,0.15);
+      ">DROP</div>
+      <div style="width:2px;height:10px;background:#0a0a0a;opacity:0.6"></div>
+      <div style="
+        width:13px;height:13px;background:#fff;border-radius:50%;
+        border:3px solid #0a0a0a;
+        box-shadow:0 0 0 2px rgba(0,0,0,0.1), 0 3px 8px rgba(0,0,0,0.2);
+      "></div>
+    </div>
+  `;
+  return el;
+}
+
+function createStopEl(index: number): HTMLElement {
+  const el = document.createElement("div");
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(37,99,235,0.25));">
       <div style="
         background:#2563eb;color:#fff;
         padding:4px 10px;border-radius:100px;
@@ -47,205 +100,55 @@ const createStopIcon = (index: number) => new L.DivIcon({
         border:2.5px solid #fff;
         box-shadow:0 0 0 2px rgba(37,99,235,0.2), 0 3px 8px rgba(0,0,0,0.25);
       "></div>
-    </div>`,
-  className: "",
-  iconSize: [70, 50],
-  iconAnchor: [35, 50],
-});
+    </div>
+  `;
+  return el;
+}
 
-const pickupIcon = new L.DivIcon({
-  html: `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.22))">
+function createSmartPickupEl(spot: any): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "cursor-pointer transition-transform hover:scale-110";
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(16,185,129,0.35));">
       <div style="
-        background:#0a0a0a;color:#fff;
-        padding:5px 14px;border-radius:100px;
-        font-size:10px;font-weight:800;letter-spacing:0.14em;
+        background:#10b981;color:#fff;
+        padding:4px 10px;border-radius:100px;
+        font-size:9px;font-weight:800;letter-spacing:0.08em;
         text-transform:uppercase;white-space:nowrap;
         font-family:-apple-system,system-ui,sans-serif;
-        box-shadow:0 2px 12px rgba(0,0,0,0.25);
-      ">PICKUP</div>
-      <div style="width:2px;height:10px;background:#0a0a0a;opacity:0.4"></div>
+        box-shadow:0 2px 8px rgba(16,185,129,0.4);
+      ">🚶 ${spot.spotName || "HOTSPOT"}</div>
+      <div style="width:2px;height:6px;background:#10b981;opacity:0.6"></div>
       <div style="
-        width:13px;height:13px;background:#0a0a0a;border-radius:50%;
-        border:3px solid #fff;
-        box-shadow:0 0 0 2px rgba(0,0,0,0.15), 0 3px 10px rgba(0,0,0,0.3);
+        width:10px;height:10px;background:#10b981;border-radius:50%;
+        border:2px solid #fff;
       "></div>
-    </div>`,
-  className: "",
-  iconSize: [90, 58],
-  iconAnchor: [45, 58],
-});
+    </div>
+  `;
+  return el;
+}
 
-const dropIcon = new L.DivIcon({
-  html: `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.2))">
-      <div style="
-        background:#fff;color:#0a0a0a;
-        padding:5px 14px;border-radius:100px;
-        font-size:10px;font-weight:800;letter-spacing:0.14em;
-        text-transform:uppercase;white-space:nowrap;
-        font-family:-apple-system,system-ui,sans-serif;
-        border:1.5px solid #0a0a0a;
-        box-shadow:0 2px 12px rgba(0,0,0,0.15);
-      ">DROP</div>
-      <div style="width:2px;height:10px;background:#0a0a0a;opacity:0.4"></div>
-      <div style="
-        width:13px;height:13px;background:#fff;border-radius:50%;
-        border:3px solid #0a0a0a;
-        box-shadow:0 0 0 2px rgba(0,0,0,0.08), 0 3px 10px rgba(0,0,0,0.2);
-      "></div>
-    </div>`,
-  className: "",
-  iconSize: [80, 58],
-  iconAnchor: [40, 58],
-});
-
-const carMarkerIcon = new L.DivIcon({
-  html: `
+function createVehicleEl(type: string): HTMLElement {
+  const isBike = type === "bike";
+  const el = document.createElement("div");
+  el.innerHTML = `
     <div style="
       background:#0a0a0a;
-      width:34px; height:34px;
+      width:30px; height:30px;
       border-radius:50%;
       display:flex; align-items:center; justify-content:center;
-      box-shadow:0 0 0 2px #fff, 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow:0 0 0 2px #fff, 0 4px 14px rgba(0,0,0,0.28);
     ">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5 11L6.5 6.5H17.5L19 11" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        <rect x="3" y="11" width="18" height="7" rx="2" stroke="white" stroke-width="2"/>
-        <circle cx="7.5" cy="18.5" r="1.5" fill="white"/>
-        <circle cx="16.5" cy="18.5" r="1.5" fill="white"/>
-      </svg>
-    </div>`,
-  className: "",
-  iconSize: [34, 34],
-  iconAnchor: [17, 17],
-});
-
-const smartPickupIcon = new L.DivIcon({
-  html: `
-    <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 4px 14px rgba(22,163,74,0.45));">
-      <div style="
-        background:#16a34a;color:#fff;
-        padding:4px 10px;border-radius:100px;
-        font-size:9px;font-weight:800;letter-spacing:0.06em;
-        text-transform:uppercase;white-space:nowrap;
-        font-family:-apple-system,system-ui,sans-serif;
-        box-shadow:0 2px 8px rgba(0,0,0,0.2);
-      ">SMART PICKUP</div>
-      <div style="width:2px;height:7px;background:#16a34a;"></div>
-      <div style="
-        width:14px;height:14px;background:#16a34a;border-radius:50%;
-        border:2.5px solid #fff;
-        box-shadow:0 0 0 3px rgba(22,163,74,0.3);
-      "></div>
-    </div>`,
-  className: "",
-  iconSize: [110, 55],
-  iconAnchor: [55, 55],
-});
-
-/* ─── FIT BOUNDS ──────────────────────────────────────────────────── */
-function FitBounds({ p1, p2, route, stops }: { p1: [number, number]; p2: [number, number]; route?: [number, number][]; stops?: Array<{ lat: number; lng: number }> }) {
-  const map = useMap();
-  useEffect(() => {
-    map.invalidateSize();
-    const pts: [number, number][] = (route && route.length > 0)
-      ? route
-      : [p1, ...(stops ? stops.map(s => [s.lat, s.lng] as [number, number]) : []), p2];
-    map.fitBounds(pts as L.LatLngBoundsExpression, { padding: [60, 60], maxZoom: 15, animate: true, duration: 0.8 });
-  }, [p1, p2, route, stops, map]);
-  return null;
-}
-
-function CenterMap({ center }: { center: [number, number] | null }) {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      map.setView(center, map.getZoom() < 13 ? 13 : map.getZoom(), { animate: true });
-    }
-  }, [center, map]);
-  return null;
-}
-
-function MapResizer() {
-  const map = useMap();
-  useEffect(() => {
-    const t1 = setTimeout(() => map.invalidateSize(), 150);
-    const t2 = setTimeout(() => map.invalidateSize(), 450);
-    const handleResize = () => map.invalidateSize();
-    window.addEventListener("resize", handleResize);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [map]);
-  return null;
-}
-
-function getHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371; // Earth radius in km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-function generateInterpolatedRoute(a: [number, number], b: [number, number], segments = 10): [number, number][] {
-  const points: [number, number][] = [];
-  const midLat = (a[0] + b[0]) / 2;
-  const midLng = (a[1] + b[1]) / 2;
-  const offsetLat = (b[1] - a[1]) * 0.08;
-  const offsetLng = (a[0] - b[0]) * 0.08;
-
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
-    const lat = (1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * (midLat + offsetLat) + t * t * b[0];
-    const lng = (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * (midLng + offsetLng) + t * t * b[1];
-    points.push([lat, lng]);
-  }
-  return points;
-}
-
-/* ─── ZOOM CONTROLS (inside MapContainer) ────────────────────────── */
-function ZoomControlsWrapper() {
-  const map = useMap();
-  return (
-    <div
-      style={{ position: "absolute", bottom: 24, right: 16, zIndex: 500, display: "flex", flexDirection: "column", gap: 6 }}
-      onClick={e => e.stopPropagation()}
-    >
-      {[
-        { label: "+", action: () => map.zoomIn()  },
-        { label: "−", action: () => map.zoomOut() },
-      ].map(({ label, action }) => (
-        <button
-          key={label}
-          onClick={action}
-          style={{
-            width: 40, height: 40,
-            background: "#fff",
-            border: "1.5px solid #e4e4e7",
-            borderRadius: 12,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", color: "#0a0a0a",
-            fontSize: 18, fontWeight: 400,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
-            transition: "background 0.15s, box-shadow 0.15s",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#f4f4f5"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.14)"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "#fff";    e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.1)";  }}
-        >{label}</button>
-      ))}
+      ${
+        isBike
+          ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>`
+          : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 11L6.5 6.5H17.5L19 11"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/></svg>`
+      }
     </div>
-  );
+  `;
+  return el;
 }
 
-/* ─── MAIN ────────────────────────────────────────────────────────── */
 export default function RouteMap({
   pickup,
   drop,
@@ -260,35 +163,32 @@ export default function RouteMap({
   onSelectSmartPickup,
   stops,
 }: Props) {
-  const [p1,    setP1]    = useState<[number, number] | null>(null);
-  const [p2,    setP2]    = useState<[number, number] | null>(null);
-  const [route, setRoute] = useState<[number, number][]>([]);
-  const [ready, setReady] = useState(true);
-  const [km,    setKm]    = useState<number | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
 
+  const pickupMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const dropMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const stopMarkersRef = useRef<maplibregl.Marker[]>([]);
+  const smartPickupMarkersRef = useRef<maplibregl.Marker[]>([]);
+  const vehicleMarkersRef = useRef<maplibregl.Marker[]>([]);
+
+  const [p1, setP1] = useState<[number, number] | null>(pickupCoords ?? null);
+  const [p2, setP2] = useState<[number, number] | null>(dropCoords ?? null);
+  const [ready, setReady] = useState(false);
+  const [km, setKm] = useState<number | null>(null);
+  const [durationMin, setDurationMin] = useState<number | null>(null);
+  const [routingEngine, setRoutingEngine] = useState<string>("valhalla");
+
+  // Keep state synced with incoming props
   useEffect(() => {
-    setP1(pickupCoords ?? null);
+    if (pickupCoords) setP1(pickupCoords);
   }, [pickupCoords]);
 
   useEffect(() => {
-    setP2(dropCoords ?? null);
+    if (dropCoords) setP2(dropCoords);
   }, [dropCoords]);
 
-  const geocode = async (q: string): Promise<[number, number] | null> => {
-    if (!q) return null;
-    try {
-      const r = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(q)}`);
-      const d = await r.json();
-      if (d?.results?.length) {
-        const loc = d.results[0].geometry.location;
-        return [loc.lat, loc.lng];
-      }
-    } catch (err) {
-      console.error("Geocoding failed in RouteMap:", err);
-    }
-    return null;
-  };
-
+  /* ─── GEOCODING UTILITIES ─── */
   const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
     try {
       const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
@@ -297,264 +197,339 @@ export default function RouteMap({
         return d.results[0].formatted_address;
       }
     } catch (err) {
-      console.error("Reverse geocoding failed in RouteMap:", err);
+      console.error("Reverse geocode failed:", err);
     }
     return "";
   };
 
-  const loadRoute = async (
-    a: [number, number],
-    b: [number, number],
-    intermediateStops?: Array<{ address: string; lat: number; lng: number }>
-  ) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+  /* ─── INITIALIZE MAPLIBRE ─── */
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
 
-    const validWaypoints = (intermediateStops || []).filter(
-      (s) => s && typeof s.lat === "number" && typeof s.lng === "number"
+    const initialCenter: [number, number] = p1 ? [p1[1], p1[0]] : [78.9629, 20.5937]; // [lng, lat]
+    const initialZoom = p1 ? 13 : 4.5;
+
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: VOYAGER_MAP_STYLE,
+      center: initialCenter,
+      zoom: initialZoom,
+      pitch: 15, // Subtle 3D perspective like modern ride apps
+      attributionControl: false,
+    });
+
+    map.addControl(
+      new maplibregl.AttributionControl({ compact: true }),
+      "bottom-right"
     );
-    const allPoints: [number, number][] = [
-      a,
-      ...validWaypoints.map((s) => [s.lat, s.lng] as [number, number]),
-      b,
-    ];
-    const coordString = allPoints.map(([lat, lon]) => `${lon},${lat}`).join(";");
 
-    try {
-      const r = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`,
-        { signal: controller.signal }
+    map.on("load", () => {
+      // Add empty route sources & layers
+      if (!map.getSource("route-source")) {
+        map.addSource("route-source", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: [] },
+          },
+        });
+
+        // 1. Soft Shadow Layer
+        map.addLayer({
+          id: "route-shadow",
+          type: "line",
+          source: "route-source",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#0a0a0a",
+            "line-width": 14,
+            "line-opacity": 0.08,
+          },
+        });
+
+        // 2. Route Casing Layer
+        map.addLayer({
+          id: "route-casing",
+          type: "line",
+          source: "route-source",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#18181b",
+            "line-width": 6,
+            "line-opacity": 0.35,
+          },
+        });
+
+        // 3. Core Vibrant Route Layer
+        map.addLayer({
+          id: "route-core",
+          type: "line",
+          source: "route-source",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#0a0a0a",
+            "line-width": 3.8,
+            "line-opacity": 1,
+          },
+        });
+      }
+
+      setReady(true);
+    });
+
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  /* ─── UPDATE ROUTE & LAYERS ─── */
+  const renderRoute = useCallback(
+    async (
+      pickupPt: [number, number],
+      dropPt: [number, number],
+      interStops?: Array<{ address: string; lat: number; lng: number }>
+    ) => {
+      const map = mapRef.current;
+      if (!map || !map.isStyleLoaded()) return;
+
+      const validStops = (interStops || []).filter(
+        (s) => s && typeof s.lat === "number" && typeof s.lng === "number"
       );
-      clearTimeout(timeoutId);
+      const waypoints: [number, number][] = [
+        pickupPt,
+        ...validStops.map((s) => [s.lat, s.lng] as [number, number]),
+        dropPt,
+      ];
 
-      if (!r.ok) throw new Error(`OSRM HTTP status ${r.status}`);
+      try {
+        const routeData: MultiRouteResult = await getValhallaRoute(waypoints);
+        const activeRoute = routeData.primary;
 
-      const d = await r.json();
-      if (!d?.routes?.length || !d.routes[0]?.geometry?.coordinates) {
-        throw new Error("No routes returned by OSRM");
-      }
+        setKm(activeRoute.distanceKm);
+        setDurationMin(activeRoute.durationMinutes);
+        setRoutingEngine(activeRoute.engine);
+        onDistance?.(activeRoute.distanceKm);
 
-      const coords: [number, number][] = d.routes[0].geometry.coordinates.map(
-        ([lon, lat]: number[]) => [lat, lon]
-      );
-      const distKm = +((d.routes[0].distance / 1000).toFixed(2));
-
-      setRoute(coords);
-      setKm(distKm);
-      onDistance?.(distKm);
-    } catch (err) {
-      clearTimeout(timeoutId);
-      console.warn("OSRM routing unavailable or timed out, using fallback routing:", err);
-
-      let totalDirectDist = 0;
-      let combinedFallback: [number, number][] = [];
-
-      for (let i = 0; i < allPoints.length - 1; i++) {
-        const pStart = allPoints[i];
-        const pEnd = allPoints[i + 1];
-        totalDirectDist += getHaversineDistance(pStart[0], pStart[1], pEnd[0], pEnd[1]);
-        const legPoints = generateInterpolatedRoute(pStart, pEnd);
-        combinedFallback = i === 0 ? legPoints : [...combinedFallback, ...legPoints.slice(1)];
-      }
-
-      const estimatedRoadKm = +((totalDirectDist * 1.25).toFixed(2));
-
-      setRoute(combinedFallback.length ? combinedFallback : generateInterpolatedRoute(a, b));
-      setKm(estimatedRoadKm);
-      onDistance?.(estimatedRoadKm);
-    }
-  };
-
-  // Fallback geocoding for string-only inputs (like search results page)
-  useEffect(() => {
-    if (disableFallbackGeocode) return;
-    (async () => {
-      if (!pickupCoords && pickup) {
-        const a = await geocode(pickup);
-        if (a) setP1(a);
-      } else if (!pickup) {
-        setP1(null);
-      }
-    })();
-  }, [pickup, pickupCoords, disableFallbackGeocode]);
-
-  useEffect(() => {
-    if (disableFallbackGeocode) return;
-    (async () => {
-      if (!dropCoords && drop) {
-        const b = await geocode(drop);
-        if (b) setP2(b);
-      } else if (!drop) {
-        setP2(null);
-      }
-    })();
-  }, [drop, dropCoords, disableFallbackGeocode]);
-
-  // Sync coords back if they change
-  useEffect(() => {
-    onCoordinatesChange?.(p1, p2);
-  }, [p1, p2, onCoordinatesChange]);
-
-  useEffect(() => {
-    if (p1 && p2) {
-      loadRoute(p1, p2, stops);
-    } else {
-      setRoute([]);
-      setKm(null);
-    }
-  }, [p1, p2, stops]);
-
-  const onDragPickup = async (lat: number, lon: number) => {
-    try {
-      const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
-      const d = await r.json();
-      if (d?.results?.length) {
-        const first = d.results[0];
-        const addr = first.formatted_address;
-        let cc = "in";
-        if (first.address_components) {
-          const countryComp = first.address_components.find((c: any) => c.types.includes("country"));
-          if (countryComp) {
-            cc = String(countryComp.short_name || "in").toLowerCase();
-          }
+        const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+        if (source) {
+          source.setData({
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: activeRoute.geojsonCoords,
+            },
+          });
         }
-        setP1([lat, lon]);
-        onChange?.(addr, drop, [lat, lon], p2, cc);
-      } else {
-        const fallbackAddr = `Map Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
-        setP1([lat, lon]);
-        onChange?.(fallbackAddr, drop, [lat, lon], p2, null);
-      }
-    } catch (err) {
-      console.error("onDragPickup reverse geocoding failed:", err);
-      const fallbackAddr = `Map Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
-      setP1([lat, lon]);
-      onChange?.(fallbackAddr, drop, [lat, lon], p2, null);
-    }
-  };
 
-  const onDragDrop = async (lat: number, lon: number) => {
-    let addr = await reverseGeocode(lat, lon);
-    if (!addr) {
-      addr = `Map Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
+        // Fit map bounds to accommodate entire route
+        const bounds = new maplibregl.LngLatBounds();
+        for (const coord of activeRoute.geojsonCoords) {
+          bounds.extend(coord as [number, number]);
+        }
+
+        map.fitBounds(bounds, {
+          padding: { top: 75, bottom: 85, left: 60, right: 60 },
+          duration: 900,
+          maxZoom: 16.5,
+        });
+      } catch (err) {
+        console.error("Failed to render Valhalla route:", err);
+      }
+    },
+    [onDistance]
+  );
+
+  /* ─── UPDATE MARKERS ON MAP ─── */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    // 1. Pickup Marker
+    if (p1) {
+      if (!pickupMarkerRef.current) {
+        const el = createPickupEl();
+        const marker = new maplibregl.Marker({
+          element: el,
+          draggable: true,
+          anchor: "bottom",
+        })
+          .setLngLat([p1[1], p1[0]])
+          .addTo(map);
+
+        marker.on("dragend", async () => {
+          const lngLat = marker.getLngLat();
+          const newPt: [number, number] = [lngLat.lat, lngLat.lng];
+          setP1(newPt);
+          onCoordinatesChange?.(newPt, p2);
+          const addr = await reverseGeocode(newPt[0], newPt[1]);
+          if (addr && onChange) onChange(addr, drop, newPt, p2);
+        });
+
+        pickupMarkerRef.current = marker;
+      } else {
+        pickupMarkerRef.current.setLngLat([p1[1], p1[0]]);
+      }
+    } else if (pickupMarkerRef.current) {
+      pickupMarkerRef.current.remove();
+      pickupMarkerRef.current = null;
     }
-    setP2([lat, lon]);
-    onChange?.(pickup, addr, p1, [lat, lon]);
-  };
+
+    // 2. Drop Marker
+    if (p2) {
+      if (!dropMarkerRef.current) {
+        const el = createDropEl();
+        const marker = new maplibregl.Marker({
+          element: el,
+          draggable: true,
+          anchor: "bottom",
+        })
+          .setLngLat([p2[1], p2[0]])
+          .addTo(map);
+
+        marker.on("dragend", async () => {
+          const lngLat = marker.getLngLat();
+          const newPt: [number, number] = [lngLat.lat, lngLat.lng];
+          setP2(newPt);
+          onCoordinatesChange?.(p1, newPt);
+          const addr = await reverseGeocode(newPt[0], newPt[1]);
+          if (addr && onChange) onChange(pickup, addr, p1, newPt);
+        });
+
+        dropMarkerRef.current = marker;
+      } else {
+        dropMarkerRef.current.setLngLat([p2[1], p2[0]]);
+      }
+    } else if (dropMarkerRef.current) {
+      dropMarkerRef.current.remove();
+      dropMarkerRef.current = null;
+    }
+
+    // 3. Multi-stop markers
+    stopMarkersRef.current.forEach((m) => m.remove());
+    stopMarkersRef.current = [];
+    if (stops && stops.length > 0) {
+      stops.forEach((s, idx) => {
+        if (typeof s.lat === "number" && typeof s.lng === "number") {
+          const el = createStopEl(idx);
+          const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
+            .setLngLat([s.lng, s.lat])
+            .setPopup(
+              new maplibregl.Popup({ offset: 25, closeButton: false }).setHTML(
+                `<div style="font-family:sans-serif;padding:2px 4px;"><strong style="color:#2563eb;font-size:11px;">STOP ${
+                  idx + 1
+                }</strong><p style="font-size:10px;margin:2px 0 0 0;color:#333;">${
+                  s.address
+                }</p></div>`
+              )
+            )
+            .addTo(map);
+          stopMarkersRef.current.push(marker);
+        }
+      });
+    }
+
+    // 4. Render Route if both endpoints are set
+    if (p1 && p2) {
+      renderRoute(p1, p2, stops);
+    } else {
+      // Clear route
+      const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: [] },
+        });
+      }
+      setKm(null);
+      setDurationMin(null);
+    }
+  }, [p1, p2, stops, ready, renderRoute]);
+
+  // 5. Smart Pickups Markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    smartPickupMarkersRef.current.forEach((m) => m.remove());
+    smartPickupMarkersRef.current = [];
+
+    if (smartPickups && smartPickups.length > 0) {
+      smartPickups.forEach((spot) => {
+        const el = createSmartPickupEl(spot);
+        el.onclick = () => onSelectSmartPickup?.(spot);
+        const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
+          .setLngLat([spot.lng, spot.lat])
+          .addTo(map);
+        smartPickupMarkersRef.current.push(marker);
+      });
+    }
+  }, [smartPickups, ready, onSelectSmartPickup]);
+
+  // 6. Nearby Vehicle Markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    vehicleMarkersRef.current.forEach((m) => m.remove());
+    vehicleMarkersRef.current = [];
+
+    if (vehicles && vehicles.length > 0) {
+      vehicles.forEach((v) => {
+        const loc = v.location?.coordinates || v.location;
+        if (!loc || loc.length < 2) return;
+        const [lng, lat] = loc;
+        const el = createVehicleEl(v.type || "car");
+        const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+          .setLngLat([lng, lat])
+          .addTo(map);
+        vehicleMarkersRef.current.push(marker);
+      });
+    }
+  }, [vehicles, ready]);
 
   return (
-    <div className="relative h-full w-full bg-zinc-100">
+    <div className="relative w-full h-full overflow-hidden select-none bg-zinc-100">
+      {/* MapLibre DOM Container */}
+      <div ref={mapContainerRef} className="w-full h-full" />
 
-      {/* ── MAP ── */}
-      <MapContainer
-        center={p1 ?? [20.5937, 78.9629]}
-        zoom={p1 ? 13 : 5}
-        style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom
-        dragging
-        zoomControl={false}
+      {/* ── ZOOM & PITCH CONTROLS ── */}
+      <div
+        className="absolute bottom-6 right-4 z-20 flex flex-col gap-2"
+        onClick={(e) => e.stopPropagation()}
       >
-        <CenterMap center={p1} />
-        <MapResizer />
-
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          subdomains={["a", "b", "c", "d"]}
-          maxZoom={20}
-        />
-
-        {p1 && p2 && <FitBounds p1={p1} p2={p2} route={route} stops={stops} />}
-
-        {p1 && (
-          <Marker
-            position={p1}
-            icon={pickupIcon}
-            draggable
-            eventHandlers={{ dragend: e => { const m = e.target.getLatLng(); onDragPickup(m.lat, m.lng); } }}
-          />
-        )}
-
-        {p2 && (
-          <Marker
-            position={p2}
-            icon={dropIcon}
-            draggable
-            eventHandlers={{ dragend: e => { const m = e.target.getLatLng(); onDragDrop(m.lat, m.lng); } }}
-          />
-        )}
-
-        {vehicles && vehicles.map((v) => {
-          if (!v.location?.coordinates) return null;
-          const [lng, lat] = v.location.coordinates;
-          return (
-            <Marker
-              key={v._id}
-              position={[lat, lng]}
-              icon={carMarkerIcon}
-            >
-              <Tooltip direction="top" offset={[0, -10]}>
-                <span style={{ textTransform: "capitalize", fontWeight: "bold", fontSize: "11px" }}>
-                  {v.type} ({v.vehicleModel})
-                </span>
-              </Tooltip>
-            </Marker>
-          );
-        })}
-
-        {/* Smart Pickups Hotspot Pins */}
-        {smartPickups && smartPickups.map((spot) => (
-          <Marker
-            key={spot.id}
-            position={[spot.lat, spot.lng]}
-            icon={smartPickupIcon}
-            eventHandlers={{
-              click: () => onSelectSmartPickup?.(spot),
-            }}
-          >
-            <Tooltip direction="top" offset={[0, -15]} permanent={false}>
-              <div className="p-1 font-sans">
-                <p className="font-bold text-xs text-emerald-700">{spot.venueName}</p>
-                <p className="text-[11px] text-zinc-700 font-medium">{spot.spotName}</p>
-                <p className="text-[10px] text-zinc-500 mt-0.5 font-bold">🚶 {spot.walkingTimeText}</p>
-              </div>
-            </Tooltip>
-          </Marker>
-        ))}
-
-        {/* Intermediate Stop Markers */}
-        {stops &&
-          stops.map((stop, idx) => {
-            if (typeof stop.lat !== "number" || typeof stop.lng !== "number") return null;
-            return (
-              <Marker
-                key={`multi-stop-${idx}`}
-                position={[stop.lat, stop.lng]}
-                icon={createStopIcon(idx)}
-              >
-                <Tooltip direction="top" offset={[0, -20]} permanent={false}>
-                  <div className="p-1 font-sans">
-                    <p className="font-black text-xs text-blue-600">STOP {idx + 1}</p>
-                    <p className="text-[11px] text-zinc-800 font-medium truncate max-w-[180px]">
-                      {stop.address}
-                    </p>
-                  </div>
-                </Tooltip>
-              </Marker>
-            );
-          })}
-
-        {/* Route — black triple layer on white map */}
-        {route.length > 0 && (
-          <>
-            <Polyline positions={route} pathOptions={{ color: "#0a0a0a", weight: 14, opacity: 0.05, lineCap: "round", lineJoin: "round" }} />
-            <Polyline positions={route} pathOptions={{ color: "#0a0a0a", weight: 6,  opacity: 0.12, lineCap: "round", lineJoin: "round" }} />
-            <Polyline positions={route} pathOptions={{ color: "#0a0a0a", weight: 3.5, opacity: 1,  lineCap: "round", lineJoin: "round" }} />
-          </>
-        )}
-
-        <ZoomControlsWrapper />
-      </MapContainer>
+        <button
+          onClick={() => mapRef.current?.zoomIn()}
+          aria-label="Zoom in"
+          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-900 font-semibold shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
+        >
+          +
+        </button>
+        <button
+          onClick={() => mapRef.current?.zoomOut()}
+          aria-label="Zoom out"
+          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-900 font-semibold shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
+        >
+          −
+        </button>
+        <button
+          onClick={() => {
+            const map = mapRef.current;
+            if (!map) return;
+            const currentPitch = map.getPitch();
+            map.easeTo({ pitch: currentPitch > 25 ? 0 : 45, duration: 400 });
+          }}
+          aria-label="Toggle 3D View"
+          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-700 shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
+        >
+          <Layers size={16} />
+        </button>
+      </div>
 
       {/* ── LOADING OVERLAY ── */}
       <AnimatePresence>
@@ -562,8 +537,8 @@ export default function RouteMap({
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.45 }}
-            className="absolute inset-0 z-[999] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center gap-4"
+            transition={{ duration: 0.35 }}
+            className="absolute inset-0 z-30 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center gap-4"
           >
             <div className="relative w-14 h-14 flex items-center justify-center">
               <motion.div
@@ -571,76 +546,41 @@ export default function RouteMap({
                 transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
                 className="absolute inset-0 rounded-full border-2 border-transparent border-t-zinc-900"
               />
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-2 rounded-full border border-transparent border-t-zinc-300"
-              />
-              <MapPin size={15} className="text-zinc-800" />
+              <MapPin size={16} className="text-zinc-900" />
             </div>
             <div className="text-center">
-              <p className="text-zinc-900 text-xs font-black tracking-[0.22em] uppercase">Loading Map</p>
-              <p className="text-zinc-400 text-[10px] font-medium tracking-wider mt-0.5">Plotting your route…</p>
+              <p className="text-zinc-900 text-xs font-black tracking-[0.2em] uppercase">
+                MapLibre + Valhalla
+              </p>
+              <p className="text-zinc-500 text-[11px] font-medium mt-0.5">
+                Rendering OpenStreetMap route…
+              </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── ROUTE BADGE (bottom left) ── */}
+      {/* ── ROUTE DISTANCE & ETA BADGE ── */}
       <AnimatePresence>
         {ready && km !== null && (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute bottom-6 left-4 z-[500] flex items-center gap-2 bg-white border border-zinc-200 px-3.5 py-2 rounded-xl shadow-lg"
+            className="absolute bottom-6 left-4 z-20 flex items-center gap-2.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-3.5 py-2 rounded-2xl shadow-xl"
           >
-            <Navigation2 size={13} className="text-zinc-900" />
-            <span className="text-zinc-900 text-xs font-bold">{km} km</span>
-            <span className="w-px h-3 bg-zinc-200" />
-            <span className="text-zinc-400 text-xs font-medium">
-              ~{Math.max(3, Math.round((km / 25) * 60))} min
+            <Navigation2 size={14} className="text-zinc-900" />
+            <span className="text-zinc-900 text-xs font-black">{km} km</span>
+            <span className="w-px h-3.5 bg-zinc-200" />
+            <span className="text-zinc-600 text-xs font-medium">
+              ~{durationMin ?? Math.max(3, Math.round((km / 25) * 60))} min
+            </span>
+            <span className="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
+              {routingEngine}
             </span>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* ── DRAG HINT ── */}
-      <AnimatePresence>
-        {ready && <DragHintBadge />}
-      </AnimatePresence>
     </div>
-  );
-}
-
-/* ── Drag hint auto-hides after 3s ── */
-function DragHintBadge() {
-  const [show, setShow] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setShow(false), 3200);
-    return () => clearTimeout(t);
-  }, []);
-
-  return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -4 }}
-          transition={{ delay: 0.5, duration: 0.35 }}
-          className="absolute top-14 left-1/2 -translate-x-1/2 z-[500] pointer-events-none flex items-center gap-2 bg-white border border-zinc-200 shadow-md px-3 py-1.5 rounded-full"
-        >
-          <motion.div
-            animate={{ x: [0, 4, 0, -4, 0] }}
-            transition={{ duration: 1.2, repeat: 2, ease: "easeInOut" }}
-          >
-            <MapPin size={11} className="text-zinc-500" />
-          </motion.div>
-          <span className="text-zinc-500 text-[10px] font-semibold tracking-wide">Drag pins to adjust</span>
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
