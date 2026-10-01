@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import FareConfig from "@/models/fareConfig.model";
 
@@ -13,10 +12,6 @@ const DEFAULT_RATES = [
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
 
     await connectDb();
 

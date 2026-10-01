@@ -66,6 +66,23 @@ export default function CheckoutContent() {
   const [status,        setStatus]        = useState<Status>("idle");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | null>(null);
   const [countdown,     setCountdown]     = useState(20);
+  const [rates,         setRates]         = useState<any>(null);
+  const [bookingBreakdown, setBookingBreakdown] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch("/api/vehicles/pricing");
+        const data = await res.json();
+        if (data.success) {
+          setRates(data.rates);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pricing rates in checkout:", err);
+      }
+    };
+    fetchRates();
+  }, []);
 
   /* Group Ride & Split Fare State */
   const [isGroupRide, setIsGroupRide] = useState(false);
@@ -148,6 +165,7 @@ export default function CheckoutContent() {
       if(data.success){
         setBookingId(data.booking._id);
         setFare(data.booking.fare);
+        if (data.booking.fareBreakdown) setBookingBreakdown(data.booking.fareBreakdown);
         if (data.booking.pickupAddress) setPickup(data.booking.pickupAddress);
         if (data.booking.dropAddress) setDrop(data.booking.dropAddress);
         if (isScheduledParam) {
@@ -569,61 +587,74 @@ export default function CheckoutContent() {
               </div>
 
               {/* 💰 ITEMIZED FARE BREAKDOWN RECEIPT CARD */}
-              {pickupLat && pickupLng && dropLat && dropLng && (
+              {(bookingBreakdown || (pickupLat && pickupLng && dropLat && dropLng)) && (
                 <div className="mt-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-900 mb-2.5 pb-1.5 border-b border-zinc-200 flex items-center justify-between">
-                    <span>Itemized Cost Receipt</span>
-                    <span className="text-emerald-600">Verified Fare</span>
-                  </p>
                   {(() => {
-                    const allPoints: [number, number][] = [
-                      [pickupLat, pickupLng],
-                      ...stops.map((s) => [s.lat, s.lng] as [number, number]),
-                      [dropLat, dropLng],
-                    ];
-                    let totalDist = 0;
-                    for (let i = 0; i < allPoints.length - 1; i++) {
-                      const lat1 = allPoints[i][0];
-                      const lon1 = allPoints[i][1];
-                      const lat2 = allPoints[i + 1][0];
-                      const lon2 = allPoints[i + 1][1];
-                      const dLat = (lat2 - lat1) * Math.PI / 180;
-                      const dLon = (lon2 - lon1) * Math.PI / 180;
-                      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(dropLat * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                      totalDist += 6371 * c;
+                    let breakdown = bookingBreakdown;
+                    if (!breakdown) {
+                      const allPoints: [number, number][] = [
+                        [pickupLat, pickupLng],
+                        ...stops.map((s) => [s.lat, s.lng] as [number, number]),
+                        [dropLat, dropLng],
+                      ];
+                      let totalDist = 0;
+                      for (let i = 0; i < allPoints.length - 1; i++) {
+                        const lat1 = allPoints[i][0];
+                        const lon1 = allPoints[i][1];
+                        const lat2 = allPoints[i + 1][0];
+                        const lon2 = allPoints[i + 1][1];
+                        const dLat = (lat2 - lat1) * Math.PI / 180;
+                        const dLon = (lon2 - lon1) * Math.PI / 180;
+                        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(dropLat * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        totalDist += 6371 * c;
+                      }
+                      const distKm = +totalDist.toFixed(1);
+                      breakdown = calculateFareBreakdown(vehicle, distKm, rates, undefined, 0, Boolean(userData?.isStudent));
                     }
-                    const distKm = +totalDist.toFixed(1);
-                    const breakdown = calculateFareBreakdown(vehicle, distKm, undefined, undefined, 0, Boolean(userData?.isStudent));
                     return (
-                      <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
-                        <div className="flex justify-between">
-                          <span>Base Fare</span>
-                          <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
-                        </div>
-                        <div className="flex justify-between text-[11px]">
-                          <span>Distance Fare ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
-                          <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
-                        </div>
-                        <div className="flex justify-between text-[11px]">
-                          <span>Duration Fare (~{breakdown.timeMinutes} min × ₹{breakdown.pricePerMinute}/min)</span>
-                          <span className="font-bold text-zinc-900">₹{breakdown.timeFare}</span>
-                        </div>
-                        <div className="flex justify-between text-[11px]">
-                          <span>Platform Service Fee</span>
-                          <span className="font-bold text-zinc-900">₹{breakdown.platformFee}</span>
-                        </div>
-                        <div className="flex justify-between text-[11px]">
-                          <span>Govt GST / Taxes (5%)</span>
-                          <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
-                        </div>
-                        {breakdown.isStudentDiscountApplied && (
-                          <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
-                            <span>🎓 Student Pass Discount (-10%)</span>
-                            <span>-₹{breakdown.studentDiscount}</span>
+                      <>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-900 mb-2.5 pb-1.5 border-b border-zinc-200 flex items-center justify-between">
+                          <span>Itemized Cost Receipt</span>
+                          <span className="text-emerald-600 font-bold">
+                            Verified Fare {breakdown.surgeMultiplier && breakdown.surgeMultiplier > 1 ? `(${breakdown.surgeMultiplier}x Surge)` : ""}
+                          </span>
+                        </p>
+                        <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
+                          <div className="flex justify-between">
+                            <span>Base Fare</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
                           </div>
-                        )}
-                      </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span>Distance Fare ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span>Duration Fare (~{breakdown.timeMinutes} min × ₹{breakdown.pricePerMinute}/min)</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.timeFare}</span>
+                          </div>
+                          {breakdown.surgeAmount > 0 && (
+                            <div className="flex justify-between text-[11px] text-amber-600 font-bold">
+                              <span>High Demand Surge ({breakdown.surgeMultiplier}x)</span>
+                              <span>+₹{breakdown.surgeAmount}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-[11px]">
+                            <span>Platform Service Fee</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.platformFee}</span>
+                          </div>
+                          <div className="flex justify-between text-[11px]">
+                            <span>Govt GST / Taxes (5%)</span>
+                            <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
+                          </div>
+                          {breakdown.isStudentDiscountApplied && (
+                            <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
+                              <span>🎓 Student Pass Discount (-10%)</span>
+                              <span>-₹{breakdown.studentDiscount}</span>
+                            </div>
+                          )}
+                        </div>
+                      </>
                     );
                   })()}
                 </div>
