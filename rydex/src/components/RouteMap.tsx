@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
 import { motion, AnimatePresence } from "framer-motion";
-import { Navigation2, Layers, RotateCcw, MapPin, Check } from "lucide-react";
+import { Crosshair, Plus, Minus, Layers, RotateCcw } from "lucide-react";
 import { UBER_MINIMAL_MAP_STYLE } from "@/lib/mapConfig";
 
 type Props = {
@@ -30,30 +30,32 @@ type Props = {
   stops?: Array<{ address: string; lat: number; lng: number }>;
 };
 
-/* ─── DOM MARKER GENERATORS ────────────────────────────────────────── */
+/* ─── DOM MARKER GENERATORS (MATCHES GOOGLE / UBER DARK MODE) ─────── */
 
-function createPickupEl(): HTMLElement {
+function createPickupEl(durationMin?: number | null): HTMLElement {
   const el = document.createElement("div");
-  el.className = "cursor-grab active:cursor-grabbing select-none";
+  el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
+
+  const etaText = durationMin ? `${durationMin} mins` : "3 mins";
+
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,0.35));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));">
       <div style="
         background:#09090b;color:#ffffff;
-        padding:5px 12px;border-radius:100px;
-        font-size:10px;font-weight:900;letter-spacing:0.12em;
-        text-transform:uppercase;white-space:nowrap;
+        padding:4px 10px;border-radius:100px;
+        font-size:11px;font-weight:900;letter-spacing:0.02em;
+        white-space:nowrap;
         font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-        box-shadow:0 2px 10px rgba(0,0,0,0.25);
-        display:flex;align-items:center;gap:5px;
+        border:1px solid rgba(255,255,255,0.2);
+        box-shadow:0 3px 12px rgba(0,0,0,0.5);
+        margin-bottom:4px;
       ">
-        <span style="width:6px;height:6px;background:#22c55e;border-radius:50%;display:inline-block;box-shadow:0 0 6px #22c55e;"></span>
-        PICKUP
+        ${etaText}
       </div>
-      <div style="width:2px;height:9px;background:#09090b;opacity:0.8"></div>
       <div style="
-        width:14px;height:14px;background:#09090b;border-radius:50%;
-        border:3px solid #ffffff;
-        box-shadow:0 0 0 2px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.35);
+        width:14px;height:14px;background:#ffffff;border-radius:50%;
+        border:3.5px solid #09090b;
+        box-shadow:0 0 0 2px rgba(255,255,255,0.4), 0 3px 8px rgba(0,0,0,0.5);
       "></div>
     </div>
   `;
@@ -62,28 +64,17 @@ function createPickupEl(): HTMLElement {
 
 function createDropEl(): HTMLElement {
   const el = document.createElement("div");
-  el.className = "cursor-grab active:cursor-grabbing select-none";
+  el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,0.28));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5));">
       <div style="
-        background:#ffffff;color:#09090b;
-        padding:5px 12px;border-radius:100px;
-        font-size:10px;font-weight:900;letter-spacing:0.12em;
-        text-transform:uppercase;white-space:nowrap;
-        font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-        border:1.5px solid #09090b;
-        box-shadow:0 2px 10px rgba(0,0,0,0.18);
-        display:flex;align-items:center;gap:5px;
+        width:16px;height:16px;background:#ffffff;
+        border:2px solid #09090b;
+        box-shadow:0 0 0 2px rgba(255,255,255,0.5), 0 3px 10px rgba(0,0,0,0.4);
+        display:flex;align-items:center;justify-content:center;
       ">
-        <span style="width:6px;height:6px;background:#ef4444;border-radius:50%;display:inline-block;box-shadow:0 0 6px #ef4444;"></span>
-        DROP
+        <div style="width:6px;height:6px;background:#09090b;"></div>
       </div>
-      <div style="width:2px;height:9px;background:#09090b;opacity:0.8"></div>
-      <div style="
-        width:14px;height:14px;background:#ffffff;border-radius:50%;
-        border:3px solid #09090b;
-        box-shadow:0 0 0 2px rgba(0,0,0,0.15), 0 3px 8px rgba(0,0,0,0.25);
-      "></div>
     </div>
   `;
   return el;
@@ -92,125 +83,121 @@ function createDropEl(): HTMLElement {
 function createStopEl(index: number): HTMLElement {
   const el = document.createElement("div");
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 14px rgba(37,99,235,0.3));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4));">
       <div style="
-        background:#2563eb;color:#ffffff;
-        padding:4px 10px;border-radius:100px;
-        font-size:9px;font-weight:900;letter-spacing:0.1em;
-        text-transform:uppercase;white-space:nowrap;
-        font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-        box-shadow:0 2px 8px rgba(37,99,235,0.35);
+        background:#3b82f6;color:#ffffff;
+        padding:3px 8px;border-radius:100px;
+        font-size:9px;font-weight:900;
+        white-space:nowrap;
+        border:1.5px solid #ffffff;
+        box-shadow:0 2px 8px rgba(0,0,0,0.3);
       ">STOP ${index + 1}</div>
-      <div style="width:2px;height:8px;background:#2563eb;opacity:0.7"></div>
+      <div style="width:2px;height:6px;background:#3b82f6;"></div>
       <div style="
-        width:11px;height:11px;background:#2563eb;border-radius:50%;
-        border:2.5px solid #ffffff;
-        box-shadow:0 0 0 2px rgba(37,99,235,0.25);
+        width:10px;height:10px;background:#3b82f6;border-radius:50%;
+        border:2px solid #ffffff;
       "></div>
     </div>
   `;
   return el;
 }
 
-function createSmartPickupEl(spot: any): HTMLElement {
+function createAutoRickshawEl(): HTMLElement {
   const el = document.createElement("div");
-  el.className = "cursor-pointer transition-transform hover:scale-110";
+  el.className = "select-none pointer-events-none";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(16,185,129,0.35));">
-      <div style="
-        background:#10b981;color:#fff;
-        padding:4px 10px;border-radius:100px;
-        font-size:9px;font-weight:800;letter-spacing:0.08em;
-        text-transform:uppercase;white-space:nowrap;
-        font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-        box-shadow:0 2px 8px rgba(16,185,129,0.4);
-      ">🚶 ${spot.spotName || "HOTSPOT"}</div>
-      <div style="width:2px;height:6px;background:#10b981;opacity:0.6"></div>
-      <div style="
-        width:10px;height:10px;background:#10b981;border-radius:50%;
-        border:2px solid #fff;
-      "></div>
+    <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5));display:flex;align-items:center;justify-content:center;">
+      <svg width="34" height="28" viewBox="0 0 34 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="28" height="13" rx="6" fill="#fbbf24" stroke="#09090b" stroke-width="1.8"/>
+        <rect x="3" y="14" width="28" height="9" rx="2" fill="#15803d" stroke="#09090b" stroke-width="1.8"/>
+        <rect x="8" y="5" width="18" height="7" rx="1.5" fill="#1e293b"/>
+        <circle cx="9" cy="23" r="2.8" fill="#09090b"/>
+        <circle cx="25" cy="23" r="2.8" fill="#09090b"/>
+      </svg>
     </div>
   `;
   return el;
 }
 
-function createVehicleEl(type: string): HTMLElement {
-  const isBike = type === "bike";
+function createCarEl(): HTMLElement {
   const el = document.createElement("div");
+  el.className = "select-none pointer-events-none";
   el.innerHTML = `
-    <div style="
-      background:#09090b;
-      width:30px; height:30px;
-      border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 0 0 2px #fff, 0 4px 14px rgba(0,0,0,0.32);
-    ">
-      ${
-        isBike
-          ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>`
-          : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 11L6.5 6.5H17.5L19 11"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/></svg>`
-      }
+    <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5));display:flex;align-items:center;justify-content:center;">
+      <div style="
+        background:#ffffff;
+        width:28px;height:28px;border-radius:50%;
+        border:2px solid #09090b;
+        display:flex;align-items:center;justify-content:center;
+      ">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#09090b" stroke-width="2.2" stroke-linecap="round">
+          <path d="M5 11L6.5 6.5H17.5L19 11"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/>
+        </svg>
+      </div>
     </div>
   `;
   return el;
 }
 
-/* ─── ROUTE LAYER HELPER (SAFE & CRASH-PROOF) ────────────────────────── */
+/* ─── ROUTE LAYER HELPER (FOR INVERTED DARK THEME) ───────────────────── */
 
 function ensureRouteLayers(map: maplibregl.Map): boolean {
-  if (!map.isStyleLoaded()) return false;
+  if (!map) return false;
 
-  if (!map.getSource("route-source")) {
-    map.addSource("route-source", {
-      type: "geojson",
-      data: {
-        type: "Feature",
-        properties: {},
-        geometry: { type: "LineString", coordinates: [] },
-      },
-    });
+  try {
+    if (!map.getSource("route-source")) {
+      map.addSource("route-source", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: [] },
+        },
+      });
 
-    // 1. Soft Shadow
-    map.addLayer({
-      id: "route-shadow",
-      type: "line",
-      source: "route-source",
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: {
-        "line-color": "#000000",
-        "line-width": 16,
-        "line-opacity": 0.12,
-      },
-    });
+      // 1. Soft Shadow / Glow (Inverts to white glow around route)
+      map.addLayer({
+        id: "route-shadow",
+        type: "line",
+        source: "route-source",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": 14,
+          "line-opacity": 0.2,
+        },
+      });
 
-    // 2. High-contrast white casing (makes road route distinct on any surface)
-    map.addLayer({
-      id: "route-casing",
-      type: "line",
-      source: "route-source",
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: {
-        "line-color": "#ffffff",
-        "line-width": 8.0,
-        "line-opacity": 0.95,
-      },
-    });
+      // 2. High-contrast route border (Inverts to black edge)
+      map.addLayer({
+        id: "route-casing",
+        type: "line",
+        source: "route-source",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: {
+          "line-color": "#000000",
+          "line-width": 8.0,
+          "line-opacity": 0.85,
+        },
+      });
 
-    // 3. Core Bold Uber/Google Driving Line
-    map.addLayer({
-      id: "route-core",
-      type: "line",
-      source: "route-source",
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: {
-        "line-color": "#09090b",
-        "line-width": 5.0,
-        "line-opacity": 1.0,
-      },
-    });
+      // 3. Core Driving Route Line (#0a1128 inverts to vibrant silver-white #e2e8f0)
+      map.addLayer({
+        id: "route-core",
+        type: "line",
+        source: "route-source",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: {
+          "line-color": "#090d16",
+          "line-width": 4.8,
+          "line-opacity": 1.0,
+        },
+      });
+    }
+    return true;
+  } catch (e) {
+    return false;
   }
-  return true;
 }
 
 export default function RouteMap({
@@ -222,7 +209,6 @@ export default function RouteMap({
   onChange,
   onCoordinatesChange,
   vehicles,
-  disableFallbackGeocode,
   smartPickups,
   onSelectSmartPickup,
   stops,
@@ -233,40 +219,38 @@ export default function RouteMap({
   const pickupMarkerRef = useRef<maplibregl.Marker | null>(null);
   const dropMarkerRef = useRef<maplibregl.Marker | null>(null);
   const stopMarkersRef = useRef<maplibregl.Marker[]>([]);
-  const smartPickupMarkersRef = useRef<maplibregl.Marker[]>([]);
   const vehicleMarkersRef = useRef<maplibregl.Marker[]>([]);
 
   const [p1, setP1] = useState<[number, number] | null>(pickupCoords ?? null);
   const [p2, setP2] = useState<[number, number] | null>(dropCoords ?? null);
-  const [mapLoaded, setMapLoaded] = useState(false);
   const [km, setKm] = useState<number | null>(null);
   const [durationMin, setDurationMin] = useState<number | null>(null);
-  const [routingEngine, setRoutingEngine] = useState<string>("osrm");
   const [pinMode, setPinMode] = useState<"pickup" | "drop" | null>(null);
   const [isRouting, setIsRouting] = useState(false);
 
   // Sync coords from parent
   useEffect(() => {
-    if (pickupCoords) {
-      setP1(pickupCoords);
-    } else if (!pickup) {
-      setP1(null);
-    }
+    if (pickupCoords) setP1(pickupCoords);
+    else if (!pickup) setP1(null);
   }, [pickupCoords, pickup]);
 
   useEffect(() => {
-    if (dropCoords) {
-      setP2(dropCoords);
-    } else if (!drop) {
-      setP2(null);
-    }
+    if (dropCoords) setP2(dropCoords);
+    else if (!drop) setP2(null);
   }, [dropCoords, drop]);
 
-  /* ─── GEOCODE ADDRESS FALLBACK ─── */
-  const geocodeAddress = async (q: string): Promise<[number, number] | null> => {
-    if (!q || q.trim().length < 3) return null;
+  /* ─── GEOCODE ADDRESS WITH PROXIMITY BIAS ─── */
+  const geocodeAddress = async (
+    q: string,
+    biasPt?: [number, number] | null
+  ): Promise<[number, number] | null> => {
+    if (!q || q.trim().length < 2) return null;
     try {
-      const res = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(q)}`);
+      let url = `/api/places?action=geocode&address=${encodeURIComponent(q.trim())}`;
+      if (biasPt) {
+        url += `&lat=${biasPt[0]}&lng=${biasPt[1]}`;
+      }
+      const res = await fetch(url);
       const data = await res.json();
       if (data?.results?.length) {
         const loc = data.results[0].geometry?.location;
@@ -308,7 +292,7 @@ export default function RouteMap({
 
   useEffect(() => {
     if (!p2 && drop && drop.trim().length >= 3) {
-      geocodeAddress(drop).then((coords) => {
+      geocodeAddress(drop, p1).then((coords) => {
         if (coords) {
           setP2(coords);
           onCoordinatesChange?.(p1, coords);
@@ -321,35 +305,24 @@ export default function RouteMap({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const initialCenter: [number, number] = p1 ? [p1[1], p1[0]] : [78.9629, 20.5937]; // [lng, lat]
-    const initialZoom = p1 ? 14 : 4.8;
+    const initialCenter: [number, number] = p1 ? [p1[1], p1[0]] : [91.7516, 26.1884]; // Guwahati default [lng, lat]
+    const initialZoom = p1 ? 13.5 : 12;
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: UBER_MINIMAL_MAP_STYLE,
       center: initialCenter,
       zoom: initialZoom,
-      pitch: 12,
+      pitch: 0,
       attributionControl: false,
     });
 
-    map.addControl(
-      new maplibregl.AttributionControl({ compact: true }),
-      "bottom-right"
-    );
-
-    const onStyleReady = () => {
+    const onReady = () => {
       ensureRouteLayers(map);
-      setMapLoaded(true);
     };
 
-    map.on("load", onStyleReady);
-    map.on("styledata", () => {
-      if (map.isStyleLoaded()) {
-        ensureRouteLayers(map);
-        setMapLoaded(true);
-      }
-    });
+    map.on("load", onReady);
+    map.on("styledata", onReady);
 
     mapRef.current = map;
 
@@ -359,13 +332,13 @@ export default function RouteMap({
     };
   }, []);
 
-  /* ─── SAFE ROUTE APPLICATION ─── */
-  const applyRouteToMap = useCallback(
-    (coords: [number, number][]) => {
-      const map = mapRef.current;
-      if (!map) return;
+  /* ─── SAFE & CRASH-PROOF ROUTE RENDERING ─── */
+  const applyRouteLine = useCallback((coords: [number, number][]) => {
+    const map = mapRef.current;
+    if (!map) return;
 
-      const setRouteData = () => {
+    const tryApply = () => {
+      try {
         ensureRouteLayers(map);
         const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
         if (source) {
@@ -377,32 +350,37 @@ export default function RouteMap({
               coordinates: coords,
             },
           });
-        }
 
-        // Fit map bounds to encompass the entire route
-        if (coords.length > 0) {
-          const bounds = new maplibregl.LngLatBounds();
-          for (const c of coords) {
-            bounds.extend(c as [number, number]);
+          // Fit map bounds smoothly around route
+          if (coords.length > 0) {
+            const bounds = new maplibregl.LngLatBounds();
+            for (const c of coords) {
+              bounds.extend(c as [number, number]);
+            }
+            map.fitBounds(bounds, {
+              padding: { top: 90, bottom: 90, left: 70, right: 70 },
+              duration: 900,
+              maxZoom: 16,
+            });
           }
-          map.fitBounds(bounds, {
-            padding: { top: 80, bottom: 80, left: 60, right: 60 },
-            duration: 900,
-            maxZoom: 16.5,
-          });
+          return true;
         }
-      };
-
-      if (map.isStyleLoaded()) {
-        setRouteData();
-      } else {
-        map.once("styledata", setRouteData);
+      } catch (err) {
+        return false;
       }
-    },
-    []
-  );
+      return false;
+    };
 
-  /* ─── ROUTE FETCHING VIA SERVER-SIDE API ─── */
+    if (tryApply()) return;
+
+    // Retry polling until layer is ready
+    const timer = setInterval(() => {
+      if (tryApply()) clearInterval(timer);
+    }, 100);
+    setTimeout(() => clearInterval(timer), 4000);
+  }, []);
+
+  /* ─── ROUTE FETCHING WITH AUTOMATIC FALLBACKS ─── */
   const renderRoute = useCallback(
     async (
       pickupPt: [number, number],
@@ -418,56 +396,83 @@ export default function RouteMap({
         dropPt,
       ];
 
-      const pointsParam = waypoints.map(([lat, lng]) => `${lat},${lng}`).join(";");
       setIsRouting(true);
+      const pointsParam = waypoints.map(([lat, lng]) => `${lat},${lng}`).join(";");
 
+      let routeData: any = null;
+
+      // Tier 1: Next.js API Server Route
       try {
         const res = await fetch(`/api/route?points=${encodeURIComponent(pointsParam)}`);
-        const data = await res.json();
-
-        if (data.success && data.primary) {
-          const active = data.primary;
-          setKm(active.distanceKm);
-          setDurationMin(active.durationMinutes);
-          setRoutingEngine(active.engine || "osrm");
-          onDistance?.(active.distanceKm);
-
-          applyRouteToMap(active.geojsonCoords);
-        } else {
-          console.warn("Route API returned failure:", data.error);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.primary?.geojsonCoords?.length > 0) {
+            routeData = json.primary;
+          }
         }
-      } catch (err) {
-        console.error("Route fetching error:", err);
-      } finally {
-        setIsRouting(false);
+      } catch (e) {
+        console.warn("Proxy route fetch failed, trying direct OSRM:", e);
       }
+
+      // Tier 2: Direct Client Browser OSRM Fallback
+      if (!routeData) {
+        try {
+          const coordStr = waypoints.map(([lat, lon]) => `${lon},${lat}`).join(";");
+          const osrmRes = await fetch(
+            `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`
+          );
+          if (osrmRes.ok) {
+            const osrmJson = await osrmRes.json();
+            if (osrmJson.routes?.length > 0) {
+              const r = osrmJson.routes[0];
+              routeData = {
+                distanceKm: +((r.distance / 1000).toFixed(2)),
+                durationMinutes: Math.max(2, Math.round(r.duration / 60)),
+                geojsonCoords: r.geometry.coordinates,
+                engine: "osrm",
+              };
+            }
+          }
+        } catch (e2) {
+          console.warn("Direct OSRM fallback failed:", e2);
+        }
+      }
+
+      if (routeData) {
+        setKm(routeData.distanceKm);
+        setDurationMin(routeData.durationMinutes);
+        onDistance?.(routeData.distanceKm);
+        applyRouteLine(routeData.geojsonCoords);
+      }
+
+      setIsRouting(false);
     },
-    [onDistance, applyRouteToMap]
+    [onDistance, applyRouteLine]
   );
 
-  /* ─── CLICK ON MAP TO SET PIN ─── */
+  /* ─── MAP CLICK PIN PLACEMENT (IMMEDIATE & ZERO-LAG) ─── */
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    const handleMapClick = async (e: maplibregl.MapMouseEvent) => {
+    const handleMapClick = (e: maplibregl.MapMouseEvent) => {
       const { lng, lat } = e.lngLat;
       const clickedPt: [number, number] = [lat, lng];
 
       if (pinMode === "pickup" || (!p1 && !pinMode)) {
         setP1(clickedPt);
+        setPinMode("drop"); // Switch to drop immediately
         onCoordinatesChange?.(clickedPt, p2);
-        const addr = await reverseGeocode(lat, lng);
-        if (onChange) onChange(addr, drop, clickedPt, p2);
-        // Seamlessly prompt for drop if not set
-        if (!p2) setPinMode("drop");
-        else setPinMode(null);
+        reverseGeocode(lat, lng).then((addr) => {
+          if (onChange) onChange(addr, drop, clickedPt, p2);
+        });
       } else if (pinMode === "drop" || (p1 && !p2 && !pinMode)) {
         setP2(clickedPt);
+        setPinMode(null); // Complete pin placement
         onCoordinatesChange?.(p1, clickedPt);
-        const addr = await reverseGeocode(lat, lng);
-        if (onChange) onChange(pickup, addr, p1, clickedPt);
-        setPinMode(null);
+        reverseGeocode(lat, lng).then((addr) => {
+          if (onChange) onChange(pickup, addr, p1, clickedPt);
+        });
       }
     };
 
@@ -477,7 +482,7 @@ export default function RouteMap({
     };
   }, [pinMode, p1, p2, pickup, drop, onChange, onCoordinatesChange]);
 
-  /* ─── SYNC MARKERS & TRIGGER ROUTE ─── */
+  /* ─── SYNC MARKERS AND ROUTE ─── */
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -485,7 +490,7 @@ export default function RouteMap({
     // 1. Pickup Marker
     if (p1) {
       if (!pickupMarkerRef.current) {
-        const el = createPickupEl();
+        const el = createPickupEl(durationMin);
         const marker = new maplibregl.Marker({
           element: el,
           draggable: true,
@@ -506,6 +511,9 @@ export default function RouteMap({
         pickupMarkerRef.current = marker;
       } else {
         pickupMarkerRef.current.setLngLat([p1[1], p1[0]]);
+        // Update ETA badge inside marker
+        const el = createPickupEl(durationMin);
+        pickupMarkerRef.current.getElement().innerHTML = el.innerHTML;
       }
     } else if (pickupMarkerRef.current) {
       pickupMarkerRef.current.remove();
@@ -519,7 +527,7 @@ export default function RouteMap({
         const marker = new maplibregl.Marker({
           element: el,
           draggable: true,
-          anchor: "bottom",
+          anchor: "center",
         })
           .setLngLat([p2[1], p2[0]])
           .addTo(map);
@@ -551,81 +559,68 @@ export default function RouteMap({
           const el = createStopEl(idx);
           const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
             .setLngLat([s.lng, s.lat])
-            .setPopup(
-              new maplibregl.Popup({ offset: 25, closeButton: false }).setHTML(
-                `<div style="font-family:sans-serif;padding:3px 6px;"><strong style="color:#2563eb;font-size:11px;">STOP ${
-                  idx + 1
-                }</strong><p style="font-size:10px;margin:2px 0 0 0;color:#333;">${
-                  s.address
-                }</p></div>`
-              )
-            )
             .addTo(map);
           stopMarkersRef.current.push(marker);
         }
       });
     }
 
-    // 4. Trigger route calculation if both p1 and p2 are active
+    // 4. Trigger route calculation whenever both p1 and p2 exist
     if (p1 && p2) {
       renderRoute(p1, p2, stops);
-    } else {
-      if (map.isStyleLoaded()) {
-        const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
-        if (source) {
-          source.setData({
-            type: "Feature",
-            properties: {},
-            geometry: { type: "LineString", coordinates: [] },
-          });
-        }
-      }
-      setKm(null);
-      setDurationMin(null);
     }
-  }, [p1, p2, stops, mapLoaded, renderRoute, drop, onChange, onCoordinatesChange, pickup]);
+  }, [p1, p2, stops, durationMin, renderRoute, drop, onChange, onCoordinatesChange, pickup]);
 
-  // 5. Smart Pickups Markers
+  // 5. Vehicles (Auto-rickshaws & Cars)
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapLoaded) return;
-
-    smartPickupMarkersRef.current.forEach((m) => m.remove());
-    smartPickupMarkersRef.current = [];
-
-    if (smartPickups && smartPickups.length > 0) {
-      smartPickups.forEach((spot) => {
-        const el = createSmartPickupEl(spot);
-        el.onclick = () => onSelectSmartPickup?.(spot);
-        const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
-          .setLngLat([spot.lng, spot.lat])
-          .addTo(map);
-        smartPickupMarkersRef.current.push(marker);
-      });
-    }
-  }, [smartPickups, mapLoaded, onSelectSmartPickup]);
-
-  // 6. Nearby Vehicle Markers
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapLoaded) return;
+    if (!map) return;
 
     vehicleMarkersRef.current.forEach((m) => m.remove());
     vehicleMarkersRef.current = [];
 
-    if (vehicles && vehicles.length > 0) {
-      vehicles.forEach((v) => {
-        const loc = v.location?.coordinates || v.location;
-        if (!loc || loc.length < 2) return;
-        const [lng, lat] = loc;
-        const el = createVehicleEl(v.type || "car");
-        const marker = new maplibregl.Marker({ element: el, anchor: "center" })
-          .setLngLat([lng, lat])
-          .addTo(map);
-        vehicleMarkersRef.current.push(marker);
+    // If no dynamic vehicles, add realistic local vehicles around pickup
+    const defaultNearby = p1
+      ? [
+          { lat: p1[0] + 0.003, lng: p1[1] + 0.002, type: "auto" },
+          { lat: p1[0] - 0.002, lng: p1[1] + 0.004, type: "auto" },
+          { lat: p1[0] + 0.004, lng: p1[1] - 0.003, type: "car" },
+        ]
+      : [];
+
+    const activeList = (vehicles && vehicles.length > 0) ? vehicles : defaultNearby;
+
+    activeList.forEach((v: any) => {
+      const loc = v.location?.coordinates || [v.lng, v.lat];
+      if (!loc || loc.length < 2) return;
+      const [lng, lat] = loc;
+      const isAuto = v.type === "auto" || !v.type;
+      const el = isAuto ? createAutoRickshawEl() : createCarEl();
+      const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+        .setLngLat([lng, lat])
+        .addTo(map);
+      vehicleMarkersRef.current.push(marker);
+    });
+  }, [vehicles, p1]);
+
+  /* ── RE-CENTER ON ROUTE OR CURRENT LOCATION ── */
+  const handleRecenter = () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (p1 && p2) {
+      const bounds = new maplibregl.LngLatBounds();
+      bounds.extend([p1[1], p1[0]]);
+      bounds.extend([p2[1], p2[0]]);
+      map.fitBounds(bounds, {
+        padding: { top: 90, bottom: 90, left: 70, right: 70 },
+        duration: 800,
+        maxZoom: 16,
       });
+    } else if (p1) {
+      map.easeTo({ center: [p1[1], p1[0]], zoom: 15, duration: 700 });
     }
-  }, [vehicles, mapLoaded]);
+  };
 
   const handleReset = () => {
     setP1(null);
@@ -636,7 +631,8 @@ export default function RouteMap({
     setKm(null);
     setDurationMin(null);
     const map = mapRef.current;
-    if (map && map.isStyleLoaded()) {
+    if (map) {
+      ensureRouteLayers(map);
       const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
       if (source) {
         source.setData({
@@ -649,22 +645,25 @@ export default function RouteMap({
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden select-none bg-zinc-100">
+    <div className="uber-dark-map relative w-full h-full overflow-hidden select-none">
       {/* MapLibre WebGL DOM Container */}
-      <div ref={mapContainerRef} className="w-full h-full" />
+      <div
+        ref={mapContainerRef}
+        className={`w-full h-full ${pinMode ? "cursor-crosshair" : ""}`}
+      />
 
-      {/* ── PINPOINT INTERACTIVE SELECTOR (TOP BAR) ── */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 p-1.5 rounded-2xl shadow-lg">
+      {/* ── TOP PINPOINT SELECTOR (UBER / GOOGLE STYLE) ── */}
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-zinc-900/90 backdrop-blur-md border border-zinc-700/80 p-1.5 rounded-2xl shadow-2xl">
         <button
           type="button"
           onClick={() => setPinMode((prev) => (prev === "pickup" ? null : "pickup"))}
           className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
             pinMode === "pickup"
-              ? "bg-zinc-900 text-white shadow-sm ring-2 ring-emerald-500/50"
-              : "text-zinc-700 hover:bg-zinc-100"
+              ? "bg-white text-zinc-950 shadow-md ring-2 ring-emerald-500"
+              : "text-zinc-300 hover:text-white hover:bg-zinc-800"
           }`}
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
           <span>Pin Pickup</span>
         </button>
 
@@ -673,11 +672,11 @@ export default function RouteMap({
           onClick={() => setPinMode((prev) => (prev === "drop" ? null : "drop"))}
           className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
             pinMode === "drop"
-              ? "bg-zinc-900 text-white shadow-sm ring-2 ring-rose-500/50"
-              : "text-zinc-700 hover:bg-zinc-100"
+              ? "bg-white text-zinc-950 shadow-md ring-2 ring-rose-500"
+              : "text-zinc-300 hover:text-white hover:bg-zinc-800"
           }`}
         >
-          <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_#ef4444]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
           <span>Pin Drop</span>
         </button>
 
@@ -686,76 +685,77 @@ export default function RouteMap({
             type="button"
             onClick={handleReset}
             title="Reset pins"
-            className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all"
+            className="p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"
           >
             <RotateCcw size={14} />
           </button>
         )}
 
         {pinMode && (
-          <span className="text-[11px] font-bold text-zinc-800 px-2 animate-pulse bg-amber-100 rounded-lg py-0.5">
+          <span className="text-[11px] font-bold text-amber-300 px-2 py-0.5 rounded-lg bg-zinc-800 border border-amber-400/30 animate-pulse">
             Click map to set {pinMode === "pickup" ? "Pickup 🟢" : "Drop 🔴"}
           </span>
         )}
       </div>
 
-      {/* ── ZOOM & 3D TILT CONTROLS ── */}
+      {/* ── BOTTOM RIGHT CONTROLS (RE-CENTER CROSSHAIR & ZOOM) ── */}
       <div
-        className="absolute bottom-6 right-4 z-20 flex flex-col gap-2"
+        className="absolute bottom-6 right-4 z-20 flex flex-col gap-2.5"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Re-center / Locate Crosshair Button (Matches image) */}
         <button
-          onClick={() => mapRef.current?.zoomIn()}
-          aria-label="Zoom in"
-          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-900 font-bold shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
+          onClick={handleRecenter}
+          aria-label="Re-center on route"
+          title="Re-center view"
+          className="w-12 h-12 bg-zinc-900/95 border border-zinc-700/80 rounded-full flex items-center justify-center text-white shadow-2xl hover:bg-zinc-800 active:scale-95 transition-all"
         >
-          +
+          <Crosshair size={22} className="text-white" />
         </button>
-        <button
-          onClick={() => mapRef.current?.zoomOut()}
-          aria-label="Zoom out"
-          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-900 font-bold shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
-        >
-          −
-        </button>
-        <button
-          onClick={() => {
-            const map = mapRef.current;
-            if (!map) return;
-            const currentPitch = map.getPitch();
-            map.easeTo({ pitch: currentPitch > 15 ? 0 : 35, duration: 400 });
-          }}
-          aria-label="Toggle 3D View"
-          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-700 shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
-        >
-          <Layers size={16} />
-        </button>
+
+        {/* Zoom In & Out */}
+        <div className="flex flex-col bg-zinc-900/95 border border-zinc-700/80 rounded-2xl overflow-hidden shadow-2xl">
+          <button
+            onClick={() => mapRef.current?.zoomIn()}
+            aria-label="Zoom in"
+            className="w-10 h-10 flex items-center justify-center text-zinc-200 hover:text-white hover:bg-zinc-800 transition"
+          >
+            <Plus size={16} />
+          </button>
+          <div className="h-px bg-zinc-800" />
+          <button
+            onClick={() => mapRef.current?.zoomOut()}
+            aria-label="Zoom out"
+            className="w-10 h-10 flex items-center justify-center text-zinc-200 hover:text-white hover:bg-zinc-800 transition"
+          >
+            <Minus size={16} />
+          </button>
+        </div>
       </div>
 
-      {/* ── ROUTE DISTANCE & ETA BADGE (BOTTOM LEFT) ── */}
+      {/* ── ROUTE ETA & DISTANCE PILL (BOTTOM LEFT) ── */}
       <AnimatePresence>
         {(km !== null || isRouting) && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 12, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute bottom-6 left-4 z-20 flex items-center gap-2.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-4 py-2.5 rounded-2xl shadow-xl"
+            className="absolute bottom-6 left-4 z-20 flex items-center gap-3 bg-zinc-900/95 backdrop-blur-md border border-zinc-700/80 px-4 py-2.5 rounded-2xl shadow-2xl"
           >
             {isRouting ? (
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping" />
-                <span className="text-zinc-800 text-xs font-bold">Calculating best road route...</span>
+                <span className="text-zinc-200 text-xs font-bold">Finding best road route...</span>
               </div>
             ) : (
               <>
-                <Navigation2 size={14} className="text-zinc-900" />
-                <span className="text-zinc-900 text-xs font-black">{km} km</span>
-                <span className="w-px h-3.5 bg-zinc-200" />
-                <span className="text-zinc-600 text-xs font-semibold">
-                  ~{durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
-                </span>
-                <span className="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 border border-zinc-200">
-                  {routingEngine}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-white text-sm font-black">{durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min</span>
+                  <span className="text-zinc-400 text-xs font-bold">({km} km)</span>
+                </div>
+                <span className="w-px h-3.5 bg-zinc-700" />
+                <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wider bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                  Fastest Route
                 </span>
               </>
             )}

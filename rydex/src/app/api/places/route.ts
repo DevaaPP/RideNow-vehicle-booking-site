@@ -129,46 +129,91 @@ export async function GET(req: NextRequest) {
       const address = searchParams.get("address");
 
       if (address) {
-        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}`;
-        const res = await fetch(url, { headers });
-        if (!res.ok) {
-          return NextResponse.json({ results: [], status: "OK" });
+        const country = (searchParams.get("country") || "in").toUpperCase();
+        let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}`;
+        if (country && country !== "NULL") {
+          url += `&countrycode=${country}`;
         }
-        
-        const data = await res.json();
-        const results = (data?.features || []).map((feature: any) => {
-          const props = feature.properties || {};
-          const coords = feature.geometry?.coordinates || [0, 0];
-          const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-          const localArea = props.district || props.suburb || props.locality;
-          const cityTown = props.city || props.town || props.village;
-          const parts: string[] = [props.name];
-          if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-          if (localArea && localArea !== props.name) parts.push(localArea);
-          if (cityTown && cityTown !== props.name) parts.push(cityTown);
-          if (props.postcode) parts.push(props.postcode);
-          if (props.state && props.state !== props.name) parts.push(props.state);
-          if (props.country && props.country !== props.name) parts.push(props.country);
-          const description = parts.filter(Boolean).join(", ");
-          
-          return {
-            formatted_address: description,
-            geometry: {
-              location: {
-                lat: coords[1],
-                lng: coords[0],
-              },
-            },
-            address_components: [
-              {
-                long_name: props.country || "India",
-                short_name: String(props.countrycode || "in").toLowerCase(),
-                types: ["country"],
-              },
-            ],
-          };
-        });
-        
+        if (lat && lng) {
+          url += `&lat=${lat}&lon=${lng}`;
+        }
+
+        let results: any[] = [];
+        try {
+          const res = await fetch(url, { headers });
+          if (res.ok) {
+            const data = await res.json();
+            results = (data?.features || []).map((feature: any) => {
+              const props = feature.properties || {};
+              const coords = feature.geometry?.coordinates || [0, 0];
+              const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+              const localArea = props.district || props.suburb || props.locality;
+              const cityTown = props.city || props.town || props.village;
+              const parts: string[] = [props.name];
+              if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+              if (localArea && localArea !== props.name) parts.push(localArea);
+              if (cityTown && cityTown !== props.name) parts.push(cityTown);
+              if (props.postcode) parts.push(props.postcode);
+              if (props.state && props.state !== props.name) parts.push(props.state);
+              if (props.country && props.country !== props.name) parts.push(props.country);
+              const description = parts.filter(Boolean).join(", ");
+              
+              return {
+                formatted_address: description,
+                geometry: {
+                  location: {
+                    lat: coords[1],
+                    lng: coords[0],
+                  },
+                },
+                address_components: [
+                  {
+                    long_name: props.country || "India",
+                    short_name: String(props.countrycode || "in").toLowerCase(),
+                    types: ["country"],
+                  },
+                ],
+              };
+            });
+          }
+        } catch (e) {
+          console.warn("Photon address geocode error:", e);
+        }
+
+        // Secondary fallback to Nominatim search if no results
+        if (results.length === 0) {
+          try {
+            let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5&addressdetails=1`;
+            if (country && country !== "NULL") {
+              nomUrl += `&countrycodes=${country.toLowerCase()}`;
+            }
+            const nomRes = await fetch(nomUrl, { headers });
+            if (nomRes.ok) {
+              const nomData = await nomRes.json();
+              if (Array.isArray(nomData)) {
+                results = nomData.map((item: any) => ({
+                  formatted_address: item.display_name,
+                  geometry: {
+                    location: {
+                      lat: parseFloat(item.lat),
+                      lng: parseFloat(item.lon),
+                    },
+                  },
+                  address_components: [
+                    {
+                      long_name: item.address?.country || "India",
+                      short_name: String(item.address?.country_code || "in").toLowerCase(),
+                      types: ["country"],
+                    },
+                  ],
+                }));
+              }
+            }
+          } catch (nomErr) {
+            console.warn("Nominatim address search fallback error:", nomErr);
+          }
+        }
+
         return NextResponse.json({ results, status: "OK" });
       } else if (lat && lng) {
         let results: any[] = [];

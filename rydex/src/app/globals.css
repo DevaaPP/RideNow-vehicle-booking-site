@@ -65,3 +65,17 @@ input, textarea, [contenteditable="true"], input::placeholder, textarea::placeho
 a, button, select, option, [role="button"] {
   cursor: pointer;
 }
+
+/* ===== UBER / GOOGLE MAPS DARK ROADS-ONLY THEME ===== */
+.uber-dark-map {
+  background-color: #1e232a !important;
+}
+
+.uber-dark-map .maplibregl-canvas {
+  filter: invert(93%) hue-rotate(185deg) brightness(86%) contrast(122%);
+}
+
+.uber-dark-map .maplibregl-marker {
+  filter: none !important;
+}
+
