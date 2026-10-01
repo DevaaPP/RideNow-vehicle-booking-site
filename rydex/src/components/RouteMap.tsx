@@ -3,9 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Navigation2, Compass, Layers } from "lucide-react";
-import { VOYAGER_MAP_STYLE } from "@/lib/mapConfig";
-import { getValhallaRoute, MultiRouteResult, RouteResult } from "@/lib/valhalla";
+import { MapPin, Navigation2, Layers, RotateCcw } from "lucide-react";
+import { UBER_MINIMAL_MAP_STYLE } from "@/lib/mapConfig";
 
 type Props = {
   pickup: string;
@@ -37,16 +36,20 @@ function createPickupEl(): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-grab active:cursor-grabbing select-none";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,0.28));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,0.3));">
       <div style="
         background:#0a0a0a;color:#fff;
-        padding:5px 14px;border-radius:100px;
-        font-size:10px;font-weight:800;letter-spacing:0.14em;
+        padding:5px 13px;border-radius:100px;
+        font-size:10px;font-weight:900;letter-spacing:0.12em;
         text-transform:uppercase;white-space:nowrap;
         font-family:-apple-system,system-ui,sans-serif;
-        box-shadow:0 2px 12px rgba(0,0,0,0.25);
-      ">PICKUP</div>
-      <div style="width:2px;height:10px;background:#0a0a0a;opacity:0.6"></div>
+        box-shadow:0 2px 10px rgba(0,0,0,0.25);
+        display:flex;align-items:center;gap:4px;
+      ">
+        <span style="width:6px;height:6px;background:#22c55e;border-radius:50%;display:inline-block;"></span>
+        PICKUP
+      </div>
+      <div style="width:2px;height:9px;background:#0a0a0a;opacity:0.65"></div>
       <div style="
         width:13px;height:13px;background:#0a0a0a;border-radius:50%;
         border:3px solid #fff;
@@ -61,21 +64,25 @@ function createDropEl(): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-grab active:cursor-grabbing select-none";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,0.2));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 16px rgba(0,0,0,0.22));">
       <div style="
-        background:#fff;color:#0a0a0a;
-        padding:5px 14px;border-radius:100px;
-        font-size:10px;font-weight:800;letter-spacing:0.14em;
+        background:#ffffff;color:#0a0a0a;
+        padding:5px 13px;border-radius:100px;
+        font-size:10px;font-weight:900;letter-spacing:0.12em;
         text-transform:uppercase;white-space:nowrap;
         font-family:-apple-system,system-ui,sans-serif;
         border:1.5px solid #0a0a0a;
-        box-shadow:0 2px 12px rgba(0,0,0,0.15);
-      ">DROP</div>
-      <div style="width:2px;height:10px;background:#0a0a0a;opacity:0.6"></div>
+        box-shadow:0 2px 10px rgba(0,0,0,0.15);
+        display:flex;align-items:center;gap:4px;
+      ">
+        <span style="width:6px;height:6px;background:#ef4444;border-radius:50%;display:inline-block;"></span>
+        DROP
+      </div>
+      <div style="width:2px;height:9px;background:#0a0a0a;opacity:0.65"></div>
       <div style="
-        width:13px;height:13px;background:#fff;border-radius:50%;
+        width:13px;height:13px;background:#ffffff;border-radius:50%;
         border:3px solid #0a0a0a;
-        box-shadow:0 0 0 2px rgba(0,0,0,0.1), 0 3px 8px rgba(0,0,0,0.2);
+        box-shadow:0 0 0 2px rgba(0,0,0,0.1), 0 3px 8px rgba(0,0,0,0.25);
       "></div>
     </div>
   `;
@@ -89,16 +96,16 @@ function createStopEl(index: number): HTMLElement {
       <div style="
         background:#2563eb;color:#fff;
         padding:4px 10px;border-radius:100px;
-        font-size:9px;font-weight:900;letter-spacing:0.12em;
+        font-size:9px;font-weight:900;letter-spacing:0.1em;
         text-transform:uppercase;white-space:nowrap;
         font-family:-apple-system,system-ui,sans-serif;
-        box-shadow:0 2px 10px rgba(37,99,235,0.35);
+        box-shadow:0 2px 8px rgba(37,99,235,0.35);
       ">STOP ${index + 1}</div>
       <div style="width:2px;height:8px;background:#2563eb;opacity:0.6"></div>
       <div style="
-        width:12px;height:12px;background:#2563eb;border-radius:50%;
+        width:11px;height:11px;background:#2563eb;border-radius:50%;
         border:2.5px solid #fff;
-        box-shadow:0 0 0 2px rgba(37,99,235,0.2), 0 3px 8px rgba(0,0,0,0.25);
+        box-shadow:0 0 0 2px rgba(37,99,235,0.2), 0 3px 6px rgba(0,0,0,0.2);
       "></div>
     </div>
   `;
@@ -149,6 +156,60 @@ function createVehicleEl(type: string): HTMLElement {
   return el;
 }
 
+/* ─── ROUTE LAYER HELPER ───────────────────────────────────────────── */
+
+function ensureRouteLayers(map: maplibregl.Map) {
+  if (!map.getSource("route-source")) {
+    map.addSource("route-source", {
+      type: "geojson",
+      data: {
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: [] },
+      },
+    });
+
+    // 1. Soft Shadow
+    map.addLayer({
+      id: "route-shadow",
+      type: "line",
+      source: "route-source",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#0a0a0a",
+        "line-width": 14,
+        "line-opacity": 0.09,
+      },
+    });
+
+    // 2. Casing
+    map.addLayer({
+      id: "route-casing",
+      type: "line",
+      source: "route-source",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#27272a",
+        "line-width": 6.5,
+        "line-opacity": 0.35,
+      },
+    });
+
+    // 3. Core Bold Uber Line
+    map.addLayer({
+      id: "route-core",
+      type: "line",
+      source: "route-source",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#09090b",
+        "line-width": 4.0,
+        "line-opacity": 1,
+      },
+    });
+  }
+}
+
 export default function RouteMap({
   pickup,
   drop,
@@ -178,17 +239,39 @@ export default function RouteMap({
   const [km, setKm] = useState<number | null>(null);
   const [durationMin, setDurationMin] = useState<number | null>(null);
   const [routingEngine, setRoutingEngine] = useState<string>("valhalla");
+  const [pinMode, setPinMode] = useState<"pickup" | "drop" | null>(null);
+  const [pendingRouteCoords, setPendingRouteCoords] = useState<[number, number][] | null>(null);
 
-  // Keep state synced with incoming props
+  // Sync coords from parent
   useEffect(() => {
     if (pickupCoords) setP1(pickupCoords);
-  }, [pickupCoords]);
+    else if (!pickup) setP1(null);
+  }, [pickupCoords, pickup]);
 
   useEffect(() => {
     if (dropCoords) setP2(dropCoords);
-  }, [dropCoords]);
+    else if (!drop) setP2(null);
+  }, [dropCoords, drop]);
 
-  /* ─── GEOCODING UTILITIES ─── */
+  /* ─── GEOCODE ADDRESS FALLBACK ─── */
+  const geocodeAddress = async (q: string): Promise<[number, number] | null> => {
+    if (!q || q.trim().length < 3) return null;
+    try {
+      const res = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      if (data?.results?.length) {
+        const loc = data.results[0].geometry?.location;
+        if (loc?.lat && loc?.lng) {
+          return [loc.lat, loc.lng];
+        }
+      }
+    } catch (err) {
+      console.error("Geocoding failed for", q, err);
+    }
+    return null;
+  };
+
+  /* ─── REVERSE GEOCODE ─── */
   const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
     try {
       const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
@@ -199,22 +282,45 @@ export default function RouteMap({
     } catch (err) {
       console.error("Reverse geocode failed:", err);
     }
-    return "";
+    return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
   };
+
+  // If text is set but coordinates are missing, resolve them automatically
+  useEffect(() => {
+    if (!p1 && pickup && pickup.trim().length >= 3) {
+      geocodeAddress(pickup).then((coords) => {
+        if (coords) {
+          setP1(coords);
+          onCoordinatesChange?.(coords, p2);
+        }
+      });
+    }
+  }, [pickup, p1, p2, onCoordinatesChange]);
+
+  useEffect(() => {
+    if (!p2 && drop && drop.trim().length >= 3) {
+      geocodeAddress(drop).then((coords) => {
+        if (coords) {
+          setP2(coords);
+          onCoordinatesChange?.(p1, coords);
+        }
+      });
+    }
+  }, [drop, p1, p2, onCoordinatesChange]);
 
   /* ─── INITIALIZE MAPLIBRE ─── */
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
     const initialCenter: [number, number] = p1 ? [p1[1], p1[0]] : [78.9629, 20.5937]; // [lng, lat]
-    const initialZoom = p1 ? 13 : 4.5;
+    const initialZoom = p1 ? 14 : 4.8;
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: VOYAGER_MAP_STYLE,
+      style: UBER_MINIMAL_MAP_STYLE,
       center: initialCenter,
       zoom: initialZoom,
-      pitch: 15, // Subtle 3D perspective like modern ride apps
+      pitch: 15,
       attributionControl: false,
     });
 
@@ -223,59 +329,16 @@ export default function RouteMap({
       "bottom-right"
     );
 
-    map.on("load", () => {
-      // Add empty route sources & layers
-      if (!map.getSource("route-source")) {
-        map.addSource("route-source", {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            properties: {},
-            geometry: { type: "LineString", coordinates: [] },
-          },
-        });
-
-        // 1. Soft Shadow Layer
-        map.addLayer({
-          id: "route-shadow",
-          type: "line",
-          source: "route-source",
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: {
-            "line-color": "#0a0a0a",
-            "line-width": 14,
-            "line-opacity": 0.08,
-          },
-        });
-
-        // 2. Route Casing Layer
-        map.addLayer({
-          id: "route-casing",
-          type: "line",
-          source: "route-source",
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: {
-            "line-color": "#18181b",
-            "line-width": 6,
-            "line-opacity": 0.35,
-          },
-        });
-
-        // 3. Core Vibrant Route Layer
-        map.addLayer({
-          id: "route-core",
-          type: "line",
-          source: "route-source",
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: {
-            "line-color": "#0a0a0a",
-            "line-width": 3.8,
-            "line-opacity": 1,
-          },
-        });
-      }
-
+    const onMapReady = () => {
+      ensureRouteLayers(map);
       setReady(true);
+    };
+
+    map.on("load", onMapReady);
+    map.on("styledata", () => {
+      if (map.isStyleLoaded()) {
+        ensureRouteLayers(map);
+      }
     });
 
     mapRef.current = map;
@@ -286,7 +349,7 @@ export default function RouteMap({
     };
   }, []);
 
-  /* ─── UPDATE ROUTE & LAYERS ─── */
+  /* ─── ROUTE FETCHING VIA SERVER-SIDE API ─── */
   const renderRoute = useCallback(
     async (
       pickupPt: [number, number],
@@ -294,8 +357,6 @@ export default function RouteMap({
       interStops?: Array<{ address: string; lat: number; lng: number }>
     ) => {
       const map = mapRef.current;
-      if (!map || !map.isStyleLoaded()) return;
-
       const validStops = (interStops || []).filter(
         (s) => s && typeof s.lat === "number" && typeof s.lng === "number"
       );
@@ -305,46 +366,106 @@ export default function RouteMap({
         dropPt,
       ];
 
+      const pointsParam = waypoints.map(([lat, lng]) => `${lat},${lng}`).join(";");
+
       try {
-        const routeData: MultiRouteResult = await getValhallaRoute(waypoints);
-        const activeRoute = routeData.primary;
+        const res = await fetch(`/api/route?points=${encodeURIComponent(pointsParam)}`);
+        const data = await res.json();
 
-        setKm(activeRoute.distanceKm);
-        setDurationMin(activeRoute.durationMinutes);
-        setRoutingEngine(activeRoute.engine);
-        onDistance?.(activeRoute.distanceKm);
+        if (data.success && data.primary) {
+          const active = data.primary;
+          setKm(active.distanceKm);
+          setDurationMin(active.durationMinutes);
+          setRoutingEngine(active.engine || "valhalla");
+          onDistance?.(active.distanceKm);
 
-        const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
-        if (source) {
-          source.setData({
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "LineString",
-              coordinates: activeRoute.geojsonCoords,
-            },
-          });
+          setPendingRouteCoords(active.geojsonCoords);
+
+          if (map) {
+            ensureRouteLayers(map);
+            const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+            if (source) {
+              source.setData({
+                type: "Feature",
+                properties: {},
+                geometry: {
+                  type: "LineString",
+                  coordinates: active.geojsonCoords,
+                },
+              });
+            }
+
+            // Frame bounds with padding
+            const bounds = new maplibregl.LngLatBounds();
+            for (const coord of active.geojsonCoords) {
+              bounds.extend(coord as [number, number]);
+            }
+
+            map.fitBounds(bounds, {
+              padding: { top: 90, bottom: 90, left: 70, right: 70 },
+              duration: 900,
+              maxZoom: 16.5,
+            });
+          }
         }
-
-        // Fit map bounds to accommodate entire route
-        const bounds = new maplibregl.LngLatBounds();
-        for (const coord of activeRoute.geojsonCoords) {
-          bounds.extend(coord as [number, number]);
-        }
-
-        map.fitBounds(bounds, {
-          padding: { top: 75, bottom: 85, left: 60, right: 60 },
-          duration: 900,
-          maxZoom: 16.5,
-        });
       } catch (err) {
-        console.error("Failed to render Valhalla route:", err);
+        console.error("Route fetching error:", err);
       }
     },
     [onDistance]
   );
 
-  /* ─── UPDATE MARKERS ON MAP ─── */
+  /* ─── APPLY PENDING ROUTE ON MAP READY ─── */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !pendingRouteCoords) return;
+
+    ensureRouteLayers(map);
+    const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+    if (source) {
+      source.setData({
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "LineString",
+          coordinates: pendingRouteCoords,
+        },
+      });
+    }
+  }, [ready, pendingRouteCoords]);
+
+  /* ─── CLICK ON MAP TO SET PIN ─── */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const handleMapClick = async (e: maplibregl.MapMouseEvent) => {
+      const { lng, lat } = e.lngLat;
+      const clickedPt: [number, number] = [lat, lng];
+
+      if (pinMode === "pickup" || (!p1 && !pinMode)) {
+        setP1(clickedPt);
+        onCoordinatesChange?.(clickedPt, p2);
+        const addr = await reverseGeocode(lat, lng);
+        if (onChange) onChange(addr, drop, clickedPt, p2);
+        if (!p2) setPinMode("drop");
+        else setPinMode(null);
+      } else if (pinMode === "drop" || (p1 && !p2 && !pinMode)) {
+        setP2(clickedPt);
+        onCoordinatesChange?.(p1, clickedPt);
+        const addr = await reverseGeocode(lat, lng);
+        if (onChange) onChange(pickup, addr, p1, clickedPt);
+        setPinMode(null);
+      }
+    };
+
+    map.on("click", handleMapClick);
+    return () => {
+      map.off("click", handleMapClick);
+    };
+  }, [pinMode, p1, p2, pickup, drop, onChange, onCoordinatesChange]);
+
+  /* ─── SYNC MARKERS ON MAP ─── */
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -367,7 +488,7 @@ export default function RouteMap({
           setP1(newPt);
           onCoordinatesChange?.(newPt, p2);
           const addr = await reverseGeocode(newPt[0], newPt[1]);
-          if (addr && onChange) onChange(addr, drop, newPt, p2);
+          if (onChange) onChange(addr, drop, newPt, p2);
         });
 
         pickupMarkerRef.current = marker;
@@ -397,7 +518,7 @@ export default function RouteMap({
           setP2(newPt);
           onCoordinatesChange?.(p1, newPt);
           const addr = await reverseGeocode(newPt[0], newPt[1]);
-          if (addr && onChange) onChange(pickup, addr, p1, newPt);
+          if (onChange) onChange(pickup, addr, p1, newPt);
         });
 
         dropMarkerRef.current = marker;
@@ -420,7 +541,7 @@ export default function RouteMap({
             .setLngLat([s.lng, s.lat])
             .setPopup(
               new maplibregl.Popup({ offset: 25, closeButton: false }).setHTML(
-                `<div style="font-family:sans-serif;padding:2px 4px;"><strong style="color:#2563eb;font-size:11px;">STOP ${
+                `<div style="font-family:sans-serif;padding:3px 6px;"><strong style="color:#2563eb;font-size:11px;">STOP ${
                   idx + 1
                 }</strong><p style="font-size:10px;margin:2px 0 0 0;color:#333;">${
                   s.address
@@ -433,11 +554,11 @@ export default function RouteMap({
       });
     }
 
-    // 4. Render Route if both endpoints are set
+    // 4. Trigger route calculation if both p1 and p2 are active
     if (p1 && p2) {
       renderRoute(p1, p2, stops);
     } else {
-      // Clear route
+      ensureRouteLayers(map);
       const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
       if (source) {
         source.setData({
@@ -493,12 +614,78 @@ export default function RouteMap({
     }
   }, [vehicles, ready]);
 
+  const handleReset = () => {
+    setP1(null);
+    setP2(null);
+    onCoordinatesChange?.(null, null);
+    if (onChange) onChange("", "");
+    setPinMode(null);
+    const map = mapRef.current;
+    if (map) {
+      ensureRouteLayers(map);
+      const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: [] },
+        });
+      }
+    }
+  };
+
   return (
     <div className="relative w-full h-full overflow-hidden select-none bg-zinc-100">
-      {/* MapLibre DOM Container */}
+      {/* MapLibre WebGL DOM Container */}
       <div ref={mapContainerRef} className="w-full h-full" />
 
-      {/* ── ZOOM & PITCH CONTROLS ── */}
+      {/* ── PINPOINT INTERACTIVE SELECTOR (TOP BAR) ── */}
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 p-1.5 rounded-2xl shadow-lg">
+        <button
+          type="button"
+          onClick={() => setPinMode((prev) => (prev === "pickup" ? null : "pickup"))}
+          className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
+            pinMode === "pickup"
+              ? "bg-zinc-900 text-white shadow-sm"
+              : "text-zinc-700 hover:bg-zinc-100"
+          }`}
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span>Pin Pickup</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setPinMode((prev) => (prev === "drop" ? null : "drop"))}
+          className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
+            pinMode === "drop"
+              ? "bg-zinc-900 text-white shadow-sm"
+              : "text-zinc-700 hover:bg-zinc-100"
+          }`}
+        >
+          <span className="w-2 h-2 rounded-full bg-rose-500" />
+          <span>Pin Drop</span>
+        </button>
+
+        {(p1 || p2) && (
+          <button
+            type="button"
+            onClick={handleReset}
+            title="Reset pins"
+            className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all"
+          >
+            <RotateCcw size={14} />
+          </button>
+        )}
+
+        {pinMode && (
+          <span className="text-[11px] font-bold text-zinc-600 px-2 animate-pulse">
+            Click map to place
+          </span>
+        )}
+      </div>
+
+      {/* ── ZOOM & 3D TILT CONTROLS ── */}
       <div
         className="absolute bottom-6 right-4 z-20 flex flex-col gap-2"
         onClick={(e) => e.stopPropagation()}
@@ -506,14 +693,14 @@ export default function RouteMap({
         <button
           onClick={() => mapRef.current?.zoomIn()}
           aria-label="Zoom in"
-          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-900 font-semibold shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
+          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-900 font-bold shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
         >
           +
         </button>
         <button
           onClick={() => mapRef.current?.zoomOut()}
           aria-label="Zoom out"
-          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-900 font-semibold shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
+          className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-900 font-bold shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
         >
           −
         </button>
@@ -522,7 +709,7 @@ export default function RouteMap({
             const map = mapRef.current;
             if (!map) return;
             const currentPitch = map.getPitch();
-            map.easeTo({ pitch: currentPitch > 25 ? 0 : 45, duration: 400 });
+            map.easeTo({ pitch: currentPitch > 20 ? 0 : 40, duration: 400 });
           }}
           aria-label="Toggle 3D View"
           className="w-10 h-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center text-zinc-700 shadow-md hover:bg-zinc-50 active:scale-95 transition-all"
@@ -531,51 +718,22 @@ export default function RouteMap({
         </button>
       </div>
 
-      {/* ── LOADING OVERLAY ── */}
+      {/* ── ROUTE DISTANCE & ETA BADGE (BOTTOM LEFT) ── */}
       <AnimatePresence>
-        {!ready && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
-            className="absolute inset-0 z-30 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center gap-4"
-          >
-            <div className="relative w-14 h-14 flex items-center justify-center">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 rounded-full border-2 border-transparent border-t-zinc-900"
-              />
-              <MapPin size={16} className="text-zinc-900" />
-            </div>
-            <div className="text-center">
-              <p className="text-zinc-900 text-xs font-black tracking-[0.2em] uppercase">
-                MapLibre + Valhalla
-              </p>
-              <p className="text-zinc-500 text-[11px] font-medium mt-0.5">
-                Rendering OpenStreetMap route…
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── ROUTE DISTANCE & ETA BADGE ── */}
-      <AnimatePresence>
-        {ready && km !== null && (
+        {km !== null && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute bottom-6 left-4 z-20 flex items-center gap-2.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-3.5 py-2 rounded-2xl shadow-xl"
+            className="absolute bottom-6 left-4 z-20 flex items-center gap-2.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-4 py-2.5 rounded-2xl shadow-xl"
           >
             <Navigation2 size={14} className="text-zinc-900" />
             <span className="text-zinc-900 text-xs font-black">{km} km</span>
             <span className="w-px h-3.5 bg-zinc-200" />
-            <span className="text-zinc-600 text-xs font-medium">
+            <span className="text-zinc-600 text-xs font-semibold">
               ~{durationMin ?? Math.max(3, Math.round((km / 25) * 60))} min
             </span>
-            <span className="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
+            <span className="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 border border-zinc-200">
               {routingEngine}
             </span>
           </motion.div>

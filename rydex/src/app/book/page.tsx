@@ -433,6 +433,9 @@ export default function BookPage() {
         const results: Place[] = data.predictions.map((p: any) => ({
           id: p.place_id,
           name: p.description,
+          lat: p.lat,
+          lng: p.lng,
+          countrycode: p.countrycode,
         }));
         setResults(results);
       } else {
@@ -447,6 +450,23 @@ export default function BookPage() {
   const fmt = (p: Place) => p.name;
 
   const selectPlace = async (p: Place, isPickup: boolean) => {
+    // Instant selection if coordinates are present in prediction
+    if (typeof p.lat === "number" && typeof p.lng === "number") {
+      if (isPickup) {
+        setPickup(p.name);
+        setPickupCountry(p.countrycode || "in");
+        setPickupLat(p.lat);
+        setPickupLng(p.lng);
+        setPickupResults([]);
+      } else {
+        setDrop(p.name);
+        setDropLat(p.lat);
+        setDropLng(p.lng);
+        setDropResults([]);
+      }
+      return;
+    }
+
     try {
       const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
       const data = await res.json();
@@ -624,6 +644,17 @@ export default function BookPage() {
     }
     if (countryCode) {
       setPickupCountry(countryCode);
+    }
+  };
+
+  const handleCoordinatesChange = (c1?: [number, number] | null, c2?: [number, number] | null) => {
+    if (c1) {
+      setPickupLat(c1[0]);
+      setPickupLng(c1[1]);
+    }
+    if (c2) {
+      setDropLat(c2[0]);
+      setDropLng(c2[1]);
     }
   };
 
@@ -974,13 +1005,44 @@ export default function BookPage() {
 
           <div className="h-px bg-zinc-100" />
 
-          {/* ══ STEP 3 — ROUTE ══ */}
+            {/* ══ STEP 3 — ROUTE ══ */}
           <motion.div variants={stepVariants} initial="hidden" animate="visible" transition={{ delay: 0.22 }} className="space-y-3">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-[9px] font-black">3</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-[9px] font-black">3</span>
+                </div>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Route Setup</p>
               </div>
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Route Setup</p>
+              <span className="text-[10px] font-bold text-zinc-400">
+                📍 Click map to set pins
+              </span>
+            </div>
+
+            {/* Quick Destination Chips */}
+            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {[
+                { label: "Airport", icon: "✈️" },
+                { label: "Railway Station", icon: "🚆" },
+                { label: "City Center", icon: "🛍️" },
+                { label: "Metro", icon: "🚇" },
+                { label: "Hospital", icon: "🏥" },
+              ].map((chip) => (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() => {
+                    const targetSetter = !pickup ? setPickup : setDrop;
+                    const targetResultsSetter = !pickup ? setPickupResults : setDropResults;
+                    targetSetter(chip.label);
+                    searchAddress(chip.label, targetResultsSetter, pickupCountry || "in", Boolean(pickup));
+                  }}
+                  className="px-2.5 py-1 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-semibold flex items-center gap-1 transition-colors flex-shrink-0 border border-zinc-200/60"
+                >
+                  <span>{chip.icon}</span>
+                  <span>{chip.label}</span>
+                </button>
+              ))}
             </div>
 
             <div className="bg-zinc-50 border border-zinc-200 rounded-2xl overflow-visible">
@@ -1011,10 +1073,25 @@ export default function BookPage() {
                     placeholder="Pickup location"
                     className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
                   />
+                  {pickup && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPickup("");
+                        setPickupLat(null);
+                        setPickupLng(null);
+                        setPickupResults([]);
+                      }}
+                      className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 transition"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
                   <motion.button
                     whileTap={{ scale: 0.88 }}
                     onClick={useCurrentLocation}
                     disabled={locating}
+                    title="Use current location"
                     className="w-8 h-8 rounded-xl bg-zinc-200 hover:bg-zinc-300 transition-colors flex items-center justify-center flex-shrink-0"
                   >
                     <LocateFixed size={14} className={`text-zinc-700 ${locating ? "animate-spin" : ""}`} />
@@ -1035,7 +1112,7 @@ export default function BookPage() {
                           onMouseDown={e => { e.preventDefault(); selectPlace(p, true); }}
                           className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
                         >
-                          <MapPin size={13} className="text-zinc-400 flex-shrink-0" />
+                          <MapPin size={13} className="text-emerald-600 flex-shrink-0" />
                           <span className="text-sm text-zinc-800 font-medium truncate">{fmt(p)}</span>
                           <ChevronRight size={13} className="text-zinc-300 flex-shrink-0 ml-auto" />
                         </button>
@@ -1126,11 +1203,24 @@ export default function BookPage() {
                     }}
                     onKeyDown={e => handleKeyDown(e, false)}
                     onBlur={() => handleBlur(false)}
-                    disabled={!pickup}
-                    placeholder={pickup ? "Drop location" : "Select pickup first"}
-                    className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none disabled:opacity-50"
+                    placeholder="Drop location"
+                    className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
                   />
-                  <Navigation size={14} className="text-zinc-300 flex-shrink-0" />
+                  {drop && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDrop("");
+                        setDropLat(null);
+                        setDropLng(null);
+                        setDropResults([]);
+                      }}
+                      className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 transition"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                  <Navigation size={14} className="text-zinc-400 flex-shrink-0" />
                 </div>
 
                 <AnimatePresence>
@@ -1147,7 +1237,7 @@ export default function BookPage() {
                           onMouseDown={e => { e.preventDefault(); selectPlace(p, false); }}
                           className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
                         >
-                          <Navigation size={13} className="text-zinc-400 flex-shrink-0" />
+                          <MapPin size={13} className="text-rose-500 flex-shrink-0" />
                           <span className="text-sm text-zinc-800 font-medium truncate">{fmt(p)}</span>
                           <ChevronRight size={13} className="text-zinc-300 flex-shrink-0 ml-auto" />
                         </button>
@@ -1450,9 +1540,10 @@ export default function BookPage() {
           pickupCoords={pickupLat && pickupLng ? [pickupLat, pickupLng] : null}
           dropCoords={dropLat && dropLng ? [dropLat, dropLng] : null}
           onChange={handleMapChange}
+          onCoordinatesChange={handleCoordinatesChange}
           onDistance={setRouteDistance}
           vehicles={vehicles}
-          disableFallbackGeocode={true}
+          disableFallbackGeocode={false}
           smartPickups={smartPickups}
           onSelectSmartPickup={handleSelectSmartPickup}
           stops={stops.filter(s => s.lat !== null && s.lng !== null).map(s => ({ address: s.address, lat: s.lat!, lng: s.lng! }))}

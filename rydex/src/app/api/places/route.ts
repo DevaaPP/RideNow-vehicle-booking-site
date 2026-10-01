@@ -82,6 +82,9 @@ export async function GET(req: NextRequest) {
         return {
           place_id,
           description,
+          lat: coords[1],
+          lng: coords[0],
+          countrycode: (props.countrycode || "in").toLowerCase(),
         };
       });
 

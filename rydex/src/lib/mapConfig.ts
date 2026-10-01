@@ -1,11 +1,12 @@
 import type { StyleSpecification } from "maplibre-gl";
 
 /**
- * 100% Free & Open-Source OpenStreetMap Tile Specification.
- * Zero API keys required, zero watermarks.
- * Uses official OpenStreetMap distributed edge tile servers (a, b, c).
+ * Uber-Style Minimalist OpenStreetMap Style Specification.
+ * - Desaturates busy green terrain, elevation contours, and noisy coloring.
+ * - Flat, clean, high-contrast roads and infrastructure.
+ * - 100% Free, zero API key required, zero watermarks.
  */
-export const OSM_MAP_STYLE: StyleSpecification = {
+export const UBER_MINIMAL_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
     "osm-tiles": {
@@ -28,41 +29,17 @@ export const OSM_MAP_STYLE: StyleSpecification = {
       minzoom: 0,
       maxzoom: 19,
       paint: {
-        // Slight subtle contrast adjustment for clean road visibility
-        "raster-contrast": 0.04,
+        // Desaturate terrain, foliage, and clutter to create a clean Uber-like minimal street map
+        "raster-saturation": -0.85,
+        "raster-contrast": 0.12,
+        "raster-brightness-min": 0.08,
+        "raster-brightness-max": 0.98,
       },
     },
   ],
 };
 
-/**
- * Clean Humanitarian OpenStreetMap style (soft pleasant palette).
- */
-export const OSM_HOT_STYLE: StyleSpecification = {
-  version: 8,
-  sources: {
-    "osm-hot-tiles": {
-      type: "raster",
-      tiles: [
-        "https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-        "https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-      ],
-      tileSize: 256,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    },
-  },
-  layers: [
-    {
-      id: "osm-hot-tiles-layer",
-      type: "raster",
-      source: "osm-hot-tiles",
-      minzoom: 0,
-      maxzoom: 19,
-    },
-  ],
-};
-
-// Aliased to OSM_MAP_STYLE so all components automatically use 100% free unwatermarked tiles
-export const VOYAGER_MAP_STYLE = OSM_MAP_STYLE;
-export const OSM_STANDARD_STYLE = OSM_MAP_STYLE;
+// Aliases for compatibility
+export const OSM_MAP_STYLE = UBER_MINIMAL_MAP_STYLE;
+export const VOYAGER_MAP_STYLE = UBER_MINIMAL_MAP_STYLE;
+export const OSM_STANDARD_STYLE = UBER_MINIMAL_MAP_STYLE;
