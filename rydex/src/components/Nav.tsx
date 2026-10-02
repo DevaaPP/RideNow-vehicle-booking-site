@@ -17,7 +17,6 @@ import {
   Wallet,
 } from "lucide-react";
 import AuthModal from "./AuthModal";
-import PhoneLinkModal from "./PhoneLinkModal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { signOut } from "next-auth/react";
@@ -145,6 +144,17 @@ export default function Nav() {
                 {activeCount}
               </span>
             )}
+          </Link>
+
+          <Link
+            href="/partner/wallet"
+            className={`text-sm font-medium transition ${
+              pathname === "/partner/wallet"
+                ? "text-white"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            Wallet
           </Link>
         </>
       );
@@ -355,6 +365,14 @@ export default function Nav() {
                   </span>
                 )}
               </Link>
+
+              <Link
+                href="/partner/wallet"
+                className="flex justify-between items-center px-6 py-4 text-gray-300 hover:bg-white/5"
+                onClick={() => setMenuOpen(false)}
+              >
+                <span>Wallet & Earnings</span>
+              </Link>
             </>
           ) : (
             <>
@@ -412,7 +430,6 @@ export default function Nav() {
       </AnimatePresence>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      <PhoneLinkModal />
     </>
   );
 }

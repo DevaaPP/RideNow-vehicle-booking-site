@@ -143,20 +143,17 @@ export default function DriverWalletCard() {
       {/* DRIVER WALLET HERO & METRICS */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Available Earnings Card */}
-        <div className="lg:col-span-2 relative overflow-hidden rounded-3xl bg-linear-to-br from-zinc-950 via-zinc-900 to-black text-white p-7 sm:p-9 shadow-2xl border border-zinc-800 flex flex-col justify-between min-h-[220px]">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="lg:col-span-2 rounded-2xl bg-zinc-900 text-white p-6 sm:p-7 shadow-lg border border-zinc-800 flex flex-col justify-between min-h-[220px]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                   Driver Wallet · Available Earnings
                 </p>
               </div>
               <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
                   ₹{availableEarnings.toLocaleString("en-IN")}
                 </span>
                 <span className="text-xs font-bold text-zinc-400">INR</span>
@@ -173,17 +170,17 @@ export default function DriverWalletCard() {
                   setShowWithdrawModal(true);
                 }}
                 disabled={availableEarnings < 100}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:hover:bg-emerald-500 text-zinc-950 text-xs sm:text-sm font-black transition-all shadow-lg active:scale-95"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs sm:text-sm font-bold transition shadow-sm active:scale-98"
               >
-                <Building2 size={16} /> Withdraw to Bank
+                <Building2 size={15} /> Withdraw to Bank
               </button>
               {availableEarnings < 100 && (
-                <span className="text-[10px] text-zinc-500 font-medium">Min withdrawal: ₹100</span>
+                <span className="text-[10px] text-zinc-500 font-medium">Min payout: ₹100</span>
               )}
             </div>
           </div>
 
-          <div className="relative z-10 pt-6 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-400">
+          <div className="pt-4 mt-4 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-400">
             <div className="flex items-center gap-2">
               <Building2 size={14} className="text-emerald-400" />
               {bankDetails ? (
@@ -199,52 +196,54 @@ export default function DriverWalletCard() {
                 </Link>
               )}
             </div>
-            <div className="flex items-center gap-1.5 text-zinc-500 font-medium text-[11px]">
-              <ShieldCheck size={13} className="text-emerald-400" />
-              <span>Direct Bank IMPS / UPI Transfer</span>
-            </div>
+            <Link
+              href="/partner/wallet"
+              className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+            >
+              Full Ledger Page <ChevronRight size={14} />
+            </Link>
           </div>
         </div>
 
         {/* Breakdown Metrics */}
         <div className="flex flex-col gap-3.5">
-          <div className="bg-white rounded-3xl p-5 border border-zinc-200 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-              <TrendingUp size={20} />
+          <div className="bg-white rounded-2xl p-4.5 border border-zinc-200 shadow-xs flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0">
+              <TrendingUp size={18} />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Lifetime Earnings (90%)
+              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                Lifetime Earnings (85%)
               </p>
-              <p className="text-xl font-black text-zinc-900 mt-0.5">
+              <p className="text-lg font-black text-zinc-900 mt-0.5">
                 ₹{metrics.totalEarnings.toLocaleString("en-IN")}
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl p-5 border border-zinc-200 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center flex-shrink-0">
-              <Percent size={20} />
+          <div className="bg-white rounded-2xl p-4.5 border border-zinc-200 shadow-xs flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center flex-shrink-0">
+              <Percent size={18} />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Platform Commission (10%)
+              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                Platform Commission (15%)
               </p>
-              <p className="text-xl font-black text-zinc-900 mt-0.5">
+              <p className="text-lg font-black text-zinc-900 mt-0.5">
                 ₹{metrics.totalCommission.toLocaleString("en-IN")}
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl p-5 border border-zinc-200 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-zinc-800 flex items-center justify-center flex-shrink-0">
-              <Building2 size={20} />
+          <div className="bg-white rounded-2xl p-4.5 border border-zinc-200 shadow-xs flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center flex-shrink-0">
+              <Building2 size={18} />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                 Total Withdrawn
               </p>
-              <p className="text-xl font-black text-zinc-900 mt-0.5">
+              <p className="text-lg font-black text-zinc-900 mt-0.5">
                 ₹{metrics.totalWithdrawn.toLocaleString("en-IN")}
               </p>
             </div>
@@ -253,7 +252,7 @@ export default function DriverWalletCard() {
       </div>
 
       {/* DRIVER PASSBOOK & LEDGER */}
-      <div className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
         <div className="p-6 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-base font-black text-zinc-900">Driver Ledger & Payout History</h3>

@@ -1,0 +1,62 @@
+import mongoose, { Schema, Document, Types } from "mongoose";
+
+export interface IWallet extends Document {
+  userId: Types.ObjectId;
+  balance: number;          // Available earnings
+  pendingEarnings: number;  // In-flight / pending earnings
+  currency: string;         // Currency code e.g. "INR"
+  totalEarnings: number;    // Lifetime driver earnings
+  totalCommission: number;  // Lifetime platform commission
+  totalWithdrawn: number;   // Total payout withdrawn to bank/UPI
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const WalletSchema = new Schema<IWallet>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+      index: true,
+    },
+    balance: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    pendingEarnings: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    currency: {
+      type: String,
+      default: "INR",
+      uppercase: true,
+      trim: true,
+    },
+    totalEarnings: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    totalCommission: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    totalWithdrawn: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+  },
+  { timestamps: true }
+);
+
+const Wallet =
+  mongoose.models.Wallet || mongoose.model<IWallet>("Wallet", WalletSchema);
+
+export default Wallet;
