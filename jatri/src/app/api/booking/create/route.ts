@@ -320,6 +320,13 @@ export async function POST(req: Request) {
     const breakdown = calculateFareBreakdown(vehicleKey, routeDistance, ratesMap, undefined, 0, isStudent);
     const calculatedFare = breakdown.totalFare;
 
+    const estimatedDurationMin = Math.max(
+      5,
+      breakdown.timeMinutes || Math.round((routeDistance / 25) * 60) || 15
+    );
+    const baseStartTime = parsedScheduledTime ? parsedScheduledTime.getTime() : Date.now();
+    const estimatedDropoffTime = new Date(baseStartTime + estimatedDurationMin * 60 * 1000);
+
     const formattedStops =
       Array.isArray(stops) && stops.length > 0
         ? stops.map((s: any, idx: number) => ({
@@ -362,6 +369,8 @@ export async function POST(req: Request) {
           : undefined,
       fare: calculatedFare,
       fareBreakdown: breakdown,
+      tripDurationMinutes: estimatedDurationMin,
+      estimatedDropoffTime,
       adminCommission: Number((calculatedFare * 0.1).toFixed(2)),
       partnerAmount: Number((calculatedFare - calculatedFare * 0.1).toFixed(2)),
       userMobileNumber: effectiveUserMobile,

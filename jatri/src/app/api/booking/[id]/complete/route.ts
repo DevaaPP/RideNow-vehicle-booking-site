@@ -20,8 +20,16 @@ export async function POST(
     );
   }
 
+  const now = new Date();
   booking.status = "completed";
-  booking.completedAt = new Date();
+  booking.completedAt = now;
+  booking.actualDropoffTime = now;
+  if (booking.startedAt) {
+    booking.tripDurationMinutes = Math.max(
+      1,
+      Math.round((now.getTime() - new Date(booking.startedAt).getTime()) / (1000 * 60))
+    );
+  }
 
   await booking.save();
 

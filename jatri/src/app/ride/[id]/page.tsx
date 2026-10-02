@@ -6,7 +6,7 @@ import {
   Star, MessageCircle, Clock, Zap,
   IndianRupee, XCircle, AlertCircle, AlertTriangle,
   CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
-  ShieldAlert, Siren, PhoneCall, Share2
+  ShieldAlert, Siren, PhoneCall, Share2, Navigation
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
@@ -24,7 +24,7 @@ type BookingStatus =
   | "rejected"  | "expired"          | "auto_rematching"
   | "no_drivers_available" | "scheduled";
 
-type PaymentStatus = "pending" | "paid" | "cash" | "failed";
+type PaymentStatus = "pending" | "paid" | "cash" | "failed" | "refunded";
 
 interface BookingDetails {
   _id: string;
@@ -59,7 +59,29 @@ interface BookingDetails {
   };
   isScheduled?: boolean;
   scheduledPickupTime?: string;
+  acceptedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
+  estimatedDropoffTime?: string;
+  actualDropoffTime?: string;
+  tripDurationMinutes?: number;
+  cancelledBy?: string;
+  cancellationReason?: string;
+  cancellationFee?: number;
+  cancellationFeeApplied?: boolean;
+  cancelledAt?: string;
+  createdAt?: string;
 }
+
+const CANCELLATION_REASONS = [
+  "Driver is taking too long to arrive",
+  "Driver asked to cancel / refuse ride",
+  "Driver going in the wrong direction",
+  "Changed my mind / No longer need ride",
+  "Entered incorrect pickup or drop location",
+  "Booked by mistake",
+  "Other reason",
+];
 
 /* ─── STATUS CONFIG ──────────────────────────────────────────────────── */
 const STATUS_CONFIG: Record<BookingStatus, {
@@ -80,10 +102,11 @@ const STATUS_CONFIG: Record<BookingStatus, {
 };
 
 const PAYMENT_LABEL: Record<PaymentStatus, { label: string; cls: string }> = {
-  pending: { label: "Payment Pending", cls: "bg-amber-100 text-amber-700"    },
-  paid:    { label: "Paid",            cls: "bg-emerald-100 text-emerald-700" },
-  cash:    { label: "Cash",            cls: "bg-zinc-100 text-zinc-700"       },
-  failed:  { label: "Payment Failed",  cls: "bg-red-100 text-red-700"         },
+  pending:  { label: "Payment Pending", cls: "bg-amber-100 text-amber-700"    },
+  paid:     { label: "Paid",            cls: "bg-emerald-100 text-emerald-700" },
+  cash:     { label: "Cash",            cls: "bg-zinc-100 text-zinc-700"       },
+  failed:   { label: "Payment Failed",  cls: "bg-red-100 text-red-700"         },
+  refunded: { label: "Refunded",        cls: "bg-emerald-100 text-emerald-700" },
 };
 
 const PEEK_H = 140;
@@ -108,6 +131,9 @@ export default function RidePage() {
   const [error,            setError]            = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showCancelError, setShowCancelError] = useState<string | null>(null);
+  const [selectedReason, setSelectedReason] = useState<string>("");
+  const [customReasonNote, setCustomReasonNote] = useState<string>("");
+  const [cancellingRide, setCancellingRide] = useState<boolean>(false);
   const [showPanicConfirm, setShowPanicConfirm] = useState(false);
   const [panicLoading, setPanicLoading] = useState(false);
 
@@ -446,21 +472,54 @@ export default function RidePage() {
     }
   };
 
+  const getElapsedAcceptanceSeconds = () => {
+    const ref = booking?.acceptedAt || (booking?.status === "confirmed" ? (booking as any)?.updatedAt : null);
+    if (!ref) return 0;
+    const acceptedMs = new Date(ref).getTime();
+    return Math.max(0, Math.floor((Date.now() - acceptedMs) / 1000));
+  };
+
   const handleCancel = () => {
+    setSelectedReason("");
+    setCustomReasonNote("");
     setShowCancelConfirm(true);
   };
 
   const confirmCancelRide = async () => {
+    const finalReason =
+      selectedReason === "Other reason" && customReasonNote.trim()
+        ? `Other: ${customReasonNote.trim()}`
+        : selectedReason || "Cancelled by passenger";
+
     try {
-      const res = await fetch(`/api/booking/${id}/cancel`, { method: "POST" });
+      setCancellingRide(true);
+      const res = await fetch(`/api/booking/${id}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: finalReason, cancelledBy: "user" }),
+      });
+      const data = await res.json();
       if (res.ok) {
-        setBooking(prev => prev ? { ...prev, status: "cancelled" } : null);
+        setShowCancelConfirm(false);
+        setBooking(prev =>
+          prev
+            ? {
+                ...prev,
+                status: "cancelled",
+                cancellationReason: finalReason,
+                cancellationFee: data.cancellationFee,
+                cancellationFeeApplied: data.cancellationFeeApplied,
+              }
+            : null
+        );
       } else {
-        setShowCancelError("Failed to cancel booking. Please try again.");
+        setShowCancelError(data.message || "Failed to cancel booking. Please try again.");
       }
     } catch (err) {
       console.error(err);
       setShowCancelError("Failed to cancel booking due to a network error.");
+    } finally {
+      setCancellingRide(false);
     }
   };
 
@@ -641,48 +700,152 @@ export default function RidePage() {
           </div>
         </motion.div>
       </div>
-      {/* Custom Confirm Cancel Modal */}
+      {/* Custom Confirm Cancel Modal with Reason & Penalty Warning */}
       <AnimatePresence>
         {showCancelConfirm && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] px-4"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999] px-4"
           >
             <motion.div
-              initial={{ scale: 0.98, y: 15 }}
+              initial={{ scale: 0.96, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.98, y: 15 }}
+              exit={{ scale: 0.96, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200"
+              className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 flex flex-col max-h-[90vh]"
             >
-              <div className="p-6 text-center space-y-4">
-                <div className="w-14 h-14 bg-red-50 rounded-xl flex items-center justify-center mx-auto text-red-500">
-                  <AlertTriangle size={24} />
+              {/* Header */}
+              <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+                    <AlertTriangle size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-zinc-900">Cancel Ride</h3>
+                    <p className="text-[11px] text-zinc-400 font-semibold">Review policy & select reason</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-lg font-black text-zinc-900">Cancel Ride?</h3>
-                  <p className="text-zinc-500 text-xs font-semibold leading-relaxed">
-                    Are you sure you want to cancel this ride request? This action cannot be undone.
-                  </p>
-                </div>
-              </div>
-              <div className="px-6 pb-6 pt-2 flex gap-3">
                 <button
                   onClick={() => setShowCancelConfirm(false)}
-                  className="flex-1 py-2.5 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-sm font-semibold transition active:scale-[0.98]"
+                  className="w-8 h-8 rounded-full hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-700 transition"
                 >
-                  Go Back
+                  ✕
+                </button>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="p-5 space-y-4 overflow-y-auto">
+                {/* Penalty & Timing Calculation Banner */}
+                {(() => {
+                  const elapsedSec = getElapsedAcceptanceSeconds();
+                  const hasDriverAccepted = Boolean(booking?.acceptedAt || booking?.status === "confirmed");
+
+                  if (hasDriverAccepted) {
+                    if (elapsedSec <= 180) {
+                      return (
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-left">
+                          <div className="flex items-center gap-1.5 text-emerald-900 text-xs font-black mb-1">
+                            <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                            <span>Free Cancellation Window Active</span>
+                          </div>
+                          <p className="text-[11px] text-emerald-800 leading-relaxed">
+                            Driver accepted {Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago. You are within the 3-minute grace period — <strong>₹0 penalty fee</strong> will be charged and you will receive a full refund.
+                          </p>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 text-left">
+                          <div className="flex items-center gap-1.5 text-amber-950 text-xs font-black mb-1">
+                            <AlertTriangle size={15} className="text-amber-600 flex-shrink-0" />
+                            <span>₹50 Cancellation Fee Applies</span>
+                          </div>
+                          <p className="text-[11px] text-amber-900 leading-relaxed">
+                            The driver accepted {Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago (&gt; 3 mins) and is actively en route. Under our driver protection policy, a <strong>₹50 cancellation penalty</strong> applies to compensate driver fuel and time.
+                          </p>
+                        </div>
+                      );
+                    }
+                  }
+
+                  return (
+                    <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3.5 text-left">
+                      <div className="flex items-center gap-1.5 text-zinc-900 text-xs font-black mb-1">
+                        <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                        <span>Zero Cancellation Fee</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-600 leading-relaxed">
+                        No driver has accepted this ride yet. You can cancel now with no penalty.
+                      </p>
+                    </div>
+                  );
+                })()}
+
+                {/* Reasons List */}
+                <div>
+                  <p className="text-xs font-bold text-zinc-800 mb-2">Please tell us why you are cancelling:</p>
+                  <div className="space-y-1.5">
+                    {CANCELLATION_REASONS.map((r) => {
+                      const isSelected = selectedReason === r;
+                      return (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => setSelectedReason(r)}
+                          className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs transition-all flex items-center justify-between border ${
+                            isSelected
+                              ? "bg-zinc-950 text-white border-zinc-950 font-bold shadow-sm"
+                              : "bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200"
+                          }`}
+                        >
+                          <span>{r}</span>
+                          <span
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ml-2 ${
+                              isSelected ? "border-white bg-white" : "border-zinc-300 bg-white"
+                            }`}
+                          >
+                            {isSelected && <span className="w-2 h-2 rounded-full bg-zinc-950" />}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {selectedReason === "Other reason" && (
+                    <textarea
+                      value={customReasonNote}
+                      onChange={(e) => setCustomReasonNote(e.target.value)}
+                      placeholder="Please specify your cancellation reason..."
+                      className="w-full text-xs p-3 border border-zinc-200 rounded-xl outline-none focus:border-zinc-900 mt-2.5 resize-none text-zinc-900"
+                      rows={2}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Actions Footer */}
+              <div className="p-5 pt-3 border-t border-zinc-100 bg-zinc-50/50 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCancelConfirm(false)}
+                  disabled={cancellingRide}
+                  className="flex-1 py-3 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-xs font-bold transition active:scale-[0.98] disabled:opacity-50"
+                >
+                  Keep Ride
                 </button>
                 <button
-                  onClick={() => {
-                    setShowCancelConfirm(false);
-                    confirmCancelRide();
-                  }}
-                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition active:scale-[0.98]"
+                  type="button"
+                  onClick={confirmCancelRide}
+                  disabled={!selectedReason || cancellingRide}
+                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black transition active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
-                  Cancel Ride
+                  {cancellingRide ? (
+                    <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  ) : (
+                    "Confirm Cancellation"
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -1037,6 +1200,15 @@ function CompletedScreen({ booking, router }: { booking: BookingDetails; router:
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Drop</p>
                 <p className="text-sm text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
+                {(booking.actualDropoffTime || booking.completedAt) && (
+                  <p className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
+                    <CheckCircle2 size={12} />
+                    <span>
+                      Dropped off at {new Date(booking.actualDropoffTime || booking.completedAt!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                      {booking.tripDurationMinutes ? ` (~${booking.tripDurationMinutes} mins)` : ""}
+                    </span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -1151,7 +1323,32 @@ function FailedScreen({ booking, status, cfg, router }: { booking: BookingDetail
         className="w-full max-w-sm text-center"
       >
         <h1 className="text-white text-2xl font-black mb-2">{cfg.label}</h1>
-        <p className="text-zinc-500 text-sm mb-8">{cfg.sublabel}</p>
+        <p className="text-zinc-500 text-sm mb-6">{cfg.sublabel}</p>
+
+        {status === "cancelled" && (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-6 text-left space-y-2.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-zinc-400 font-semibold">Reason</span>
+              <span className="text-zinc-200 font-bold max-w-[200px] truncate text-right">
+                {booking.cancellationReason || "Cancelled by passenger"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs pt-2 border-t border-zinc-800">
+              <span className="text-zinc-400 font-semibold">Cancellation Fee</span>
+              <span className={`font-bold ${booking.cancellationFeeApplied ? "text-amber-400" : "text-emerald-400"}`}>
+                {booking.cancellationFeeApplied && booking.cancellationFee
+                  ? `₹${booking.cancellationFee} applied (>3 min)`
+                  : "₹0 (Free Cancellation)"}
+              </span>
+            </div>
+            {booking.paymentStatus === "refunded" && (
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-zinc-800">
+                <span className="text-zinc-400 font-semibold">Refund Status</span>
+                <span className="text-emerald-400 font-bold">Processed to Wallet</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Route recap */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden mb-6 text-left">
@@ -1339,28 +1536,37 @@ function PanelContent({
         </div>
       )}
 
-      {/* ETA + FARE (active, not requested/payment/scheduled) */}
+      {/* ETA + DROPOFF + FARE (active, not requested/payment/scheduled) */}
       {isActive && !["requested", "awaiting_payment", "scheduled"].includes(status) && (
-        <div className="mx-5 lg:mx-6 grid grid-cols-2 gap-2">
-          <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center flex-shrink-0">
-              <Clock size={16} className="text-zinc-600" />
+        <div className="mx-5 lg:mx-6 grid grid-cols-3 gap-2">
+          <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-3 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">ETA</span>
+              <Clock size={13} className="text-zinc-500" />
             </div>
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">ETA</p>
-              <p className="text-lg font-black text-zinc-900 leading-none mt-0.5">
-                {Math.round(displayEta)}<span className="text-xs font-normal text-zinc-400 ml-0.5">min</span>
-              </p>
-            </div>
+            <p className="text-sm font-black text-zinc-900 leading-none">
+              {Math.round(displayEta)}<span className="text-[10px] font-normal text-zinc-400 ml-0.5">min</span>
+            </p>
           </div>
-          <div className="bg-zinc-950 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-              <IndianRupee size={16} className="text-white" />
+
+          <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-3 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Drop-off</span>
+              <Navigation size={13} className="text-emerald-600" />
             </div>
-            <div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Fare</p>
-              <p className="text-lg font-black text-white leading-none mt-0.5">₹{booking.fare}</p>
+            <p className="text-xs font-black text-zinc-900 leading-none truncate">
+              {booking.estimatedDropoffTime
+                ? new Date(booking.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
+                : `~${booking.tripDurationMinutes || 15}m`}
+            </p>
+          </div>
+
+          <div className="bg-zinc-950 rounded-2xl p-3 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Fare</span>
+              <IndianRupee size={13} className="text-zinc-400" />
             </div>
+            <p className="text-sm font-black text-white leading-none">₹{booking.fare}</p>
           </div>
         </div>
       )}
@@ -1511,6 +1717,18 @@ function PanelContent({
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Drop</p>
               <p className="text-sm text-zinc-800 leading-snug">{booking.dropAddress || "—"}</p>
+              {booking.estimatedDropoffTime && (status === "confirmed" || status === "started") && (
+                <p className="text-[11px] text-zinc-500 font-semibold mt-1 flex items-center gap-1">
+                  <Clock size={12} className="text-zinc-400" />
+                  <span>Est. Drop-off by {new Date(booking.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })} (~{booking.tripDurationMinutes || 15} mins)</span>
+                </p>
+              )}
+              {booking.actualDropoffTime && status === "completed" && (
+                <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                  <CheckCircle2 size={12} />
+                  <span>Dropped off at {new Date(booking.actualDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</span>
+                </p>
+              )}
               {booking.dropOtp && status === "started" && (
                 <div className="mt-1.5 inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg">
                   <p className="text-emerald-700 text-xs font-black tracking-widest font-mono">{booking.dropOtp}</p>

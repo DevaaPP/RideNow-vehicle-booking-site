@@ -124,6 +124,17 @@ partnerAmount: number
   isScheduled?: boolean;
   scheduledPickupTime?: Date;
   scheduledReminderSent?: boolean;
+  acceptedAt?: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  estimatedDropoffTime?: Date;
+  actualDropoffTime?: Date;
+  tripDurationMinutes?: number;
+  cancelledBy?: "user" | "driver" | "admin" | "system";
+  cancellationReason?: string;
+  cancellationFee?: number;
+  cancellationFeeApplied?: boolean;
+  cancelledAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -350,6 +361,20 @@ dropOtpExpires: {
       type: Boolean,
       default: false,
     },
+    acceptedAt: { type: Date },
+    startedAt: { type: Date },
+    completedAt: { type: Date },
+    estimatedDropoffTime: { type: Date },
+    actualDropoffTime: { type: Date },
+    tripDurationMinutes: { type: Number },
+    cancelledBy: {
+      type: String,
+      enum: ["user", "driver", "admin", "system"],
+    },
+    cancellationReason: { type: String, trim: true },
+    cancellationFee: { type: Number, default: 0 },
+    cancellationFeeApplied: { type: Boolean, default: false },
+    cancelledAt: { type: Date },
   },
   { timestamps: true }
 );

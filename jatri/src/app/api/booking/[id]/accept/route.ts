@@ -15,7 +15,10 @@ export async function POST(
     return NextResponse.json({ message: "Invalid" }, { status: 400 });
 
   booking.status = "awaiting_payment";
+  booking.acceptedAt = new Date();
   booking.paymentDeadline = new Date(Date.now() + 5 * 60 * 1000);
+  const duration = booking.tripDurationMinutes || 15;
+  booking.estimatedDropoffTime = new Date(Date.now() + duration * 60 * 1000);
 
   await booking.save();
 

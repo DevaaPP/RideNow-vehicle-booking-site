@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (booking.dropExpires < new Date()) {
+    if ((booking.dropOtpExpires || (booking as any).dropExpires) && (booking.dropOtpExpires || (booking as any).dropExpires) < new Date()) {
       return NextResponse.json(
         { message: "OTP expired" },
         { status: 400 }
@@ -43,7 +43,16 @@ export async function POST(req: Request) {
 
     /* update status */
 
+    const now = new Date();
     booking.status = "completed";
+    booking.completedAt = now;
+    booking.actualDropoffTime = now;
+    if (booking.startedAt) {
+      booking.tripDurationMinutes = Math.max(
+        1,
+        Math.round((now.getTime() - new Date(booking.startedAt).getTime()) / (1000 * 60))
+      );
+    }
 
     booking.dropOtp = "";
     booking.dropOtpExpires = undefined as any;
@@ -64,6 +73,9 @@ export async function POST(req: Request) {
           data: {
             bookingId: booking._id.toString(),
             status: "completed",
+            completedAt: booking.completedAt,
+            actualDropoffTime: booking.actualDropoffTime,
+            tripDurationMinutes: booking.tripDurationMinutes,
             dropOtp: "",
           },
         }),

@@ -42,7 +42,11 @@ export async function POST(req: Request) {
 
     /* update status */
 
+    const now = new Date();
     booking.status = "started";
+    booking.startedAt = now;
+    const duration = booking.tripDurationMinutes || (booking.fareBreakdown?.timeMinutes ? Math.round(booking.fareBreakdown.timeMinutes) : 15);
+    booking.estimatedDropoffTime = new Date(now.getTime() + duration * 60 * 1000);
 
     booking.pickupOtp = "";
     booking.pickupOtpExpires = undefined as any;
@@ -60,6 +64,9 @@ export async function POST(req: Request) {
           data: {
             bookingId: booking._id.toString(),
             status: "started",
+            startedAt: booking.startedAt,
+            estimatedDropoffTime: booking.estimatedDropoffTime,
+            tripDurationMinutes: duration,
             pickupOtp: "",
           },
         }),
