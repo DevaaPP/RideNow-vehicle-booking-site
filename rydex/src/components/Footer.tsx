@@ -137,8 +137,10 @@ export default function Footer() {
               {[
                 { label: "Privacy Policy (DPDP)", href: "/privacy" },
                 { label: "Terms of Service", href: "/terms" },
+                { label: "Payment & Settlements", href: "/payment-terms" },
                 { label: "Cancellation & Refund", href: "/cancellation-refund" },
                 { label: "Driver Partner Agreement", href: "/partner-terms" },
+                { label: "Cookie Policy", href: "/cookies" },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
@@ -165,11 +167,17 @@ export default function Footer() {
             <Link href="/terms" className="hover:text-white transition">
               Terms & Conditions
             </Link>
+            <Link href="/payment-terms" className="hover:text-white transition">
+              Payment Terms
+            </Link>
             <Link href="/cancellation-refund" className="hover:text-white transition">
               Refunds
             </Link>
             <Link href="/partner-terms" className="hover:text-white transition">
               Driver Terms
+            </Link>
+            <Link href="/cookies" className="hover:text-white transition">
+              Cookies
             </Link>
             <Link href="/grievance" className="hover:text-white transition">
               Grievance Redressal
