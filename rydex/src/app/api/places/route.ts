@@ -1,5 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 
+interface CacheEntry {
+  data: any;
+  expiresAt: number;
+}
+const placesCache = new Map<string, CacheEntry>();
+const PLACES_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_PLACES_CACHE_SIZE = 350;
+
+function getCached(key: string): any | null {
+  const entry = placesCache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    placesCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setCached(key: string, data: any) {
+  if (placesCache.size >= MAX_PLACES_CACHE_SIZE) {
+    const firstKey = placesCache.keys().next().value;
+    if (firstKey) placesCache.delete(firstKey);
+  }
+  placesCache.set(key, { data, expiresAt: Date.now() + PLACES_CACHE_TTL_MS });
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const action = searchParams.get("action");
@@ -11,13 +37,25 @@ export async function GET(req: NextRequest) {
 
   try {
     if (action === "autocomplete") {
-      const input = searchParams.get("input") || "";
+      const input = (searchParams.get("input") || "").trim();
+      if (!input || input.length < 2) {
+        return NextResponse.json({ predictions: [], status: "OK" });
+      }
       const country = (searchParams.get("country") || "in").toUpperCase();
       const lat = searchParams.get("lat");
       const lng = searchParams.get("lng");
       const bbox = searchParams.get("bbox");
 
-      let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(input.trim())}`;
+      const cacheKey = `ac_${input.toLowerCase()}_${country}_${bbox || ""}_${lat ? Number(lat).toFixed(2) : ""}_${lng ? Number(lng).toFixed(2) : ""}`;
+      const cached = getCached(cacheKey);
+      if (cached) {
+        return NextResponse.json(
+          { predictions: cached, status: "OK" },
+          { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } }
+        );
+      }
+
+      let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}`;
       
       if (country && country !== "NULL") {
         url += `&countrycode=${country}`;
@@ -29,34 +67,43 @@ export async function GET(req: NextRequest) {
         url += `&lat=${lat}&lon=${lng}`;
       }
 
-      let res = await fetch(url, { headers });
-      let data = await res.json();
+      let data: any = null;
+      try {
+        const res = await fetch(url, { headers, signal: AbortSignal.timeout(3500) });
+        if (res.ok) data = await res.json();
+      } catch (e) {
+        console.warn("Photon primary autocomplete error:", e);
+      }
 
       // Fallback 1: If search within bounding box (bbox) returns nothing, try without bbox
       if (bbox && (!data?.features || data.features.length === 0)) {
-        let fallbackUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(input.trim())}`;
+        let fallbackUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}`;
         if (country && country !== "NULL") {
           fallbackUrl += `&countrycode=${country}`;
         }
         if (lat && lng) {
           fallbackUrl += `&lat=${lat}&lon=${lng}`;
         }
-        const fallbackRes = await fetch(fallbackUrl, { headers });
-        if (fallbackRes.ok) {
-          data = await fallbackRes.json();
-        }
+        try {
+          const fallbackRes = await fetch(fallbackUrl, { headers, signal: AbortSignal.timeout(3500) });
+          if (fallbackRes.ok) {
+            data = await fallbackRes.json();
+          }
+        } catch {}
       }
 
       // Fallback 2: If still nothing, try without country constraint to capture edge results
       if (!data?.features || data.features.length === 0) {
-        let fallbackUrl2 = `https://photon.komoot.io/api/?q=${encodeURIComponent(input.trim())}`;
+        let fallbackUrl2 = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}`;
         if (lat && lng) {
           fallbackUrl2 += `&lat=${lat}&lon=${lng}`;
         }
-        const fallbackRes2 = await fetch(fallbackUrl2, { headers });
-        if (fallbackRes2.ok) {
-          data = await fallbackRes2.json();
-        }
+        try {
+          const fallbackRes2 = await fetch(fallbackUrl2, { headers, signal: AbortSignal.timeout(3500) });
+          if (fallbackRes2.ok) {
+            data = await fallbackRes2.json();
+          }
+        } catch {}
       }
 
       // Map Photon FeatureCollection to client-compatible autocomplete predictions
@@ -93,13 +140,13 @@ export async function GET(req: NextRequest) {
       });
 
       // Fallback 3: If still empty, query Nominatim
-      if (predictions.length === 0 && input.trim().length >= 2) {
+      if (predictions.length === 0 && input.length >= 2) {
         try {
-          let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input.trim())}&limit=8&addressdetails=1`;
+          let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}&limit=8&addressdetails=1`;
           if (country && country !== "NULL") {
             nomUrl += `&countrycodes=${country.toLowerCase()}`;
           }
-          const nomRes = await fetch(nomUrl, { headers });
+          const nomRes = await fetch(nomUrl, { headers, signal: AbortSignal.timeout(3500) });
           if (nomRes.ok) {
             const nomData = await nomRes.json();
             if (Array.isArray(nomData)) {
@@ -125,7 +172,11 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      return NextResponse.json({ predictions, status: "OK" });
+      setCached(cacheKey, predictions);
+      return NextResponse.json(
+        { predictions, status: "OK" },
+        { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } }
+      );
     }
 
     if (action === "details") {
@@ -163,7 +214,18 @@ export async function GET(req: NextRequest) {
     if (action === "geocode") {
       const lat = searchParams.get("lat");
       const lng = searchParams.get("lng");
-      const address = searchParams.get("address");
+      const address = (searchParams.get("address") || "").trim();
+
+      const cacheKey = address
+        ? `gc_addr_${address.toLowerCase()}`
+        : `gc_rev_${lat ? Number(lat).toFixed(4) : ""}_${lng ? Number(lng).toFixed(4) : ""}`;
+      const cached = getCached(cacheKey);
+      if (cached) {
+        return NextResponse.json(
+          { results: cached, status: "OK" },
+          { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" } }
+        );
+      }
 
       if (address) {
         const country = (searchParams.get("country") || "in").toUpperCase();
@@ -177,7 +239,7 @@ export async function GET(req: NextRequest) {
 
         let results: any[] = [];
         try {
-          const res = await fetch(url, { headers });
+          const res = await fetch(url, { headers, signal: AbortSignal.timeout(3500) });
           if (res.ok) {
             const data = await res.json();
             results = (data?.features || []).map((feature: any) => {
@@ -224,7 +286,7 @@ export async function GET(req: NextRequest) {
             if (country && country !== "NULL") {
               nomUrl += `&countrycodes=${country.toLowerCase()}`;
             }
-            const nomRes = await fetch(nomUrl, { headers });
+            const nomRes = await fetch(nomUrl, { headers, signal: AbortSignal.timeout(3500) });
             if (nomRes.ok) {
               const nomData = await nomRes.json();
               if (Array.isArray(nomData)) {
@@ -251,12 +313,16 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        return NextResponse.json({ results, status: "OK" });
+        setCached(cacheKey, results);
+        return NextResponse.json(
+          { results, status: "OK" },
+          { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" } }
+        );
       } else if (lat && lng) {
         let results: any[] = [];
         try {
           const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`;
-          const res = await fetch(url, { headers });
+          const res = await fetch(url, { headers, signal: AbortSignal.timeout(3500) });
           if (res.ok) {
             const data = await res.json();
             results = (data?.features || []).map((feature: any) => {
@@ -300,7 +366,7 @@ export async function GET(req: NextRequest) {
         if (results.length === 0) {
           try {
             const nomUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-            const nomRes = await fetch(nomUrl, { headers });
+            const nomRes = await fetch(nomUrl, { headers, signal: AbortSignal.timeout(3500) });
             if (nomRes.ok) {
               const nomData = await nomRes.json();
               if (nomData?.display_name) {
@@ -327,7 +393,11 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        return NextResponse.json({ results, status: "OK" });
+        setCached(cacheKey, results);
+        return NextResponse.json(
+          { results, status: "OK" },
+          { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" } }
+        );
       }
       return NextResponse.json({ status: "INVALID_REQUEST", message: "Missing coordinates or address" }, { status: 400 });
     }

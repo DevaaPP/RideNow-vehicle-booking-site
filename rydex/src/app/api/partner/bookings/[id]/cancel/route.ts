@@ -49,7 +49,21 @@ export async function POST(
   booking.isAutoRematching = true;
   booking.reMatchCount = (booking.reMatchCount || 0) + 1;
 
-  // 1️⃣ Check candidateDrivers list for an unvisited driver
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // Earth's radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+  // 1️⃣ Check candidateDrivers list for an unvisited driver within 10km
   let replacementDriver: any = null;
   if (booking.candidateDrivers && booking.candidateDrivers.length > 0) {
     for (const candId of booking.candidateDrivers) {
@@ -57,6 +71,12 @@ export async function POST(
       if (!cancelledIds.includes(cStr)) {
         const candidateUser = await User.findOne({ _id: cStr, role: "vendor", isOnline: true });
         if (candidateUser) {
+          if (booking.pickupLocation?.coordinates && candidateUser.location?.coordinates) {
+            const [pLng, pLat] = booking.pickupLocation.coordinates;
+            const [cLng, cLat] = candidateUser.location.coordinates;
+            const dist = haversineDistance(pLat, pLng, cLat, cLng);
+            if (dist > 10) continue;
+          }
           replacementDriver = candidateUser;
           break;
         }
@@ -64,7 +84,7 @@ export async function POST(
     }
   }
 
-  // 2️⃣ Spatial $near fallback search if candidateDrivers list exhausted
+  // 2️⃣ Spatial $near fallback search if candidateDrivers list exhausted (strictly 10km)
   if (!replacementDriver && booking.pickupLocation?.coordinates) {
     const [lng, lat] = booking.pickupLocation.coordinates;
     const vehicleType = (booking.vehicle as any)?.type || "car";
@@ -80,7 +100,7 @@ export async function POST(
         location: {
           $near: {
             $geometry: { type: "Point", coordinates: [Number(lng), Number(lat)] },
-            $maxDistance: 15000, // 15km radius
+            $maxDistance: 10000, // strictly 10km radius
           },
         },
       }).limit(5);

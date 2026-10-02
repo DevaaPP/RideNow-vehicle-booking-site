@@ -88,7 +88,7 @@ export default function CheckoutContent() {
   const [status,        setStatus]        = useState<Status>("idle");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | "wallet" | null>(null);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
-  const [countdown,     setCountdown]     = useState(20);
+  const [countdown,     setCountdown]     = useState(60);
   const [rates,         setRates]         = useState<any>(null);
   const [bookingBreakdown, setBookingBreakdown] = useState<any>(null);
 
@@ -434,7 +434,7 @@ export default function CheckoutContent() {
       if (data.status === "auto_rematching")  setStatus("auto_rematching");
       if (data.status === "requested") {
         setStatus("requested");
-        setCountdown(20); // Reset timer for next driver
+        setCountdown(60); // Reset timer for next driver
       }
     });
 
@@ -442,7 +442,7 @@ export default function CheckoutContent() {
     socket.on("auto-rematch-searching", () => setStatus("auto_rematching"));
     socket.on("auto-rematch-success", () => {
       setStatus("requested");
-      setCountdown(20);
+      setCountdown(60);
     });
 
     return () => {
@@ -462,7 +462,7 @@ export default function CheckoutContent() {
         if (prev <= 1) {
           fetch(`/api/booking/${bookingId}/timeout`, { method: "POST" })
             .catch(err => console.error("Timeout trigger error:", err));
-          return 20;
+          return 60;
         }
         return prev - 1;
       });
@@ -498,12 +498,12 @@ export default function CheckoutContent() {
 
     checkActiveBooking();
 
-    // Poll every 3 seconds as a fallback while booking is requested or awaiting payment
+    // Fallback poll every 8 seconds while booking is requested or awaiting payment (Socket.IO handles real-time updates)
     const interval = setInterval(() => {
       if (status === "requested" || status === "awaiting_payment") {
         checkActiveBooking();
       }
-    }, 3000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [status]);

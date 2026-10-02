@@ -728,7 +728,7 @@ export default function BookPage() {
       }
     };
     fetchVehicles();
-    const interval = setInterval(fetchVehicles, 8000);
+    const interval = setInterval(fetchVehicles, 15000);
     return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
 

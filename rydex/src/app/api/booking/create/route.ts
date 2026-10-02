@@ -113,7 +113,7 @@ export async function POST(req: Request) {
     if (activeVehicles.length > 0) {
       const vehicleOwnerIds = activeVehicles.map((v) => v.owner.toString());
 
-      // Try 1: Query online vendors who own these vehicles within 15km
+      // Try 1: Query online vendors who own these vehicles within 10km limit
       let vendors: any[] = [];
       try {
         vendors = await User.find({
@@ -126,7 +126,7 @@ export async function POST(req: Request) {
                 type: "Point",
                 coordinates: [pLng, pLat],
               },
-              $maxDistance: 15000, // 15km
+              $maxDistance: 10000, // strictly 10km
             },
           },
         }).lean();
@@ -140,7 +140,7 @@ export async function POST(req: Request) {
               $geoWithin: {
                 $centerSphere: [
                   [pLng, pLat],
-                  15 / 6378.1, // 15km in radians
+                  10 / 6378.1, // strictly 10km in radians
                 ],
               },
             },
@@ -150,7 +150,7 @@ export async function POST(req: Request) {
         }
       }
 
-      // Try 2: If none within 15km, search any online vendors owning this vehicle
+      // Try 2: If none found via spatial index, search any online vendors owning this vehicle
       if (!vendors.length) {
         vendors = await User.find({
           _id: { $in: vehicleOwnerIds },
@@ -159,7 +159,7 @@ export async function POST(req: Request) {
         }).lean();
       }
 
-      // Try 3: If still none online, search any registered vendors owning this vehicle
+      // Try 3: If still none online, search any registered vendors who own this vehicle
       if (!vendors.length) {
         vendors = await User.find({
           _id: { $in: vehicleOwnerIds },
@@ -174,12 +174,15 @@ export async function POST(req: Request) {
             const distance = haversineDistance([pLng, pLat], coords);
             return { ...v, distance };
           })
+          .filter((v) => v.distance <= 10) // Strictly limit candidate drivers within 10km range
           .sort((a, b) => a.distance - b.distance);
 
-        nearestVendor = sortedCandidates[0];
-        nearestVehicle = activeVehicles.find(
-          (v) => v.owner.toString() === nearestVendor._id.toString()
-        );
+        if (sortedCandidates.length > 0) {
+          nearestVendor = sortedCandidates[0];
+          nearestVehicle = activeVehicles.find(
+            (v) => v.owner.toString() === nearestVendor._id.toString()
+          );
+        }
       }
     }
 

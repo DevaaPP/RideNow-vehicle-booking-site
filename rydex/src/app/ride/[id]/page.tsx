@@ -307,10 +307,10 @@ export default function RidePage() {
   useEffect(() => { 
     fetchBooking(); 
 
-    // Poll ride details, OTPs, and driver location every 5 seconds
+    // Poll ride details, OTPs, and driver location every 8 seconds as safety net
     const interval = setInterval(() => {
       fetchBooking(true);
-    }, 5000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [id]);
