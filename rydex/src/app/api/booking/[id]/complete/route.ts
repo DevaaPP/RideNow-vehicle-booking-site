@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
+import { settleCompletedRidePayment } from "@/lib/settlePayment";
 
 export async function POST(
   req: NextRequest,
@@ -23,6 +24,9 @@ export async function POST(
   booking.completedAt = new Date();
 
   await booking.save();
+
+  /* Settle commission and driver wallet earnings */
+  await settleCompletedRidePayment(booking._id);
 
   return NextResponse.json({ success: true });
 }
