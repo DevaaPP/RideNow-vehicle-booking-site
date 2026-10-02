@@ -1,11 +1,13 @@
 import type { StyleSpecification } from "maplibre-gl";
 
 /**
- * Uber-Style Clean OpenStreetMap Cartography.
+ * RideNow Modern Light Ride-Hailing Map Style Specification.
+ * - Clean, light/neutral map background.
+ * - Clear road hierarchy with major roads distinct over minor roads.
+ * - Subtle greens, muted parks, and soft pastel water to eliminate visual clutter.
+ * - Road routes and vehicle markers remain the strongest visual elements.
  * - 100% Free, zero API key required, zero watermarks.
- * - Direct OpenStreetMap tiles with custom raster styling.
- * - Suppresses terrain clutter, elevation noise, and bright foliage to a clean neutral tone.
- * - Keeps all roads, expressways, residential streets, and road labels sharp and legible.
+ * - Built on OpenStreetMap tile infrastructure.
  */
 export const UBER_MINIMAL_MAP_STYLE: StyleSpecification = {
   version: 8,
@@ -30,17 +32,17 @@ export const UBER_MINIMAL_MAP_STYLE: StyleSpecification = {
       minzoom: 0,
       maxzoom: 19,
       paint: {
-        // Mute bright green vegetation to a neutral gray-beige tone so roads stand out like Uber
-        "raster-saturation": -0.65,
-        "raster-contrast": 0.18,
-        "raster-brightness-min": 0.04,
-        "raster-brightness-max": 0.98,
+        // Gentle desaturation: parks & terrain become soft subtle sage, roads stay crisp
+        "raster-saturation": -0.5,
+        "raster-contrast": 0.12,
+        "raster-brightness-min": 0.06,
+        "raster-brightness-max": 1.0,
       },
     },
   ],
 };
 
-// Aliases for seamless compatibility across all map components
+// Aliases for seamless compatibility
 export const OSM_MAP_STYLE = UBER_MINIMAL_MAP_STYLE;
 export const VOYAGER_MAP_STYLE = UBER_MINIMAL_MAP_STYLE;
 export const OSM_STANDARD_STYLE = UBER_MINIMAL_MAP_STYLE;

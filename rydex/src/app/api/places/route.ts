@@ -60,15 +60,16 @@ export async function GET(req: NextRequest) {
       }
 
       // Map Photon FeatureCollection to client-compatible autocomplete predictions
-      const predictions = (data?.features || []).map((feature: any) => {
+      let predictions = (data?.features || []).map((feature: any) => {
         const props = feature.properties || {};
         const coords = feature.geometry?.coordinates || [0, 0];
         
         const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
         const localArea = props.district || props.suburb || props.locality;
         const cityTown = props.city || props.town || props.village;
-        const parts: string[] = [props.name];
+        const secondary = [streetAndNumber, localArea, cityTown, props.state].filter((s) => s && s !== props.name).join(", ");
         
+        const parts: string[] = [props.name];
         if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
         if (localArea && localArea !== props.name) parts.push(localArea);
         if (cityTown && cityTown !== props.name) parts.push(cityTown);
@@ -82,11 +83,47 @@ export async function GET(req: NextRequest) {
         return {
           place_id,
           description,
+          title: props.name || description,
+          subtitle: secondary || props.country || "India",
+          category: props.osm_value || props.osm_key || "place",
           lat: coords[1],
           lng: coords[0],
           countrycode: (props.countrycode || "in").toLowerCase(),
         };
       });
+
+      // Fallback 3: If still empty, query Nominatim
+      if (predictions.length === 0 && input.trim().length >= 2) {
+        try {
+          let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input.trim())}&limit=8&addressdetails=1`;
+          if (country && country !== "NULL") {
+            nomUrl += `&countrycodes=${country.toLowerCase()}`;
+          }
+          const nomRes = await fetch(nomUrl, { headers });
+          if (nomRes.ok) {
+            const nomData = await nomRes.json();
+            if (Array.isArray(nomData)) {
+              predictions = nomData.map((item: any) => {
+                const addr = item.address || {};
+                const name = item.name || item.display_name.split(",")[0];
+                const subtitle = [addr.suburb || addr.neighbourhood, addr.city || addr.town || addr.county, addr.state].filter(Boolean).join(", ");
+                return {
+                  place_id: `nom_${item.lat}_${item.lon}_${encodeURIComponent(item.display_name)}`,
+                  description: item.display_name,
+                  title: name,
+                  subtitle: subtitle || "India",
+                  category: item.type || item.class || "place",
+                  lat: parseFloat(item.lat),
+                  lng: parseFloat(item.lon),
+                  countrycode: String(addr.country_code || "in").toLowerCase(),
+                };
+              });
+            }
+          }
+        } catch (nomErr) {
+          console.warn("Nominatim autocomplete fallback error:", nomErr);
+        }
+      }
 
       return NextResponse.json({ predictions, status: "OK" });
     }

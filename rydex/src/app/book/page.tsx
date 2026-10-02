@@ -5,10 +5,11 @@ import {
   ArrowLeft, ArrowRight, MapPin, Navigation,
   Bike, Car, Truck, LocateFixed, Phone,
   CheckCircle2, ChevronRight, GraduationCap,
-  Plus, Trash2, X, Users, Clock, Calendar, Sparkles
+  Plus, X, Users, Clock, Calendar, Sparkles,
+  Search, Edit2, Info, ChevronDown, ChevronUp
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -21,26 +22,35 @@ const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
 type Place = {
   id: string;
   name: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  countrycode?: string;
+  title?: string;
+  subtitle?: string;
+  category?: string;
   lat?: number;
   lng?: number;
+  countrycode?: string;
 };
+
 type VehicleType = "bike" | "auto" | "car" | "loading" | "truck";
 
 const VEHICLES = [
-  { id: "bike",    label: "Bike",    Icon: Bike,  desc: "Quick & affordable" },
-  { id: "auto",    label: "Auto",    Icon: Car,   desc: "Everyday rides"     },
-  { id: "car",     label: "Car",     Icon: Car,   desc: "Comfort rides"      },
-  { id: "loading", label: "Loading", Icon: Truck, desc: "Small cargo"        },
-  { id: "truck",   label: "Truck",   Icon: Truck, desc: "Heavy transport"    },
+  { id: "bike",    label: "Bike",    Icon: Bike,  desc: "Quick & affordable", etaText: "3 min" },
+  { id: "auto",    label: "Auto",    Icon: Car,   desc: "Everyday rides",     etaText: "4 min" },
+  { id: "car",     label: "Car",     Icon: Car,   desc: "Comfort rides",      etaText: "5 min" },
+  { id: "loading", label: "Loading", Icon: Truck, desc: "Small cargo",        etaText: "8 min" },
+  { id: "truck",   label: "Truck",   Icon: Truck, desc: "Heavy transport",    etaText: "12 min" },
 ];
 
-const stepVariants = {
-  hidden:  { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0 },
+const getCategoryIcon = (category?: string, name?: string) => {
+  const c = (category || "").toLowerCase();
+  const n = (name || "").toLowerCase();
+  if (c.includes("aeroway") || c.includes("airport") || n.includes("airport")) return "✈️";
+  if (c.includes("station") || c.includes("railway") || n.includes("station") || n.includes("train")) return "🚆";
+  if (c.includes("subway") || c.includes("metro") || n.includes("metro")) return "🚇";
+  if (c.includes("hospital") || c.includes("clinic") || c.includes("health") || n.includes("hospital")) return "🏥";
+  if (c.includes("university") || c.includes("college") || c.includes("school") || n.includes("college") || n.includes("university")) return "🎓";
+  if (c.includes("shop") || c.includes("mall") || c.includes("supermarket") || n.includes("mall")) return "🛍️";
+  if (c.includes("hotel") || n.includes("hotel")) return "🏨";
+  return "📍";
 };
 
 export default function BookPage() {
@@ -51,11 +61,16 @@ export default function BookPage() {
 
   const [pickup,   setPickup]   = useState("");
   const [drop,     setDrop]     = useState("");
-  const [vehicle,  setVehicle]  = useState<VehicleType | null>(null);
+  const [vehicle,  setVehicle]  = useState<VehicleType>("car");
   const [mobile,   setMobile]   = useState("");
 
   const [rates, setRates] = useState<any>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
+
+  /* ── SEARCH & UI STATE ── */
+  const [activeSearchField, setActiveSearchField] = useState<"pickup" | "drop" | null>(null);
+  const [isEditingRoute, setIsEditingRoute] = useState(false);
+  const [showFareReceipt, setShowFareReceipt] = useState(false);
 
   /* ── STUDENT MODE STATE ── */
   const [isStudent, setIsStudent] = useState<boolean>(false);
@@ -206,38 +221,6 @@ export default function BookPage() {
     return dist >= min && dist <= max;
   };
 
-  const getDistanceValidity = () => {
-    if (routeDistance === -1) {
-      return { valid: false, message: "No rides available (impossible route - no road connection found)" };
-    }
-    const dist = (routeDistance !== null && routeDistance >= 0)
-      ? routeDistance
-      : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
-
-    if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle || dist === null) return { valid: true };
-    
-    const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
-      bike:    { minDistance: 0, maxDistance: 15 },
-      auto:    { minDistance: 0, maxDistance: 30 },
-      car:     { minDistance: 0, maxDistance: 100 },
-      loading: { minDistance: 0, maxDistance: 150 },
-      truck:   { minDistance: 0, maxDistance: 500 },
-    };
-    
-    const source = rates || defaultLimits;
-    const cfg = source[vehicle.toLowerCase()] || defaultLimits.car;
-    const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
-    const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
-    
-    if (dist < min) {
-      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} requires a minimum ride distance of ${min} km (Current: ${dist.toFixed(1)} km)` };
-    }
-    if (dist > max) {
-      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} is limited to a maximum ride distance of ${max} km (Current: ${dist.toFixed(1)} km)` };
-    }
-    return { valid: true };
-  };
-
   const [pickupResults, setPickupResults] = useState<Place[]>([]);
   const [dropResults,   setDropResults]   = useState<Place[]>([]);
   const [pickupCountry, setPickupCountry] = useState<string | null>("in");
@@ -316,7 +299,7 @@ export default function BookPage() {
         return { ...s, address: value, lat: null, lng: null };
       })
     );
-    if (!value || value.trim().length < 3) {
+    if (!value || value.trim().length < 2) {
       setStops(prev => prev.map(s => (s.id === id ? { ...s, results: [] } : s)));
     } else {
       searchAddress(
@@ -330,23 +313,36 @@ export default function BookPage() {
   };
 
   const selectStopPlace = async (stopId: string, p: Place) => {
+    if (typeof p.lat === "number" && typeof p.lng === "number") {
+      setStops(prev =>
+        prev.map(s =>
+          s.id === stopId
+            ? {
+                ...s,
+                address: p.title || p.name,
+                lat: p.lat!,
+                lng: p.lng!,
+                results: [],
+              }
+            : s
+        )
+      );
+      return;
+    }
+
     try {
       const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
       const data = await res.json();
       if (data.status === "OK" && data.result) {
         const result = data.result;
-        const formattedAddress = result.formatted_address;
-        const lat = result.geometry.location.lat;
-        const lng = result.geometry.location.lng;
-
         setStops(prev =>
           prev.map(s =>
             s.id === stopId
               ? {
                   ...s,
-                  address: formattedAddress,
-                  lat,
-                  lng,
+                  address: result.formatted_address || p.name,
+                  lat: result.geometry.location.lat,
+                  lng: result.geometry.location.lng,
                   results: [],
                 }
               : s
@@ -373,6 +369,38 @@ export default function BookPage() {
     return Number(total.toFixed(1));
   };
 
+  const getDistanceValidity = () => {
+    if (routeDistance === -1) {
+      return { valid: false, message: "No rides available (impossible route - no road connection found)" };
+    }
+    const dist = (routeDistance !== null && routeDistance >= 0)
+      ? routeDistance
+      : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
+
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle || dist === null) return { valid: true };
+    
+    const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
+      bike:    { minDistance: 0, maxDistance: 15 },
+      auto:    { minDistance: 0, maxDistance: 30 },
+      car:     { minDistance: 0, maxDistance: 100 },
+      loading: { minDistance: 0, maxDistance: 150 },
+      truck:   { minDistance: 0, maxDistance: 500 },
+    };
+    
+    const source = rates || defaultLimits;
+    const cfg = source[vehicle.toLowerCase()] || defaultLimits.car;
+    const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
+    const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
+    
+    if (dist < min) {
+      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} requires minimum distance of ${min} km (Current: ${dist.toFixed(1)} km)` };
+    }
+    if (dist > max) {
+      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} is limited to maximum distance of ${max} km (Current: ${dist.toFixed(1)} km)` };
+    }
+    return { valid: true };
+  };
+
   const allStopsValid = stops.every(s => s.address.trim().length > 0 && s.lat !== null && s.lng !== null);
   const distanceValidity = getDistanceValidity();
   const canContinue = !!(
@@ -390,9 +418,9 @@ export default function BookPage() {
     isScheduleValid
   );
 
-  /* ── SEARCH ── */
+  /* ── SEARCH ADDRESS (AUTOCOMPLETE WITH RICH METADATA) ── */
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null, isDrop?: boolean) => {
-    if (!q || q.trim().length < 3) { setResults([]); return; }
+    if (!q || q.trim().length < 2) { setResults([]); return; }
     try {
       const countryFilter = restrict || pickupCountry || "in";
       let url = `/api/places?action=autocomplete&input=${encodeURIComponent(q.trim())}&country=${countryFilter}`;
@@ -407,13 +435,10 @@ export default function BookPage() {
         };
         const source = rates || defaultLimits;
         const cfg = source[(vehicle || "car").toLowerCase()] || defaultLimits.car;
-        
-        // Use maxDistance as radius, add a small 20% buffer to allow suggestions slightly beyond the boundary
         const radiusKm = (cfg.maxDistance || 100) * 1.2;
         
-        // Calculate bbox
         const deltaLat = radiusKm / 111;
-        const deltaLng = radiusKm / (111 * Math.cos(pickupLat * Math.PI / 180));
+        const deltaLng = radiusKm / (111 * Math.cos((pickupLat * Math.PI) / 180));
         
         const minLat = pickupLat - deltaLat;
         const maxLat = pickupLat + deltaLat;
@@ -433,6 +458,9 @@ export default function BookPage() {
         const results: Place[] = data.predictions.map((p: any) => ({
           id: p.place_id,
           name: p.description,
+          title: p.title || p.description,
+          subtitle: p.subtitle,
+          category: p.category,
           lat: p.lat,
           lng: p.lng,
           countrycode: p.countrycode,
@@ -447,23 +475,23 @@ export default function BookPage() {
     }
   };
 
-  const fmt = (p: Place) => p.name;
-
   const selectPlace = async (p: Place, isPickup: boolean) => {
     // Instant selection if coordinates are present in prediction
     if (typeof p.lat === "number" && typeof p.lng === "number") {
       if (isPickup) {
-        setPickup(p.name);
+        setPickup(p.title || p.name);
         setPickupCountry(p.countrycode || "in");
         setPickupLat(p.lat);
         setPickupLng(p.lng);
         setPickupResults([]);
       } else {
-        setDrop(p.name);
+        setDrop(p.title || p.name);
         setDropLat(p.lat);
         setDropLng(p.lng);
         setDropResults([]);
       }
+      setActiveSearchField(null);
+      setIsEditingRoute(false);
       return;
     }
 
@@ -472,7 +500,7 @@ export default function BookPage() {
       const data = await res.json();
       if (data.status === "OK" && data.result) {
         const result = data.result;
-        const formattedAddress = result.formatted_address;
+        const formattedAddress = result.formatted_address || p.name;
         const lat = result.geometry.location.lat;
         const lng = result.geometry.location.lng;
         
@@ -500,48 +528,14 @@ export default function BookPage() {
     } catch (err) {
       console.error("Error fetching place details:", err);
     }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, isPickup: boolean) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (isPickup) {
-        if (pickupResults.length > 0) {
-          selectPlace(pickupResults[0], true);
-        }
-      } else {
-        if (dropResults.length > 0) {
-          selectPlace(dropResults[0], false);
-        }
-      }
-    }
-  };
-
-  const handleBlur = (isPickup: boolean) => {
-    setTimeout(() => {
-      if (isPickup) {
-        setPickupResults(prev => {
-          if (prev.length > 0) {
-            selectPlace(prev[0], true);
-          }
-          return [];
-        });
-      } else {
-        setDropResults(prev => {
-          if (prev.length > 0) {
-            selectPlace(prev[0], false);
-          }
-          return [];
-        });
-      }
-    }, 200);
+    setActiveSearchField(null);
+    setIsEditingRoute(false);
   };
 
   const handleGeolocationSuccess = async (coords: GeolocationCoordinates) => {
     const lat = coords.latitude;
     const lng = coords.longitude;
 
-    // Immediately set coordinates so map centers and nearby drivers load
     setPickupLat(lat);
     setPickupLng(lng);
     setPickupResults([]);
@@ -577,12 +571,10 @@ export default function BookPage() {
     if (!navigator.geolocation) return;
     setLocating(true);
 
-    // Tier 1: High accuracy with 5s timeout
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => handleGeolocationSuccess(coords),
       (err) => {
         console.warn("High accuracy geolocation failed, attempting standard accuracy:", err);
-        // Tier 2: Low accuracy fallback
         navigator.geolocation.getCurrentPosition(
           ({ coords }) => handleGeolocationSuccess(coords),
           (err2) => {
@@ -625,8 +617,6 @@ export default function BookPage() {
       }
     };
     fetchVehicles();
-
-    // Auto-refresh drivers location every 8 seconds
     const interval = setInterval(fetchVehicles, 8000);
     return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
@@ -658,882 +648,18 @@ export default function BookPage() {
     }
   };
 
-  /* ── PROGRESS ── */
-  const progress = [!!vehicle, !!(mobile.length === 10), !!pickup, !!drop].filter(Boolean).length;
+  const hasRoute = Boolean(pickupLat && pickupLng && dropLat && dropLng);
+  const effectiveDistance = (routeDistance !== null && routeDistance >= 0)
+    ? routeDistance
+    : (getMultiStopHaversineDistance() || ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : 5));
+
+  const currentBreakdown = calculateFareBreakdown(vehicle, effectiveDistance, rates, undefined, 0, isStudent);
 
   return (
-    <div className="relative min-h-screen w-full bg-zinc-100 flex flex-col md:flex-row overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden bg-slate-100 font-sans select-none">
       
-      {/* ── LEFT PANEL (Booking Form) ── */}
-      <div className="w-full md:w-[450px] bg-white border-r border-zinc-200 shadow-2xl z-20 flex flex-col h-[55vh] md:h-screen flex-shrink-0 order-2 md:order-1 pt-24 md:pt-4">
-        
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-zinc-100 flex items-center gap-4 flex-shrink-0">
-          <motion.button
-            whileTap={{ scale: 0.88 }}
-            onClick={() => router.back()}
-            className="w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center hover:bg-zinc-200 transition-colors flex-shrink-0"
-          >
-            <ArrowLeft size={16} className="text-zinc-900" />
-          </motion.button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-zinc-900 text-lg font-black tracking-tight leading-none">Book a Ride</h1>
-            <p className="text-zinc-400 text-[10px] font-bold mt-1 uppercase tracking-wider">RideNow Fleet</p>
-          </div>
-          {/* Progress dots */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {[0, 1, 2, 3].map(i => (
-              <motion.div
-                key={i}
-                animate={{ width: i < progress ? 16 : 6, background: i < progress ? "#09090b" : "#d4d4d8" }}
-                transition={{ duration: 0.3 }}
-                className="h-1.5 rounded-full"
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Scrollable Form Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-
-          {/* ══ BOOKING MODE: RIDE NOW vs SCHEDULE ══ */}
-          <div className="bg-zinc-100 p-1 rounded-2xl flex items-center gap-1 border border-zinc-200">
-            <button
-              type="button"
-              onClick={() => setBookingMode("now")}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-                bookingMode === "now"
-                  ? "bg-zinc-900 text-white shadow-sm"
-                  : "text-zinc-600 hover:text-zinc-900"
-              }`}
-            >
-              <span>⚡ Ride Now</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setBookingMode("schedule")}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-                bookingMode === "schedule"
-                  ? "bg-zinc-900 text-white shadow-sm"
-                  : "text-zinc-600 hover:text-zinc-900"
-              }`}
-            >
-              <Clock size={14} className={bookingMode === "schedule" ? "text-amber-400" : ""} />
-              <span>Schedule Ride</span>
-            </button>
-          </div>
-
-          {/* SCHEDULE PICKUP DETAILS CARD */}
-          <AnimatePresence>
-            {bookingMode === "schedule" && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                        <Calendar size={15} />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black text-amber-950 uppercase tracking-wider">
-                          Advance Pickup Schedule
-                        </h4>
-                        <p className="text-[10px] text-amber-800 font-semibold">
-                          Book up to 7 days ahead
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-black uppercase bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full tracking-wider">
-                      Scheduled
-                    </span>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-bold text-amber-900 uppercase tracking-wider block mb-1">
-                      Select Date & Time
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={scheduledDateTime}
-                      min={getMinScheduledDateTime()}
-                      max={getMaxScheduledDateTime()}
-                      onChange={(e) => setScheduledDateTime(e.target.value)}
-                      className="w-full bg-white border border-amber-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-zinc-900 outline-none focus:ring-2 focus:ring-amber-500 transition"
-                    />
-                  </div>
-
-                  {scheduledDateTime && (
-                    <div className="bg-white/80 p-2.5 rounded-xl border border-amber-200/60 text-[11px] text-amber-950 font-medium flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 font-bold">
-                        <Clock size={13} className="text-amber-600" />
-                        {new Date(scheduledDateTime).toLocaleDateString("en-US", {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                      <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                        Free Cancellation
-                      </span>
-                    </div>
-                  )}
-
-                  <p className="text-[10px] text-amber-800/80 leading-tight">
-                    💡 Driver will be assigned automatically 15–30 minutes prior to pickup. Cancel free up to 60 minutes before scheduled time.
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* ══ STEP 1 — VEHICLE ══ */}
-          <motion.div variants={stepVariants} initial="hidden" animate="visible" transition={{ delay: 0.05 }}>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-[9px] font-black">1</span>
-              </div>
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Choose Vehicle</p>
-            </div>
-
-            {routeDistance === -1 ? (
-              <div className="p-5 bg-rose-50 border border-rose-200 rounded-2xl text-center shadow-sm">
-                <p className="text-rose-600 text-xs font-black uppercase tracking-wider">No Rides Available</p>
-                <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection or driving route found between these locations.</p>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {VEHICLES.map((v, i) => {
-                    const active = vehicle === v.id;
-                    const distanceKm = (routeDistance !== null && routeDistance >= 0)
-                      ? routeDistance
-                      : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
-                    const isLimitOk = distanceKm !== null ? checkLimit(v.id, distanceKm) : true;
-                    return (
-                      <motion.button
-                        key={v.id}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.07 + i * 0.05 }}
-                        whileTap={isLimitOk ? { scale: 0.95 } : {}}
-                        onClick={() => setVehicle(v.id as VehicleType)}
-                        className={`relative p-3.5 rounded-2xl border flex items-center gap-3 text-left transition-all duration-200 ${
-                          active
-                            ? "bg-zinc-900 border-zinc-900 shadow-lg"
-                            : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
-                        } ${!isLimitOk ? "opacity-45 hover:border-zinc-200 cursor-not-allowed" : ""}`}
-                      >
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                          active ? "bg-white" : "bg-zinc-200"
-                        }`}>
-                          <v.Icon size={18} className={active ? "text-zinc-900" : "text-zinc-600"} />
-                        </div>
-                        <div className="min-w-0 font-sans">
-                          <p className={`text-sm font-bold truncate ${active ? "text-white" : "text-zinc-900"}`}>{v.label}</p>
-                          <p className={`text-[10px] truncate ${active ? "text-zinc-400" : "text-zinc-400"}`}>{v.desc}</p>
-                          {distanceKm !== null && (
-                            <div className="mt-1.5 flex flex-wrap gap-1 items-center">
-                              <p className={`text-xs font-black leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
-                                ₹{estimateFare(v.id, distanceKm)}
-                              </p>
-                              {!isLimitOk && (
-                                <span className="text-[8px] font-black uppercase tracking-wider bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-md leading-none border border-rose-200 shadow-sm">
-                                  Limit Exceeded
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        {active && (
-                          <motion.div
-                            initial={{ scale: 0 }} animate={{ scale: 1 }}
-                            className="absolute top-2.5 right-2.5"
-                          >
-                            <CheckCircle2 size={13} className="text-white fill-white/20" />
-                          </motion.div>
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-
-                {/* Itemized Fare Breakdown Line-Item Receipt */}
-                {vehicle && pickupLat && pickupLng && dropLat && dropLng && (
-                  <div className="mt-3.5 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl shadow-sm">
-                    <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-zinc-200">
-                      <p className="text-[11px] font-black uppercase text-zinc-900 tracking-wider flex items-center gap-1.5">
-                        <span>💰</span> Transparent Fare Receipt
-                      </p>
-                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">No Hidden Charges</span>
-                    </div>
-                    {(() => {
-                      const distKm = (routeDistance !== null && routeDistance >= 0)
-                        ? routeDistance
-                        : getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
-                      const breakdown = calculateFareBreakdown(vehicle, distKm, rates);
-                      return (
-                        <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
-                          <div className="flex justify-between">
-                            <span>Base Fare</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
-                          </div>
-                          <div className="flex justify-between text-[11px]">
-                            <span>Distance ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
-                          </div>
-                          <div className="flex justify-between text-[11px]">
-                            <span>Duration (~{breakdown.timeMinutes} min × ₹{breakdown.pricePerMinute}/min)</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.timeFare}</span>
-                          </div>
-                          <div className="flex justify-between text-[11px]">
-                            <span>Platform Service Fee</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.platformFee}</span>
-                          </div>
-                          <div className="flex justify-between text-[11px]">
-                            <span>Govt GST / Taxes (5%)</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
-                          </div>
-                          <div className="pt-2 mt-1 border-t border-zinc-200 flex justify-between font-black text-sm text-zinc-900">
-                            <span>Estimated Total</span>
-                            <span className="text-zinc-900 font-black">₹{breakdown.totalFare}</span>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-              </>
-            )}
-          </motion.div>
-
-          <div className="h-px bg-zinc-100" />
-
-          {/* ══ STEP 2 — MOBILE ══ */}
-          <motion.div variants={stepVariants} initial="hidden" animate="visible" transition={{ delay: 0.15 }}>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-[9px] font-black">2</span>
-              </div>
-              <label htmlFor="mobileInput" className="text-xs font-bold text-zinc-500 uppercase tracking-widest cursor-pointer">Passenger & Contact</label>
-            </div>
-
-            {/* 👨👩👧 RIDING FOR / FAMILY ACCOUNT SELECTOR */}
-            {familyAccount?.members && familyAccount.members.length > 0 && (
-              <div className="mb-3 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <Users size={14} className="text-amber-700" />
-                    <span className="text-[11px] font-black uppercase tracking-wider text-amber-900">
-                      Riding For
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
-                    {familyAccount.familyName || "Family Account"}
-                  </span>
-                </div>
-
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {/* Myself Option */}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectRider(null)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 ${
-                      selectedFamilyMember === null
-                        ? "bg-zinc-900 text-white shadow-sm"
-                        : "bg-white text-zinc-700 border border-amber-200 hover:border-amber-400"
-                    }`}
-                  >
-                    <span>Myself</span>
-                  </button>
-
-                  {/* Family Members */}
-                  {familyAccount.members.map((member: any, mIdx: number) => {
-                    const isSelected = selectedFamilyMember?.name === member.name && selectedFamilyMember?.relation === member.relation;
-                    return (
-                      <button
-                        key={mIdx}
-                        type="button"
-                        onClick={() => handleSelectRider(member)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 ${
-                          isSelected
-                            ? "bg-amber-600 text-white shadow-sm"
-                            : "bg-white text-zinc-700 border border-amber-200 hover:border-amber-400"
-                        }`}
-                      >
-                        <span>{member.name}</span>
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full uppercase font-black ${
-                          isSelected ? "bg-amber-700 text-white" : "bg-amber-100 text-amber-800"
-                        }`}>
-                          {member.relation}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 focus-within:bg-white transition-all">
-              <div className="w-8 h-8 rounded-xl bg-zinc-200 flex items-center justify-center flex-shrink-0">
-                <Phone size={14} className="text-zinc-600" />
-              </div>
-              <input
-                id="mobileInput"
-                type="tel"
-                value={mobile}
-                onChange={e => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                placeholder="Enter 10-digit mobile number"
-                inputMode="numeric"
-                maxLength={10}
-                className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
-              />
-              <AnimatePresence>
-                {mobile.length === 10 && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                    <CheckCircle2 size={16} className="text-emerald-500 fill-emerald-50 flex-shrink-0" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-
-          <div className="h-px bg-zinc-100" />
-
-            {/* ══ STEP 3 — ROUTE ══ */}
-          <motion.div variants={stepVariants} initial="hidden" animate="visible" transition={{ delay: 0.22 }} className="space-y-3">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-[9px] font-black">3</span>
-                </div>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Route Setup</p>
-              </div>
-              <span className="text-[10px] font-bold text-zinc-400">
-                📍 Click map to set pins
-              </span>
-            </div>
-
-            {/* Quick Destination Chips */}
-            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {[
-                { label: "Airport", icon: "✈️" },
-                { label: "Railway Station", icon: "🚆" },
-                { label: "City Center", icon: "🛍️" },
-                { label: "Metro", icon: "🚇" },
-                { label: "Hospital", icon: "🏥" },
-              ].map((chip) => (
-                <button
-                  key={chip.label}
-                  type="button"
-                  onClick={() => {
-                    const targetSetter = !pickup ? setPickup : setDrop;
-                    const targetResultsSetter = !pickup ? setPickupResults : setDropResults;
-                    targetSetter(chip.label);
-                    searchAddress(chip.label, targetResultsSetter, pickupCountry || "in", Boolean(pickup));
-                  }}
-                  className="px-2.5 py-1 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-semibold flex items-center gap-1 transition-colors flex-shrink-0 border border-zinc-200/60"
-                >
-                  <span>{chip.icon}</span>
-                  <span>{chip.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="bg-zinc-50 border border-zinc-200 rounded-2xl overflow-visible">
-              
-              {/* Pickup input */}
-              <div className="relative z-30">
-                <div className="flex items-center gap-3 px-4 py-3.5 focus-within:bg-white rounded-t-2xl transition-colors">
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <div className="w-3 h-3 rounded-full bg-zinc-900 border-2 border-white shadow" />
-                    <div className="w-px h-5 bg-zinc-300 mt-1" />
-                  </div>
-                  <input
-                    id="pickupInput"
-                    aria-label="Pickup location"
-                    value={pickup}
-                    onChange={e => {
-                      setPickup(e.target.value);
-                      setPickupLat(null);
-                      setPickupLng(null);
-                      if (e.target.value.trim().length === 0) {
-                        setPickupResults([]);
-                      } else {
-                        searchAddress(e.target.value, setPickupResults);
-                      }
-                    }}
-                    onKeyDown={e => handleKeyDown(e, true)}
-                    onBlur={() => handleBlur(true)}
-                    placeholder="Pickup location"
-                    className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
-                  />
-                  {pickup && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPickup("");
-                        setPickupLat(null);
-                        setPickupLng(null);
-                        setPickupResults([]);
-                      }}
-                      className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 transition"
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
-                  <motion.button
-                    whileTap={{ scale: 0.88 }}
-                    onClick={useCurrentLocation}
-                    disabled={locating}
-                    title="Use current location"
-                    className="w-8 h-8 rounded-xl bg-zinc-200 hover:bg-zinc-300 transition-colors flex items-center justify-center flex-shrink-0"
-                  >
-                    <LocateFixed size={14} className={`text-zinc-700 ${locating ? "animate-spin" : ""}`} />
-                  </motion.button>
-                </div>
-
-                <AnimatePresence>
-                  {pickupResults.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -4, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -4, scale: 0.98 }}
-                      className="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-2xl shadow-xl max-h-52 overflow-y-auto z-50"
-                    >
-                      {pickupResults.map((p, i) => (
-                        <button
-                          key={p.id}
-                          onMouseDown={e => { e.preventDefault(); selectPlace(p, true); }}
-                          className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
-                        >
-                          <MapPin size={13} className="text-emerald-600 flex-shrink-0" />
-                          <span className="text-sm text-zinc-800 font-medium truncate">{fmt(p)}</span>
-                          <ChevronRight size={13} className="text-zinc-300 flex-shrink-0 ml-auto" />
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Intermediate Stops */}
-              {stops.map((stop, index) => (
-                <div key={stop.id} className="relative z-20">
-                  <div className="h-px bg-zinc-200 mx-4" />
-                  <div className="flex items-center gap-3 px-4 py-3.5 focus-within:bg-white transition-colors">
-                    <div className="flex flex-col items-center flex-shrink-0">
-                      <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-black shadow-sm">
-                        {index + 1}
-                      </div>
-                      <div className="w-px h-4 bg-blue-200 mt-1" />
-                    </div>
-                    <input
-                      id={`stopInput-${stop.id}`}
-                      aria-label={`Stop ${index + 1} location`}
-                      value={stop.address}
-                      onChange={e => handleStopChange(stop.id, e.target.value)}
-                      placeholder={`Stop ${index + 1} location`}
-                      className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveStop(stop.id)}
-                      className="w-7 h-7 rounded-lg hover:bg-zinc-200 text-zinc-400 hover:text-zinc-700 flex items-center justify-center transition"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-
-                  <AnimatePresence>
-                    {stop.results && stop.results.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -4, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -4, scale: 0.98 }}
-                        className="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-2xl shadow-xl max-h-52 overflow-y-auto z-50"
-                      >
-                        {stop.results.map((p) => (
-                          <button
-                            key={p.id}
-                            type="button"
-                            onMouseDown={e => {
-                              e.preventDefault();
-                              selectStopPlace(stop.id, p);
-                            }}
-                            className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
-                          >
-                            <MapPin size={13} className="text-blue-500 flex-shrink-0" />
-                            <span className="text-sm text-zinc-800 font-medium truncate">{fmt(p)}</span>
-                            <ChevronRight size={13} className="text-zinc-300 flex-shrink-0 ml-auto" />
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-
-              <div className="h-px bg-zinc-200 mx-4" />
-
-              {/* Drop input */}
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 px-4 py-3.5 focus-within:bg-white rounded-b-2xl transition-colors">
-                  <div className="flex-shrink-0">
-                    <div className="w-3 h-3 rounded-sm bg-zinc-900 border-2 border-white shadow" />
-                  </div>
-                  <input
-                    id="dropInput"
-                    aria-label="Drop location"
-                    value={drop}
-                    onChange={e => {
-                      setDrop(e.target.value);
-                      setDropLat(null);
-                      setDropLng(null);
-                      if (e.target.value.trim().length === 0) {
-                        setDropResults([]);
-                      } else {
-                        searchAddress(e.target.value, setDropResults, pickupCountry || "in", true);
-                      }
-                    }}
-                    onKeyDown={e => handleKeyDown(e, false)}
-                    onBlur={() => handleBlur(false)}
-                    placeholder="Drop location"
-                    className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
-                  />
-                  {drop && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDrop("");
-                        setDropLat(null);
-                        setDropLng(null);
-                        setDropResults([]);
-                      }}
-                      className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 transition"
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
-                  <Navigation size={14} className="text-zinc-400 flex-shrink-0" />
-                </div>
-
-                <AnimatePresence>
-                  {dropResults.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -4, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -4, scale: 0.98 }}
-                      className="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-2xl shadow-xl max-h-52 overflow-y-auto z-50"
-                    >
-                      {dropResults.map((p, i) => (
-                        <button
-                          key={p.id}
-                          onMouseDown={e => { e.preventDefault(); selectPlace(p, false); }}
-                          className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
-                        >
-                          <MapPin size={13} className="text-rose-500 flex-shrink-0" />
-                          <span className="text-sm text-zinc-800 font-medium truncate">{fmt(p)}</span>
-                          <ChevronRight size={13} className="text-zinc-300 flex-shrink-0 ml-auto" />
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-            </div>
-
-            {/* Add Stop Button */}
-            {stops.length < 2 && (
-              <div className="flex justify-between items-center px-1">
-                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
-                  {stops.length === 0 ? "Multi-stop trips supported" : `${stops.length}/2 Stops Added`}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleAddStop}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200 transition"
-                >
-                  <Plus size={13} /> Add Stop
-                </button>
-              </div>
-            )}
-
-            {/* Smart Pickup Selector UI */}
-            {smartPickups.length > 0 && (
-              <div className="mt-3 p-3 bg-emerald-50/90 border border-emerald-200/90 rounded-2xl shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <p className="text-[11px] font-black uppercase text-emerald-800 tracking-wider">
-                      📍 Smart Pickup Zones
-                    </p>
-                  </div>
-                  <span className="text-[10px] text-emerald-700 font-bold">Recommended Spots</span>
-                </div>
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {smartPickups.map((spot) => {
-                    const isSelected = selectedSmartPickup?.id === spot.id;
-                    return (
-                      <button
-                        key={spot.id}
-                        type="button"
-                        onClick={() => handleSelectSmartPickup(spot)}
-                        className={`flex-shrink-0 text-left p-2.5 rounded-xl border transition-all max-w-[220px] ${
-                          isSelected
-                            ? "bg-emerald-600 text-white border-emerald-600 shadow-md scale-[1.02]"
-                            : "bg-white text-zinc-800 border-emerald-200 hover:border-emerald-400 shadow-sm"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
-                            isSelected ? "bg-emerald-700 text-white" : "bg-emerald-100 text-emerald-800"
-                          }`}>
-                            {spot.badgeText || "Recommended"}
-                          </span>
-                          <span className={`text-[9px] font-bold ${isSelected ? "text-emerald-100" : "text-zinc-500"}`}>
-                            🚶 {spot.walkingTimeText}
-                          </span>
-                        </div>
-                        <p className="font-extrabold text-[11px] leading-tight truncate">{spot.spotName}</p>
-                        <p className={`text-[9px] mt-0.5 truncate ${isSelected ? "text-emerald-100" : "text-zinc-500"}`}>
-                          {spot.venueName}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </motion.div>
-
-          {/* 🎓 STUDENT MODE & FARE BREAKDOWN CARD */}
-          {pickupLat && pickupLng && dropLat && dropLng && vehicle && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-3"
-            >
-              {/* Student Mode Card */}
-              <div className={`p-4 rounded-2xl border transition-all ${isStudent ? "bg-indigo-950 text-white border-indigo-800 shadow-md" : "bg-zinc-900 text-white border-zinc-800 shadow-sm"}`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isStudent ? "bg-indigo-600 text-white" : "bg-zinc-800 text-amber-400"}`}>
-                      <GraduationCap size={18} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-xs font-black uppercase tracking-wider">Student Pass (10% OFF)</h4>
-                        {isStudent && (
-                          <span className="text-[9px] font-black bg-emerald-500 text-zinc-950 px-2 py-0.5 rounded-full uppercase tracking-widest">
-                            ACTIVE
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-zinc-400">
-                        {isStudent
-                          ? `Verified: ${studentDetails?.eduEmail || "Student Pass"}`
-                          : "Save 10% on every ride with your college email"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {!isStudent && (
-                    <button
-                      type="button"
-                      onClick={() => setShowStudentForm(!showStudentForm)}
-                      className="bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs px-3 py-1.5 rounded-xl transition shadow"
-                    >
-                      {showStudentForm ? "Close" : "Verify ID"}
-                    </button>
-                  )}
-                </div>
-
-                {/* Inline Student Verification Form */}
-                <AnimatePresence>
-                  {!isStudent && showStudentForm && (
-                    <motion.form
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      onSubmit={handleVerifyStudent}
-                      className="mt-3 pt-3 border-t border-zinc-800 space-y-2.5"
-                    >
-                      <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
-                        Enter your .edu or .ac.in Student Email
-                      </p>
-                      <div className="space-y-2">
-                        <input
-                          type="email"
-                          required
-                          placeholder="e.g. alex@university.edu or student@college.ac.in"
-                          value={eduEmailInput}
-                          onChange={(e) => setEduEmailInput(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-amber-400"
-                        />
-                        <input
-                          type="text"
-                          placeholder="University / College Name (Optional)"
-                          value={institutionInput}
-                          onChange={(e) => setInstitutionInput(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-amber-400"
-                        />
-                      </div>
-
-                      {studentError && (
-                        <p className="text-[10px] font-bold text-rose-400">{studentError}</p>
-                      )}
-
-                      <button
-                        type="submit"
-                        disabled={verifyingStudent || !eduEmailInput}
-                        className="w-full bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-zinc-950 font-black text-xs py-2 rounded-xl transition flex items-center justify-center gap-1.5"
-                      >
-                        {verifyingStudent ? "Verifying..." : "🎓 Verify & Activate 10% OFF"}
-                      </button>
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Itemized Fare Receipt Card */}
-              {(() => {
-                const distanceKm = (routeDistance !== null && routeDistance >= 0)
-                  ? routeDistance
-                  : (getMultiStopHaversineDistance() || getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng));
-                const breakdown = calculateFareBreakdown(vehicle, distanceKm, rates, undefined, 0, isStudent);
-
-                return (
-                  <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-2xl shadow-sm">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-900 mb-2.5 pb-1.5 border-b border-zinc-200 flex items-center justify-between">
-                      <span>Itemized Cost Receipt</span>
-                      <span className="text-emerald-600 font-bold">Verified Fare</span>
-                    </p>
-                    <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
-                      <div className="flex justify-between">
-                        <span>Base Fare</span>
-                        <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
-                      </div>
-                      <div className="flex justify-between text-[11px]">
-                        <span>Distance Fare ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
-                        <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
-                      </div>
-                      <div className="flex justify-between text-[11px]">
-                        <span>Duration Fare (~{breakdown.timeMinutes} min × ₹{breakdown.pricePerMinute}/min)</span>
-                        <span className="font-bold text-zinc-900">₹{breakdown.timeFare}</span>
-                      </div>
-                      <div className="flex justify-between text-[11px]">
-                        <span>Platform Service Fee</span>
-                        <span className="font-bold text-zinc-900">₹{breakdown.platformFee}</span>
-                      </div>
-                      <div className="flex justify-between text-[11px]">
-                        <span>Govt GST / Taxes (5%)</span>
-                        <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
-                      </div>
-
-                      {breakdown.isStudentDiscountApplied && (
-                        <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
-                          <span className="flex items-center gap-1">🎓 Student Pass Discount (-10%)</span>
-                          <span>-₹{breakdown.studentDiscount}</span>
-                        </div>
-                      )}
-
-                      <div className="flex justify-between text-sm font-black text-zinc-900 pt-2 border-t border-zinc-200">
-                        <span>Total Fare</span>
-                        <span className="text-emerald-600">₹{breakdown.totalFare}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-            </motion.div>
-          )}
-
-          {/* ══ CONTINUE CTA ══ */}
-          <motion.div variants={stepVariants} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              whileHover={canContinue ? { scale: 1.02 } : {}}
-              disabled={!canContinue}
-              onClick={() => {
-                if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return;
-                const distanceKm = (routeDistance !== null && routeDistance >= 0)
-                  ? routeDistance
-                  : (getMultiStopHaversineDistance() || getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng));
-                const estFare = estimateFare(vehicle, distanceKm);
-                
-                let checkoutUrl = `/checkout?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}&fare=${estFare}`;
-                
-                if (selectedSmartPickup) {
-                  checkoutUrl += `&isSmartPickup=true&smartPickupDetails=${encodeURIComponent(JSON.stringify(selectedSmartPickup))}`;
-                }
-
-                const validStops = stops
-                  .filter(s => s.address && s.lat !== null && s.lng !== null)
-                  .map((s, idx) => ({
-                    address: s.address,
-                    lat: s.lat,
-                    lng: s.lng,
-                    order: idx + 1,
-                  }));
-
-                if (validStops.length > 0) {
-                  checkoutUrl += `&stops=${encodeURIComponent(JSON.stringify(validStops))}`;
-                }
-
-                if (selectedFamilyMember) {
-                  checkoutUrl += `&isFamilyRide=true&familyMember=${encodeURIComponent(JSON.stringify(selectedFamilyMember))}`;
-                }
-
-                if (bookingMode === "schedule" && scheduledDateTime) {
-                  checkoutUrl += `&isScheduled=true&scheduledTime=${encodeURIComponent(new Date(scheduledDateTime).toISOString())}`;
-                }
-
-                router.push(checkoutUrl);
-              }}
-              className="w-full h-14 rounded-2xl bg-zinc-900 hover:bg-black disabled:opacity-35 text-white font-black text-sm tracking-wide flex items-center justify-center gap-2.5 transition-colors shadow-lg disabled:shadow-none"
-            >
-              <span>{bookingMode === "schedule" ? "Schedule Ride" : "Request Ride"}</span>
-              <motion.div
-                animate={canContinue ? { x: [0, 4, 0] } : {}}
-                transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1 }}
-              >
-                <ArrowRight size={17} />
-              </motion.div>
-            </motion.button>
-            
-            <AnimatePresence>
-              {!canContinue && (
-                <motion.p
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className={`text-center text-[10px] font-bold mt-2.5 uppercase tracking-wider ${
-                    (!distanceValidity.valid || routeDistance === -1) ? "text-rose-500" : "text-zinc-400"
-                  }`}
-                >
-                  {!vehicle ? "Select a vehicle type" :
-                   mobile.length !== 10 ? "Enter a 10-digit mobile number" :
-                   !pickup ? "Set pickup location" :
-                   !drop ? "Set drop location" :
-                   !allStopsValid ? "Please complete all added intermediate stops" :
-                   !isScheduleValid ? "Scheduled pickup time must be at least 30 minutes in advance" :
-                   routeDistance === -1 ? "No rides available (impossible route - no road connection found)" :
-                   !distanceValidity.valid ? distanceValidity.message : ""}
-                </motion.p>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-        </div>
-      </div>
-
-      {/* ── RIGHT PANEL (Full Map) ── */}
-      <div className="flex-1 h-[45vh] md:h-screen z-10 order-1 md:order-2 relative">
+      {/* ══ 1. FULLSCREEN MAP CANVAS ══ */}
+      <div className="absolute inset-0 z-0">
         <RouteMap
           pickup={pickup}
           drop={drop}
@@ -1547,8 +673,653 @@ export default function BookPage() {
           smartPickups={smartPickups}
           onSelectSmartPickup={handleSelectSmartPickup}
           stops={stops.filter(s => s.lat !== null && s.lng !== null).map(s => ({ address: s.address, lat: s.lat!, lng: s.lng! }))}
+          bottomPadding={hasRoute ? 380 : 120}
         />
       </div>
+
+      {/* ══ 2. TOP FLOATING NAVIGATION & DESTINATION TRIGGER ══ */}
+      <div className="absolute top-4 left-4 right-4 md:left-6 md:right-auto md:w-[420px] z-20 pointer-events-none">
+        <div className="pointer-events-auto space-y-2.5">
+          
+          {/* Header Action Row: Back Button */}
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={() => router.back()}
+              className="w-11 h-11 rounded-full bg-white/95 backdrop-blur-md border border-zinc-200/90 shadow-xl flex items-center justify-center text-zinc-900 hover:bg-zinc-50 transition"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={18} />
+            </motion.button>
+
+            {/* If route is active, show concise route pill with edit button */}
+            {hasRoute && !isEditingRoute && (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex-1 bg-white/95 backdrop-blur-md border border-zinc-200/90 rounded-full px-4 py-2.5 shadow-xl flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2 min-w-0 pr-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-zinc-900 flex-shrink-0" />
+                  <span className="text-xs font-black text-zinc-900 truncate">
+                    {drop || "Destination"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingRoute(true)}
+                  className="p-1.5 rounded-full hover:bg-zinc-100 text-zinc-600 transition flex items-center gap-1 text-[11px] font-bold"
+                >
+                  <Edit2 size={13} />
+                  <span>Edit</span>
+                </button>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Search Card (Shown when route not yet set OR when user tapped Edit) */}
+          {(!hasRoute || isEditingRoute) && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white/98 backdrop-blur-xl border border-zinc-200/90 rounded-3xl p-4 shadow-2xl space-y-3"
+            >
+              {/* Pickup Input Row */}
+              <div className="relative">
+                <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 flex-shrink-0" />
+                  <input
+                    aria-label="Pickup location"
+                    value={pickup}
+                    onFocus={() => setActiveSearchField("pickup")}
+                    onChange={(e) => {
+                      setPickup(e.target.value);
+                      setPickupLat(null);
+                      setPickupLng(null);
+                      searchAddress(e.target.value, setPickupResults, pickupCountry || "in", false);
+                    }}
+                    placeholder="Pickup location"
+                    className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none truncate"
+                  />
+                  {pickup && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPickup("");
+                        setPickupLat(null);
+                        setPickupLng(null);
+                        setPickupResults([]);
+                      }}
+                      className="p-1 text-zinc-400 hover:text-zinc-700"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={useCurrentLocation}
+                    disabled={locating}
+                    title="Use current location"
+                    className="w-7 h-7 rounded-lg bg-zinc-200/80 hover:bg-zinc-300 transition flex items-center justify-center flex-shrink-0"
+                  >
+                    <LocateFixed size={13} className={`text-zinc-700 ${locating ? "animate-spin" : ""}`} />
+                  </motion.button>
+                </div>
+
+                {/* Pickup Autocomplete Results */}
+                <AnimatePresence>
+                  {activeSearchField === "pickup" && pickupResults.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-2xl shadow-2xl max-h-56 overflow-y-auto z-50 divide-y divide-zinc-100"
+                    >
+                      {pickupResults.map((p) => (
+                        <button
+                          key={p.id}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            selectPlace(p, true);
+                          }}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition"
+                        >
+                          <span className="text-base flex-shrink-0">
+                            {getCategoryIcon(p.category, p.title || p.name)}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-zinc-900 truncate">
+                              {p.title || p.name}
+                            </p>
+                            {p.subtitle && (
+                              <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">
+                                {p.subtitle}
+                              </p>
+                            )}
+                          </div>
+                          <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Intermediate Stops */}
+              {stops.map((stop, sIdx) => (
+                <div key={stop.id} className="relative">
+                  <div className="flex items-center gap-3 bg-blue-50/60 border border-blue-200/80 rounded-2xl px-3.5 py-2.5 transition">
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-black flex-shrink-0">
+                      {sIdx + 1}
+                    </span>
+                    <input
+                      aria-label={`Stop ${sIdx + 1}`}
+                      value={stop.address}
+                      onChange={(e) => handleStopChange(stop.id, e.target.value)}
+                      placeholder={`Stop ${sIdx + 1} location`}
+                      className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none truncate"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveStop(stop.id)}
+                      className="p-1 text-zinc-400 hover:text-zinc-700"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  {stop.results && stop.results.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-2xl shadow-2xl max-h-48 overflow-y-auto z-50 divide-y divide-zinc-100">
+                      {stop.results.map((p) => (
+                        <button
+                          key={p.id}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            selectStopPlace(stop.id, p);
+                          }}
+                          className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
+                        >
+                          <span className="text-sm flex-shrink-0">{getCategoryIcon(p.category, p.title || p.name)}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-zinc-900 truncate">{p.title || p.name}</p>
+                            {p.subtitle && <p className="text-[10px] text-zinc-500 truncate">{p.subtitle}</p>}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Destination (Where to?) Input Row */}
+              <div className="relative">
+                <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all">
+                  <div className="w-2.5 h-2.5 rounded-sm bg-zinc-900 ring-4 ring-zinc-200 flex-shrink-0" />
+                  <input
+                    aria-label="Drop location"
+                    value={drop}
+                    onFocus={() => setActiveSearchField("drop")}
+                    onChange={(e) => {
+                      setDrop(e.target.value);
+                      setDropLat(null);
+                      setDropLng(null);
+                      searchAddress(e.target.value, setDropResults, pickupCountry || "in", true);
+                    }}
+                    placeholder="Where to?"
+                    className="flex-1 bg-transparent text-xs font-black text-zinc-900 placeholder:text-zinc-500 outline-none truncate"
+                  />
+                  {drop && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDrop("");
+                        setDropLat(null);
+                        setDropLng(null);
+                        setDropResults([]);
+                      }}
+                      className="p-1 text-zinc-400 hover:text-zinc-700"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                  <Navigation size={13} className="text-zinc-400 flex-shrink-0" />
+                </div>
+
+                {/* Drop Autocomplete Results */}
+                <AnimatePresence>
+                  {activeSearchField === "drop" && dropResults.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-2xl shadow-2xl max-h-60 overflow-y-auto z-50 divide-y divide-zinc-100"
+                    >
+                      {dropResults.map((p) => (
+                        <button
+                          key={p.id}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            selectPlace(p, false);
+                          }}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition"
+                        >
+                          <span className="text-base flex-shrink-0">
+                            {getCategoryIcon(p.category, p.title || p.name)}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-zinc-900 truncate">
+                              {p.title || p.name}
+                            </p>
+                            {p.subtitle && (
+                              <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">
+                                {p.subtitle}
+                              </p>
+                            )}
+                          </div>
+                          <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Quick Destination Chips */}
+              <div className="flex gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-none">
+                {[
+                  { label: "Airport", icon: "✈️" },
+                  { label: "Railway Station", icon: "🚆" },
+                  { label: "City Center", icon: "🛍️" },
+                  { label: "Metro", icon: "🚇" },
+                  { label: "Hospital", icon: "🏥" },
+                ].map((chip) => (
+                  <button
+                    key={chip.label}
+                    type="button"
+                    onClick={() => {
+                      const isTargetDrop = Boolean(pickup);
+                      if (isTargetDrop) {
+                        setDrop(chip.label);
+                        setActiveSearchField("drop");
+                        searchAddress(chip.label, setDropResults, pickupCountry || "in", true);
+                      } else {
+                        setPickup(chip.label);
+                        setActiveSearchField("pickup");
+                        searchAddress(chip.label, setPickupResults, pickupCountry || "in", false);
+                      }
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-bold flex items-center gap-1.5 transition flex-shrink-0 border border-zinc-200/70"
+                  >
+                    <span>{chip.icon}</span>
+                    <span>{chip.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Add Stop Button */}
+              {stops.length < 2 && (
+                <div className="flex justify-between items-center pt-1 border-t border-zinc-100">
+                  <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
+                    {stops.length === 0 ? "Multi-stop trips" : `${stops.length}/2 Stops`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAddStop}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1 rounded-xl transition"
+                  >
+                    <Plus size={12} /> Add Stop
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+        </div>
+      </div>
+
+      {/* ══ 3. MODERN FLOATING BOTTOM SHEET (VEHICLE SELECTION & PRICING) ══ */}
+      <AnimatePresence>
+        {hasRoute && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 z-30 md:left-6 md:bottom-6 md:w-[440px] md:max-h-[calc(100vh-5rem)] bg-white/98 backdrop-blur-2xl border border-zinc-200/90 rounded-t-3xl md:rounded-3xl shadow-[0_-12px_40px_rgba(0,0,0,0.15)] flex flex-col max-h-[80vh] overflow-hidden"
+          >
+            {/* Grabber Handle on Mobile */}
+            <div className="w-10 h-1 bg-zinc-300 rounded-full mx-auto my-2.5 md:hidden flex-shrink-0" />
+
+            {/* Scrollable Container */}
+            <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4">
+              
+              {/* Header: Mode Toggle (Ride Now vs Schedule) */}
+              <div className="flex items-center justify-between">
+                <div className="flex bg-zinc-100 p-1 rounded-2xl border border-zinc-200/80 w-full">
+                  <button
+                    type="button"
+                    onClick={() => setBookingMode("now")}
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
+                      bookingMode === "now" ? "bg-zinc-900 text-white shadow-sm" : "text-zinc-600 hover:text-zinc-900"
+                    }`}
+                  >
+                    <span>⚡ Ride Now</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBookingMode("schedule")}
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
+                      bookingMode === "schedule" ? "bg-zinc-900 text-white shadow-sm" : "text-zinc-600 hover:text-zinc-900"
+                    }`}
+                  >
+                    <Clock size={13} className={bookingMode === "schedule" ? "text-amber-400" : ""} />
+                    <span>Schedule</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Schedule Details Card */}
+              {bookingMode === "schedule" && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                      <Calendar size={13} className="text-amber-600" /> Advance Pickup
+                    </span>
+                    <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      Free Cancellation
+                    </span>
+                  </div>
+                  <input
+                    type="datetime-local"
+                    value={scheduledDateTime}
+                    min={getMinScheduledDateTime()}
+                    max={getMaxScheduledDateTime()}
+                    onChange={(e) => setScheduledDateTime(e.target.value)}
+                    className="w-full bg-white border border-amber-300 rounded-xl px-3 py-2 text-xs font-bold text-zinc-900 outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <p className="text-[10px] text-amber-800 leading-tight">
+                    Driver assigned 15–30 mins before pickup. Cancel free up to 60 mins before.
+                  </p>
+                </div>
+              )}
+
+              {/* Family Account / Riding For */}
+              {familyAccount?.members && familyAccount.members.length > 0 && (
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  <span className="text-[10px] font-black uppercase text-zinc-400 tracking-wider flex-shrink-0">
+                    Riding For:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectRider(null)}
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition flex-shrink-0 ${
+                      selectedFamilyMember === null ? "bg-zinc-900 text-white shadow-sm" : "bg-zinc-100 text-zinc-700"
+                    }`}
+                  >
+                    Myself
+                  </button>
+                  {familyAccount.members.map((m: any, mIdx: number) => {
+                    const isSel = selectedFamilyMember?.name === m.name;
+                    return (
+                      <button
+                        key={mIdx}
+                        type="button"
+                        onClick={() => handleSelectRider(m)}
+                        className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition flex-shrink-0 flex items-center gap-1 ${
+                          isSel ? "bg-amber-600 text-white shadow-sm" : "bg-zinc-100 text-zinc-700"
+                        }`}
+                      >
+                        <span>{m.name}</span>
+                        <span className="text-[9px] opacity-80 uppercase">({m.relation})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Vehicle Options (Uber-style Cards) */}
+              <div className="space-y-2">
+                <p className="text-[11px] font-black uppercase tracking-wider text-zinc-400">
+                  Choose a Ride
+                </p>
+
+                {routeDistance === -1 ? (
+                  <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-center">
+                    <p className="text-rose-600 text-xs font-black uppercase">No Rides Available</p>
+                    <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection found between these points.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {VEHICLES.map((v) => {
+                      const isSelected = vehicle === v.id;
+                      const isLimitOk = checkLimit(v.id, effectiveDistance);
+                      const fare = estimateFare(v.id, effectiveDistance);
+
+                      return (
+                        <div
+                          key={v.id}
+                          onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
+                          className={`flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-zinc-950 text-white border-zinc-950 shadow-lg scale-[1.01]"
+                              : "bg-zinc-50/80 hover:bg-zinc-100 text-zinc-900 border-zinc-200/80"
+                          } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                              isSelected ? "bg-zinc-800 text-white" : "bg-white text-zinc-900 shadow-sm border border-zinc-200/60"
+                            }`}>
+                              <v.Icon size={20} />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <p className="font-extrabold text-sm leading-tight truncate">{v.label}</p>
+                                <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                                  isSelected ? "bg-zinc-800 text-zinc-300" : "bg-zinc-200 text-zinc-600"
+                                }`}>
+                                  {v.etaText}
+                                </span>
+                              </div>
+                              <p className={`text-[11px] truncate mt-0.5 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
+                                {v.desc}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="text-right flex-shrink-0 pl-2">
+                            <p className={`font-black text-base leading-tight ${isSelected ? "text-amber-400" : "text-zinc-900"}`}>
+                              ₹{fare}
+                            </p>
+                            {!isLimitOk && (
+                              <span className="text-[8px] font-black uppercase text-rose-500 bg-rose-50 px-1 py-0.5 rounded border border-rose-200">
+                                Limit
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Itemized Fare Receipt (Toggleable Accordion) */}
+              <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3.5 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setShowFareReceipt(!showFareReceipt)}
+                  className="w-full flex items-center justify-between text-left"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs">💰</span>
+                    <span className="text-[11px] font-black uppercase tracking-wider text-zinc-900">
+                      Transparent Fare Breakdown
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 text-zinc-500 text-xs font-bold">
+                    <span>₹{currentBreakdown.totalFare}</span>
+                    {showFareReceipt ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </div>
+                </button>
+
+                <AnimatePresence>
+                  {showFareReceipt && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="pt-2 border-t border-zinc-200 space-y-1.5 text-xs text-zinc-600 font-medium"
+                    >
+                      <div className="flex justify-between">
+                        <span>Base Fare</span>
+                        <span className="font-bold text-zinc-900">₹{currentBreakdown.baseFare}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span>Distance Fare ({currentBreakdown.distanceKm} km × ₹{currentBreakdown.pricePerKm}/km)</span>
+                        <span className="font-bold text-zinc-900">₹{currentBreakdown.distanceFare}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span>Platform Service Fee</span>
+                        <span className="font-bold text-zinc-900">₹{currentBreakdown.platformFee}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span>Govt GST / Taxes (5%)</span>
+                        <span className="font-bold text-zinc-900">₹{currentBreakdown.taxes}</span>
+                      </div>
+                      {currentBreakdown.isStudentDiscountApplied && (
+                        <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
+                          <span>🎓 Student Pass Discount (-10%)</span>
+                          <span>-₹{currentBreakdown.studentDiscount}</span>
+                        </div>
+                      )}
+                      <p className="text-[10px] text-zinc-400 font-semibold pt-1 italic">
+                        No duration charges. Duration ({currentBreakdown.timeMinutes} min) is strictly informational.
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Student Pass Banner / Activation */}
+              <div className="p-3 bg-zinc-900 text-white rounded-2xl flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-zinc-800 text-amber-400 flex items-center justify-center">
+                    <GraduationCap size={15} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black">Student Pass (10% OFF)</p>
+                    <p className="text-[10px] text-zinc-400">
+                      {isStudent ? "Active & Applied" : "Save 10% with college email"}
+                    </p>
+                  </div>
+                </div>
+                {!isStudent && (
+                  <button
+                    type="button"
+                    onClick={() => setShowStudentForm(!showStudentForm)}
+                    className="px-2.5 py-1 bg-amber-400 text-zinc-950 font-black text-[11px] rounded-xl hover:bg-amber-300 transition"
+                  >
+                    {showStudentForm ? "Close" : "Verify"}
+                  </button>
+                )}
+              </div>
+
+              {/* Inline Student Verification Form */}
+              {showStudentForm && !isStudent && (
+                <form onSubmit={handleVerifyStudent} className="p-3 bg-zinc-100 border border-zinc-200 rounded-2xl space-y-2">
+                  <input
+                    type="email"
+                    required
+                    placeholder="College email (.edu or .ac.in)"
+                    value={eduEmailInput}
+                    onChange={(e) => setEduEmailInput(e.target.value)}
+                    className="w-full bg-white border border-zinc-300 rounded-xl px-3 py-1.5 text-xs font-bold text-zinc-900 outline-none"
+                  />
+                  {studentError && <p className="text-[10px] font-bold text-rose-500">{studentError}</p>}
+                  <button
+                    type="submit"
+                    disabled={verifyingStudent || !eduEmailInput}
+                    className="w-full bg-zinc-900 text-white font-bold text-xs py-2 rounded-xl"
+                  >
+                    {verifyingStudent ? "Verifying..." : "Activate 10% Discount"}
+                  </button>
+                </form>
+              )}
+
+              {/* Contact Phone Row */}
+              <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5">
+                <Phone size={14} className="text-zinc-500 flex-shrink-0" />
+                <input
+                  type="tel"
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  placeholder="Enter 10-digit mobile number"
+                  className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none"
+                />
+                {mobile.length === 10 && (
+                  <CheckCircle2 size={15} className="text-emerald-500 flex-shrink-0" />
+                )}
+              </div>
+
+            </div>
+
+            {/* Bottom Action Footer */}
+            <div className="p-4 border-t border-zinc-100 bg-white">
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                disabled={!canContinue}
+                onClick={() => {
+                  if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return;
+                  const estFare = estimateFare(vehicle, effectiveDistance);
+                  let checkoutUrl = `/checkout?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}&fare=${estFare}`;
+                  
+                  if (selectedSmartPickup) {
+                    checkoutUrl += `&isSmartPickup=true&smartPickupDetails=${encodeURIComponent(JSON.stringify(selectedSmartPickup))}`;
+                  }
+
+                  const validStops = stops
+                    .filter(s => s.address && s.lat !== null && s.lng !== null)
+                    .map((s, idx) => ({
+                      address: s.address,
+                      lat: s.lat,
+                      lng: s.lng,
+                      order: idx + 1,
+                    }));
+
+                  if (validStops.length > 0) {
+                    checkoutUrl += `&stops=${encodeURIComponent(JSON.stringify(validStops))}`;
+                  }
+
+                  if (selectedFamilyMember) {
+                    checkoutUrl += `&isFamilyRide=true&familyMember=${encodeURIComponent(JSON.stringify(selectedFamilyMember))}`;
+                  }
+
+                  if (bookingMode === "schedule" && scheduledDateTime) {
+                    checkoutUrl += `&isScheduled=true&scheduledTime=${encodeURIComponent(new Date(scheduledDateTime).toISOString())}`;
+                  }
+
+                  router.push(checkoutUrl);
+                }}
+                className="w-full h-13 py-3.5 rounded-2xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm tracking-wide flex items-center justify-center gap-2 transition shadow-xl"
+              >
+                <span>
+                  {bookingMode === "schedule" ? "Schedule Ride" : `Confirm ${VEHICLES.find(v => v.id === vehicle)?.label || "Ride"}`}
+                </span>
+                <ArrowRight size={16} />
+              </motion.button>
+
+              {!canContinue && (
+                <p className="text-center text-[10px] font-bold mt-2 text-zinc-400 uppercase tracking-wider">
+                  {mobile.length !== 10 ? "Enter valid 10-digit mobile" :
+                   !distanceValidity.valid ? distanceValidity.message :
+                   !isScheduleValid ? "Scheduled time must be at least 30 mins ahead" : "Complete pickup & drop setup"}
+                </p>
+              )}
+            </div>
+
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
