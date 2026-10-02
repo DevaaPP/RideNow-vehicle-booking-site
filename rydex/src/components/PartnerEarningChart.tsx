@@ -58,11 +58,19 @@ export default function PartnerEarningsChart() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    axios.get("/api/partner/earnings").then((res) => {
-      const last7Days: Earnings[] = res.data.earnings.slice(-7);
-      setData(last7Days);
-      setLoaded(true);
-    });
+    axios
+      .get("/api/partner/earnings")
+      .then((res) => {
+        const earnings = Array.isArray(res.data?.earnings) ? res.data.earnings : [];
+        const last7Days: Earnings[] = earnings.slice(-7);
+        setData(last7Days);
+        setLoaded(true);
+      })
+      .catch((err) => {
+        console.error("Failed to load partner earnings:", err);
+        setData([]);
+        setLoaded(true);
+      });
   }, []);
 
   const total = data.reduce((a, d) => a + d.earnings, 0);
@@ -73,7 +81,7 @@ export default function PartnerEarningsChart() {
   const yesterday = data[data.length - 2];
   const delta = today && yesterday ? today.earnings - yesterday.earnings : 0;
   const deltaPositive = delta >= 0;
-  const deltaPct = yesterday ? Math.abs(Math.round((delta / yesterday.earnings) * 100)) : 0;
+  const deltaPct = yesterday && yesterday.earnings > 0 ? Math.abs(Math.round((delta / yesterday.earnings) * 100)) : 0;
 
   const metrics = [
     {

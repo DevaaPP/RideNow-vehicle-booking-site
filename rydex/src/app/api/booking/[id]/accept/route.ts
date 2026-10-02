@@ -3,13 +3,12 @@ import Booking from "@/models/booking.model";
 import axios from "axios";
 import { NextResponse } from "next/server";
 
-
 export async function POST(
   req: Request,
-   context : { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDb();
- const id=(await context.params).id
+  const id = (await context.params).id;
   const booking = await Booking.findById(id);
 
   if (!booking || booking.status !== "requested")
@@ -20,17 +19,24 @@ export async function POST(
 
   await booking.save();
 
-  await axios.post(
-    `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-    {
-      userId: booking.user.toString(),
-      event: "booking-updated",
-      data: {
-        bookingId: booking._id.toString(),
-        status: "awaiting_payment",
-      },
+  try {
+    if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
+        {
+          userId: booking.user.toString(),
+          event: "booking-updated",
+          data: {
+            bookingId: booking._id.toString(),
+            status: "awaiting_payment",
+          },
+        },
+        { timeout: 3500 }
+      );
     }
-  );
+  } catch (socketErr) {
+    console.warn("Socket notification in accept route failed:", socketErr);
+  }
 
   return NextResponse.json({ success: true });
 }
