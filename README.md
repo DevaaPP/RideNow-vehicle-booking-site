@@ -1,6 +1,20 @@
 # 🚗 RideNow – Next-Generation Urban Mobility & Vehicle Booking Platform
 
-RideNow is a production-grade, full-stack vehicle booking and on-demand mobility platform built with **Next.js 16**, **TypeScript**, **Tailwind CSS**, **MongoDB**, **Socket.IO**, **Razorpay**, and **ZegoCloud**. Designed for scale and exceptional user experience, RideNow delivers seamless real-time ride tracking, intelligent driver dispatch, robust passenger safety mechanisms, and vendor onboarding with live video KYC.
+<p align="center">
+  <a href="https://github.com/niyar18/RideNow-vehicle-booking-site">
+    <img src="https://img.shields.io/badge/🚀%20Live%20Web%20App-Launch%20RideNow-10b981?style=for-the-badge&logo=safari&logoColor=white" alt="Live Demo" />
+  </a>
+  <a href="https://github.com/niyar18/RideNow-vehicle-booking-site">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+  </a>
+  <img src="https://img.shields.io/badge/Next.js%2016-Turbopack-black?style=for-the-badge&logo=next.js" alt="Next.js 16" />
+</p>
+
+---
+
+### 🌐 Live Application Link
+> **Experience RideNow Live**: [**https://ridenow-mobility.vercel.app**](#-live-application-link) *(or update with your live deployment URL)*  
+> Anyone visiting this repository can click the button above to directly explore instant vehicle bookings, WhatsApp OTP authentication, live driver dispatch, and the driver wallet.
 
 ---
 
