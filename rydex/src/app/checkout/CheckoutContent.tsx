@@ -1,5 +1,6 @@
 "use client";
 import { Suspense } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Navigation, ShieldCheck,
@@ -13,6 +14,7 @@ import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import useGetMe from "@/hooks/useGetMe";
+import AuthModal from "@/components/AuthModal";
 import { getSocket } from "@/lib/socket";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 
@@ -31,33 +33,53 @@ export default function CheckoutContent() {
 
   const params = useSearchParams();
 
+  // Query parameter fallbacks (backwards-compatible)
   const pickupParam    = params.get("pickup")    || "Pickup Location";
   const dropParam      = params.get("drop")      || "Drop Location";
   const vehicleParam   = params.get("vehicle")   || "car";
-  const vehicleId = params.get("vehicleId");
+  const vehicleIdParam = params.get("vehicleId") || undefined;
   const fareParam      = Number(params.get("fare")) || 249;
-  const mobileNumber = params.get("mobileNumber") || "";
-  const driverId  = params.get("driverId");
-  const pickupLat = Number(params.get("pickupLat"));
-  const pickupLng = Number(params.get("pickupLng"));
-  const dropLat   = Number(params.get("dropLat"));
-  const dropLng   = Number(params.get("dropLng"));
+  const mobileParam    = params.get("mobileNumber") || "";
+  const driverIdParam  = params.get("driverId")  || undefined;
+  const pickupLatParam = params.get("pickupLat") ? Number(params.get("pickupLat")) : null;
+  const pickupLngParam = params.get("pickupLng") ? Number(params.get("pickupLng")) : null;
+  const dropLatParam   = params.get("dropLat") ? Number(params.get("dropLat")) : null;
+  const dropLngParam   = params.get("dropLng") ? Number(params.get("dropLng")) : null;
   const isSmartPickupParam = params.get("isSmartPickup") === "true";
   const smartPickupDetailsParam = params.get("smartPickupDetails");
-  const smartPickupDetails = smartPickupDetailsParam ? (() => { try { return JSON.parse(smartPickupDetailsParam); } catch { return null; } })() : null;
   const stopsParam = params.get("stops");
-  const stops: Array<{ address: string; lat: number; lng: number; order: number }> = stopsParam ? (() => { try { return JSON.parse(stopsParam); } catch { return []; } })() : [];
   const isFamilyRideParam = params.get("isFamilyRide") === "true";
   const familyMemberParam = params.get("familyMember");
-  const familyMemberDetails = familyMemberParam ? (() => { try { return JSON.parse(familyMemberParam); } catch { return null; } })() : null;
   const isScheduledParam = params.get("isScheduled") === "true";
   const scheduledTimeParam = params.get("scheduledTime");
-  const scheduledPickupDate = scheduledTimeParam ? new Date(scheduledTimeParam) : null;
 
-  const [pickup,   setPickup]   = useState(pickupParam);
-  const [drop,     setDrop]     = useState(dropParam);
-  const [vehicle,  setVehicle]  = useState(vehicleParam);
-  const [fare,     setFare]     = useState(fareParam);
+  const [pickup,       setPickup]       = useState(pickupParam);
+  const [drop,         setDrop]         = useState(dropParam);
+  const [vehicle,      setVehicle]      = useState(vehicleParam);
+  const [vehicleId,    setVehicleId]    = useState<string | undefined>(vehicleIdParam);
+  const [fare,         setFare]         = useState(fareParam);
+  const [mobileNumber, setMobileNumber] = useState(mobileParam);
+  const [driverId,     setDriverId]     = useState<string | undefined>(driverIdParam);
+  const [pickupLat,    setPickupLat]    = useState<number | null>(pickupLatParam);
+  const [pickupLng,    setPickupLng]    = useState<number | null>(pickupLngParam);
+  const [dropLat,      setDropLat]      = useState<number | null>(dropLatParam);
+  const [dropLng,      setDropLng]      = useState<number | null>(dropLngParam);
+  const [isSmartPickup, setIsSmartPickup] = useState(isSmartPickupParam);
+  const [smartPickupDetails, setSmartPickupDetails] = useState<any>(
+    smartPickupDetailsParam ? (() => { try { return JSON.parse(smartPickupDetailsParam); } catch { return null; } })() : null
+  );
+  const [stops, setStops] = useState<Array<{ address: string; lat: number; lng: number; order: number }>>(
+    stopsParam ? (() => { try { return JSON.parse(stopsParam); } catch { return []; } })() : []
+  );
+  const [isFamilyRide, setIsFamilyRide] = useState(isFamilyRideParam);
+  const [familyMemberDetails, setFamilyMemberDetails] = useState<any>(
+    familyMemberParam ? (() => { try { return JSON.parse(familyMemberParam); } catch { return null; } })() : null
+  );
+  const [isScheduled, setIsScheduled] = useState(isScheduledParam);
+  const [scheduledPickupTime, setScheduledPickupTime] = useState<string | null>(scheduledTimeParam);
+  const scheduledPickupDate = scheduledPickupTime ? new Date(scheduledPickupTime) : null;
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const VehicleIcon = VEHICLE_ICONS[vehicle.toLowerCase()] || Car;
 
@@ -68,6 +90,47 @@ export default function CheckoutContent() {
   const [countdown,     setCountdown]     = useState(20);
   const [rates,         setRates]         = useState<any>(null);
   const [bookingBreakdown, setBookingBreakdown] = useState<any>(null);
+
+  // 1️⃣ Client-side Draft Hydration from sessionStorage (Option 1)
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const raw = sessionStorage.getItem("ridenow_booking_draft");
+        if (raw) {
+          const draft = JSON.parse(raw);
+          if (draft.pickup) setPickup(draft.pickup);
+          if (draft.drop) setDrop(draft.drop);
+          if (draft.vehicle) setVehicle(draft.vehicle);
+          if (draft.vehicleId) setVehicleId(draft.vehicleId);
+          if (draft.fare) setFare(Number(draft.fare));
+          if (draft.mobileNumber) setMobileNumber(draft.mobileNumber);
+          if (draft.driverId) setDriverId(draft.driverId);
+          if (typeof draft.pickupLat === "number") setPickupLat(draft.pickupLat);
+          if (typeof draft.pickupLng === "number") setPickupLng(draft.pickupLng);
+          if (typeof draft.dropLat === "number") setDropLat(draft.dropLat);
+          if (typeof draft.dropLng === "number") setDropLng(draft.dropLng);
+          if (draft.isSmartPickup !== undefined) setIsSmartPickup(Boolean(draft.isSmartPickup));
+          if (draft.smartPickupDetails) setSmartPickupDetails(draft.smartPickupDetails);
+          if (Array.isArray(draft.stops)) setStops(draft.stops);
+          if (draft.isFamilyRide !== undefined) setIsFamilyRide(Boolean(draft.isFamilyRide));
+          if (draft.familyMemberDetails) setFamilyMemberDetails(draft.familyMemberDetails);
+          if (draft.isScheduled !== undefined) setIsScheduled(Boolean(draft.isScheduled));
+          if (draft.scheduledTime) setScheduledPickupTime(draft.scheduledTime);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to load booking draft from sessionStorage:", err);
+    }
+  }, []);
+
+  // Sync mobile number with Redux user profile if not yet populated
+  useEffect(() => {
+    if (!mobileNumber && userData?.mobileNumber) {
+      const cleaned = userData.mobileNumber.replace(/\D/g, "");
+      const tenDigits = cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
+      setMobileNumber(tenDigits);
+    }
+  }, [userData, mobileNumber]);
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -142,44 +205,80 @@ export default function CheckoutContent() {
 
   /* ── CREATE BOOKING ── */
   const handleCreateBooking = async () => {
+    setBookingError(null);
+
+    if (!userData) {
+      setBookingError("Please sign in or create an account to request a ride. Your booking draft is saved.");
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng) {
+      setBookingError("Missing location coordinates. Please return to the map and select pickup and destination.");
+      return;
+    }
+
     try {
       setLoading(true);
-      const res  = await fetch("/api/booking/create", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({
-          pickup, drop, vehicle, vehicleId, fare, mobileNumber, driverId,
-          pickupLat, pickupLng, dropLat, dropLng,
-          isSmartPickup: isSmartPickupParam,
+      const res = await fetch("/api/booking/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pickup,
+          drop,
+          vehicle,
+          vehicleId,
+          fare,
+          mobileNumber: mobileNumber || userData?.mobileNumber || "",
+          driverId,
+          pickupLat,
+          pickupLng,
+          dropLat,
+          dropLng,
+          isSmartPickup,
           smartPickupDetails,
           stops,
-          isFamilyRide: isFamilyRideParam,
+          isFamilyRide,
           familyMemberDetails,
-          isScheduled: isScheduledParam,
-          scheduledPickupTime: scheduledTimeParam,
-        })
+          isScheduled,
+          scheduledPickupTime,
+        }),
       });
 
       const data = await res.json();
 
-      if(data.success){
-        setBookingId(data.booking._id);
-        setFare(data.booking.fare);
-        if (data.booking.fareBreakdown) setBookingBreakdown(data.booking.fareBreakdown);
-        if (data.booking.pickupAddress) setPickup(data.booking.pickupAddress);
-        if (data.booking.dropAddress) setDrop(data.booking.dropAddress);
-        if (isScheduledParam) {
-          window.location.href = `/ride/${data.booking._id}`;
-        } else {
-          setStatus("requested");
-          setCountdown(20);
-        }
+      if (res.status === 401) {
+        setBookingError("Please sign in to request a ride. Your booking details are preserved.");
+        setShowAuthModal(true);
+        return;
       }
 
-    } catch(err){
-      console.error(err);
-      alert("Booking failed");
-    } finally{
+      if (!res.ok || !data.success) {
+        setBookingError(data.message || "Failed to create booking. Please try again.");
+        return;
+      }
+
+      // Success: clear draft
+      try {
+        sessionStorage.removeItem("ridenow_booking_draft");
+      } catch (e) {}
+
+      setBookingId(data.booking._id);
+      setFare(data.booking.fare);
+      if (data.booking.fareBreakdown) setBookingBreakdown(data.booking.fareBreakdown);
+      if (data.booking.pickupAddress) setPickup(data.booking.pickupAddress);
+      if (data.booking.dropAddress) setDrop(data.booking.dropAddress);
+
+      if (isScheduled) {
+        window.location.href = `/ride/${data.booking._id}`;
+      } else {
+        setStatus("requested");
+        setCountdown(20);
+      }
+    } catch (err: any) {
+      console.error("Booking creation error:", err);
+      setBookingError(err.message || "Network error. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
@@ -410,6 +509,25 @@ export default function CheckoutContent() {
           <p className="text-zinc-400 text-sm mt-1.5 font-medium">Review your ride and confirm</p>
         </motion.div>
 
+        {/* Missing locations warning banner */}
+        {!pickupLat && !dropLat && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle size={18} className="text-amber-700 flex-shrink-0" />
+              <div>
+                <p className="text-xs font-bold text-amber-900">No active ride selected</p>
+                <p className="text-[11px] text-amber-700">Please choose your pickup and drop locations to book a ride.</p>
+              </div>
+            </div>
+            <Link
+              href="/book"
+              className="px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-xl transition shadow"
+            >
+              Go to Booking
+            </Link>
+          </div>
+        )}
+
         {/* ── GRID ── */}
         <div className="grid lg:grid-cols-2 gap-6">
 
@@ -481,7 +599,7 @@ export default function CheckoutContent() {
               </div>
 
               {/* 📍 SMART PICKUP ZONE BADGE & DETAILS */}
-              {isSmartPickupParam && smartPickupDetails && (
+              {isSmartPickup && smartPickupDetails && (
                 <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
                     📍
@@ -511,7 +629,7 @@ export default function CheckoutContent() {
               )}
 
               {/* 👨👩👧 FAMILY RIDE BADGE */}
-              {isFamilyRideParam && familyMemberDetails && (
+              {isFamilyRide && familyMemberDetails && (
                 <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
                     👨👩👧
@@ -538,7 +656,7 @@ export default function CheckoutContent() {
               )}
 
               {/* ⏰ SCHEDULED RIDE BADGE */}
-              {isScheduledParam && scheduledPickupDate && (
+              {isScheduled && scheduledPickupDate && (
                 <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
                     ⏰
@@ -593,9 +711,9 @@ export default function CheckoutContent() {
                     let breakdown = bookingBreakdown;
                     if (!breakdown) {
                       const allPoints: [number, number][] = [
-                        [pickupLat, pickupLng],
+                        [pickupLat!, pickupLng!],
                         ...stops.map((s) => [s.lat, s.lng] as [number, number]),
-                        [dropLat, dropLng],
+                        [dropLat!, dropLng!],
                       ];
                       let totalDist = 0;
                       for (let i = 0; i < allPoints.length - 1; i++) {
@@ -605,7 +723,7 @@ export default function CheckoutContent() {
                         const lon2 = allPoints[i + 1][1];
                         const dLat = (lat2 - lat1) * Math.PI / 180;
                         const dLon = (lon2 - lon1) * Math.PI / 180;
-                        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(dropLat * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
                         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                         totalDist += 6371 * c;
                       }
@@ -804,11 +922,30 @@ export default function CheckoutContent() {
                         ))}
                       </div>
                     </div>
+
+                    {bookingError && (
+                      <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 text-left mt-6">
+                        <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-xs font-bold text-red-900">{bookingError}</p>
+                          {bookingError.toLowerCase().includes("sign in") && (
+                            <button
+                              type="button"
+                              onClick={() => setShowAuthModal(true)}
+                              className="mt-2 text-xs font-black text-white bg-zinc-900 hover:bg-black px-3.5 py-1.5 rounded-xl transition inline-block"
+                            >
+                              Sign In Now
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       whileHover={{ scale: 1.02 }}
                       onClick={handleCreateBooking}
-                      disabled={loading}
+                      disabled={loading || !pickupLat || !dropLat}
                       className="w-full h-14 mt-8 bg-zinc-900 hover:bg-black disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-colors shadow-md"
                     >
                       {loading ? (
@@ -1130,6 +1267,9 @@ export default function CheckoutContent() {
           </motion.div>
         </div>
       </div>
+
+      {/* Auth Modal for Quick Login on Checkout */}
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }

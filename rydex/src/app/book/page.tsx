@@ -769,11 +769,6 @@ export default function BookPage() {
   const handleConfirmRide = () => {
     if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return;
     const estFare = estimateFare(vehicle, effectiveDistance);
-    let checkoutUrl = `/checkout?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}&fare=${estFare}`;
-    
-    if (selectedSmartPickup) {
-      checkoutUrl += `&isSmartPickup=true&smartPickupDetails=${encodeURIComponent(JSON.stringify(selectedSmartPickup))}`;
-    }
 
     const validStops = stops
       .filter(s => s.address && s.lat !== null && s.lng !== null)
@@ -784,19 +779,35 @@ export default function BookPage() {
         order: idx + 1,
       }));
 
-    if (validStops.length > 0) {
-      checkoutUrl += `&stops=${encodeURIComponent(JSON.stringify(validStops))}`;
+    const draftData = {
+      pickup,
+      drop,
+      vehicle,
+      fare: estFare,
+      mobileNumber: mobile,
+      pickupLat,
+      pickupLng,
+      dropLat,
+      dropLng,
+      distanceKm: effectiveDistance,
+      isSmartPickup: Boolean(selectedSmartPickup),
+      smartPickupDetails: selectedSmartPickup || null,
+      stops: validStops,
+      isFamilyRide: Boolean(selectedFamilyMember),
+      familyMemberDetails: selectedFamilyMember || null,
+      isScheduled: bookingMode === "schedule" && Boolean(scheduledDateTime),
+      scheduledTime: (bookingMode === "schedule" && scheduledDateTime) ? new Date(scheduledDateTime).toISOString() : null,
+    };
+
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("ridenow_booking_draft", JSON.stringify(draftData));
+      }
+    } catch (e) {
+      console.warn("sessionStorage save error:", e);
     }
 
-    if (selectedFamilyMember) {
-      checkoutUrl += `&isFamilyRide=true&familyMember=${encodeURIComponent(JSON.stringify(selectedFamilyMember))}`;
-    }
-
-    if (bookingMode === "schedule" && scheduledDateTime) {
-      checkoutUrl += `&isScheduled=true&scheduledTime=${encodeURIComponent(new Date(scheduledDateTime).toISOString())}`;
-    }
-
-    router.push(checkoutUrl);
+    router.push("/checkout");
   };
 
   /* ── SHARED FORM SECTIONS (REUSABLE ACROSS UNIFIED PANEL) ── */

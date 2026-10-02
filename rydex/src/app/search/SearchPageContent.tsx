@@ -231,19 +231,29 @@ export default function SearchPageContent() {
                   distanceKm={km ?? undefined}
                   isRecommended={i === 0}
                   onBook={() => {
-                    const url = new URLSearchParams({
-                      pickup, drop,
+                    const estFare = Math.round(v.baseFare + (km ?? 0) * v.pricePerKm);
+                    const draft = {
+                      pickup,
+                      drop,
                       vehicle:    v.type,
                       driverId:   v.owner,
                       vehicleId:  v._id,
-                      fare:       String(Math.round(v.baseFare + (km ?? 0) * v.pricePerKm)),
-                      pickupLat:  String(pickupLat),
-                      pickupLng:  String(pickupLng),
-                      dropLat:    params.get("dropLat") || "",
-                      dropLng:    params.get("dropLng") || "",
+                      fare:       estFare,
+                      pickupLat:  Number(pickupLat),
+                      pickupLng:  Number(pickupLng),
+                      dropLat:    params.get("dropLat") ? Number(params.get("dropLat")) : null,
+                      dropLng:    params.get("dropLng") ? Number(params.get("dropLng")) : null,
                       mobileNumber,
-                    });
-                    router.push(`/checkout?${url.toString()}`);
+                      distanceKm: km,
+                    };
+                    try {
+                      if (typeof window !== "undefined") {
+                        sessionStorage.setItem("ridenow_booking_draft", JSON.stringify(draft));
+                      }
+                    } catch (e) {
+                      console.warn("sessionStorage save error:", e);
+                    }
+                    router.push("/checkout");
                   }}
                 />
               </motion.div>
