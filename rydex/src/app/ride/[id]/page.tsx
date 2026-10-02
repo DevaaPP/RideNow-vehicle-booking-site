@@ -10,10 +10,10 @@ import {
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RideChat from "@/components/RideChat";
-import { getMinDistanceToPolyline } from "@/lib/routeUtils";
+import { getMinDistanceToPolyline, haversineKm } from "@/lib/routeUtils";
 
 const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr: false });
 
@@ -496,7 +496,22 @@ export default function RidePage() {
   /* chat only when driver heading to pickup, not yet started */
   const canChat     = status === "confirmed";
   const showDriver  = ["confirmed", "started", "completed"].includes(status) && !!booking.driver;
-  const displayEta      = mapStatus === "arriving" ? etaToPickup : etaToDrop;
+
+  const initialTripEta = useMemo(() => {
+    if (!pickupPos || !dropPos) return 0;
+    const distKm = haversineKm(pickupPos[0], pickupPos[1], dropPos[0], dropPos[1]);
+    return Math.max(3, Math.round((distKm / 25) * 60));
+  }, [pickupPos, dropPos]);
+
+  const initialDriverEta = useMemo(() => {
+    if (!driverPos || !pickupPos) return 4;
+    const distKm = haversineKm(driverPos[0], driverPos[1], pickupPos[0], pickupPos[1]);
+    return Math.max(2, Math.round((distKm / 25) * 60));
+  }, [driverPos, pickupPos]);
+
+  const effectiveEtaToPickup = etaToPickup > 0 ? etaToPickup : initialDriverEta;
+  const effectiveEtaToDrop = etaToDrop > 0 ? etaToDrop : initialTripEta;
+  const displayEta      = mapStatus === "arriving" ? effectiveEtaToPickup : effectiveEtaToDrop;
   const displayDistance = mapStatus === "arriving" ? distanceToPickup : distanceToDrop;
 
   /* ══ COMPLETED — FULL SCREEN ══ */
@@ -533,7 +548,7 @@ export default function RidePage() {
           dropLocation={dropPos}
           status={mapStatus}
           vehicleType={booking?.vehicle?.type ?? "car"}
-          etaMinutes={mapStatus === "arriving" ? etaToPickup : etaToDrop}
+          etaMinutes={displayEta}
           onStats={({ distanceToPickup, durationToPickup, distanceToDrop, durationToDrop }) => {
             setDistanceToPickup(distanceToPickup); setEtaToPickup(durationToPickup);
             setDistanceToDrop(distanceToDrop);     setEtaToDrop(durationToDrop);

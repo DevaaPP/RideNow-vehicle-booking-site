@@ -760,9 +760,12 @@ export default function BookPage() {
   };
 
   const hasRoute = Boolean(pickupLat && pickupLng && dropLat && dropLng);
-  const effectiveDistance = (routeDistance !== null && routeDistance >= 0)
-    ? routeDistance
-    : (getMultiStopHaversineDistance() || ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : 5));
+  const haversineDist =
+    getMultiStopHaversineDistance() ||
+    (pickupLat && pickupLng && dropLat && dropLng
+      ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng)
+      : 5);
+  const effectiveDistance = Number(haversineDist.toFixed(1));
 
   const currentBreakdown = calculateFareBreakdown(vehicle, effectiveDistance, rates, undefined, 0, isStudent);
 

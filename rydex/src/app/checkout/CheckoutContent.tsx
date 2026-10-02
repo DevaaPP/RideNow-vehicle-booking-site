@@ -9,7 +9,7 @@ import {
   ArrowRight, RotateCcw, AlertCircle, Wallet,
   Users, UserPlus, Share2, IndianRupee
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -91,6 +91,60 @@ export default function CheckoutContent() {
   const [countdown,     setCountdown]     = useState(60);
   const [rates,         setRates]         = useState<any>(null);
   const [bookingBreakdown, setBookingBreakdown] = useState<any>(null);
+
+  const computedBreakdown = useMemo(() => {
+    if (bookingBreakdown) return bookingBreakdown;
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng) return null;
+    const allPoints: [number, number][] = [
+      [pickupLat, pickupLng],
+      ...stops.map((s) => [s.lat, s.lng] as [number, number]),
+      [dropLat, dropLng],
+    ];
+    let totalDist = 0;
+    for (let i = 0; i < allPoints.length - 1; i++) {
+      const lat1 = allPoints[i][0];
+      const lon1 = allPoints[i][1];
+      const lat2 = allPoints[i + 1][0];
+      const lon2 = allPoints[i + 1][1];
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      totalDist += 6371 * c;
+    }
+    const distKm = +totalDist.toFixed(1);
+    return calculateFareBreakdown(
+      vehicle,
+      distKm,
+      rates,
+      undefined,
+      0,
+      Boolean(userData?.isStudent)
+    );
+  }, [
+    bookingBreakdown,
+    pickupLat,
+    pickupLng,
+    dropLat,
+    dropLng,
+    stops,
+    vehicle,
+    rates,
+    userData?.isStudent,
+  ]);
+
+  const effectiveFare = computedBreakdown?.totalFare ?? fare;
+
+  useEffect(() => {
+    if (computedBreakdown?.totalFare && !bookingId) {
+      setFare(computedBreakdown.totalFare);
+    }
+  }, [computedBreakdown?.totalFare, bookingId]);
 
   // 1️⃣ Client-side Draft Hydration from sessionStorage (Option 1)
   useEffect(() => {
@@ -249,7 +303,7 @@ export default function CheckoutContent() {
           drop,
           vehicle,
           vehicleId,
-          fare,
+          fare: effectiveFare,
           mobileNumber: mobileNumber || userData?.mobileNumber || "",
           driverId,
           pickupLat,
@@ -739,36 +793,15 @@ export default function CheckoutContent() {
                   className="flex items-baseline gap-1"
                 >
                   <span className="text-zinc-400 text-lg font-black">₹</span>
-                  <span className="text-zinc-900 text-5xl font-black tracking-tight leading-none">{fare}</span>
+                  <span className="text-zinc-900 text-5xl font-black tracking-tight leading-none">{effectiveFare}</span>
                 </motion.div>
               </div>
 
               {/* 💰 ITEMIZED FARE BREAKDOWN RECEIPT CARD */}
-              {(bookingBreakdown || (pickupLat && pickupLng && dropLat && dropLng)) && (
+              {computedBreakdown && (
                 <div className="mt-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
                   {(() => {
-                    let breakdown = bookingBreakdown;
-                    if (!breakdown) {
-                      const allPoints: [number, number][] = [
-                        [pickupLat!, pickupLng!],
-                        ...stops.map((s) => [s.lat, s.lng] as [number, number]),
-                        [dropLat!, dropLng!],
-                      ];
-                      let totalDist = 0;
-                      for (let i = 0; i < allPoints.length - 1; i++) {
-                        const lat1 = allPoints[i][0];
-                        const lon1 = allPoints[i][1];
-                        const lat2 = allPoints[i + 1][0];
-                        const lon2 = allPoints[i + 1][1];
-                        const dLat = (lat2 - lat1) * Math.PI / 180;
-                        const dLon = (lon2 - lon1) * Math.PI / 180;
-                        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                        totalDist += 6371 * c;
-                      }
-                      const distKm = +totalDist.toFixed(1);
-                      breakdown = calculateFareBreakdown(vehicle, distKm, rates, undefined, 0, Boolean(userData?.isStudent));
-                    }
+                    const breakdown = computedBreakdown;
                     return (
                       <>
                         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-900 mb-2.5 pb-1.5 border-b border-zinc-200 flex items-center justify-between">
@@ -822,7 +855,7 @@ export default function CheckoutContent() {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-zinc-900">Group Ride & Split Fare</h4>
-                      <p className="text-xs text-zinc-400 font-medium">Split ₹{fare} with friends</p>
+                      <p className="text-xs text-zinc-400 font-medium">Split ₹{effectiveFare} with friends</p>
                     </div>
                   </div>
                   <button

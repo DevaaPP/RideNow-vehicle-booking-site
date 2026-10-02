@@ -235,11 +235,30 @@ function setupRouteLayers(map: maplibregl.Map): boolean {
   }
 }
 
+interface RouteResult {
+  coordinates: [number, number][];
+  distanceKm: number;
+  durationMinutes: number;
+}
+
 /* ─── FETCH ROAD ROUTE VIA API ──────────────────────────────────────── */
 async function fetchRoadRoute(
   from: [number, number],
   to: [number, number]
-): Promise<[number, number][] | null> {
+): Promise<RouteResult> {
+  const dLat = ((to[0] - from[0]) * Math.PI) / 180;
+  const dLon = ((to[1] - from[1]) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((from[0] * Math.PI) / 180) *
+      Math.cos((to[0] * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const directDistKm = Number(
+    (6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1)
+  );
+  const directDuration = Math.max(2, Math.round((directDistKm / 25) * 60));
+
   // Try OSRM directly first (fast, client-side, <300ms)
   try {
     const res = await fetch(
@@ -249,7 +268,14 @@ async function fetchRoadRoute(
     if (res.ok) {
       const data = await res.json();
       if (data.routes?.[0]?.geometry?.coordinates?.length) {
-        return data.routes[0].geometry.coordinates; // already [lng, lat][] for GeoJSON
+        const route = data.routes[0];
+        const distKm = Number((route.distance / 1000).toFixed(1));
+        const durMin = Math.max(1, Math.round(route.duration / 60));
+        return {
+          coordinates: route.geometry.coordinates,
+          distanceKm: distKm,
+          durationMinutes: durMin,
+        };
       }
     }
   } catch (_) {}
@@ -265,17 +291,30 @@ async function fetchRoadRoute(
       if (contentType.includes("json")) {
         const data = await res.json();
         if (data.success && data.primary?.geojsonCoords?.length) {
-          return data.primary.geojsonCoords; // [lng, lat][]
+          const distKm = Number(data.primary.distance ?? directDistKm);
+          const durMin = Math.max(
+            1,
+            Math.round(data.primary.duration ?? directDuration)
+          );
+          return {
+            coordinates: data.primary.geojsonCoords,
+            distanceKm: distKm,
+            durationMinutes: durMin,
+          };
         }
       }
     }
   } catch (_) {}
 
   // Fail-safe direct fallback so the polyline is 100% NEVER blank
-  return [
-    [from[1], from[0]],
-    [to[1], to[0]],
-  ];
+  return {
+    coordinates: [
+      [from[1], from[0]],
+      [to[1], to[0]],
+    ],
+    distanceKm: directDistKm,
+    durationMinutes: directDuration,
+  };
 }
 
 /* ─── MAIN COMPONENT ────────────────────────────────────────────────── */
@@ -470,6 +509,13 @@ export default function LiveTrackingMap({
     }
   }, [driverLocation, vehicleType, etaMinutes]);
 
+  const statsRef = useRef({
+    distanceToPickup: 0,
+    durationToPickup: 0,
+    distanceToDrop: 0,
+    durationToDrop: 0,
+  });
+
   /* ─── DYNAMIC TRIP ROUTE (PICKUP → DROP OR DRIVER → DROP) ─── */
   const updateTripRoute = useCallback(async () => {
     const map = mapRef.current;
@@ -489,8 +535,13 @@ export default function LiveTrackingMap({
       }
 
       setupRouteLayers(map);
-      const coords = await fetchRoadRoute(startPt, dropLocation);
-      if (!coords || !mapRef.current) return;
+      const routeRes = await fetchRoadRoute(startPt, dropLocation);
+      if (!routeRes || !mapRef.current) return;
+      const coords = routeRes.coordinates;
+
+      statsRef.current.distanceToDrop = routeRes.distanceKm;
+      statsRef.current.durationToDrop = routeRes.durationMinutes;
+      onStats?.({ ...statsRef.current });
 
       tripCoordsRef.current = coords;
       updateSvgOverlay();
@@ -520,8 +571,13 @@ export default function LiveTrackingMap({
       // Driver heading to pickup OR booking requested: trip route is pickup -> drop
       if (tripRouteDrawnRef.current) return;
       setupRouteLayers(map);
-      const coords = await fetchRoadRoute(pickupLocation, dropLocation);
-      if (!coords || !mapRef.current) return;
+      const routeRes = await fetchRoadRoute(pickupLocation, dropLocation);
+      if (!routeRes || !mapRef.current) return;
+      const coords = routeRes.coordinates;
+
+      statsRef.current.distanceToDrop = routeRes.distanceKm;
+      statsRef.current.durationToDrop = routeRes.durationMinutes;
+      onStats?.({ ...statsRef.current });
 
       tripCoordsRef.current = coords;
       updateSvgOverlay();
@@ -550,7 +606,7 @@ export default function LiveTrackingMap({
         });
       }
     }
-  }, [driverLocation, pickupLocation, dropLocation, status, updateSvgOverlay]);
+  }, [driverLocation, pickupLocation, dropLocation, status, updateSvgOverlay, onStats]);
 
   /* ─── DRIVER APPROACH ROUTE (DRIVER → PICKUP) ─── */
   const updateDriverRoute = useCallback(async () => {
@@ -567,8 +623,13 @@ export default function LiveTrackingMap({
       lastDriverRouteFetchRef.current = { lat: driverLocation[0], lng: driverLocation[1], time: Date.now() };
 
       setupRouteLayers(map);
-      const coords = await fetchRoadRoute(driverLocation, pickupLocation);
-      if (!coords || !mapRef.current) return;
+      const routeRes = await fetchRoadRoute(driverLocation, pickupLocation);
+      if (!routeRes || !mapRef.current) return;
+      const coords = routeRes.coordinates;
+
+      statsRef.current.distanceToPickup = routeRes.distanceKm;
+      statsRef.current.durationToPickup = routeRes.durationMinutes;
+      onStats?.({ ...statsRef.current });
 
       driverCoordsRef.current = coords;
       updateSvgOverlay();
@@ -595,7 +656,7 @@ export default function LiveTrackingMap({
         });
       }
     }
-  }, [driverLocation, pickupLocation, status, updateSvgOverlay]);
+  }, [driverLocation, pickupLocation, status, updateSvgOverlay, onStats]);
 
   // Initial and reactive trip route
   useEffect(() => {
