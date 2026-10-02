@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
-import { UBER_MINIMAL_MAP_STYLE } from "@/lib/mapConfig";
+import { LIVE_TRACKING_MAP_STYLE } from "@/lib/mapConfig";
 
 type VehicleType = "auto" | "car" | "bike" | "suv" | string;
 
@@ -170,7 +170,7 @@ function createDropPinEl(): HTMLElement {
 
 /* ─── ROUTE LAYER SETUP ─────────────────────────────────────────────── */
 function setupRouteLayers(map: maplibregl.Map): boolean {
-  if (!map || !map.isStyleLoaded()) return false;
+  if (!map) return false;
 
   try {
     // 1. Trip route (active or preview road route)
@@ -310,7 +310,7 @@ export default function LiveTrackingMap({
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: UBER_MINIMAL_MAP_STYLE,
+      style: LIVE_TRACKING_MAP_STYLE,
       center: initialCenter,
       zoom: 14.5,
       pitch: 0,

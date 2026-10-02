@@ -1,48 +1,191 @@
 import type { StyleSpecification } from "maplibre-gl";
 
 /**
- * RideNow Modern Light Ride-Hailing Map Style Specification.
- * - Clean, light/neutral map background.
- * - Clear road hierarchy with major roads distinct over minor roads.
- * - Subtle greens, muted parks, and soft pastel water to eliminate visual clutter.
- * - Road routes and vehicle markers remain the strongest visual elements.
- * - 100% Free, zero API key required, zero watermarks.
- * - Built on OpenStreetMap tile infrastructure.
+ * Common OSM raster source definition.
  */
-export const UBER_MINIMAL_MAP_STYLE: StyleSpecification = {
+const OSM_RASTER_SOURCE = {
+  type: "raster" as const,
+  tiles: [
+    "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  ],
+  tileSize: 256,
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+};
+
+const OSM_RASTER_LAYER = {
+  id: "osm-streets-layer",
+  type: "raster" as const,
+  source: "osm-streets",
+  minzoom: 0,
+  maxzoom: 19,
+  paint: {
+    "raster-saturation": -0.5,
+    "raster-contrast": 0.12,
+    "raster-brightness-min": 0.06,
+    "raster-brightness-max": 1.0,
+  },
+};
+
+/**
+ * RideNow Booking Route Map Style Specification.
+ * Includes route GeoJSON sources & line layers pre-compiled into the style so they
+ * are guaranteed to exist in WebGL from frame 0 with ZERO dynamic layer loading race conditions.
+ */
+export const ROUTE_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    "osm-streets": {
-      type: "raster",
-      tiles: [
-        "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      ],
-      tileSize: 256,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+    "osm-streets": OSM_RASTER_SOURCE,
+    "route-alt-source": {
+      type: "geojson",
+      data: {
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: [] },
+      },
+    },
+    "route-source": {
+      type: "geojson",
+      data: {
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: [] },
+      },
     },
   },
   layers: [
+    OSM_RASTER_LAYER,
+    // Alternative route casing & core
     {
-      id: "osm-streets-layer",
-      type: "raster",
-      source: "osm-streets",
-      minzoom: 0,
-      maxzoom: 19,
+      id: "route-alt-casing",
+      type: "line",
+      source: "route-alt-source",
+      layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        // Gentle desaturation: parks & terrain become soft subtle sage, roads stay crisp
-        "raster-saturation": -0.5,
-        "raster-contrast": 0.12,
-        "raster-brightness-min": 0.06,
-        "raster-brightness-max": 1.0,
+        "line-color": "#ffffff",
+        "line-width": 7.0,
+        "line-opacity": 0.8,
+      },
+    },
+    {
+      id: "route-alt-core",
+      type: "line",
+      source: "route-alt-source",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#94a3b8",
+        "line-width": 4.5,
+        "line-opacity": 0.85,
+      },
+    },
+    // Primary route casing (crisp white halo against OSM streets)
+    {
+      id: "route-casing",
+      type: "line",
+      source: "route-source",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#ffffff",
+        "line-width": 9.5,
+        "line-opacity": 1.0,
+      },
+    },
+    // Primary route core (vivid Google Maps blue line)
+    {
+      id: "route-core",
+      type: "line",
+      source: "route-source",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#2563eb",
+        "line-width": 5.5,
+        "line-opacity": 1.0,
       },
     },
   ],
 };
 
-// Aliases for seamless compatibility
-export const OSM_MAP_STYLE = UBER_MINIMAL_MAP_STYLE;
-export const VOYAGER_MAP_STYLE = UBER_MINIMAL_MAP_STYLE;
-export const OSM_STANDARD_STYLE = UBER_MINIMAL_MAP_STYLE;
+/**
+ * RideNow Live Tracking Map Style Specification.
+ * Includes persistent trip route and driver approach route pre-compiled into style.
+ */
+export const LIVE_TRACKING_MAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    "osm-streets": OSM_RASTER_SOURCE,
+    "trip-route": {
+      type: "geojson",
+      data: {
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: [] },
+      },
+    },
+    "driver-route": {
+      type: "geojson",
+      data: {
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: [] },
+      },
+    },
+  },
+  layers: [
+    OSM_RASTER_LAYER,
+    // Trip route layers
+    {
+      id: "trip-casing",
+      type: "line",
+      source: "trip-route",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#ffffff",
+        "line-width": 9.5,
+        "line-opacity": 1.0,
+      },
+    },
+    {
+      id: "trip-core",
+      type: "line",
+      source: "trip-route",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#2563eb",
+        "line-width": 5.5,
+        "line-opacity": 1.0,
+      },
+    },
+    // Driver approach route layers (dashed)
+    {
+      id: "driver-casing",
+      type: "line",
+      source: "driver-route",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#ffffff",
+        "line-width": 8.5,
+        "line-opacity": 0.9,
+      },
+    },
+    {
+      id: "driver-core",
+      type: "line",
+      source: "driver-route",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#0284c7",
+        "line-width": 4.5,
+        "line-opacity": 0.9,
+        "line-dasharray": [1, 2],
+      },
+    },
+  ],
+};
+
+// Aliases for seamless backward compatibility
+export const UBER_MINIMAL_MAP_STYLE = ROUTE_MAP_STYLE;
+export const OSM_MAP_STYLE = ROUTE_MAP_STYLE;
+export const VOYAGER_MAP_STYLE = ROUTE_MAP_STYLE;
+export const OSM_STANDARD_STYLE = ROUTE_MAP_STYLE;
