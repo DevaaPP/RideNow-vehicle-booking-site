@@ -732,47 +732,82 @@ export default function RouteMap({
         className={`w-full h-full ${pinMode ? "cursor-crosshair" : ""}`}
       />
 
-      {/* ── TOP PINPOINT SELECTOR (LIGHT CLEAN RIDE-HAILING THEME) ── */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 p-1.5 rounded-2xl shadow-xl">
-        <button
-          type="button"
-          onClick={() => setPinMode((prev) => (prev === "pickup" ? null : "pickup"))}
-          className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
-            pinMode === "pickup"
-              ? "bg-zinc-900 text-white shadow-md ring-2 ring-emerald-500"
-              : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
-          }`}
-        >
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-          <span>Pin Pickup</span>
-        </button>
+      {/* ── TOP RIGHT MAP CONTROLS & ROUTE ETA PILL ── */}
+      <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2 pointer-events-none">
+        {/* Route ETA & Distance Pill */}
+        <AnimatePresence>
+          {(km !== null || isRouting) && (
+            <motion.div
+              initial={{ opacity: 0, y: -8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="pointer-events-auto flex items-center gap-3 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-4 py-2 rounded-2xl shadow-xl"
+            >
+              {isRouting ? (
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" />
+                  <span className="text-zinc-800 text-xs font-bold">Finding fastest route...</span>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-zinc-900 text-sm font-black">
+                      {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
+                    </span>
+                    <span className="text-zinc-500 text-xs font-bold">({km} km)</span>
+                  </div>
+                  <span className="w-px h-3.5 bg-zinc-200" />
+                  <span className="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    Fastest Route
+                  </span>
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <button
-          type="button"
-          onClick={() => setPinMode((prev) => (prev === "drop" ? null : "drop"))}
-          className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
-            pinMode === "drop"
-              ? "bg-zinc-900 text-white shadow-md ring-2 ring-rose-500"
-              : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
-          }`}
-        >
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
-          <span>Pin Drop</span>
-        </button>
-
-        {(p1 || p2) && (
+        {/* Pinpoint Selector Pill */}
+        <div className="pointer-events-auto flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 p-1.5 rounded-2xl shadow-xl">
           <button
             type="button"
-            onClick={handleReset}
-            title="Reset pins"
-            className="p-1.5 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all"
+            onClick={() => setPinMode((prev) => (prev === "pickup" ? null : "pickup"))}
+            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
+              pinMode === "pickup"
+                ? "bg-zinc-900 text-white shadow-md ring-2 ring-emerald-500"
+                : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+            }`}
           >
-            <RotateCcw size={14} />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+            <span>Pin Pickup</span>
           </button>
-        )}
+
+          <button
+            type="button"
+            onClick={() => setPinMode((prev) => (prev === "drop" ? null : "drop"))}
+            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
+              pinMode === "drop"
+                ? "bg-zinc-900 text-white shadow-md ring-2 ring-rose-500"
+                : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
+            <span>Pin Drop</span>
+          </button>
+
+          {(p1 || p2) && (
+            <button
+              type="button"
+              onClick={handleReset}
+              title="Reset pins"
+              className="p-1.5 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all"
+            >
+              <RotateCcw size={14} />
+            </button>
+          )}
+        </div>
 
         {pinMode && (
-          <span className="text-[11px] font-bold text-amber-700 px-2 py-0.5 rounded-lg bg-amber-50 border border-amber-300 animate-pulse">
+          <span className="pointer-events-auto text-[11px] font-bold text-amber-800 px-3 py-1 rounded-xl bg-amber-50/95 border border-amber-300 shadow-md animate-pulse">
             Click map to set {pinMode === "pickup" ? "Pickup 🟢" : "Drop 🔴"}
           </span>
         )}
@@ -812,38 +847,6 @@ export default function RouteMap({
           </button>
         </div>
       </div>
-
-      {/* ── ROUTE ETA & DISTANCE PILL ── */}
-      <AnimatePresence>
-        {(km !== null || isRouting) && (
-          <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute top-4 right-4 z-20 flex items-center gap-3 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-4 py-2 rounded-2xl shadow-xl"
-          >
-            {isRouting ? (
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" />
-                <span className="text-zinc-800 text-xs font-bold">Finding fastest route...</span>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-zinc-900 text-sm font-black">
-                    {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
-                  </span>
-                  <span className="text-zinc-500 text-xs font-bold">({km} km)</span>
-                </div>
-                <span className="w-px h-3.5 bg-zinc-200" />
-                <span className="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  Fastest Route
-                </span>
-              </>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
