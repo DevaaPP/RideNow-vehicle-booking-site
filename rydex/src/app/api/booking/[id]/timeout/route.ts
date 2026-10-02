@@ -61,7 +61,55 @@ export async function POST(
       currentDriverIndex: nextIndex,
     });
   } else {
-    // Candidates exhausted
+    // Candidates exhausted for current round - check total elapsed time
+    const createdAtMs = booking.createdAt ? new Date(booking.createdAt).getTime() : Date.now();
+    const elapsedSeconds = (Date.now() - createdAtMs) / 1000;
+
+    // If searching has been going on for less than 90 seconds, do not prematurely cancel
+    if (elapsedSeconds < 90) {
+      if (booking.pickupLocation?.coordinates) {
+        const [pLng, pLat] = booking.pickupLocation.coordinates;
+        try {
+          const freshVendors = await User.find({
+            role: "vendor",
+            isOnline: true,
+            _id: { $nin: booking.candidateDrivers || [] },
+            location: {
+              $near: {
+                $geometry: { type: "Point", coordinates: [pLng, pLat] },
+                $maxDistance: 10000,
+              },
+            },
+          }).limit(3);
+
+          if (freshVendors.length > 0) {
+            const newCandidateIds = freshVendors.map((v) => v._id);
+            if (!booking.candidateDrivers) booking.candidateDrivers = [];
+            booking.candidateDrivers.push(...newCandidateIds);
+            const newDriver = freshVendors[0];
+            booking.driver = newDriver._id;
+            booking.driverMobileNumber = newDriver.mobileNumber || "";
+            booking.currentDriverIndex = booking.candidateDrivers.length - freshVendors.length;
+            await booking.save();
+
+            await notifySocket(newDriver._id.toString(), "new-booking", booking);
+            await notifySocket(booking.user.toString(), "booking-updated", {
+              bookingId: booking._id,
+              status: "requested",
+              currentDriverIndex: booking.currentDriverIndex,
+            });
+            return NextResponse.json({ success: true, retried: true });
+          }
+        } catch (e) {
+          console.warn("Fresh vendor lookup in timeout failed:", e);
+        }
+      }
+
+      // If still within 90s, keep status as requested so the customer booking is NOT terminated
+      return NextResponse.json({ success: true, stillSearching: true });
+    }
+
+    // Only after 90+ seconds without driver acceptance, mark as rejected
     booking.status = "rejected";
     await booking.save();
 

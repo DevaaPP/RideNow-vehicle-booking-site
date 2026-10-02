@@ -5,6 +5,7 @@ import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 import { auth } from "@/auth";
 import axios from "axios";
+import { haversineDistance } from "@/lib/routeUtils";
 
 async function notifySocket(userId: string, event: string, data: any) {
   try {
@@ -59,21 +60,25 @@ export async function POST(
 
   let replacementDriver: any = null;
 
-  // Search candidateDrivers first
-  if (booking.candidateDrivers && booking.candidateDrivers.length > 0) {
+  // Search candidateDrivers first (strictly within 10km of pickup)
+  const pickupCoords = booking.pickupLocation?.coordinates;
+  if (booking.candidateDrivers && booking.candidateDrivers.length > 0 && pickupCoords) {
     for (const candId of booking.candidateDrivers) {
       const cStr = candId.toString();
       if (!cancelledIds.includes(cStr)) {
         const candidateUser = await User.findOne({ _id: cStr, role: "vendor", isOnline: true });
-        if (candidateUser) {
-          replacementDriver = candidateUser;
-          break;
+        if (candidateUser && candidateUser.location?.coordinates) {
+          const dist = haversineDistance(pickupCoords, candidateUser.location.coordinates);
+          if (dist <= 10) {
+            replacementDriver = candidateUser;
+            break;
+          }
         }
       }
     }
   }
 
-  // Spatial search fallback
+  // Spatial search fallback (strictly 10km limit)
   if (!replacementDriver && booking.pickupLocation?.coordinates) {
     const [lng, lat] = booking.pickupLocation.coordinates;
     const vehicleType = (booking.vehicle as any)?.type || "car";
@@ -89,7 +94,7 @@ export async function POST(
         location: {
           $near: {
             $geometry: { type: "Point", coordinates: [Number(lng), Number(lat)] },
-            $maxDistance: 15000,
+            $maxDistance: 10000, // strictly 10km limit
           },
         },
       }).limit(5);

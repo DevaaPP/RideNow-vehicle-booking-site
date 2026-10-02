@@ -257,8 +257,8 @@ export default function DriverRidePage() {
   useEffect(() => {
     fetchBookingDetails();
 
-    // Poll active ride details every 5 seconds
-    const interval = setInterval(fetchBookingDetails, 5000);
+    // Poll active ride details every 8 seconds as safety net
+    const interval = setInterval(fetchBookingDetails, 8000);
     return () => clearInterval(interval);
   }, []);
 

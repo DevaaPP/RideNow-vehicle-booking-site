@@ -28,7 +28,7 @@ export default function VendorPendingPage() {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [activeDispatch, setActiveDispatch] = useState<Booking | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(15);
+  const [timeLeft, setTimeLeft] = useState<number>(45);
 
   const fetchPendingBookings = async () => {
     try {
@@ -37,7 +37,7 @@ export default function VendorPendingPage() {
       setBookings(list);
       if (list.length > 0 && !activeDispatch) {
         setActiveDispatch(list[0]);
-        setTimeLeft(15);
+        setTimeLeft(45);
       }
     } catch {
       setBookings([]);
@@ -48,7 +48,7 @@ export default function VendorPendingPage() {
 
   useEffect(() => {
     fetchPendingBookings();
-    const interval = setInterval(fetchPendingBookings, 5000);
+    const interval = setInterval(fetchPendingBookings, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -58,7 +58,7 @@ export default function VendorPendingPage() {
     socket.on("new-booking", (booking: Booking) => {
       setBookings((prev) => [booking, ...prev]);
       setActiveDispatch(booking);
-      setTimeLeft(15);
+      setTimeLeft(45);
     });
 
     socket.on("booking-updated", (data: any) => {
@@ -274,7 +274,7 @@ export default function VendorPendingPage() {
                       className="text-emerald-400 transition-all duration-1000"
                       fill="transparent"
                       strokeDasharray={125.6}
-                      strokeDashoffset={125.6 * (1 - timeLeft / 15)}
+                      strokeDashoffset={125.6 * (1 - timeLeft / 45)}
                     />
                   </svg>
                   <span className="absolute font-black text-sm text-white">{timeLeft}s</span>

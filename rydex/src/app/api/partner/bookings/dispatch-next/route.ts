@@ -46,7 +46,17 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({ success: true, escalated: true, currentDriverIndex: nextIndex });
     } else {
-      // All candidate drivers exhausted
+      // All candidate drivers exhausted in this round
+      const createdAtMs = booking.createdAt ? new Date(booking.createdAt).getTime() : Date.now();
+      const elapsedSeconds = (Date.now() - createdAtMs) / 1000;
+
+      // If under 90s, keep booking active and retry rather than immediately expiring
+      if (elapsedSeconds < 90) {
+        booking.currentDriverIndex = 0;
+        await booking.save();
+        return NextResponse.json({ success: true, escalated: false, retrying: true });
+      }
+
       booking.status = "expired";
       await booking.save();
 
