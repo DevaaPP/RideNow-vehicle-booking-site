@@ -282,6 +282,21 @@ export default function RidePage() {
     };
   }, [activeCall?.isOpen, booking?._id, zegoContainer]);
 
+  /* ── SAFE COORDS EXTRACTOR ── */
+  const extractCoords = (loc: any): [number, number] | null => {
+    if (!loc) return null;
+    if (Array.isArray(loc.coordinates) && loc.coordinates.length >= 2) {
+      return [Number(loc.coordinates[1]), Number(loc.coordinates[0])]; // [lat, lng]
+    }
+    if (typeof loc.lat === "number" && typeof loc.lng === "number") {
+      return [loc.lat, loc.lng];
+    }
+    if (Array.isArray(loc) && loc.length >= 2) {
+      return [Number(loc[0]), Number(loc[1])];
+    }
+    return null;
+  };
+
   /* ── FETCH ── */
   const fetchBooking = async (silent = false) => {
     try {
@@ -290,12 +305,16 @@ export default function RidePage() {
       if (!res.ok) throw new Error("Failed to fetch booking");
       const data = await res.json();
       setBooking(data);
-      setPickupPos([data.pickupLocation.coordinates[1], data.pickupLocation.coordinates[0]]);
-      setDropPos  ([data.dropLocation.coordinates[1],   data.dropLocation.coordinates[0]]);
+
+      const p = extractCoords(data.pickupLocation);
+      const d = extractCoords(data.dropLocation);
+      if (p) setPickupPos(p);
+      if (d) setDropPos(d);
       
       // Update driver location dynamically from database coords if present
-      if (data.driver?.location?.coordinates) {
-        setDriverPos([data.driver.location.coordinates[1], data.driver.location.coordinates[0]]);
+      if (data.driver?.location) {
+        const drv = extractCoords(data.driver.location);
+        if (drv) setDriverPos(drv);
       }
     } catch (e) {
       if (!silent) setError(e instanceof Error ? e.message : "Something went wrong");
@@ -510,8 +529,8 @@ export default function RidePage() {
       <div className="relative flex-1 h-full z-0">
         <LiveRideMap
           driverLocation={driverPos}
-          pickupLocation={pickupPos!}
-          dropLocation={dropPos!}
+          pickupLocation={pickupPos}
+          dropLocation={dropPos}
           status={mapStatus}
           vehicleType={booking?.vehicle?.type ?? "car"}
           etaMinutes={mapStatus === "arriving" ? etaToPickup : etaToDrop}
