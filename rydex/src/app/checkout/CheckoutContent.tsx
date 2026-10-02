@@ -576,29 +576,24 @@ export default function CheckoutContent() {
         <div className="grid lg:grid-cols-2 gap-6">
 
           {/* ══ LEFT — RIDE DETAILS ══ */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.07)]"
-          >
+          <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs">
             {/* Top bar */}
             <div className="h-1 bg-zinc-900" />
 
-            <div className="p-8 sm:p-10">
+            <div className="p-6 sm:p-8">
               {/* Vehicle row */}
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-6">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-1">Selected Vehicle</p>
-                  <h2 className="text-3xl font-black tracking-tight text-zinc-900">{vehicleLabel}</h2>
+                  <h2 className="text-2xl font-black tracking-tight text-zinc-900">{vehicleLabel}</h2>
                 </div>
-                <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center shadow-lg">
-                  <VehicleIcon size={28} className="text-white" />
+                <div className="w-14 h-14 bg-zinc-900 rounded-xl flex items-center justify-center">
+                  <VehicleIcon size={24} className="text-white" />
                 </div>
               </div>
 
               {/* Route */}
-              <div className="bg-zinc-50 border border-zinc-100 rounded-2xl overflow-hidden mb-8">
+              <div className="bg-zinc-50 border border-zinc-200 rounded-xl overflow-hidden mb-6">
                 <div className="flex gap-4 px-5 py-4 border-b border-zinc-100">
                   <div className="flex flex-col items-center flex-shrink-0 pt-0.5">
                     <div className="w-3 h-3 rounded-full bg-zinc-900 border-2 border-white ring-1 ring-zinc-300" />
@@ -701,13 +696,13 @@ export default function CheckoutContent() {
 
               {/* ⏰ SCHEDULED RIDE BADGE */}
               {isScheduled && scheduledPickupDate && (
-                <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
+                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-xs mt-0.5">
                     ⏰
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[9px] font-black uppercase bg-amber-600 text-white px-2 py-0.5 rounded-full tracking-wider">
+                      <span className="text-[9px] font-black uppercase bg-amber-600 text-white px-2 py-0.5 rounded-md tracking-wider">
                         Scheduled Ride
                       </span>
                       <span className="text-[10px] text-amber-800 font-bold">
@@ -929,46 +924,41 @@ export default function CheckoutContent() {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* ══ RIGHT — STATUS PANEL ══ */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.14, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.07)] flex flex-col"
-          >
+          <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs flex flex-col">
             <div className="h-1 bg-zinc-900" />
 
-            <div className="flex-1 p-8 sm:p-10 flex flex-col">
+            <div className="flex-1 p-6 sm:p-8 flex flex-col">
               <AnimatePresence mode="wait">
 
                 {/* ── IDLE ── */}
                 {status === "idle" && (
                   <motion.div key="idle"
-                    initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
                     className="flex flex-col flex-1 justify-between"
                   >
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-1">Ready to go?</p>
                       <h3 className="text-2xl font-black text-zinc-900 mb-6">Confirm Your Ride</h3>
-                      <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-5 space-y-3">
+                      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-3">
                         {[
                           { icon: <Clock size={14} />, text: "Driver will respond within 2 minutes" },
                           { icon: <ShieldCheck size={14} />, text: "Verified & insured drivers only" },
                           { icon: <CreditCard size={14} />, text: "Pay after driver accepts" },
                         ].map((item, i) => (
                           <div key={i} className="flex items-center gap-3">
-                            <div className="w-7 h-7 rounded-xl bg-zinc-200 flex items-center justify-center text-zinc-600 flex-shrink-0">{item.icon}</div>
-                            <p className="text-zinc-500 text-xs font-medium">{item.text}</p>
+                            <div className="w-7 h-7 rounded-lg bg-zinc-200 flex items-center justify-center text-zinc-600 flex-shrink-0">{item.icon}</div>
+                            <p className="text-zinc-600 text-xs font-medium">{item.text}</p>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     {bookingError && (
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 text-left mt-6">
+                      <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-left mt-6">
                         <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
                           <p className="text-xs font-bold text-red-900">{bookingError}</p>
@@ -976,7 +966,7 @@ export default function CheckoutContent() {
                             <button
                               type="button"
                               onClick={() => setShowAuthModal(true)}
-                              className="mt-2 text-xs font-black text-white bg-zinc-900 hover:bg-black px-3.5 py-1.5 rounded-xl transition inline-block"
+                              className="mt-2 text-xs font-black text-white bg-zinc-900 hover:bg-black px-3.5 py-1.5 rounded-lg transition inline-block"
                             >
                               Sign In Now
                             </button>
@@ -985,19 +975,17 @@ export default function CheckoutContent() {
                       </div>
                     )}
 
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      whileHover={{ scale: 1.02 }}
+                    <button
                       onClick={handleCreateBooking}
                       disabled={loading || !pickupLat || !dropLat}
-                      className="w-full h-14 mt-8 bg-zinc-900 hover:bg-black disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-colors shadow-md"
+                      className="w-full h-12 mt-6 bg-zinc-950 hover:bg-black disabled:opacity-40 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-98"
                     >
                       {loading ? (
                         <><Loader2 size={17} className="animate-spin" /> Requesting…</>
                       ) : (
                         <><span>Request Ride</span><ArrowRight size={17} /></>
                       )}
-                    </motion.button>
+                    </button>
                   </motion.div>
                 )}
 
@@ -1149,19 +1137,19 @@ export default function CheckoutContent() {
                         const isInsufficientWallet = id === "wallet" && walletBalance !== null && walletBalance < fare;
 
                         return (
-                          <motion.button
+                          <button
                             key={id}
-                            whileTap={{ scale: 0.97 }}
+                            type="button"
                             onClick={() => setPaymentMethod(id as any)}
-                            className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-200 ${
+                            className={`w-full flex items-center gap-4 p-3.5 rounded-xl border text-left transition-colors ${
                               active
-                                ? "bg-zinc-900 border-zinc-900"
+                                ? "bg-zinc-950 border-zinc-950"
                                 : isInsufficientWallet
                                 ? "bg-zinc-50/60 border-zinc-200 opacity-70 hover:opacity-100 hover:border-zinc-300"
                                 : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
                             }`}
                           >
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
                               active ? "bg-white/10" : "bg-zinc-200"
                             }`}>
                               <Icon size={18} className={active ? "text-white" : "text-zinc-600"} />
@@ -1170,38 +1158,33 @@ export default function CheckoutContent() {
                               <div className="flex items-center gap-2">
                                 <p className={`text-sm font-bold ${active ? "text-white" : "text-zinc-900"}`}>{title}</p>
                                 {badge && (
-                                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
-                                    active ? "bg-amber-400 text-zinc-950" : "bg-amber-100 text-amber-900"
+                                  <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md ${
+                                    active ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-900"
                                   }`}>
                                     {badge}
                                   </span>
                                 )}
                               </div>
-                              <p className={`text-xs font-medium ${active ? "text-zinc-400" : isInsufficientWallet ? "text-amber-700" : "text-zinc-400"}`}>
+                              <p className={`text-xs font-medium ${active ? "text-zinc-400" : isInsufficientWallet ? "text-amber-700" : "text-zinc-500"}`}>
                                 {sub}
                               </p>
                             </div>
-                            <AnimatePresence>
-                              {active && (
-                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                                  <CheckCircle2 size={16} className="text-white flex-shrink-0" />
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </motion.button>
+                            {active && (
+                              <CheckCircle2 size={16} className="text-white flex-shrink-0" />
+                            )}
+                          </button>
                         );
                       })}
                     </div>
 
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      whileHover={paymentMethod ? { scale: 1.02 } : {}}
+                    <button
+                      type="button"
                       disabled={!paymentMethod || loading}
                       onClick={handlePaymentConfirm}
-                      className="w-full h-14 bg-zinc-900 hover:bg-black disabled:opacity-30 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-colors shadow-md mt-auto"
+                      className="w-full h-12 bg-zinc-950 hover:bg-black disabled:opacity-30 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-98 mt-auto"
                     >
                       {loading
-                        ? <Loader2 size={17} className="animate-spin" />
+                        ? <><Loader2 size={17} className="animate-spin" /><span>Processing…</span></>
                         : paymentMethod === "wallet"
                         ? <><Wallet size={16} /><span>Pay ₹{fare} from Wallet (1-Tap)</span></>
                         : paymentMethod === "cash"
@@ -1210,41 +1193,24 @@ export default function CheckoutContent() {
                         ? <><span>Proceed to Payment</span><ArrowRight size={16} /></>
                         : <span>Select a Method</span>
                       }
-                    </motion.button>
+                    </button>
                   </motion.div>
                 )}
 
                 {/* ── CONFIRMED ── */}
                 {status === "confirmed" && (
                   <motion.div key="confirmed"
-                    initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="flex flex-col flex-1 items-center justify-center gap-6 text-center"
+                    initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="flex flex-col flex-1 items-center justify-center gap-5 text-center"
                   >
-                    <motion.div
-                      initial={{ scale: 0, rotate: -20 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: "spring", stiffness: 240, damping: 14, delay: 0.1 }}
-                      className="relative"
-                    >
-                      <div className="w-24 h-24 rounded-full bg-zinc-100 border-2 border-zinc-200 flex items-center justify-center">
-                        <CheckCircle2 size={44} className="text-zinc-900" />
-                      </div>
-                      {/* Confetti rings */}
-                      {[0, 1].map(i => (
-                        <motion.div key={i}
-                          initial={{ scale: 1, opacity: 0.5 }}
-                          animate={{ scale: 2.2 + i * 0.6, opacity: 0 }}
-                          transition={{ duration: 0.9, delay: 0.2 + i * 0.15 }}
-                          className="absolute inset-0 rounded-full border-2 border-zinc-900"
-                        />
-                      ))}
-                    </motion.div>
+                    <div className="w-16 h-16 rounded-2xl bg-zinc-900 text-white flex items-center justify-center">
+                      <CheckCircle2 size={32} />
+                    </div>
                     <div>
-                      <motion.h3
-                        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                        className="text-2xl font-black text-zinc-900 mb-1"
-                      >Ride Confirmed!</motion.h3>
+                      <h3 className="text-2xl font-black text-zinc-900 mb-1">
+                        Ride Confirmed!
+                      </h3>
                       <motion.p
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
                         className="text-zinc-400 text-sm font-medium max-w-xs"
@@ -1323,13 +1289,13 @@ export default function CheckoutContent() {
                       <h3 className="text-xl font-black text-zinc-900 mb-1">Request Timed Out</h3>
                       <p className="text-zinc-400 text-sm font-medium">No response from driver. Please try again.</p>
                     </div>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.02 }}
+                    <button
+                      type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-zinc-900 text-white font-black text-sm px-6 py-3.5 rounded-2xl hover:bg-black transition-colors"
+                      className="flex items-center gap-2 bg-zinc-900 text-white font-bold text-sm px-5 py-3 rounded-xl hover:bg-black transition-colors"
                     >
                       <RotateCcw size={14} /> Try Again
-                    </motion.button>
+                    </button>
                   </motion.div>
                 )}
 
@@ -1341,7 +1307,7 @@ export default function CheckoutContent() {
                 <span className="text-zinc-400 text-[10px] font-semibold tracking-wide uppercase">Secure & Verified Booking</span>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 

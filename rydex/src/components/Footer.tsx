@@ -84,12 +84,13 @@ export default function Footer() {
             <h3 className="text-sm font-semibold tracking-wider text-gray-300">
               SERVICES
             </h3>
-            <ul className="mt-4 space-y-3 text-sm">
+            <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                { label: "Our Fleet", href: "/fleet" },
                 { label: "Book a Ride", href: "/book" },
+                { label: "Our Fleet", href: "/fleet" },
+                { label: "RideNow Wallet", href: "/wallet" },
                 { label: "My Bookings", href: "/bookings" },
-                { label: "User Profile", href: "/profile" },
+                { label: "Become a Partner", href: "/partner/onboard/vehicle" },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
@@ -103,47 +104,83 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* NEWSLETTER */}
+          {/* SAFETY & SUPPORT */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider text-gray-300">
-              STAY UPDATED
+              SAFETY & SUPPORT
             </h3>
-            <p className="mt-4 text-gray-400 text-sm">
-              Subscribe for updates & offers.
-            </p>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {[
+                { label: "Safety Standards", href: "/safety" },
+                { label: "Help & FAQs", href: "/faq" },
+                { label: "Contact Us", href: "/contact" },
+                { label: "Grievance Officer", href: "/grievance" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            <div className="mt-4 flex">
-              <input
-                id="footerEmail"
-                type="email"
-                placeholder="Enter email"
-                aria-label="Email address for newsletter"
-                className="flex-1 bg-black border border-white/20 rounded-l-lg px-4 py-2 text-sm text-white focus:outline-none"
-              />
-              <button 
-                aria-label="Subscribe to newsletter"
-                className="px-4 py-2 bg-white text-black rounded-r-lg hover:bg-gray-200 transition"
-              >
-                <Mail size={16} />
-              </button>
-            </div>
+          {/* LEGAL & COMPLIANCE */}
+          <div>
+            <h3 className="text-sm font-semibold tracking-wider text-gray-300">
+              LEGAL & COMPLIANCE
+            </h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {[
+                { label: "Privacy Policy (DPDP)", href: "/privacy" },
+                { label: "Terms of Service", href: "/terms" },
+                { label: "Payment & Settlements", href: "/payment-terms" },
+                { label: "Cancellation & Refund", href: "/cancellation-refund" },
+                { label: "Driver Partner Agreement", href: "/partner-terms" },
+                { label: "Cookie Policy", href: "/cookies" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className="text-gray-400 hover:text-white transition"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </motion.div>
 
       {/* BOTTOM BAR */}
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4">
-          <p>© {new Date().getFullYear()} RideNow. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link href="/" className="hover:text-white transition">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 gap-4">
+          <p>© {new Date().getFullYear()} RideNow Mobility Technologies Pvt. Ltd. All rights reserved.</p>
+          <div className="flex flex-wrap gap-4 sm:gap-6 justify-center">
+            <Link href="/privacy" className="hover:text-white transition">
               Privacy Policy
             </Link>
-            <Link href="/" className="hover:text-white transition">
-              Terms
+            <Link href="/terms" className="hover:text-white transition">
+              Terms & Conditions
             </Link>
-            <Link href="/" className="hover:text-white transition">
-              Legal
+            <Link href="/payment-terms" className="hover:text-white transition">
+              Payment Terms
+            </Link>
+            <Link href="/cancellation-refund" className="hover:text-white transition">
+              Refunds
+            </Link>
+            <Link href="/partner-terms" className="hover:text-white transition">
+              Driver Terms
+            </Link>
+            <Link href="/cookies" className="hover:text-white transition">
+              Cookies
+            </Link>
+            <Link href="/grievance" className="hover:text-white transition">
+              Grievance Redressal
             </Link>
           </div>
         </div>
