@@ -72,19 +72,12 @@ export default function HeroSection({
           <Truck size={30} />
         </motion.div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.97 }}
+        <button
           onClick={handleBookNow}
-          className="
-            mt-12 px-10 py-4
-            bg-white text-black
-            rounded-full font-semibold
-            shadow-xl
-          "
+          className="mt-10 px-8 py-3.5 bg-white hover:bg-zinc-100 text-zinc-950 rounded-xl font-bold text-base transition active:scale-98"
         >
-          Book Now
-        </motion.button>
+          Book a Ride
+        </button>
       </div>
     </section>
   );

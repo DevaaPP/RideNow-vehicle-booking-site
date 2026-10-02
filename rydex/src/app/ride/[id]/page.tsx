@@ -541,11 +541,11 @@ export default function RidePage() {
         />
         <motion.div
           initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          transition={{ delay: 0.3, duration: 0.3 }}
           className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] pointer-events-none"
         >
-          <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-zinc-100">
-            <span className={`w-2 h-2 rounded-full ${cfg.dot} animate-pulse`} />
+          <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-full shadow-md border border-zinc-200">
+            <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
             <span className="text-xs font-semibold tracking-wide text-zinc-900">{cfg.label}</span>
           </div>
         </motion.div>
@@ -554,16 +554,16 @@ export default function RidePage() {
       {/* ══ DESKTOP PANEL ══ */}
       <motion.div
         initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden lg:flex w-[420px] xl:w-[460px] bg-white border-l border-zinc-100 flex-col overflow-hidden"
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        className="hidden lg:flex w-[420px] xl:w-[460px] bg-white border-l border-zinc-200 flex-col overflow-hidden"
       >
         <div className="bg-zinc-950 px-6 py-5 flex-shrink-0">
           <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-semibold mb-1">Live Tracking</p>
           <div className="flex items-center justify-between">
             <h1 className="text-white text-xl font-bold">Your Ride</h1>
             {isActive && (
-              <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
-                <Zap size={12} className="text-amber-400" />
+              <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full">
+                <Clock size={12} className="text-zinc-400" />
                 <span className="text-white text-xs font-semibold">{Math.round(displayEta)} min</span>
               </div>
             )}
@@ -577,7 +577,7 @@ export default function RidePage() {
       {/* ══ MOBILE BOTTOM SHEET ══ */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
-          className="bg-white rounded-t-3xl shadow-2xl pointer-events-auto overflow-hidden"
+          className="bg-white rounded-t-2xl shadow-xl pointer-events-auto overflow-hidden border-t border-zinc-200"
           animate={{ height: expanded ? "80vh" : PEEK_H }}
           transition={{ type: "spring", stiffness: 320, damping: 38 }}
         >
@@ -632,17 +632,18 @@ export default function RidePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] px-4"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.98, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-zinc-100"
+              exit={{ scale: 0.98, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200"
             >
               <div className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500 animate-pulse">
-                  <AlertTriangle size={28} />
+                <div className="w-14 h-14 bg-red-50 rounded-xl flex items-center justify-center mx-auto text-red-500">
+                  <AlertTriangle size={24} />
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-lg font-black text-zinc-900">Cancel Ride?</h3>
@@ -654,7 +655,7 @@ export default function RidePage() {
               <div className="px-6 pb-6 pt-2 flex gap-3">
                 <button
                   onClick={() => setShowCancelConfirm(false)}
-                  className="flex-1 py-3 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-sm font-semibold transition active:scale-[0.98]"
+                  className="flex-1 py-2.5 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-sm font-semibold transition active:scale-[0.98]"
                 >
                   Go Back
                 </button>
@@ -663,7 +664,7 @@ export default function RidePage() {
                     setShowCancelConfirm(false);
                     confirmCancelRide();
                   }}
-                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition active:scale-[0.98] shadow-lg shadow-red-600/10"
+                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition active:scale-[0.98]"
                 >
                   Cancel Ride
                 </button>
@@ -680,17 +681,18 @@ export default function RidePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] px-4"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.98, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-zinc-100"
+              exit={{ scale: 0.98, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200"
             >
               <div className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500">
-                  <XCircle size={28} />
+                <div className="w-14 h-14 bg-red-50 rounded-xl flex items-center justify-center mx-auto text-red-500">
+                  <XCircle size={24} />
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-lg font-black text-zinc-900">Error</h3>
@@ -719,17 +721,18 @@ export default function RidePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] px-4"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.98, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-zinc-900 border border-red-500/30 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-white"
+              exit={{ scale: 0.98, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="bg-zinc-900 border border-zinc-800 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden text-white"
             >
               <div className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto text-red-400 animate-bounce">
-                  <Siren size={32} />
+                <div className="w-14 h-14 bg-red-500/20 rounded-xl flex items-center justify-center mx-auto text-red-400">
+                  <Siren size={28} />
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-xl font-black text-white">Activate Emergency SOS?</h3>
@@ -742,7 +745,7 @@ export default function RidePage() {
                 <button
                   onClick={triggerPanic}
                   disabled={panicLoading}
-                  className="w-full py-3.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-xl text-sm font-bold transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-red-600 hover:bg-red-700 active:scale-98 text-white rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"
                 >
                   {panicLoading ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -755,7 +758,7 @@ export default function RidePage() {
                 <button
                   onClick={() => setShowPanicConfirm(false)}
                   disabled={panicLoading}
-                  className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-sm font-semibold transition"
+                  className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-sm font-semibold transition"
                 >
                   Cancel
                 </button>
@@ -772,20 +775,20 @@ export default function RidePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-5"
+            className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center p-5"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.98, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl border border-rose-100 text-center relative overflow-hidden"
+              exit={{ scale: 0.98, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white rounded-2xl p-6 sm:p-7 max-w-sm w-full shadow-xl border border-rose-200 text-center relative overflow-hidden"
             >
-              <div className="w-16 h-16 rounded-2xl bg-rose-100 border border-rose-200 text-rose-600 mx-auto flex items-center justify-center mb-4 shadow-inner">
-                <ShieldAlert size={32} className="animate-pulse" />
+              <div className="w-14 h-14 rounded-xl bg-rose-100 border border-rose-200 text-rose-600 mx-auto flex items-center justify-center mb-4">
+                <ShieldAlert size={28} />
               </div>
 
-              <div className="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full text-rose-700 text-[10px] font-black uppercase tracking-wider mb-2">
-                <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
+              <div className="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-3 py-1 rounded-md text-rose-700 text-[10px] font-bold uppercase tracking-wider mb-2">
                 Route Deviation Detected
               </div>
 
@@ -800,15 +803,15 @@ export default function RidePage() {
                 <button
                   onClick={handleConfirmSafe}
                   disabled={safetyLoading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl text-xs tracking-wide shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs tracking-wide transition active:scale-98 flex items-center justify-center gap-2"
                 >
-                  <CheckCircle2 size={16} /> I'm Safe (Road Detour)
+                  <CheckCircle2 size={16} /> I&apos;m Safe (Road Detour)
                 </button>
 
                 <button
                   onClick={handleTriggerSosFromCheckin}
                   disabled={safetyLoading}
-                  className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-2xl text-xs tracking-wide shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                  className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-xs tracking-wide transition active:scale-98 flex items-center justify-center gap-2"
                 >
                   <Siren size={16} /> Get Help / Emergency SOS
                 </button>
@@ -825,19 +828,19 @@ export default function RidePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-zinc-950/85 backdrop-blur-lg flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center p-4"
           >
-            <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl relative flex flex-col items-center">
+            <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl p-6 shadow-xl relative flex flex-col items-center">
               {/* Header */}
-              <div className="flex items-center gap-2 bg-zinc-800/80 px-3 py-1 rounded-full border border-zinc-700/50 shadow-sm mb-4">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Secure Voice Bridge</span>
+              <div className="flex items-center gap-2 bg-zinc-800 px-3 py-1 rounded-full border border-zinc-700 mb-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Secure Voice Bridge</span>
               </div>
               
               {/* Zego Container */}
               <div 
                 ref={setZegoContainer} 
-                className="w-full h-[400px] rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800"
+                className="w-full h-[400px] rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800"
               />
               
               {/* Close button */}
@@ -857,7 +860,7 @@ export default function RidePage() {
                   setActiveCall(null);
                   zegoCallJoined.current = false;
                 }}
-                className="mt-4 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition active:scale-95"
+                className="mt-4 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition active:scale-98"
               >
                 End / Close Call
               </button>
@@ -873,13 +876,14 @@ export default function RidePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-[99999] bg-black/60 flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.98, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl flex flex-col items-center"
+              exit={{ scale: 0.98, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-sm text-center shadow-xl flex flex-col items-center"
             >
               <div className="relative mb-5">
                 <span className="animate-ping absolute inline-flex h-16 w-16 rounded-full bg-emerald-500 opacity-40"></span>
