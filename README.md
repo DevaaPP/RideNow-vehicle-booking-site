@@ -93,7 +93,7 @@
 
 ```text
 RideNow-vehicle-booking-site/
-├── rydex/                     # Next.js 16 Full-Stack Application
+├── jatri/                     # Next.js 16 Full-Stack Application
 │   ├── public/                # Static assets, branding, and icons
 │   ├── src/
 │   │   ├── app/               # App Router pages and REST API routes
@@ -127,11 +127,11 @@ RideNow-vehicle-booking-site/
 
 ## ⚙️ Environment Variables
 
-Create a `.env.local` file inside the `rydex/` directory (see [.env.example](.env.example)):
+Create a `.env.local` file inside the `jatri/` directory (see [.env.example](.env.example)):
 
 ```env
 # Database
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/rydex?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/jatri?retryWrites=true&w=majority
 
 # NextAuth Authentication
 AUTH_SECRET=your_generated_secret_base64_string
@@ -183,14 +183,14 @@ npm run dev # Runs on port 5000
 ### 3. Start the Next.js Web Application
 In a separate terminal window:
 ```bash
-cd rydex
+cd jatri
 npm install
 npm run dev # Runs on http://localhost:3000
 ```
 
 ### 4. Build for Production
 ```bash
-cd rydex
+cd jatri
 npm run build
 npm run start
 ```
