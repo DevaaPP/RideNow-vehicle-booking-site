@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { VOYAGER_MAP_STYLE } from "@/lib/mapConfig";
 
 type Props = {

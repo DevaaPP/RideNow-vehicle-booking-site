@@ -80,6 +80,28 @@ const PAYMENT_BADGE: Record<PaymentStatus, { label: string; cls: string }> = {
 const TERMINAL = ["completed", "cancelled", "rejected", "expired"];
 const PEEK_H   = 148;
 
+function extractCoords(val: any): [number, number] | null {
+  if (!val) return null;
+  if (Array.isArray(val) && val.length >= 2) {
+    const [a, b] = val.map(Number);
+    if (isNaN(a) || isNaN(b)) return null;
+    if (Math.abs(a) <= 90 && Math.abs(b) <= 180) return [a, b];
+    if (Math.abs(b) <= 90 && Math.abs(a) <= 180) return [b, a];
+    return [a, b];
+  }
+  if (val.coordinates && Array.isArray(val.coordinates) && val.coordinates.length >= 2) {
+    const [lng, lat] = val.coordinates.map(Number);
+    if (!isNaN(lat) && !isNaN(lng)) return [lat, lng];
+  }
+  if (typeof val.lat === "number" && typeof val.lng === "number") {
+    return [val.lat, val.lng];
+  }
+  if (typeof val.latitude === "number" && typeof val.longitude === "number") {
+    return [val.latitude, val.longitude];
+  }
+  return null;
+}
+
 /* ══════════════════════════════════════════════════════════════════════ */
 export default function DriverRidePage() {
 
@@ -234,12 +256,13 @@ export default function DriverRidePage() {
       .then(data => {
         if (data && data._id) {
           setBooking(data);
-          if (data.pickupLocation?.coordinates) {
-            setPickupPos([data.pickupLocation.coordinates[1], data.pickupLocation.coordinates[0]]);
-          }
-          if (data.dropLocation?.coordinates) {
-            setDropPos([data.dropLocation.coordinates[1], data.dropLocation.coordinates[0]]);
-          }
+          const p = extractCoords(data.pickupLocation);
+          if (p) setPickupPos(p);
+          const d = extractCoords(data.dropLocation);
+          if (d) setDropPos(d);
+          const drv = extractCoords(data.driver?.location);
+          if (drv) setDriverPos(prev => prev || drv);
+
           if (data.status === "started")   { setOtpVerified(true); setOtpMode(false); }
           if (data.status === "completed") { setOtpVerified(true); }
         } else {
@@ -256,6 +279,17 @@ export default function DriverRidePage() {
 
   useEffect(() => {
     fetchBookingDetails();
+
+    // Fast initial GPS fix for driver map
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          setDriverPos([pos.coords.latitude, pos.coords.longitude]);
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    }
 
     // Poll active ride details every 8 seconds as safety net
     const interval = setInterval(fetchBookingDetails, 8000);
