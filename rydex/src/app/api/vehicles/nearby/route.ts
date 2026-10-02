@@ -3,11 +3,10 @@ import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 import { haversineKm as getDistance } from "@/lib/routeUtils";
+import { redisGet, redisSet } from "@/lib/redis";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDb();
-
     const { latitude, longitude, vehicleType } = await req.json();
 
     if (!latitude || !longitude) {
@@ -16,6 +15,19 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // High-speed Upstash Redis cache lookup (8s TTL for live driver positions)
+    const cacheKey = `nearby_v2_${Number(latitude).toFixed(3)}_${Number(longitude).toFixed(3)}_${vehicleType || "all"}`;
+    const cachedVehicles = await redisGet<any[]>(cacheKey);
+    if (cachedVehicles) {
+      return NextResponse.json({
+        success: true,
+        vehicles: cachedVehicles,
+        cached: true,
+      });
+    }
+
+    await connectDb();
 
     // 1️⃣ Find nearby vendors within strictly 10km limit
     let vendors: any[] = [];
@@ -88,6 +100,9 @@ export async function POST(req: NextRequest) {
       if (b.distance === null) return -1;
       return a.distance - b.distance;
     });
+
+    // Cache in Upstash Redis for 8 seconds to alleviate DB load on repeated user queries
+    await redisSet(cacheKey, vehiclesWithLocation, 8);
 
     return NextResponse.json({
       success: true,

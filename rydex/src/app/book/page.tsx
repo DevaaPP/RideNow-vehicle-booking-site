@@ -699,8 +699,58 @@ export default function BookPage() {
     );
   };
 
+  /* ── RESTORE BOOKING DRAFT ON MOUNT (E.G. WHEN RETURNING FROM CHECKOUT) ── */
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      const raw = sessionStorage.getItem("ridenow_booking_draft");
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (draft.pickup) setPickup(draft.pickup);
+      if (draft.drop) setDrop(draft.drop);
+      if (draft.vehicle) setVehicle(draft.vehicle);
+      if (draft.mobile) setMobile(draft.mobile);
+      if (typeof draft.pickupLat === "number") setPickupLat(draft.pickupLat);
+      if (typeof draft.pickupLng === "number") setPickupLng(draft.pickupLng);
+      if (typeof draft.dropLat === "number") setDropLat(draft.dropLat);
+      if (typeof draft.dropLng === "number") setDropLng(draft.dropLng);
+      if (Array.isArray(draft.stops) && draft.stops.length > 0) {
+        setStops(
+          draft.stops.map((s: any, idx: number) => ({
+            id: s.id || `stop-${idx}`,
+            address: s.address || "",
+            lat: typeof s.lat === "number" ? s.lat : null,
+            lng: typeof s.lng === "number" ? s.lng : null,
+            results: [],
+          }))
+        );
+      }
+      if (draft.smartPickupDetails) setSelectedSmartPickup(draft.smartPickupDetails);
+      if (draft.familyMemberDetails) setSelectedFamilyMember(draft.familyMemberDetails);
+      if (draft.isScheduled) {
+        setBookingMode("schedule");
+        if (draft.scheduledTime) setScheduledDateTime(draft.scheduledTime);
+      }
+    } catch (e) {
+      console.warn("Failed to restore booking draft from sessionStorage:", e);
+    }
+  }, []);
+
   /* ── INITIAL LOCATION ON MOUNT ── */
   useEffect(() => {
+    // If user already had a saved draft with pickup location, preserve it!
+    try {
+      if (typeof window !== "undefined") {
+        const raw = sessionStorage.getItem("ridenow_booking_draft");
+        if (raw) {
+          const draft = JSON.parse(raw);
+          if (draft?.pickup || typeof draft?.pickupLat === "number") {
+            return;
+          }
+        }
+      }
+    } catch (_) {}
+
     useCurrentLocation();
   }, []);
 

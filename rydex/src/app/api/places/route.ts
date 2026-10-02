@@ -1,29 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
+import { redisGet, redisSet } from "@/lib/redis";
 
 interface CacheEntry {
   data: any;
   expiresAt: number;
 }
 const placesCache = new Map<string, CacheEntry>();
-const PLACES_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const PLACES_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes in-memory
+const REDIS_PLACES_CACHE_TTL_SEC = 24 * 60 * 60; // 24 hours in Upstash Redis
 const MAX_PLACES_CACHE_SIZE = 350;
 
-function getCached(key: string): any | null {
+async function getCached(key: string): Promise<any | null> {
   const entry = placesCache.get(key);
-  if (!entry) return null;
-  if (Date.now() > entry.expiresAt) {
-    placesCache.delete(key);
-    return null;
+  if (entry && Date.now() <= entry.expiresAt) {
+    return entry.data;
   }
-  return entry.data;
+  // Fallback to Upstash Redis
+  const fromRedis = await redisGet(key);
+  if (fromRedis) {
+    placesCache.set(key, { data: fromRedis, expiresAt: Date.now() + PLACES_CACHE_TTL_MS });
+    return fromRedis;
+  }
+  return null;
 }
 
-function setCached(key: string, data: any) {
+async function setCached(key: string, data: any, ttlSec: number = REDIS_PLACES_CACHE_TTL_SEC) {
   if (placesCache.size >= MAX_PLACES_CACHE_SIZE) {
     const firstKey = placesCache.keys().next().value;
     if (firstKey) placesCache.delete(firstKey);
   }
   placesCache.set(key, { data, expiresAt: Date.now() + PLACES_CACHE_TTL_MS });
+  // Also store in Upstash Redis
+  await redisSet(key, data, ttlSec);
 }
 
 export async function GET(req: NextRequest) {
@@ -47,7 +55,7 @@ export async function GET(req: NextRequest) {
       const bbox = searchParams.get("bbox");
 
       const cacheKey = `ac_${input.toLowerCase()}_${country}_${bbox || ""}_${lat ? Number(lat).toFixed(2) : ""}_${lng ? Number(lng).toFixed(2) : ""}`;
-      const cached = getCached(cacheKey);
+      const cached = await getCached(cacheKey);
       if (cached) {
         return NextResponse.json(
           { predictions: cached, status: "OK" },
@@ -172,7 +180,7 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      setCached(cacheKey, predictions);
+      await setCached(cacheKey, predictions);
       return NextResponse.json(
         { predictions, status: "OK" },
         { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } }
@@ -219,7 +227,7 @@ export async function GET(req: NextRequest) {
       const cacheKey = address
         ? `gc_addr_${address.toLowerCase()}`
         : `gc_rev_${lat ? Number(lat).toFixed(4) : ""}_${lng ? Number(lng).toFixed(4) : ""}`;
-      const cached = getCached(cacheKey);
+      const cached = await getCached(cacheKey);
       if (cached) {
         return NextResponse.json(
           { results: cached, status: "OK" },
@@ -313,7 +321,7 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        setCached(cacheKey, results);
+        await setCached(cacheKey, results);
         return NextResponse.json(
           { results, status: "OK" },
           { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" } }
@@ -393,7 +401,7 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        setCached(cacheKey, results);
+        await setCached(cacheKey, results);
         return NextResponse.json(
           { results, status: "OK" },
           { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" } }
