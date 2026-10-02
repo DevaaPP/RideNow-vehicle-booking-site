@@ -10,7 +10,7 @@ import {
   Mic, MicOff, Volume2, PhoneOff, PhoneCall, Siren, ShieldAlert
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IUser } from "@/models/user.model";
 import { IVehicle } from "@/models/vehicle.model";
@@ -526,17 +526,13 @@ export default function DriverRidePage() {
   const isActive        = ["confirmed", "started"].includes(status);
   const canChat         = status === "confirmed";
 
-  const initialTripEta = useMemo(() => {
-    if (!pickupPos || !dropPos) return 0;
-    const distKm = haversineKm(pickupPos[0], pickupPos[1], dropPos[0], dropPos[1]);
-    return Math.max(3, Math.round((distKm / 25) * 60));
-  }, [pickupPos, dropPos]);
+  const initialTripEta = (pickupPos && dropPos)
+    ? Math.max(3, Math.round((haversineKm(pickupPos[0], pickupPos[1], dropPos[0], dropPos[1]) / 25) * 60))
+    : 0;
 
-  const initialDriverEta = useMemo(() => {
-    if (!driverPos || !pickupPos) return 4;
-    const distKm = haversineKm(driverPos[0], driverPos[1], pickupPos[0], pickupPos[1]);
-    return Math.max(2, Math.round((distKm / 25) * 60));
-  }, [driverPos, pickupPos]);
+  const initialDriverEta = (driverPos && pickupPos)
+    ? Math.max(2, Math.round((haversineKm(driverPos[0], driverPos[1], pickupPos[0], pickupPos[1]) / 25) * 60))
+    : 4;
 
   const effectiveEtaToPickup = etaToPickup > 0 ? etaToPickup : initialDriverEta;
   const effectiveEtaToDrop = etaToDrop > 0 ? etaToDrop : initialTripEta;

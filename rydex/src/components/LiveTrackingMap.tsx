@@ -509,6 +509,11 @@ export default function LiveTrackingMap({
     }
   }, [driverLocation, vehicleType, etaMinutes]);
 
+  const onStatsRef = useRef(onStats);
+  useEffect(() => {
+    onStatsRef.current = onStats;
+  }, [onStats]);
+
   const statsRef = useRef({
     distanceToPickup: 0,
     durationToPickup: 0,
@@ -541,7 +546,7 @@ export default function LiveTrackingMap({
 
       statsRef.current.distanceToDrop = routeRes.distanceKm;
       statsRef.current.durationToDrop = routeRes.durationMinutes;
-      onStats?.({ ...statsRef.current });
+      onStatsRef.current?.({ ...statsRef.current });
 
       tripCoordsRef.current = coords;
       updateSvgOverlay();
@@ -606,7 +611,7 @@ export default function LiveTrackingMap({
         });
       }
     }
-  }, [driverLocation, pickupLocation, dropLocation, status, updateSvgOverlay, onStats]);
+  }, [driverLocation, pickupLocation, dropLocation, status, updateSvgOverlay]);
 
   /* ─── DRIVER APPROACH ROUTE (DRIVER → PICKUP) ─── */
   const updateDriverRoute = useCallback(async () => {
@@ -629,7 +634,7 @@ export default function LiveTrackingMap({
 
       statsRef.current.distanceToPickup = routeRes.distanceKm;
       statsRef.current.durationToPickup = routeRes.durationMinutes;
-      onStats?.({ ...statsRef.current });
+      onStatsRef.current?.({ ...statsRef.current });
 
       driverCoordsRef.current = coords;
       updateSvgOverlay();
@@ -656,7 +661,7 @@ export default function LiveTrackingMap({
         });
       }
     }
-  }, [driverLocation, pickupLocation, status, updateSvgOverlay, onStats]);
+  }, [driverLocation, pickupLocation, status, updateSvgOverlay]);
 
   // Initial and reactive trip route
   useEffect(() => {
