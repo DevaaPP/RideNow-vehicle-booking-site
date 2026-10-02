@@ -51,6 +51,7 @@ socketId:string | null
   /* ===== COMMON ===== */
 
   isEmailVerified: boolean;
+  isMobileVerified: boolean;
   otp?: string;
   otpExpiresAt?: Date;
 
@@ -75,8 +76,8 @@ const UserSchema = new Schema<IUser>(
 
     email: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       lowercase: true,
     },
 
@@ -86,7 +87,15 @@ const UserSchema = new Schema<IUser>(
 
     mobileNumber: {
       type: String,
-      trim: true
+      trim: true,
+      index: true,
+      sparse: true,
+    },
+
+    isMobileVerified: {
+      type: Boolean,
+      default: false,
+      index: true,
     },
 
     role: {

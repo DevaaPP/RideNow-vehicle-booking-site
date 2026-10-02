@@ -17,6 +17,7 @@ import {
   Wallet,
 } from "lucide-react";
 import AuthModal from "./AuthModal";
+import PhoneLinkModal from "./PhoneLinkModal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { signOut } from "next-auth/react";
@@ -411,6 +412,7 @@ export default function Nav() {
       </AnimatePresence>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <PhoneLinkModal />
     </>
   );
 }
