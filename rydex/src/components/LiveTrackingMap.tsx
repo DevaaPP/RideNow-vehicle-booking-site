@@ -4,11 +4,15 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
 import { UBER_MINIMAL_MAP_STYLE } from "@/lib/mapConfig";
 
+type VehicleType = "auto" | "car" | "bike" | "suv" | string;
+
 type Props = {
   driverLocation: [number, number] | null;
   pickupLocation: [number, number];
   dropLocation: [number, number];
   status: "arriving" | "ongoing" | "completed";
+  vehicleType?: VehicleType;
+  etaMinutes?: number;
   onStats?: (data: {
     distanceToPickup: number;
     durationToPickup: number;
@@ -35,75 +39,221 @@ function calculateBearing(
   return (brng + 360) % 360;
 }
 
-/* ─── MARKER GENERATORS ────────────────────────────────────────────── */
-function createDriverMarkerEl(): { container: HTMLElement; carIcon: HTMLElement } {
-  const container = document.createElement("div");
-  container.style.width = "48px";
-  container.style.height = "48px";
-  container.style.display = "flex";
-  container.style.alignItems = "center";
-  container.style.justifyContent = "center";
-
-  const carIcon = document.createElement("div");
-  carIcon.style.width = "40px";
-  carIcon.style.height = "40px";
-  carIcon.style.background = "#09090b";
-  carIcon.style.borderRadius = "50%";
-  carIcon.style.display = "flex";
-  carIcon.style.alignItems = "center";
-  carIcon.style.justifyContent = "center";
-  carIcon.style.boxShadow =
-    "0 0 0 3px #ffffff, 0 0 0 5px #09090b, 0 8px 24px rgba(0,0,0,0.45)";
-  carIcon.style.transition = "transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)";
-
-  carIcon.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M5 11L6.5 6.5H17.5L19 11" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-      <rect x="3" y="11" width="18" height="7" rx="2" stroke="white" stroke-width="1.8"/>
-      <circle cx="7.5" cy="18.5" r="1.5" fill="white"/>
-      <circle cx="16.5" cy="18.5" r="1.5" fill="white"/>
-      <path d="M3 14H21" stroke="white" stroke-width="1" opacity="0.4"/>
-    </svg>
-  `;
-
-  container.appendChild(carIcon);
-  return { container, carIcon };
+/* ─── VEHICLE SVG ICONS ─────────────────────────────────────────────── */
+function getVehicleSvg(type: VehicleType): { svg: string; bg: string; size: number } {
+  switch (type) {
+    case "auto":
+      return {
+        bg: "#f59e0b",  // amber for auto-rickshaw
+        size: 44,
+        svg: `<svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Auto-rickshaw body -->
+          <rect x="4" y="11" width="20" height="12" rx="3" fill="white" fill-opacity="0.95"/>
+          <!-- Roof canopy -->
+          <path d="M6 11 L10 5 L24 5 L24 11Z" fill="white" fill-opacity="0.85"/>
+          <!-- Windshield -->
+          <rect x="11" y="6" width="12" height="5" rx="1" fill="#f59e0b" fill-opacity="0.7"/>
+          <!-- Driver compartment divider -->
+          <rect x="10" y="11" width="1.5" height="12" fill="#d97706" fill-opacity="0.5"/>
+          <!-- Passenger door -->
+          <rect x="5" y="13" width="4.5" height="8" rx="1" fill="#fbbf24" fill-opacity="0.35"/>
+          <!-- Wheels -->
+          <circle cx="9" cy="24" r="3" fill="#1f2937"/>
+          <circle cx="9" cy="24" r="1.5" fill="white"/>
+          <circle cx="22" cy="24" r="3" fill="#1f2937"/>
+          <circle cx="22" cy="24" r="1.5" fill="white"/>
+          <!-- Headlight -->
+          <circle cx="24" cy="15" r="1.5" fill="#fde68a"/>
+        </svg>`,
+      };
+    case "bike":
+      return {
+        bg: "#10b981",  // emerald for bike
+        size: 40,
+        svg: `<svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Bike frame -->
+          <circle cx="10" cy="22" r="5" stroke="white" stroke-width="2.5" fill="none"/>
+          <circle cx="22" cy="22" r="5" stroke="white" stroke-width="2.5" fill="none"/>
+          <!-- Frame lines -->
+          <path d="M10 22 L16 10 L22 22" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M16 10 L10 22" stroke="white" stroke-width="2" opacity="0.6"/>
+          <!-- Handlebar -->
+          <path d="M18 10 L24 10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Seat -->
+          <path d="M12 10 L16 10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Wheel hubs -->
+          <circle cx="10" cy="22" r="1.5" fill="white"/>
+          <circle cx="22" cy="22" r="1.5" fill="white"/>
+        </svg>`,
+      };
+    case "suv":
+      return {
+        bg: "#6366f1",  // indigo for SUV
+        size: 48,
+        svg: `<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- SUV body - taller, boxy -->
+          <rect x="2" y="13" width="28" height="10" rx="2" fill="white" fill-opacity="0.95"/>
+          <!-- Roof line -->
+          <path d="M5 13 L7 6 L25 6 L27 13Z" fill="white" fill-opacity="0.9"/>
+          <!-- Windows -->
+          <rect x="8" y="7.5" width="6" height="5" rx="1" fill="#6366f1" fill-opacity="0.5"/>
+          <rect x="16" y="7.5" width="8" height="5" rx="1" fill="#6366f1" fill-opacity="0.5"/>
+          <!-- Front grille -->
+          <rect x="25" y="15" width="3" height="5" rx="1" fill="#4f46e5" fill-opacity="0.7"/>
+          <!-- Headlights -->
+          <rect x="25" y="13.5" width="3" height="2" rx="0.5" fill="#fde68a"/>
+          <!-- Wheels -->
+          <circle cx="8" cy="24.5" r="3.5" fill="#1f2937"/>
+          <circle cx="8" cy="24.5" r="1.8" fill="white"/>
+          <circle cx="24" cy="24.5" r="3.5" fill="#1f2937"/>
+          <circle cx="24" cy="24.5" r="1.8" fill="white"/>
+        </svg>`,
+      };
+    case "car":
+    default:
+      return {
+        bg: "#3b82f6",  // blue for car
+        size: 44,
+        svg: `<svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Car body -->
+          <rect x="2" y="15" width="28" height="9" rx="2.5" fill="white" fill-opacity="0.95"/>
+          <!-- Cabin roof -->
+          <path d="M7 15 L10 9 L22 9 L25 15Z" fill="white" fill-opacity="0.9"/>
+          <!-- Windshield -->
+          <path d="M10.5 15 L12 10 L20 10 L21.5 15Z" fill="#3b82f6" fill-opacity="0.45"/>
+          <!-- Rear window -->
+          <rect x="8" y="10" width="3" height="5" rx="0.5" fill="#3b82f6" fill-opacity="0.3"/>
+          <!-- Headlights -->
+          <rect x="27" y="15.5" width="2" height="3" rx="0.5" fill="#fde68a"/>
+          <!-- Tail lights -->
+          <rect x="3" y="15.5" width="2" height="3" rx="0.5" fill="#ef4444" fill-opacity="0.8"/>
+          <!-- Wheels -->
+          <circle cx="9" cy="25" r="3.5" fill="#1f2937"/>
+          <circle cx="9" cy="25" r="1.8" fill="white"/>
+          <circle cx="23" cy="25" r="3.5" fill="#1f2937"/>
+          <circle cx="23" cy="25" r="1.8" fill="white"/>
+          <!-- Door line -->
+          <line x1="16" y1="15" x2="16" y2="24" stroke="#3b82f6" stroke-width="1" opacity="0.35"/>
+        </svg>`,
+      };
+  }
 }
 
-function createPinEl(text: string, isPickup: boolean): HTMLElement {
+/* ─── DRIVER MARKER WITH ETA BADGE ─────────────────────────────────── */
+function createDriverMarkerEl(vehicleType: VehicleType = "car", etaMinutes?: number): {
+  container: HTMLElement;
+  vehicleEl: HTMLElement;
+  etaBadge: HTMLElement;
+} {
+  const { svg, bg, size } = getVehicleSvg(vehicleType);
+
+  const container = document.createElement("div");
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.alignItems = "center";
+  container.style.gap = "4px";
+  container.style.width = `${size + 8}px`;
+
+  // ETA badge above the vehicle
+  const etaBadge = document.createElement("div");
+  etaBadge.style.background = "#09090b";
+  etaBadge.style.color = "#ffffff";
+  etaBadge.style.padding = "3px 9px";
+  etaBadge.style.borderRadius = "100px";
+  etaBadge.style.fontSize = "11px";
+  etaBadge.style.fontWeight = "700";
+  etaBadge.style.fontFamily = "system-ui,-apple-system,sans-serif";
+  etaBadge.style.letterSpacing = "0.01em";
+  etaBadge.style.whiteSpace = "nowrap";
+  etaBadge.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
+  etaBadge.style.display = "flex";
+  etaBadge.style.alignItems = "center";
+  etaBadge.style.gap = "3px";
+  etaBadge.style.lineHeight = "1";
+  etaBadge.style.transition = "opacity 0.3s ease";
+  const etaText = etaMinutes != null && etaMinutes > 0 ? `${Math.round(etaMinutes)} min` : "";
+  etaBadge.innerHTML = etaText
+    ? `<span style="color:#fbbf24;font-size:9px">⏱</span> ${etaText}`
+    : "";
+  etaBadge.style.opacity = etaText ? "1" : "0";
+
+  // Vehicle icon circle
+  const vehicleEl = document.createElement("div");
+  vehicleEl.style.width = `${size}px`;
+  vehicleEl.style.height = `${size}px`;
+  vehicleEl.style.background = bg;
+  vehicleEl.style.borderRadius = "50%";
+  vehicleEl.style.display = "flex";
+  vehicleEl.style.alignItems = "center";
+  vehicleEl.style.justifyContent = "center";
+  vehicleEl.style.boxShadow = `0 0 0 3px #ffffff, 0 0 0 5px ${bg}55, 0 8px 24px rgba(0,0,0,0.35)`;
+  vehicleEl.style.transition = "transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)";
+  vehicleEl.innerHTML = svg;
+
+  container.appendChild(etaBadge);
+  container.appendChild(vehicleEl);
+  return { container, vehicleEl, etaBadge };
+}
+
+/* ─── PICKUP PIN — Green dot with label ────────────────────────────── */
+function createPickupPinEl(): HTMLElement {
   const el = document.createElement("div");
   el.style.display = "flex";
   el.style.flexDirection = "column";
   el.style.alignItems = "center";
-  el.style.filter = "drop-shadow(0 6px 14px rgba(0,0,0,0.25))";
-
-  const dotColor = isPickup ? "#22c55e" : "#ef4444";
-  const bgColor = isPickup ? "#09090b" : "#ffffff";
-  const textColor = isPickup ? "#ffffff" : "#09090b";
-  const border = isPickup ? "none" : "1.5px solid #09090b";
+  el.style.filter = "drop-shadow(0 4px 10px rgba(0,0,0,0.22))";
 
   el.innerHTML = `
     <div style="
-      background:${bgColor};
-      color:${textColor};
-      padding:4px 11px;border-radius:100px;
-      font-size:9.5px;font-weight:900;letter-spacing:0.12em;
+      background:#16a34a;
+      color:#ffffff;
+      padding:3px 10px;
+      border-radius:100px;
+      font-size:9px;font-weight:800;letter-spacing:0.12em;
       text-transform:uppercase;white-space:nowrap;
-      border:${border};
-      box-shadow:0 2px 8px rgba(0,0,0,0.18);
       font-family:system-ui,-apple-system,sans-serif;
-      display:flex;align-items:center;gap:4px;
-    ">
-      <span style="width:6px;height:6px;background:${dotColor};border-radius:50%;display:inline-block;"></span>
-      ${text}
-    </div>
-    <div style="width:2px;height:8px;background:#09090b;opacity:0.65"></div>
+      box-shadow:0 2px 6px rgba(22,163,74,0.35);
+      margin-bottom:3px;
+    ">PICKUP</div>
+    <div style="width:2px;height:6px;background:#16a34a;opacity:0.7;"></div>
     <div style="
-      width:12px;height:12px;
-      background:${bgColor};
+      width:14px;height:14px;
+      background:#16a34a;
       border-radius:50%;
-      border:2.5px solid ${isPickup ? "#ffffff" : "#09090b"};
-      box-shadow:0 2px 6px rgba(0,0,0,0.25);
+      border:3px solid #ffffff;
+      box-shadow:0 2px 8px rgba(22,163,74,0.45);
+    "></div>
+  `;
+  return el;
+}
+
+/* ─── DROP PIN — Red square-bottom pin ─────────────────────────────── */
+function createDropPinEl(): HTMLElement {
+  const el = document.createElement("div");
+  el.style.display = "flex";
+  el.style.flexDirection = "column";
+  el.style.alignItems = "center";
+  el.style.filter = "drop-shadow(0 4px 10px rgba(0,0,0,0.22))";
+
+  el.innerHTML = `
+    <div style="
+      background:#dc2626;
+      color:#ffffff;
+      padding:3px 10px;
+      border-radius:100px;
+      font-size:9px;font-weight:800;letter-spacing:0.12em;
+      text-transform:uppercase;white-space:nowrap;
+      font-family:system-ui,-apple-system,sans-serif;
+      box-shadow:0 2px 6px rgba(220,38,38,0.35);
+      margin-bottom:3px;
+    ">DROP</div>
+    <div style="width:2px;height:6px;background:#dc2626;opacity:0.7;"></div>
+    <div style="
+      width:14px;height:14px;
+      background:#dc2626;
+      border-radius:50%;
+      border:3px solid #ffffff;
+      box-shadow:0 2px 8px rgba(220,38,38,0.45);
     "></div>
   `;
   return el;
@@ -114,13 +264,16 @@ export default function LiveTrackingMap({
   pickupLocation,
   dropLocation,
   status,
+  vehicleType = "car",
+  etaMinutes,
   onStats,
 }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
 
   const driverMarkerRef = useRef<maplibregl.Marker | null>(null);
-  const carIconRef = useRef<HTMLElement | null>(null);
+  const vehicleElRef = useRef<HTMLElement | null>(null);
+  const etaBadgeRef = useRef<HTMLElement | null>(null);
   const pickupMarkerRef = useRef<maplibregl.Marker | null>(null);
   const dropMarkerRef = useRef<maplibregl.Marker | null>(null);
 
@@ -141,7 +294,7 @@ export default function LiveTrackingMap({
       style: UBER_MINIMAL_MAP_STYLE,
       center: initialCenter,
       zoom: 15.0,
-      pitch: 25, // 25-degree Uber-style road tracking view
+      pitch: 0,
       attributionControl: false,
     });
 
@@ -151,7 +304,7 @@ export default function LiveTrackingMap({
     );
 
     const setupLayers = () => {
-      // 1. Persistent Trip Route (Pickup -> Drop)
+      // ── 1. Persistent Trip Route (Pickup → Drop) ──
       if (!map.getSource("trip-route")) {
         map.addSource("trip-route", {
           type: "geojson",
@@ -162,32 +315,34 @@ export default function LiveTrackingMap({
           },
         });
 
+        // White halo/casing for depth
         map.addLayer({
           id: "trip-casing",
           type: "line",
           source: "trip-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#000000",
-            "line-width": 8.0,
-            "line-opacity": 0.85,
+            "line-color": "#ffffff",
+            "line-width": 10.0,
+            "line-opacity": 1.0,
           },
         });
 
+        // Main route — medium grey-blue, Ola/Rapido style
         map.addLayer({
           id: "trip-core",
           type: "line",
           source: "trip-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#090d16", // Inverts to silver-white road line
-            "line-width": 4.8,
-            "line-opacity": 1.0,
+            "line-color": "#475569",   // slate-600 — clean grey road line
+            "line-width": 5.5,
+            "line-opacity": 0.95,
           },
         });
       }
 
-      // 2. Driver Approach Route (Driver -> Pickup)
+      // ── 2. Driver Approach Route (Driver → Pickup) ──
       if (!map.getSource("driver-route")) {
         map.addSource("driver-route", {
           type: "geojson",
@@ -198,14 +353,15 @@ export default function LiveTrackingMap({
           },
         });
 
+        // Dashed soft blue approach line
         map.addLayer({
           id: "driver-casing",
           type: "line",
           source: "driver-route",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#000000",
-            "line-width": 7.0,
+            "line-color": "#ffffff",
+            "line-width": 8.5,
             "line-opacity": 0.85,
           },
         });
@@ -214,11 +370,12 @@ export default function LiveTrackingMap({
           id: "driver-core",
           type: "line",
           source: "driver-route",
-          layout: { "line-join": "round", "line-cap": "round" },
+          layout: { "line-join": "round", "line-cap": "butt" },
           paint: {
-            "line-color": "#ea580c", // Inverts to vivid cyan-blue on dark canvas
-            "line-width": 4.2,
-            "line-opacity": 0.95,
+            "line-color": "#3b82f6",          // blue-500 — driver approach
+            "line-width": 4.5,
+            "line-opacity": 0.85,
+            "line-dasharray": [0.5, 2.5],    // dashed to distinguish from trip route
           },
         });
       }
@@ -256,7 +413,7 @@ export default function LiveTrackingMap({
     if (!map || !ready) return;
 
     if (!pickupMarkerRef.current && pickupLocation) {
-      const el = createPinEl("PICKUP", true);
+      const el = createPickupPinEl();
       pickupMarkerRef.current = new maplibregl.Marker({
         element: el,
         anchor: "bottom",
@@ -266,7 +423,7 @@ export default function LiveTrackingMap({
     }
 
     if (!dropMarkerRef.current && dropLocation) {
-      const el = createPinEl("DROP", false);
+      const el = createDropPinEl();
       dropMarkerRef.current = new maplibregl.Marker({
         element: el,
         anchor: "bottom",
@@ -276,38 +433,50 @@ export default function LiveTrackingMap({
     }
   }, [pickupLocation, dropLocation, ready]);
 
+  /* ─── UPDATE ETA BADGE TEXT REACTIVELY ─── */
+  useEffect(() => {
+    const badge = etaBadgeRef.current;
+    if (!badge) return;
+    const etaText = etaMinutes != null && etaMinutes > 0 ? `${Math.round(etaMinutes)} min` : "";
+    badge.innerHTML = etaText
+      ? `<span style="color:#fbbf24;font-size:9px">⏱</span> ${etaText}`
+      : "";
+    badge.style.opacity = etaText ? "1" : "0";
+  }, [etaMinutes]);
+
   /* ─── DYNAMIC DRIVER MOVEMENT & BEARING ─── */
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready || !driverLocation) return;
 
     // Calculate heading / bearing angle
-    if (lastPosRef.current && carIconRef.current) {
+    if (lastPosRef.current && vehicleElRef.current) {
       const dist = Math.hypot(
         driverLocation[0] - lastPosRef.current[0],
         driverLocation[1] - lastPosRef.current[1]
       );
       if (dist > 0.00005) {
         const bearing = calculateBearing(lastPosRef.current, driverLocation);
-        carIconRef.current.style.transform = `rotate(${Math.round(bearing)}deg)`;
+        vehicleElRef.current.style.transform = `rotate(${Math.round(bearing)}deg)`;
       }
     }
     lastPosRef.current = driverLocation;
 
     // Initialize or update driver marker
     if (!driverMarkerRef.current) {
-      const { container, carIcon } = createDriverMarkerEl();
-      carIconRef.current = carIcon;
+      const { container, vehicleEl, etaBadge } = createDriverMarkerEl(vehicleType, etaMinutes);
+      vehicleElRef.current = vehicleEl;
+      etaBadgeRef.current = etaBadge;
       driverMarkerRef.current = new maplibregl.Marker({
         element: container,
-        anchor: "center",
+        anchor: "bottom",
       })
         .setLngLat([driverLocation[1], driverLocation[0]])
         .addTo(map);
     } else {
       driverMarkerRef.current.setLngLat([driverLocation[1], driverLocation[0]]);
     }
-  }, [driverLocation, ready]);
+  }, [driverLocation, ready, vehicleType, etaMinutes]);
 
   /* ─── PERSISTENT MAIN TRIP ROUTE (PICKUP -> DROP) ─── */
   const updateTripRoute = useCallback(async () => {
@@ -425,14 +594,14 @@ export default function LiveTrackingMap({
     }
 
     map.fitBounds(bounds, {
-      padding: { top: 90, bottom: 90, left: 70, right: 70 },
+      padding: { top: 100, bottom: 160, left: 60, right: 60 },
       duration: 1000,
       maxZoom: 16.5,
     });
   }, [ready, pickupLocation, dropLocation, status]);
 
   return (
-    <div className="uber-dark-map relative w-full h-full overflow-hidden select-none">
+    <div className="relative w-full h-full overflow-hidden select-none">
       <div ref={mapContainerRef} className="w-full h-full" />
     </div>
   );
