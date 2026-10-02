@@ -14,7 +14,6 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -278,40 +277,38 @@ export default function AuthModal({ open, onClose }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-[90] bg-black/60"
           />
 
           {/* MODAL */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            initial={{ opacity: 0, scale: 0.98, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 30 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: 0.98, y: 15 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-[100] flex items-center justify-center px-4"
           >
-            <div className="relative w-full max-w-md rounded-3xl bg-white border border-zinc-200 shadow-2xl p-6 sm:p-8 text-zinc-900">
+            <div className="relative w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-xl p-6 sm:p-7 text-zinc-900">
               {/* CLOSE BUTTON */}
               <button
                 onClick={onClose}
-                className="absolute right-5 top-5 w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition"
+                className="absolute right-4 top-4 w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition"
+                aria-label="Close"
               >
                 <X size={16} />
               </button>
 
-              {/* LOGO */}
+              {/* BRAND HEADER */}
               <div className="mb-6 text-center">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-zinc-800 text-[10px] font-black uppercase tracking-wider mb-2">
-                  <Sparkles size={11} className="text-amber-500" /> Fast & Secure Login
-                </div>
-                <h1 className="text-3xl font-black tracking-tight text-zinc-900">RideNow</h1>
-                <p className="text-xs text-zinc-400 font-medium mt-0.5">
-                  Ride Booking & Mobility Network
+                <h1 className="text-2xl font-black tracking-tight text-zinc-900">RideNow</h1>
+                <p className="text-xs text-zinc-500 font-medium mt-1">
+                  Enter your mobile number to get started
                 </p>
               </div>
 
               {/* ERROR NOTIFICATION */}
               {errorMessage && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-600 font-medium flex items-center gap-2">
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium flex items-center gap-2">
                   <AlertCircle size={15} className="flex-shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
@@ -336,10 +333,10 @@ export default function AuthModal({ open, onClose }: Props) {
 
                     <form onSubmit={handleSendPhoneOtp} className="space-y-3.5">
                       {/* Phone Input with +91 Indian Flag badge */}
-                      <div className="flex items-center gap-2 px-3.5 py-3 rounded-2xl border-2 border-zinc-200 focus-within:border-zinc-900 transition">
+                      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-zinc-300 focus-within:border-zinc-900 transition">
                         <div className="flex items-center gap-1.5 pr-2.5 border-r border-zinc-200 flex-shrink-0">
                           <span className="text-base leading-none">🇮🇳</span>
-                          <span className="text-xs font-black text-zinc-800">+91</span>
+                          <span className="text-xs font-bold text-zinc-800">+91</span>
                         </div>
                         <input
                           type="tel"
@@ -351,7 +348,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           onChange={(e) =>
                             setMobileNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
                           }
-                          className="w-full text-base font-bold text-zinc-900 placeholder:text-zinc-400 outline-none bg-transparent"
+                          className="w-full text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none bg-transparent"
                         />
                       </div>
 
@@ -359,26 +356,26 @@ export default function AuthModal({ open, onClose }: Props) {
                       <button
                         type="submit"
                         disabled={sendingPhoneOtp || mobileNumber.replace(/\D/g, "").length !== 10}
-                        className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-black text-sm flex items-center justify-center gap-2.5 transition shadow-md active:scale-95"
+                        className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center gap-2.5 transition active:scale-98"
                       >
                         {sendingPhoneOtp ? (
                           <>
                             <Loader2 size={16} className="animate-spin" />
-                            <span>Sending WhatsApp OTP…</span>
+                            <span>Sending code…</span>
                           </>
                         ) : (
                           <>
-                            <WhatsAppIcon className="w-5 h-5" />
-                            <span>Send OTP via WhatsApp</span>
+                            <WhatsAppIcon className="w-4 h-4" />
+                            <span>Send code via WhatsApp</span>
                           </>
                         )}
                       </button>
                     </form>
 
                     {/* DIVIDER */}
-                    <div className="flex items-center gap-4 my-4">
+                    <div className="flex items-center gap-4 my-3">
                       <span className="flex-1 h-px bg-zinc-200" />
-                      <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                      <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                         Or continue with
                       </span>
                       <span className="flex-1 h-px bg-zinc-200" />
@@ -387,7 +384,7 @@ export default function AuthModal({ open, onClose }: Props) {
                     {/* GOOGLE SIGN IN */}
                     <button
                       onClick={handleGoogleLogin}
-                      className="w-full h-12 rounded-2xl border-2 border-zinc-200 hover:border-zinc-900 flex items-center justify-center gap-3 text-sm font-bold text-zinc-800 transition active:scale-95"
+                      className="w-full h-11 rounded-xl border border-zinc-300 hover:border-zinc-900 flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 transition active:scale-98"
                     >
                       <Image src="/google.png" alt="Google" width={18} height={18} />
                       <span>Continue with Google</span>
@@ -468,7 +465,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           value={digit}
                           onChange={(e) => handlePhoneOtpChange(i, e.target.value)}
                           onKeyDown={(e) => handlePhoneOtpKeyDown(i, e)}
-                          className="w-12 h-14 text-center text-xl font-black rounded-2xl bg-zinc-50 border-2 border-zinc-200 focus:border-zinc-900 focus:bg-white outline-none transition"
+                          className="w-11 h-13 text-center text-lg font-bold rounded-xl bg-zinc-50 border border-zinc-300 focus:border-zinc-900 focus:bg-white outline-none transition"
                         />
                       ))}
                     </div>
@@ -477,7 +474,7 @@ export default function AuthModal({ open, onClose }: Props) {
                     <button
                       onClick={handleVerifyPhoneOtp}
                       disabled={verifyingPhoneOtp || phoneOtp.join("").length !== 6}
-                      className="w-full h-12 rounded-2xl bg-zinc-900 hover:bg-black disabled:opacity-40 text-white font-black text-sm flex items-center justify-center gap-2 transition shadow-md active:scale-95"
+                      className="w-full h-11 rounded-xl bg-zinc-900 hover:bg-black disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center gap-2 transition active:scale-98"
                     >
                       {verifyingPhoneOtp ? (
                         <>
@@ -538,7 +535,7 @@ export default function AuthModal({ open, onClose }: Props) {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 border-2 border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 transition">
+                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
                         <Mail size={16} className="text-zinc-400" />
                         <input
                           type="email"
@@ -549,7 +546,7 @@ export default function AuthModal({ open, onClose }: Props) {
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border-2 border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 transition">
+                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
                         <Lock size={16} className="text-zinc-400" />
                         <input
                           type={showPassword ? "text" : "password"}
@@ -569,7 +566,7 @@ export default function AuthModal({ open, onClose }: Props) {
 
                       <button
                         onClick={handleEmailLogin}
-                        className="w-full h-12 rounded-2xl bg-zinc-900 text-white font-black text-sm hover:bg-black transition shadow-md active:scale-95"
+                        className="w-full h-11 rounded-xl bg-zinc-900 text-white font-bold text-sm hover:bg-black transition active:scale-98"
                       >
                         Log In
                       </button>
@@ -611,7 +608,7 @@ export default function AuthModal({ open, onClose }: Props) {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 border-2 border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 transition">
+                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
                         <User size={16} className="text-zinc-400" />
                         <input
                           placeholder="Full Name"
@@ -621,7 +618,7 @@ export default function AuthModal({ open, onClose }: Props) {
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border-2 border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 transition">
+                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
                         <Mail size={16} className="text-zinc-400" />
                         <input
                           placeholder="Email Address"
@@ -631,7 +628,7 @@ export default function AuthModal({ open, onClose }: Props) {
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border-2 border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 transition">
+                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
                         <Lock size={16} className="text-zinc-400" />
                         <input
                           type="password"
@@ -644,7 +641,7 @@ export default function AuthModal({ open, onClose }: Props) {
 
                       <button
                         onClick={handleEmailSignUp}
-                        className="w-full h-12 rounded-2xl bg-zinc-900 text-white font-black text-sm hover:bg-black transition shadow-md active:scale-95"
+                        className="w-full h-11 rounded-xl bg-zinc-900 text-white font-bold text-sm hover:bg-black transition active:scale-98"
                       >
                         Send Verification Code
                       </button>
@@ -684,14 +681,14 @@ export default function AuthModal({ open, onClose }: Props) {
                               document.getElementById(`email-otp-${i + 1}`)?.focus();
                             }
                           }}
-                          className="w-12 h-14 text-center text-xl font-black rounded-2xl bg-zinc-50 border-2 border-zinc-200 focus:border-zinc-900 focus:bg-white outline-none transition"
+                          className="w-11 h-13 text-center text-lg font-bold rounded-xl bg-zinc-50 border border-zinc-300 focus:border-zinc-900 focus:bg-white outline-none transition"
                         />
                       ))}
                     </div>
 
                     <button
                       onClick={handleVerifyEmailOtp}
-                      className="w-full h-12 rounded-2xl bg-zinc-900 text-white font-black text-sm hover:bg-black transition shadow-md active:scale-95"
+                      className="w-full h-11 rounded-xl bg-zinc-900 text-white font-bold text-sm hover:bg-black transition active:scale-98"
                     >
                       Verify & Complete Signup
                     </button>
