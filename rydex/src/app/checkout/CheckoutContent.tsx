@@ -288,6 +288,12 @@ export default function CheckoutContent() {
       return;
     }
 
+    if (userData && (!userData.mobileNumber || !userData.isMobileVerified)) {
+      setBookingError("Please verify your WhatsApp mobile number before confirming your ride.");
+      window.dispatchEvent(new CustomEvent("open-phone-link-modal"));
+      return;
+    }
+
     if (!pickupLat || !pickupLng || !dropLat || !dropLng) {
       setBookingError("Missing location coordinates. Please return to the map and select pickup and destination.");
       return;
@@ -325,6 +331,12 @@ export default function CheckoutContent() {
       if (res.status === 401) {
         setBookingError("Please sign in to request a ride. Your booking details are preserved.");
         setShowAuthModal(true);
+        return;
+      }
+
+      if (res.status === 403 && data.requiresPhoneVerification) {
+        setBookingError(data.message || "Please verify your WhatsApp mobile number to proceed.");
+        window.dispatchEvent(new CustomEvent("open-phone-link-modal"));
         return;
       }
 

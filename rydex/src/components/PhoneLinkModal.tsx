@@ -4,7 +4,6 @@ import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   X,
-  Phone,
   ArrowLeft,
   Loader2,
   CheckCircle2,
@@ -41,16 +40,25 @@ export default function PhoneLinkModal() {
 
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Check if logged in user has missing or unverified phone number
+  // Listen for programmatic open requests (e.g. user clicked Book on /book)
+  useEffect(() => {
+    const handleOpen = () => {
+      setErrorMessage(null);
+      setIsOpen(true);
+    };
+    window.addEventListener("open-phone-link-modal", handleOpen);
+    return () => window.removeEventListener("open-phone-link-modal", handleOpen);
+  }, []);
+
+  // Automatic check for logged in users without a verified phone number (e.g. Google login)
   useEffect(() => {
     if (userData && (!userData.mobileNumber || !userData.isMobileVerified)) {
-      // Don't pop up again if user explicitly dismissed this session
       const dismissed = sessionStorage.getItem("ridenow_phone_modal_dismissed");
       if (!dismissed) {
-        const timer = setTimeout(() => setIsOpen(true), 1200);
+        const timer = setTimeout(() => setIsOpen(true), 1000);
         return () => clearTimeout(timer);
       }
-    } else {
+    } else if (userData?.isMobileVerified) {
       setIsOpen(false);
     }
   }, [userData]);
@@ -123,7 +131,7 @@ export default function PhoneLinkModal() {
       });
 
       if (res.data.success) {
-        setSuccessMessage("Phone verified and linked!");
+        setSuccessMessage("Phone verified and linked successfully!");
         // Update user state in Redux
         if (userData) {
           dispatch(
@@ -134,8 +142,10 @@ export default function PhoneLinkModal() {
             })
           );
         }
+        sessionStorage.removeItem("ridenow_phone_modal_dismissed");
         setTimeout(() => {
           setIsOpen(false);
+          setSuccessMessage(null);
         }, 1500);
       } else {
         setErrorMessage(res.data.error || "Verification failed");
@@ -151,29 +161,35 @@ export default function PhoneLinkModal() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+      <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.98, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-sm rounded-3xl bg-white border border-zinc-200 shadow-2xl p-6 sm:p-7 text-zinc-900"
+          exit={{ opacity: 0, scale: 0.98, y: 15 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="relative w-full max-w-sm rounded-2xl bg-white border border-zinc-200 shadow-xl p-6 sm:p-7 text-zinc-900"
         >
           {/* Close button */}
           <button
             onClick={handleDismiss}
-            className="absolute right-4 top-4 w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition"
+            className="absolute right-4 top-4 w-7 h-7 rounded-lg bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition"
+            aria-label="Dismiss"
           >
             <X size={15} />
           </button>
 
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-              <WhatsAppIcon className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+              <WhatsAppIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-zinc-900">Verify WhatsApp Number</h3>
-              <p className="text-[11px] text-zinc-400 font-medium">Required for ride booking & driver calls</p>
+              <h3 className="text-base font-bold text-zinc-900">
+                Verify WhatsApp Number
+              </h3>
+              <p className="text-[11px] text-zinc-500 font-medium">
+                Required for ride bookings and driver coordination
+              </p>
             </div>
           </div>
 
@@ -202,13 +218,13 @@ export default function PhoneLinkModal() {
                 className="space-y-3.5"
               >
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1.5 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5 block">
                     Mobile Number
                   </label>
-                  <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl border-2 border-zinc-200 focus-within:border-zinc-900 transition">
-                    <div className="flex items-center gap-1.5 pr-2 border-r border-zinc-200">
+                  <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-zinc-300 focus-within:border-zinc-900 transition">
+                    <div className="flex items-center gap-1.5 pr-2 border-r border-zinc-200 flex-shrink-0">
                       <span className="text-sm">🇮🇳</span>
-                      <span className="text-xs font-black text-zinc-800">+91</span>
+                      <span className="text-xs font-bold text-zinc-800">+91</span>
                     </div>
                     <input
                       type="tel"
@@ -220,14 +236,14 @@ export default function PhoneLinkModal() {
                       onChange={(e) =>
                         setMobileNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
                       }
-                      className="w-full text-sm font-bold text-zinc-900 placeholder:text-zinc-400 outline-none"
+                      className="w-full text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none bg-transparent"
                     />
                   </div>
                 </div>
 
-                <div className="p-3 bg-zinc-50 rounded-2xl text-[11px] text-zinc-500 flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-emerald-500 flex-shrink-0" />
-                  <span>We send your pickup PIN and driver contact updates directly to WhatsApp.</span>
+                <div className="p-3 bg-zinc-50 rounded-xl text-[11px] text-zinc-600 flex items-center gap-2 border border-zinc-100">
+                  <ShieldCheck size={14} className="text-emerald-600 flex-shrink-0" />
+                  <span>Your pickup PIN and driver ETA will be delivered directly to your WhatsApp.</span>
                 </div>
 
                 <div className="flex gap-2 pt-1">
@@ -241,7 +257,7 @@ export default function PhoneLinkModal() {
                   <button
                     type="submit"
                     disabled={sendingOtp || mobileNumber.replace(/\D/g, "").length !== 10}
-                    className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-black transition flex items-center justify-center gap-1.5 shadow-md"
+                    className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
                   >
                     {sendingOtp ? (
                       <>
@@ -249,7 +265,7 @@ export default function PhoneLinkModal() {
                       </>
                     ) : (
                       <>
-                        <WhatsAppIcon className="w-4 h-4" /> Send OTP
+                        <WhatsAppIcon className="w-3.5 h-3.5" /> Send Code
                       </>
                     )}
                   </button>
@@ -273,7 +289,7 @@ export default function PhoneLinkModal() {
                     <ArrowLeft size={12} /> Change +91 {mobileNumber}
                   </button>
                   <p className="text-xs text-zinc-500 font-medium">
-                    Enter the 6-digit code received on WhatsApp:
+                    Enter the 6-digit verification code sent to your WhatsApp:
                   </p>
                 </div>
 
@@ -283,7 +299,7 @@ export default function PhoneLinkModal() {
                     <button
                       type="button"
                       onClick={() => setOtp(devOtp.split(""))}
-                      className="px-2 py-0.5 bg-amber-200 rounded text-[10px]"
+                      className="px-2 py-0.5 bg-amber-200 hover:bg-amber-300 rounded text-[10px] font-bold"
                     >
                       Fill
                     </button>
@@ -314,7 +330,7 @@ export default function PhoneLinkModal() {
                           otpInputRefs.current[i - 1]?.focus();
                         }
                       }}
-                      className="w-10 h-12 text-center text-lg font-black rounded-xl bg-zinc-50 border-2 border-zinc-200 focus:border-zinc-900 focus:bg-white outline-none"
+                      className="w-10 h-11 text-center text-lg font-bold rounded-xl bg-zinc-50 border border-zinc-300 focus:border-zinc-900 focus:bg-white outline-none"
                     />
                   ))}
                 </div>
@@ -322,7 +338,7 @@ export default function PhoneLinkModal() {
                 <button
                   type="submit"
                   disabled={verifyingOtp || otp.join("").length !== 6}
-                  className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-black disabled:opacity-40 text-white text-xs font-black transition flex items-center justify-center gap-1.5 shadow-md"
+                  className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-black disabled:opacity-40 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
                 >
                   {verifyingOtp ? (
                     <>
@@ -330,7 +346,7 @@ export default function PhoneLinkModal() {
                     </>
                   ) : (
                     <>
-                      <CheckCircle2 size={14} /> Link Mobile Number
+                      <CheckCircle2 size={14} /> Verify & Link Number
                     </>
                   )}
                 </button>

@@ -14,7 +14,10 @@ export async function GET(req: NextRequest) {
             )
         }
 
-        const user = await User.findOne({ email: session.user.email }).select("-password")
+        const query = session.user.id
+            ? { _id: session.user.id }
+            : { email: session.user.email };
+        const user = await User.findOne(query).select("-password");
         if (!user) {
             return NextResponse.json(
                 { message: "User not found" },
@@ -53,8 +56,12 @@ export async function PATCH(req: NextRequest) {
             )
         }
 
+        const query = session.user.id
+            ? { _id: session.user.id }
+            : { email: session.user.email };
+
         const user = await User.findOneAndUpdate(
-            { email: session.user.email },
+            query,
             { name, mobileNumber },
             { new: true }
         ).select("-password")

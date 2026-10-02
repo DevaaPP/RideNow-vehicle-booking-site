@@ -4,6 +4,7 @@ import "./globals.css";
 import StoreProvider from "@/redux/StoreProvider";
 import InitUser from "@/initUser";
 import Provider from "@/Provider";
+import PhoneLinkModal from "@/components/PhoneLinkModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "RideNow - Smart Vehicle Booking Platform",
-  description: "RideNow ek modern multi-vendor vehicle booking platform hai jahan users aasaani se cars, bikes aur commercial vehicles book kar sakte hain. Secure login, verified owners aur transparent pricing ke saath RideNow mobility ko simple aur reliable banata hai.",
+  description: "RideNow is a modern vehicle booking platform for reliable, transparent, and verified rides across India.",
 };
 
 export default function RootLayout({
@@ -30,11 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-full min-h-screen`}
       >
-<Provider>
-        <StoreProvider>
-          <InitUser/>
-        {children}
-        </StoreProvider>
+        <Provider>
+          <StoreProvider>
+            <InitUser />
+            <PhoneLinkModal />
+            {children}
+          </StoreProvider>
         </Provider>
       </body>
     </html>

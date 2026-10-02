@@ -80,9 +80,24 @@ export async function POST(req: Request) {
       }
     }
 
-    // Resolve user mobile number (required by schema)
-    const currentUser = await User.findById(session.user.id).select("mobileNumber isStudent").lean();
-    const effectiveUserMobile = (mobileNumber && String(mobileNumber).trim()) || (currentUser as any)?.mobileNumber || "9999999999";
+    // Resolve user mobile number & ensure WhatsApp phone verification
+    const currentUser = await User.findById(session.user.id)
+      .select("mobileNumber isMobileVerified isStudent")
+      .lean();
+
+    if (!currentUser?.mobileNumber || !(currentUser as any)?.isMobileVerified) {
+      return NextResponse.json(
+        {
+          success: false,
+          requiresPhoneVerification: true,
+          message:
+            "Please verify your WhatsApp mobile number before booking a ride.",
+        },
+        { status: 403 }
+      );
+    }
+
+    const effectiveUserMobile = (currentUser as any)?.mobileNumber;
     const isStudent = Boolean((currentUser as any)?.isStudent);
 
     // Prevent duplicate active booking for instant rides
