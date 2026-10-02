@@ -13,7 +13,13 @@ const PUBLIC_ROUTES = [
   "/fleet",
   "/search",
 ];
-const PUBLIC_API_ROUTES = ["/api/auth"];
+const PUBLIC_API_ROUTES = [
+  "/api/auth",
+  "/api/route",
+  "/api/places",
+  "/api/vehicles",
+  "/api/track",
+];
 
 const VENDOR_ONBOARDING_START = "/partner/onboard/vehicle";
 
