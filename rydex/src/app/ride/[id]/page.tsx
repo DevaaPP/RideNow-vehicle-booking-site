@@ -29,7 +29,7 @@ type PaymentStatus = "pending" | "paid" | "cash" | "failed";
 interface BookingDetails {
   _id: string;
   driver?: { _id: string; name: string };
-  vehicle?: { vehicleModel: string; number: string };
+  vehicle?: { vehicleModel: string; number: string; type?: string };
   pickupAddress: string;
   dropAddress: string;
   pickupLocation: { coordinates: [number, number] };
@@ -513,6 +513,8 @@ export default function RidePage() {
           pickupLocation={pickupPos!}
           dropLocation={dropPos!}
           status={mapStatus}
+          vehicleType={booking?.vehicle?.type ?? "car"}
+          etaMinutes={mapStatus === "arriving" ? etaToPickup : etaToDrop}
           onStats={({ distanceToPickup, durationToPickup, distanceToDrop, durationToDrop }) => {
             setDistanceToPickup(distanceToPickup); setEtaToPickup(durationToPickup);
             setDistanceToDrop(distanceToDrop);     setEtaToDrop(durationToDrop);
