@@ -6,8 +6,7 @@ import Footer from "@/components/Footer";
 import User from "@/models/user.model";
 import connectDb from "@/lib/db";
 import PublicHome from "@/components/PublicHome";
-import AdminDashboard from "./admin/dashboard/page";
-import { redirect, RedirectType } from "next/navigation"
+import { redirect, RedirectType } from "next/navigation";
 import GeoUpdater from "@/components/GeoUpdater";
 
 export default async function Home() {

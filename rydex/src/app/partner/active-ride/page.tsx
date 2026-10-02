@@ -122,6 +122,7 @@ export default function DriverRidePage() {
   const [zegoContainer, setZegoContainer] = useState<HTMLDivElement | null>(null);
   const zegoCallJoined = useRef(false);
   const zpRef = useRef<any>(null);
+  const lastGpsEmitRef = useRef<{ time: number; lat: number; lng: number }>({ time: 0, lat: 0, lng: 0 });
 
   const playRingTone = () => {
     try {
@@ -274,10 +275,19 @@ export default function DriverRidePage() {
         if (!b?._id || TERMINAL.includes(b.status)) return;
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        setDriverPos([lat, lng]);
-        socket.emit("driver-location-update", {
-          bookingId: b._id, latitude: lat, longitude: lng, status: b.status,
-        });
+
+        const now = Date.now();
+        const last = lastGpsEmitRef.current;
+        const dLat = Math.abs(lat - last.lat);
+        const dLng = Math.abs(lng - last.lng);
+
+        if (now - last.time >= 2000 || dLat > 0.00005 || dLng > 0.00005) {
+          lastGpsEmitRef.current = { time: now, lat, lng };
+          setDriverPos([lat, lng]);
+          socket.emit("driver-location-update", {
+            bookingId: b._id, latitude: lat, longitude: lng, status: b.status,
+          });
+        }
       },
       err => console.error("GPS error:", err),
       { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }

@@ -47,6 +47,7 @@ const VehicleSchema = new Schema<IVehicle>(
       type: String,
       enum: ["bike", "auto", "car", "loading", "truck"],
       required: true,
+      index: true,
     },
 
     number: {

@@ -1,16 +1,18 @@
 'use client'
 
-import { AppDispatch } from '@/redux/store'
+import { AppDispatch, RootState } from '@/redux/store'
 import { setUserData } from '@/redux/userSlice'
 import axios from 'axios'
 import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 function useGetMe(enabled: boolean) {
   const dispatch = useDispatch<AppDispatch>()
+  const { userData } = useSelector((state: RootState) => state.user)
 
   useEffect(() => {
     if (!enabled) return // ✅ SAFE
+    if (userData) return // ✅ Already loaded in Redux, skip duplicate network call
 
     let cancelled = false
 

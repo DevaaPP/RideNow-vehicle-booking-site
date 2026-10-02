@@ -195,6 +195,7 @@ const UserSchema = new Schema<IUser>(
 
 /* ===== GEO INDEX ===== */
 UserSchema.index({ location: "2dsphere" });
+UserSchema.index({ location: "2dsphere", role: 1, isOnline: 1 });
 
 const User =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

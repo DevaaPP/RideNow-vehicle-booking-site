@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import HeroSection from "@/components/Herosection";
 import VehicleCategoriesSlider from "@/components/VehicleCategoriesSlider";
-import AuthModal from "@/components/AuthModal";
+
+const AuthModal = dynamic(() => import("@/components/AuthModal"), { ssr: false });
 
 export default function PublicHome() {
   const [authOpen, setAuthOpen] = useState(false);

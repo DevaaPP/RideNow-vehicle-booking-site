@@ -64,6 +64,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   /* config options here */
   poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "recharts"],
+  },
   async headers() {
     return [
       {

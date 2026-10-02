@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Bike, Car, Bus, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import Image from "next/image";
 
 export default function HeroSection({
   onAuthRequired,
@@ -29,9 +30,14 @@ export default function HeroSection({
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/heroImage.jpg')" }}
+      <Image
+        src="/heroImage.webp"
+        alt="RideNow Fleet Background"
+        fill
+        priority
+        quality={80}
+        sizes="100vw"
+        className="object-cover object-center pointer-events-none"
       />
       <div className="absolute inset-0 bg-black/80" />
 

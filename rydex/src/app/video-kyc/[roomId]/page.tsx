@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import {
   Video,
   Mic,
@@ -180,6 +179,8 @@ const handleReject = async () => {
       const displayName = isAdmin
         ? "Admin"
         : `${userData?.name || "Vendor"} (${userData?.email || ""})`;
+
+      const { ZegoUIKitPrebuilt } = await import("@zegocloud/zego-uikit-prebuilt");
 
       let kitToken: string;
       try {
