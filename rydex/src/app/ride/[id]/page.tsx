@@ -588,25 +588,29 @@ export default function RidePage() {
       {/* ══ MOBILE BOTTOM SHEET ══ */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
-          className="bg-white rounded-t-2xl shadow-xl pointer-events-auto overflow-hidden border-t border-zinc-200"
-          animate={{ height: expanded ? "80vh" : PEEK_H }}
-          transition={{ type: "spring", stiffness: 320, damping: 38 }}
+          className="bg-white rounded-t-3xl shadow-2xl pointer-events-auto overflow-hidden border-t border-zinc-200 flex flex-col"
+          animate={{ height: expanded ? "82vh" : PEEK_H }}
+          transition={{ type: "spring", stiffness: 340, damping: 34 }}
         >
-          <div
-            className="flex-shrink-0 cursor-pointer select-none"
-            onClick={() => setExpanded(v => !v)}
-            onPointerDown={e => {
-              const startY = e.clientY;
-              const onUp = (ev: PointerEvent) => {
-                if (ev.clientY - startY < -30) setExpanded(true);
-                if (ev.clientY - startY >  30) setExpanded(false);
-                window.removeEventListener("pointerup", onUp);
-              };
-              window.addEventListener("pointerup", onUp);
+          {/* Interactive Drag Handle Header */}
+          <motion.div
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.25}
+            onDragEnd={(_, info) => {
+              if (info.offset.y < -35 || info.velocity.y < -250) setExpanded(true);
+              else if (info.offset.y > 35 || info.velocity.y > 250) setExpanded(false);
             }}
+            onClick={() => setExpanded(v => !v)}
+            className="flex-shrink-0 cursor-grab active:cursor-grabbing select-none bg-white"
           >
-            <div className="pt-3 pb-1"><div className="w-10 h-1 bg-zinc-200 rounded-full mx-auto" /></div>
-            <div className="px-5 py-3 flex items-center justify-between">
+            <div className="pt-2.5 pb-1 flex flex-col items-center">
+              <div className="w-12 h-1.5 bg-zinc-300 rounded-full" />
+              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-1">
+                {expanded ? "Swipe down for map" : "Swipe up for ride details"}
+              </span>
+            </div>
+            <div className="px-5 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
                 <div>
@@ -622,15 +626,16 @@ export default function RidePage() {
                   </div>
                 )}
                 <motion.div
-                  animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.28 }}
-                  className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center"
+                  animate={{ rotate: expanded ? 180 : 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-700"
                 >
-                  <ChevronUp size={16} className="text-zinc-600" />
+                  <ChevronUp size={16} />
                 </motion.div>
               </div>
             </div>
             <div className="h-px bg-zinc-100 mx-5" />
-          </div>
+          </motion.div>
           <div className="overflow-y-auto h-full pb-10">
             <PanelContent {...panelProps} />
           </div>

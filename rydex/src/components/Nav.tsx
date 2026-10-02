@@ -15,6 +15,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Wallet,
+  ArrowRight,
 } from "lucide-react";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,9 +24,10 @@ import { signOut } from "next-auth/react";
 import { setUserData } from "@/redux/userSlice";
 import axios from "axios";
 
-const NAV_ITEMS = ["Home", "Bookings", "Fleet", "FAQ", "Contact"];
+const NAV_ITEMS = ["Home", "Book Ride", "Bookings", "Fleet", "FAQ", "Contact"];
 const NAV_ROUTES: Record<string, string> = {
   Home: "/",
+  "Book Ride": "/book",
   Bookings: "/bookings",
   Fleet: "/fleet",
   FAQ: "/faq",
@@ -169,10 +171,10 @@ export default function Nav() {
             <Link
               key={item}
               href={href}
-              className={`text-sm font-medium transition ${
+              className={`text-xs font-bold transition px-3.5 py-1.5 rounded-full ${
                 active
-                  ? "text-white"
-                  : "text-gray-400 hover:text-white"
+                  ? "bg-white text-black shadow-sm"
+                  : "text-zinc-400 hover:text-white hover:bg-white/10"
               }`}
             >
               {item}
@@ -183,7 +185,7 @@ export default function Nav() {
         {userData?.role === "admin" && (
           <Link
             href="/admin/dashboard"
-            className="text-sm font-medium transition text-gray-400 hover:text-white"
+            className="text-xs font-bold transition text-zinc-400 hover:text-white px-3.5 py-1.5 rounded-full hover:bg-white/10"
           >
             Admin Panel
           </Link>
@@ -295,108 +297,209 @@ export default function Nav() {
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.4 }}
+        animate={{ opacity: 0.6 }}
         exit={{ opacity: 0 }}
         onClick={() => setMenuOpen(false)}
-        className="fixed inset-0 bg-black z-30 md:hidden"
+        className="fixed inset-0 bg-black/80 backdrop-blur-xs z-40 md:hidden"
       />
 
       {/* Menu Panel */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.2 }}
+        initial={{ opacity: 0, y: -20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -20, scale: 0.98 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
         className="
-          fixed top-[85px] left-1/2 -translate-x-1/2
-          w-[92%]
-          bg-[#0B0B0B]
-          rounded-2xl
-          shadow-2xl
-          z-40
+          fixed top-[74px] left-1/2 -translate-x-1/2
+          w-[92%] max-h-[82vh]
+          bg-[#0B0B0B] border border-white/15
+          rounded-3xl
+          shadow-[0_20px_60px_rgba(0,0,0,0.85)]
+          z-50
           md:hidden
-          overflow-hidden
+          overflow-y-auto
         "
       >
-        <div className="flex flex-col divide-y divide-white/10">
+        {/* User Card if logged in */}
+        {userData ? (
+          <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.03]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white text-black font-black flex items-center justify-center text-sm shadow-sm">
+                {userData.name?.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-white truncate">{userData.name}</p>
+                <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-white/10 text-zinc-300">
+                  {userData.role}
+                </span>
+              </div>
+            </div>
+            {userData.role !== "vendor" && (
+              <Link
+                href="/wallet"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 text-xs font-bold text-white hover:bg-white/20 transition"
+              >
+                <Wallet size={13} />
+                <span>₹{userData.walletBalance || 0}</span>
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="p-4 border-b border-white/10">
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setAuthOpen(true);
+              }}
+              className="w-full py-3 rounded-2xl bg-white text-black font-black text-sm flex items-center justify-center gap-2 shadow-sm active:scale-98 transition"
+            >
+              <span>Login or Sign Up</span>
+              <ArrowRight size={15} />
+            </button>
+          </div>
+        )}
+
+        <div className="flex flex-col divide-y divide-white/5 py-1">
 
           {userData?.role === "vendor" ? (
             <>
-            <Link
+              <Link
                 href="/partners/dashboard"
-                className={`flex justify-between items-center px-6 py-4 hover:bg-white/5 ${
-                  pathname === "/partners/dashboard" ? "text-white font-bold" : "text-gray-300"
+                className={`flex justify-between items-center px-5 py-3.5 hover:bg-white/5 transition ${
+                  pathname === "/partners/dashboard" ? "text-white font-bold bg-white/10" : "text-zinc-300"
                 }`}
                 onClick={() => setMenuOpen(false)}
               >
-                <span>Dashboard</span>
+                <span className="text-sm">Partner Dashboard</span>
+                <ChevronRight size={16} className="text-zinc-500" />
               </Link>
-              
+
               <Link
                 href="/partner/active-ride"
-                className="flex justify-between items-center px-6 py-4 text-gray-300 hover:bg-white/5"
+                className={`flex justify-between items-center px-5 py-3.5 hover:bg-white/5 transition ${
+                  pathname === "/partner/active-ride" ? "text-white font-bold bg-white/10" : "text-zinc-300"
+                }`}
                 onClick={() => setMenuOpen(false)}
               >
-                <span>Active Ride</span>
-               
+                <span className="text-sm">Active Ride</span>
+                <ChevronRight size={16} className="text-zinc-500" />
               </Link>
+
               <Link
                 href="/partner/pending-requests"
-                className="flex justify-between items-center px-6 py-4 text-gray-300 hover:bg-white/5"
+                className={`flex justify-between items-center px-5 py-3.5 hover:bg-white/5 transition ${
+                  pathname === "/partner/pending-requests" ? "text-white font-bold bg-white/10" : "text-zinc-300"
+                }`}
                 onClick={() => setMenuOpen(false)}
               >
-                <span>Pending Requests</span>
-                {pendingCount > 0 && (
-                  <span className="w-6 h-6 bg-red-500 text-xs rounded-full flex items-center justify-center font-bold text-white">
+                <span className="text-sm">Pending Requests</span>
+                {pendingCount > 0 ? (
+                  <span className="w-5 h-5 bg-red-500 text-[11px] rounded-full flex items-center justify-center font-bold text-white">
                     {pendingCount}
                   </span>
+                ) : (
+                  <ChevronRight size={16} className="text-zinc-500" />
                 )}
               </Link>
 
               <Link
                 href="/partner/bookings"
-                className="flex justify-between items-center px-6 py-4 text-gray-300 hover:bg-white/5"
+                className={`flex justify-between items-center px-5 py-3.5 hover:bg-white/5 transition ${
+                  pathname === "/partner/bookings" ? "text-white font-bold bg-white/10" : "text-zinc-300"
+                }`}
                 onClick={() => setMenuOpen(false)}
               >
-                <span>My Bookings</span>
-                {activeCount > 0 && (
-                  <span className="w-6 h-6 bg-green-500 text-xs rounded-full flex items-center justify-center font-bold text-white">
+                <span className="text-sm">My Bookings</span>
+                {activeCount > 0 ? (
+                  <span className="w-5 h-5 bg-emerald-500 text-[11px] rounded-full flex items-center justify-center font-bold text-white">
                     {activeCount}
                   </span>
+                ) : (
+                  <ChevronRight size={16} className="text-zinc-500" />
                 )}
               </Link>
 
               <Link
                 href="/partner/wallet"
-                className="flex justify-between items-center px-6 py-4 text-gray-300 hover:bg-white/5"
+                className={`flex justify-between items-center px-5 py-3.5 hover:bg-white/5 transition ${
+                  pathname === "/partner/wallet" ? "text-white font-bold bg-white/10" : "text-zinc-300"
+                }`}
                 onClick={() => setMenuOpen(false)}
               >
-                <span>Wallet & Earnings</span>
+                <span className="text-sm">Wallet & Earnings</span>
+                <ChevronRight size={16} className="text-zinc-500" />
               </Link>
             </>
           ) : (
             <>
-              {NAV_ITEMS.map((item) => (
+              {/* Quick Book CTA if not on book page */}
+              {pathname !== "/book" && (
+                <div className="p-3">
+                  <Link
+                    href="/book"
+                    onClick={() => setMenuOpen(false)}
+                    className="w-full py-3 px-4 rounded-xl bg-white text-zinc-950 font-black text-sm flex items-center justify-between shadow-sm active:scale-98 transition"
+                  >
+                    <span>⚡ Book a Ride Now</span>
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
+              )}
+
+              {NAV_ITEMS.map((item) => {
+                const href = NAV_ROUTES[item];
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={item}
+                    href={href}
+                    className={`flex items-center justify-between px-5 py-3.5 hover:bg-white/5 transition text-sm ${
+                      active ? "text-white font-bold bg-white/10" : "text-zinc-300"
+                    }`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <span>{item}</span>
+                    <ChevronRight size={16} className={active ? "text-white" : "text-zinc-600"} />
+                  </Link>
+                );
+              })}
+
+              {userData?.role === "user" && (
                 <Link
-                  key={item}
-                  href={NAV_ROUTES[item]}
-                  className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                  href="/partner/onboard/vehicle"
+                  className="flex items-center justify-between px-5 py-3.5 text-emerald-400 hover:bg-white/5 transition text-sm font-bold"
                   onClick={() => setMenuOpen(false)}
                 >
-                  {item}
+                  <span>🚗 Drive with RideNow</span>
+                  <ChevronRight size={16} className="text-emerald-500" />
                 </Link>
-              ))}
+              )}
 
               {userData?.role === "admin" && (
                 <Link
                   href="/admin/dashboard"
-                  className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                  className="flex items-center justify-between px-5 py-3.5 text-zinc-300 hover:bg-white/5 transition text-sm"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Admin Panel
+                  <span>Admin Panel</span>
+                  <ChevronRight size={16} className="text-zinc-600" />
                 </Link>
               )}
             </>
+          )}
+
+          {userData && (
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                handleLogout();
+              }}
+              className="flex items-center justify-between px-5 py-3.5 text-red-400 hover:bg-red-500/10 transition text-sm font-semibold w-full text-left"
+            >
+              <span>Logout</span>
+              <LogOut size={15} />
+            </button>
           )}
 
         </div>

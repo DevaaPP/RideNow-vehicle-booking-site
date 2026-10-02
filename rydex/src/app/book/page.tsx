@@ -72,6 +72,15 @@ export default function BookPage() {
   const [activeSearchField, setActiveSearchField] = useState<"pickup" | "drop" | null>(null);
   const [isEditingRoute, setIsEditingRoute] = useState(false);
   const [showFareReceipt, setShowFareReceipt] = useState(false);
+  const [mobileSheetExpanded, setMobileSheetExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(typeof window !== "undefined" && window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   /* ── STUDENT MODE STATE ── */
   const [isStudent, setIsStudent] = useState<boolean>(false);
@@ -1688,7 +1697,7 @@ export default function BookPage() {
           smartPickups={smartPickups}
           onSelectSmartPickup={handleSelectSmartPickup}
           stops={validStopsForMap}
-          bottomPadding={hasRoute ? 360 : 120}
+          bottomPadding={hasRoute ? (isMobile ? (mobileSheetExpanded ? 340 : 220) : 360) : 100}
         />
       </div>
 
@@ -1789,31 +1798,59 @@ export default function BookPage() {
           {hasRoute && (
             <motion.div
               initial={{ y: "100%" }}
-              animate={{ y: 0 }}
+              animate={{ y: 0, height: mobileSheetExpanded ? "82vh" : "285px" }}
               exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 z-30 max-h-[82vh] bg-white rounded-t-2xl border-t border-zinc-200 shadow-xl flex flex-col overflow-hidden"
+              transition={{ type: "spring", damping: 32, stiffness: 320 }}
+              className="fixed bottom-0 left-0 right-0 z-30 bg-white rounded-t-3xl border-t border-zinc-200 shadow-2xl flex flex-col overflow-hidden"
             >
-              {/* Drag Handle */}
-              <div className="w-10 h-1 bg-zinc-300 rounded-full mx-auto my-2 flex-shrink-0" />
+              {/* Interactive Drag Handle Area */}
+              <motion.div
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={0.25}
+                onDragEnd={(_, info) => {
+                  if (info.offset.y < -35 || info.velocity.y < -250) {
+                    setMobileSheetExpanded(true);
+                  } else if (info.offset.y > 35 || info.velocity.y > 250) {
+                    setMobileSheetExpanded(false);
+                  }
+                }}
+                onClick={() => setMobileSheetExpanded(prev => !prev)}
+                className="w-full pt-3 pb-1 cursor-grab active:cursor-grabbing flex flex-col items-center select-none flex-shrink-0 bg-white"
+              >
+                <div className="w-12 h-1.5 bg-zinc-300 rounded-full" />
+                <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 mt-1.5">
+                  <span>{mobileSheetExpanded ? "Swipe down for map" : "Swipe up for all options"}</span>
+                  {mobileSheetExpanded ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+                </div>
+              </motion.div>
 
-              {/* Collapsed Route Summary Header with Edit Toggle */}
-              <div className="flex-shrink-0 px-4 py-2 border-b border-zinc-100 flex items-center justify-between">
+              {/* Compact Route Summary Header with Edit Toggle */}
+              <div className="flex-shrink-0 px-4 py-2 border-b border-zinc-100 flex items-center justify-between bg-white">
                 <div className="flex items-center gap-2 min-w-0 pr-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
-                  <span className="text-xs font-bold text-zinc-800 truncate max-w-[130px]">{pickup}</span>
+                  <span className="text-xs font-bold text-zinc-800 truncate max-w-[120px]">{pickup}</span>
                   <span className="text-zinc-400">→</span>
                   <span className="w-2 h-2 rounded-sm bg-zinc-900 flex-shrink-0" />
-                  <span className="text-xs font-black text-zinc-900 truncate max-w-[130px]">{drop}</span>
+                  <span className="text-xs font-black text-zinc-900 truncate max-w-[120px]">{drop}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsEditingRoute(!isEditingRoute)}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-100 text-zinc-700 text-[11px] font-bold flex items-center gap-1 flex-shrink-0"
-                >
-                  <Edit2 size={11} />
-                  <span>{isEditingRoute ? "Done" : "Edit"}</span>
-                </button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {effectiveDistance} km
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditingRoute(!isEditingRoute);
+                      if (!isEditingRoute) setMobileSheetExpanded(true);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-zinc-100 text-zinc-700 text-[11px] font-bold flex items-center gap-1"
+                  >
+                    <Edit2 size={11} />
+                    <span>{isEditingRoute ? "Done" : "Edit"}</span>
+                  </button>
+                </div>
               </div>
 
               {/* If Mobile User Tapped Edit, Show Inputs Inline */}
@@ -1823,10 +1860,48 @@ export default function BookPage() {
                 </div>
               )}
 
-              {/* Scrollable Rides Body */}
-              <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-                {renderRideSelection()}
-              </div>
+              {/* Peek Mode Selected Vehicle Preview (Visible when collapsed) */}
+              {!mobileSheetExpanded && (
+                <div className="px-4 py-2 flex items-center justify-between border-b border-zinc-100/80 bg-zinc-50/50 flex-shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-900 text-white flex items-center justify-center shadow-xs">
+                      {(() => {
+                        const Icon = VEHICLES.find(v => v.id === vehicle)?.Icon || Car;
+                        return <Icon size={20} />;
+                      })()}
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-zinc-900">
+                        {VEHICLES.find(v => v.id === vehicle)?.label || "Car"}
+                      </p>
+                      <p className="text-[10px] text-zinc-500 font-bold">
+                        {VEHICLES.find(v => v.id === vehicle)?.etaText || "4 min away"} • {currentBreakdown.timeMinutes} min trip
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <div className="text-right">
+                      <p className="text-base font-black text-zinc-900">₹{currentBreakdown.totalFare}</p>
+                      <span className="text-[9px] font-bold text-emerald-600 uppercase">Guaranteed</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setMobileSheetExpanded(true)}
+                      className="px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-[11px] font-bold text-zinc-800 hover:bg-zinc-100"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Scrollable Rides Body (Fully scrollable when expanded) */}
+              {mobileSheetExpanded && (
+                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+                  {renderRideSelection()}
+                </div>
+              )}
 
               {/* Mobile Sticky Footer */}
               <div className="flex-shrink-0 p-3.5 border-t border-zinc-100 bg-white">
@@ -1834,10 +1909,10 @@ export default function BookPage() {
                   whileTap={{ scale: 0.98 }}
                   disabled={!canContinue}
                   onClick={handleConfirmRide}
-                  className="w-full py-3.5 rounded-xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 transition active:scale-98"
+                  className="w-full py-3.5 rounded-xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 transition active:scale-98 shadow-md"
                 >
                   <span>
-                    {bookingMode === "schedule" ? "Schedule Ride" : `Confirm ${VEHICLES.find(v => v.id === vehicle)?.label || "Ride"}`}
+                    {bookingMode === "schedule" ? "Schedule Ride" : `Confirm ${VEHICLES.find(v => v.id === vehicle)?.label || "Ride"} • ₹${currentBreakdown.totalFare}`}
                   </span>
                   <ArrowRight size={16} />
                 </motion.button>
