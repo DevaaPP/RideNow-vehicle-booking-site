@@ -125,6 +125,7 @@ export default function LiveTrackingMap({
   const dropMarkerRef = useRef<maplibregl.Marker | null>(null);
 
   const lastPosRef = useRef<[number, number] | null>(null);
+  const lastRouteFetchRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
   const [ready, setReady] = useState(false);
 
   /* ─── INITIALIZE MAP ─── */
@@ -350,6 +351,17 @@ export default function LiveTrackingMap({
     if (!map || !ready || !driverLocation || !pickupLocation) return;
 
     if (status === "arriving") {
+      const last = lastRouteFetchRef.current;
+      if (last) {
+        const dist = Math.hypot(driverLocation[0] - last.lat, driverLocation[1] - last.lng);
+        const elapsed = Date.now() - last.time;
+        // Skip expensive polyline recalculation if driver moved < 120m and < 15s elapsed
+        if (dist < 0.001 && elapsed < 15000) {
+          return;
+        }
+      }
+      lastRouteFetchRef.current = { lat: driverLocation[0], lng: driverLocation[1], time: Date.now() };
+
       try {
         const ptsParam = `${driverLocation[0]},${driverLocation[1]};${pickupLocation[0]},${pickupLocation[1]}`;
         const res = await fetch(`/api/route?points=${encodeURIComponent(ptsParam)}`);

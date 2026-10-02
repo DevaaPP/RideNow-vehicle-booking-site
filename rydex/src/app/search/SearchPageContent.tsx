@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import {
   ArrowLeft, MapPin, Navigation,
@@ -55,14 +55,23 @@ export default function SearchPageContent() {
     }
   }
 
+  const handleDistance = useCallback((distance: number) => {
+    setKm(distance);
+  }, []);
+
+  const handleMapChange = useCallback((p: string, d: string) => {
+    setPickup(p);
+    setDrop(d);
+  }, []);
+
   useEffect(() => {
     if (!pickupLat || !pickupLng) return;
     fetchNearbyVehicles(pickupLat, pickupLng);
 
-    // Auto-refresh drivers location every 8 seconds silently
+    // Auto-refresh drivers location every 15 seconds silently
     const interval = setInterval(() => {
       fetchNearbyVehicles(pickupLat, pickupLng, true);
-    }, 8000);
+    }, 15000);
 
     return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
@@ -83,8 +92,8 @@ export default function SearchPageContent() {
         <RouteMap
           pickup={pickup}
           drop={drop}
-          onDistance={setKm}
-          onChange={(p, d) => { setPickup(p); setDrop(d); }}
+          onDistance={handleDistance}
+          onChange={handleMapChange}
           vehicles={vehicles}
         />
 

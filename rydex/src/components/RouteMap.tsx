@@ -269,6 +269,7 @@ export default function RouteMap({
   const dropMarkerRef = useRef<maplibregl.Marker | null>(null);
   const stopMarkersRef = useRef<maplibregl.Marker[]>([]);
   const vehicleMarkersRef = useRef<maplibregl.Marker[]>([]);
+  const routeRetryTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [p1, setP1] = useState<[number, number] | null>(pickupCoords ?? null);
   const [p2, setP2] = useState<[number, number] | null>(dropCoords ?? null);
@@ -376,6 +377,10 @@ export default function RouteMap({
     mapRef.current = map;
 
     return () => {
+      if (routeRetryTimerRef.current) {
+        clearInterval(routeRetryTimerRef.current);
+        routeRetryTimerRef.current = null;
+      }
       map.remove();
       mapRef.current = null;
     };
@@ -436,11 +441,26 @@ export default function RouteMap({
 
       if (tryApply()) return;
 
+      if (routeRetryTimerRef.current) {
+        clearInterval(routeRetryTimerRef.current);
+        routeRetryTimerRef.current = null;
+      }
+
       // Retry polling until layer is ready
-      const timer = setInterval(() => {
-        if (tryApply()) clearInterval(timer);
+      routeRetryTimerRef.current = setInterval(() => {
+        if (tryApply()) {
+          if (routeRetryTimerRef.current) {
+            clearInterval(routeRetryTimerRef.current);
+            routeRetryTimerRef.current = null;
+          }
+        }
       }, 100);
-      setTimeout(() => clearInterval(timer), 4000);
+      setTimeout(() => {
+        if (routeRetryTimerRef.current) {
+          clearInterval(routeRetryTimerRef.current);
+          routeRetryTimerRef.current = null;
+        }
+      }, 4000);
     },
     [bottomPadding]
   );

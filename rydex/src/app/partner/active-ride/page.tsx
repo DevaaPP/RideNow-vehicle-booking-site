@@ -280,8 +280,11 @@ export default function DriverRidePage() {
         const last = lastGpsEmitRef.current;
         const dLat = Math.abs(lat - last.lat);
         const dLng = Math.abs(lng - last.lng);
+        const timeElapsed = now - last.time;
+        const movedSignificantly = dLat > 0.00004 || dLng > 0.00004;
 
-        if (now - last.time >= 2000 || dLat > 0.00005 || dLng > 0.00005) {
+        // Smooth GPS throttling: minimum 2 seconds between updates when moving, or 8s heartbeat
+        if ((timeElapsed >= 2000 && movedSignificantly) || timeElapsed >= 8000) {
           lastGpsEmitRef.current = { time: now, lat, lng };
           setDriverPos([lat, lng]);
           socket.emit("driver-location-update", {

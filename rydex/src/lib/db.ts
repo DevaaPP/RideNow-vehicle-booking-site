@@ -17,13 +17,26 @@ const connectDb = async () => {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(mongodbUrl).then((conn) => conn.connection);
+    const opts = {
+      bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+    };
+    cached.promise = mongoose
+      .connect(mongodbUrl, opts)
+      .then((m) => m.connection)
+      .catch((err) => {
+        cached.promise = null;
+        throw err;
+      });
   }
   try {
-    const conn = await cached.promise;
-    return conn;
+    cached.conn = await cached.promise;
+    return cached.conn;
   } catch (error) {
-    console.log(error);
+    cached.promise = null;
+    console.error("MongoDB connection error:", error);
+    return null;
   }
 };
 

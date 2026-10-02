@@ -694,11 +694,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     // 2. Check for pending requests on mount
     fetchPendingRequest();
 
-    // 🔁 Polling fallback every 5 seconds in case socket drops
+    // 🔁 Polling fallback every 12 seconds in case socket drops (Socket.IO handles real-time alerts)
     const interval = setInterval(() => {
       checkActiveRide();
       fetchPendingRequest();
-    }, 5000);
+    }, 12000);
 
     // 3. Setup socket listener for incoming requests
     const socket = getSocket();
