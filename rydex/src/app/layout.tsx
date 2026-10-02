@@ -4,7 +4,6 @@ import "./globals.css";
 import StoreProvider from "@/redux/StoreProvider";
 import InitUser from "@/initUser";
 import Provider from "@/Provider";
-import "leaflet/dist/leaflet.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
