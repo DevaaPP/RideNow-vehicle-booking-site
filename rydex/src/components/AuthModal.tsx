@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useDispatch } from "react-redux";
@@ -697,6 +698,35 @@ export default function AuthModal({ open, onClose }: Props) {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* STATUTORY / DPDP ACT 2023 NOTICE */}
+              <p className="mt-5 text-[11px] leading-relaxed text-center text-zinc-400 font-medium">
+                By proceeding, you agree to RideNow&apos;s{" "}
+                <Link
+                  href="/terms"
+                  onClick={onClose}
+                  className="text-zinc-700 underline font-semibold hover:text-black transition"
+                >
+                  Terms of Service
+                </Link>
+                ,{" "}
+                <Link
+                  href="/privacy"
+                  onClick={onClose}
+                  className="text-zinc-700 underline font-semibold hover:text-black transition"
+                >
+                  Privacy Policy
+                </Link>
+                , and{" "}
+                <Link
+                  href="/cancellation-refund"
+                  onClick={onClose}
+                  className="text-zinc-700 underline font-semibold hover:text-black transition"
+                >
+                  Refund Terms
+                </Link>
+                .
+              </p>
             </div>
           </motion.div>
         </>
