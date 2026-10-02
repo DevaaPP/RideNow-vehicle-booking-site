@@ -151,7 +151,7 @@ function createCarEl(): HTMLElement {
 }
 
 function ensureRouteLayers(map: maplibregl.Map): boolean {
-  if (!map || !map.isStyleLoaded()) return false;
+  if (!map) return false;
 
   try {
     // 1. Alternative Route Source & Layers
@@ -363,20 +363,18 @@ export default function RouteMap({
     });
 
     const onReady = () => {
-      if (map.isStyleLoaded()) {
-        ensureRouteLayers(map);
-        if (lastRouteCoordsRef.current && lastRouteCoordsRef.current.length > 0) {
-          const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
-          if (source) {
-            source.setData({
-              type: "Feature",
-              properties: {},
-              geometry: {
-                type: "LineString",
-                coordinates: lastRouteCoordsRef.current,
-              },
-            });
-          }
+      ensureRouteLayers(map);
+      if (lastRouteCoordsRef.current && lastRouteCoordsRef.current.length > 0) {
+        const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+        if (source) {
+          source.setData({
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: lastRouteCoordsRef.current,
+            },
+          });
         }
       }
     };
@@ -405,7 +403,6 @@ export default function RouteMap({
 
       const tryApply = () => {
         try {
-          if (!map.isStyleLoaded()) return false;
           ensureRouteLayers(map);
           const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
           const altSource = map.getSource("route-alt-source") as maplibregl.GeoJSONSource;
