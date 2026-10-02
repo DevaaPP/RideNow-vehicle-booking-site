@@ -37,26 +37,23 @@ function createPickupEl(durationMin?: number | null): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
 
-  const etaText = durationMin ? `${durationMin} min` : "Pickup";
+  const etaBadge = durationMin && durationMin > 0 ? ` • ${durationMin} min` : "";
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.28));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));">
       <div style="
-        background:#09090b;color:#ffffff;
-        padding:4px 10px;border-radius:100px;
-        font-size:11px;font-weight:800;letter-spacing:0.02em;
-        white-space:nowrap;
-        font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-        border:1.5px solid #ffffff;
-        box-shadow:0 3px 10px rgba(0,0,0,0.2);
-        margin-bottom:4px;
+        background:#16a34a;color:#ffffff;
+        padding:3px 10px;border-radius:100px;
+        font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
+        white-space:nowrap;font-family:system-ui,-apple-system,sans-serif;
+        box-shadow:0 2px 6px rgba(22,163,74,0.35);margin-bottom:3px;
       ">
-        ${etaText}
+        PICKUP${etaBadge}
       </div>
+      <div style="width:2px;height:6px;background:#16a34a;opacity:0.7;"></div>
       <div style="
-        width:16px;height:16px;background:#09090b;border-radius:50%;
-        border:3.5px solid #ffffff;
-        box-shadow:0 2px 8px rgba(0,0,0,0.3);
+        width:14px;height:14px;background:#16a34a;border-radius:50%;
+        border:3px solid #ffffff;box-shadow:0 2px 8px rgba(22,163,74,0.45);
       "></div>
     </div>
   `;
@@ -67,24 +64,20 @@ function createDropEl(): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.28));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));">
       <div style="
-        background:#09090b;color:#ffffff;
-        padding:3px 9px;border-radius:6px;
-        font-size:10px;font-weight:800;
-        white-space:nowrap;
-        font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-        border:1.5px solid #ffffff;
-        box-shadow:0 3px 10px rgba(0,0,0,0.2);
-        margin-bottom:4px;
+        background:#dc2626;color:#ffffff;
+        padding:3px 10px;border-radius:100px;
+        font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
+        white-space:nowrap;font-family:system-ui,-apple-system,sans-serif;
+        box-shadow:0 2px 6px rgba(220,38,38,0.35);margin-bottom:3px;
       ">
-        Destination
+        DROP
       </div>
+      <div style="width:2px;height:6px;background:#dc2626;opacity:0.7;"></div>
       <div style="
-        width:14px;height:14px;background:#09090b;
-        border:3px solid #ffffff;
-        box-shadow:0 2px 8px rgba(0,0,0,0.3);
-        border-radius:3px;
+        width:14px;height:14px;background:#dc2626;border-radius:50%;
+        border:3px solid #ffffff;box-shadow:0 2px 8px rgba(220,38,38,0.45);
       "></div>
     </div>
   `;
@@ -264,7 +257,13 @@ export default function RouteMap({
   const vehicleMarkersRef = useRef<maplibregl.Marker[]>([]);
   const routeRetryTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastRouteCoordsRef = useRef<[number, number][]>([]);
+  const lastAltCoordsRef = useRef<[number, number][]>([]);
   const lastRouteKeyRef = useRef<string>("");
+
+  const svgCasingRef = useRef<SVGPathElement | null>(null);
+  const svgCoreRef = useRef<SVGPathElement | null>(null);
+  const svgAltCasingRef = useRef<SVGPathElement | null>(null);
+  const svgAltCoreRef = useRef<SVGPathElement | null>(null);
 
   const [p1, setP1] = useState<[number, number] | null>(pickupCoords ?? null);
   const [p2, setP2] = useState<[number, number] | null>(dropCoords ?? null);
@@ -362,6 +361,39 @@ export default function RouteMap({
       attributionControl: false,
     });
 
+    const updateSvgOverlay = () => {
+      const m = mapRef.current;
+      if (!m) return;
+
+      const coords = lastRouteCoordsRef.current;
+      if (coords && coords.length > 0) {
+        let d = "";
+        for (let i = 0; i < coords.length; i++) {
+          const pt = m.project(coords[i]);
+          d += (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
+        }
+        if (svgCasingRef.current) svgCasingRef.current.setAttribute("d", d);
+        if (svgCoreRef.current) svgCoreRef.current.setAttribute("d", d);
+      } else {
+        if (svgCasingRef.current) svgCasingRef.current.setAttribute("d", "");
+        if (svgCoreRef.current) svgCoreRef.current.setAttribute("d", "");
+      }
+
+      const altCoords = lastAltCoordsRef.current;
+      if (altCoords && altCoords.length > 0) {
+        let dAlt = "";
+        for (let i = 0; i < altCoords.length; i++) {
+          const pt = m.project(altCoords[i]);
+          dAlt += (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
+        }
+        if (svgAltCasingRef.current) svgAltCasingRef.current.setAttribute("d", dAlt);
+        if (svgAltCoreRef.current) svgAltCoreRef.current.setAttribute("d", dAlt);
+      } else {
+        if (svgAltCasingRef.current) svgAltCasingRef.current.setAttribute("d", "");
+        if (svgAltCoreRef.current) svgAltCoreRef.current.setAttribute("d", "");
+      }
+    };
+
     const onReady = () => {
       ensureRouteLayers(map);
       if (lastRouteCoordsRef.current && lastRouteCoordsRef.current.length > 0) {
@@ -377,10 +409,15 @@ export default function RouteMap({
           });
         }
       }
+      updateSvgOverlay();
     };
 
     map.on("load", onReady);
     map.on("styledata", onReady);
+    map.on("render", updateSvgOverlay);
+    map.on("move", updateSvgOverlay);
+    map.on("zoom", updateSvgOverlay);
+    map.on("resize", updateSvgOverlay);
 
     mapRef.current = map;
 
@@ -398,8 +435,30 @@ export default function RouteMap({
   const applyRouteLine = useCallback(
     (coords: [number, number][], altCoords?: [number, number][]) => {
       lastRouteCoordsRef.current = coords;
+      if (altCoords) lastAltCoordsRef.current = altCoords;
       const map = mapRef.current;
       if (!map) return;
+
+      // Update SVG overlay immediately (zero-lag 2D compositor)
+      if (coords && coords.length > 0) {
+        let d = "";
+        for (let i = 0; i < coords.length; i++) {
+          const pt = map.project(coords[i]);
+          d += (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
+        }
+        if (svgCasingRef.current) svgCasingRef.current.setAttribute("d", d);
+        if (svgCoreRef.current) svgCoreRef.current.setAttribute("d", d);
+      }
+      if (altCoords && altCoords.length > 0) {
+        let dAlt = "";
+        for (let i = 0; i < altCoords.length; i++) {
+          const pt = map.project(altCoords[i]);
+          dAlt += (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
+        }
+        if (svgAltCasingRef.current) svgAltCasingRef.current.setAttribute("d", dAlt);
+        if (svgAltCoreRef.current) svgAltCoreRef.current.setAttribute("d", dAlt);
+      }
+      map.triggerRepaint();
 
       const tryApply = () => {
         try {
@@ -548,6 +607,20 @@ export default function RouteMap({
         } catch (e) {
           console.warn("Proxy route fetch failed:", e);
         }
+      }
+
+      // Tier 3: Guaranteed fallback direct spline so line is 100% NEVER blank
+      if (!routeData) {
+        const coords: [number, number][] = waypoints.map(([lat, lon]) => [lon, lat]);
+        const straightDistKm = Math.round(
+          Math.hypot(dropPt[0] - pickupPt[0], dropPt[1] - pickupPt[1]) * 111 * 10
+        ) / 10;
+        routeData = {
+          distanceKm: straightDistKm || 5,
+          durationMinutes: Math.max(3, Math.round((straightDistKm || 5) * 2.5)),
+          geojsonCoords: coords,
+          engine: "direct",
+        };
       }
 
       if (routeData && routeData.geojsonCoords?.length > 0) {
@@ -739,7 +812,13 @@ export default function RouteMap({
     if (onChange) onChange("", "");
     setPinMode(null);
     setKm(null);
-    setDurationMin(null);
+    lastRouteCoordsRef.current = [];
+    lastAltCoordsRef.current = [];
+    if (svgCasingRef.current) svgCasingRef.current.setAttribute("d", "");
+    if (svgCoreRef.current) svgCoreRef.current.setAttribute("d", "");
+    if (svgAltCasingRef.current) svgAltCasingRef.current.setAttribute("d", "");
+    if (svgAltCoreRef.current) svgAltCoreRef.current.setAttribute("d", "");
+
     const map = mapRef.current;
     if (map) {
       ensureRouteLayers(map);
@@ -769,6 +848,56 @@ export default function RouteMap({
         ref={mapContainerRef}
         className={`w-full h-full ${pinMode ? "cursor-crosshair" : ""}`}
       />
+
+      {/* ── FAIL-SAFE SVG ROUTE POLYLINE OVERLAY ── */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 10, pointerEvents: "none" }}
+      >
+        {/* Alternative route */}
+        <path
+          ref={svgAltCasingRef}
+          d=""
+          stroke="#ffffff"
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.8"
+        />
+        <path
+          ref={svgAltCoreRef}
+          d=""
+          stroke="#94a3b8"
+          strokeWidth="4.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.85"
+        />
+        {/* Primary route casing (crisp white halo) */}
+        <path
+          ref={svgCasingRef}
+          d=""
+          stroke="#ffffff"
+          strokeWidth="9.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="1.0"
+        />
+        {/* Primary route core (vivid Google Maps blue) */}
+        <path
+          ref={svgCoreRef}
+          d=""
+          stroke="#2563eb"
+          strokeWidth="5.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="1.0"
+        />
+      </svg>
 
       {/* ── TOP RIGHT MAP CONTROLS & ROUTE ETA PILL ── */}
       <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2 pointer-events-none">

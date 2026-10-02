@@ -271,7 +271,11 @@ async function fetchRoadRoute(
     }
   } catch (_) {}
 
-  return null;
+  // Fail-safe direct fallback so the polyline is 100% NEVER blank
+  return [
+    [from[1], from[0]],
+    [to[1], to[0]],
+  ];
 }
 
 /* ─── MAIN COMPONENT ────────────────────────────────────────────────── */
@@ -300,6 +304,49 @@ export default function LiveTrackingMap({
   const tripRouteDrawnRef = useRef(false);
   const [ready, setReady] = useState(false);
 
+  const tripCoordsRef = useRef<[number, number][]>([]);
+  const driverCoordsRef = useRef<[number, number][]>([]);
+
+  const svgTripCasingRef = useRef<SVGPathElement | null>(null);
+  const svgTripCoreRef = useRef<SVGPathElement | null>(null);
+  const svgDriverCasingRef = useRef<SVGPathElement | null>(null);
+  const svgDriverCoreRef = useRef<SVGPathElement | null>(null);
+
+  const updateSvgOverlay = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // 1. Trip Route (Pickup -> Drop or Driver -> Drop)
+    const tripCoords = tripCoordsRef.current;
+    if (tripCoords && tripCoords.length > 0) {
+      let d = "";
+      for (let i = 0; i < tripCoords.length; i++) {
+        const pt = map.project(tripCoords[i]);
+        d += (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
+      }
+      if (svgTripCasingRef.current) svgTripCasingRef.current.setAttribute("d", d);
+      if (svgTripCoreRef.current) svgTripCoreRef.current.setAttribute("d", d);
+    } else {
+      if (svgTripCasingRef.current) svgTripCasingRef.current.setAttribute("d", "");
+      if (svgTripCoreRef.current) svgTripCoreRef.current.setAttribute("d", "");
+    }
+
+    // 2. Driver Approach Route (Driver -> Pickup)
+    const driverCoords = driverCoordsRef.current;
+    if (driverCoords && driverCoords.length > 0) {
+      let d = "";
+      for (let i = 0; i < driverCoords.length; i++) {
+        const pt = map.project(driverCoords[i]);
+        d += (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
+      }
+      if (svgDriverCasingRef.current) svgDriverCasingRef.current.setAttribute("d", d);
+      if (svgDriverCoreRef.current) svgDriverCoreRef.current.setAttribute("d", d);
+    } else {
+      if (svgDriverCasingRef.current) svgDriverCasingRef.current.setAttribute("d", "");
+      if (svgDriverCoreRef.current) svgDriverCoreRef.current.setAttribute("d", "");
+    }
+  }, []);
+
   /* ─── INITIALIZE MAP ─── */
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -323,6 +370,7 @@ export default function LiveTrackingMap({
       setupRouteLayers(map);
       mapReadyRef.current = true;
       setReady(true);
+      updateSvgOverlay();
     };
 
     map.on("load", onStyleLoaded);
@@ -331,6 +379,11 @@ export default function LiveTrackingMap({
         onStyleLoaded();
       }
     });
+
+    map.on("render", updateSvgOverlay);
+    map.on("move", updateSvgOverlay);
+    map.on("zoom", updateSvgOverlay);
+    map.on("resize", updateSvgOverlay);
 
     mapRef.current = map;
 
@@ -424,6 +477,10 @@ export default function LiveTrackingMap({
       const coords = await fetchRoadRoute(startPt, dropLocation);
       if (!coords || !mapRef.current) return;
 
+      tripCoordsRef.current = coords;
+      updateSvgOverlay();
+      map.triggerRepaint();
+
       const source = mapRef.current.getSource("trip-route") as maplibregl.GeoJSONSource;
       if (source) {
         source.setData({
@@ -434,6 +491,8 @@ export default function LiveTrackingMap({
       }
 
       // Clear driver approach route once trip is ongoing
+      driverCoordsRef.current = [];
+      updateSvgOverlay();
       const driverSource = mapRef.current.getSource("driver-route") as maplibregl.GeoJSONSource;
       if (driverSource) {
         driverSource.setData({
@@ -449,6 +508,10 @@ export default function LiveTrackingMap({
       const coords = await fetchRoadRoute(pickupLocation, dropLocation);
       if (!coords || !mapRef.current) return;
 
+      tripCoordsRef.current = coords;
+      updateSvgOverlay();
+      map.triggerRepaint();
+
       const source = mapRef.current.getSource("trip-route") as maplibregl.GeoJSONSource;
       if (source) {
         source.setData({
@@ -460,6 +523,9 @@ export default function LiveTrackingMap({
       }
     } else {
       // Completed: clear route
+      tripCoordsRef.current = [];
+      driverCoordsRef.current = [];
+      updateSvgOverlay();
       const source = map.getSource("trip-route") as maplibregl.GeoJSONSource;
       if (source) {
         source.setData({
@@ -469,7 +535,7 @@ export default function LiveTrackingMap({
         });
       }
     }
-  }, [driverLocation, pickupLocation, dropLocation, status]);
+  }, [driverLocation, pickupLocation, dropLocation, status, updateSvgOverlay]);
 
   /* ─── DRIVER APPROACH ROUTE (DRIVER → PICKUP) ─── */
   const updateDriverRoute = useCallback(async () => {
@@ -489,6 +555,10 @@ export default function LiveTrackingMap({
       const coords = await fetchRoadRoute(driverLocation, pickupLocation);
       if (!coords || !mapRef.current) return;
 
+      driverCoordsRef.current = coords;
+      updateSvgOverlay();
+      map.triggerRepaint();
+
       const source = mapRef.current.getSource("driver-route") as maplibregl.GeoJSONSource;
       if (source) {
         source.setData({
@@ -499,6 +569,8 @@ export default function LiveTrackingMap({
       }
     } else {
       // Clear driver approach line when ride is ongoing/completed
+      driverCoordsRef.current = [];
+      updateSvgOverlay();
       const source = mapRef.current?.getSource("driver-route") as maplibregl.GeoJSONSource;
       if (source) {
         source.setData({
@@ -508,7 +580,7 @@ export default function LiveTrackingMap({
         });
       }
     }
-  }, [driverLocation, pickupLocation, status]);
+  }, [driverLocation, pickupLocation, status, updateSvgOverlay]);
 
   // Initial and reactive trip route
   useEffect(() => {
@@ -545,6 +617,55 @@ export default function LiveTrackingMap({
   return (
     <div className="relative w-full h-full overflow-hidden select-none">
       <div ref={mapContainerRef} className="w-full h-full" />
+      {/* ── FAIL-SAFE SVG ROUTE POLYLINE OVERLAY ── */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 10, pointerEvents: "none" }}
+      >
+        {/* Driver approach route (dashed cyan with white halo) */}
+        <path
+          ref={svgDriverCasingRef}
+          d=""
+          stroke="#ffffff"
+          strokeWidth="8.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.9"
+        />
+        <path
+          ref={svgDriverCoreRef}
+          d=""
+          stroke="#0284c7"
+          strokeWidth="4.5"
+          strokeDasharray="6, 8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.95"
+        />
+        {/* Trip route (solid Google Maps blue with white halo) */}
+        <path
+          ref={svgTripCasingRef}
+          d=""
+          stroke="#ffffff"
+          strokeWidth="9.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="1.0"
+        />
+        <path
+          ref={svgTripCoreRef}
+          d=""
+          stroke="#2563eb"
+          strokeWidth="5.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="1.0"
+        />
+      </svg>
     </div>
   );
 }
