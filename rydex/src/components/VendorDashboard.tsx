@@ -15,7 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getSocket } from "@/lib/socket";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -624,6 +624,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   const [pendingRequest, setPendingRequest] = useState<any | null>(null);
   const [processingAction, setProcessingAction] = useState<string | null>(null);
   const [rates, setRates] = useState<any>(null);
+  const lastLocationSyncRef = useRef<{ time: number; lat: number; lng: number }>({ time: 0, lat: 0, lng: 0 });
 
   const standardRates: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number }> = {
     bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0 },
@@ -799,8 +800,18 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         const { latitude, longitude } = position.coords;
         setCoords({ latitude, longitude });
 
-        axios.patch("/api/partner/status", { isOnline: true, latitude, longitude })
-          .catch(err => console.error("Continuous location sync error:", err));
+        const now = Date.now();
+        const last = lastLocationSyncRef.current;
+        const dLat = Math.abs(latitude - last.lat);
+        const dLng = Math.abs(longitude - last.lng);
+        const hasMovedSignificantly = dLat > 0.00015 || dLng > 0.00015;
+        const hasTimeElapsed = now - last.time >= 10000;
+
+        if (hasTimeElapsed || hasMovedSignificantly) {
+          lastLocationSyncRef.current = { time: now, lat: latitude, lng: longitude };
+          axios.patch("/api/partner/status", { isOnline: true, latitude, longitude })
+            .catch(err => console.error("Continuous location sync error:", err));
+        }
       },
       (error) => {
         console.error("Watch location error:", error);
