@@ -5,7 +5,8 @@ import {
   ArrowLeft, ArrowRight, MapPin, Navigation,
   Bike, Car, Truck, LocateFixed, Phone,
   CheckCircle2, ChevronRight, GraduationCap,
-  Plus, Trash2, X, Users, Clock, Calendar, Sparkles
+  Plus, Trash2, X, Users, Clock, Calendar, Sparkles,
+  User, UserPlus, ChevronDown, Check
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -97,6 +98,83 @@ export default function BookPage() {
       const tenDigits = cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
       setMobile(tenDigits);
     }
+  };
+
+  /* ── RIDER DROPDOWN & CONTACT STATE ── */
+  const [riderDropdownOpen, setRiderDropdownOpen] = useState(false);
+  const [showAddContactModal, setShowAddContactModal] = useState(false);
+  const [newContactName, setNewContactName] = useState("");
+  const [newContactPhone, setNewContactPhone] = useState("");
+  const [newContactRelation, setNewContactRelation] = useState("Friend");
+  const [saveContactForFuture, setSaveContactForFuture] = useState(true);
+  const [addingContact, setAddingContact] = useState(false);
+  const [contactError, setContactError] = useState<string | null>(null);
+  const riderDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close rider dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (riderDropdownRef.current && !riderDropdownRef.current.contains(e.target as Node)) {
+        setRiderDropdownOpen(false);
+      }
+    };
+    if (riderDropdownOpen) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [riderDropdownOpen]);
+
+  const handleAddNewContact = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactError(null);
+
+    const name = newContactName.trim();
+    const cleanedPhone = newContactPhone.replace(/\D/g, "");
+    const phone = cleanedPhone.length >= 10 ? cleanedPhone.slice(-10) : cleanedPhone;
+
+    if (!name) {
+      setContactError("Please enter contact's name");
+      return;
+    }
+    if (phone.length !== 10) {
+      setContactError("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    const newMember = {
+      name,
+      phone,
+      relation: newContactRelation || "Other",
+    };
+
+    if (saveContactForFuture) {
+      setAddingContact(true);
+      try {
+        const res = await fetch("/api/user/family/member", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            phone,
+            relation: ["Spouse", "Child", "Parent", "Sibling"].includes(newContactRelation) ? newContactRelation : "Other",
+          }),
+        });
+        const data = await res.json();
+        if (data.success && data.family) {
+          setFamilyAccount(data.family);
+        }
+      } catch (err) {
+        console.warn("Failed to persist contact:", err);
+      } finally {
+        setAddingContact(false);
+      }
+    }
+
+    handleSelectRider(newMember);
+    setNewContactName("");
+    setNewContactPhone("");
+    setShowAddContactModal(false);
+    setRiderDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -961,61 +1039,288 @@ export default function BookPage() {
               <label htmlFor="mobileInput" className="text-xs font-bold text-zinc-500 uppercase tracking-widest cursor-pointer">Passenger & Contact</label>
             </div>
 
-            {/* 👨👩👧 RIDING FOR / FAMILY ACCOUNT SELECTOR */}
-            {familyAccount?.members && familyAccount.members.length > 0 && (
-              <div className="mb-3 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <Users size={14} className="text-amber-700" />
-                    <span className="text-[11px] font-black uppercase tracking-wider text-amber-900">
-                      Riding For
-                    </span>
+            {/* 👤 RIDER & CONTACT DROPDOWN SELECTOR */}
+            <div className="mb-3 relative" ref={riderDropdownRef}>
+              <div className="flex items-center justify-between p-3.5 bg-zinc-50 border border-zinc-200/90 rounded-2xl hover:border-zinc-300 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shadow-xs ${
+                    selectedFamilyMember ? "bg-amber-600 text-white" : "bg-zinc-900 text-white"
+                  }`}>
+                    {selectedFamilyMember ? <Users size={16} /> : <User size={16} />}
                   </div>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
-                    {familyAccount.familyName || "Family Account"}
-                  </span>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Rider</p>
+                      {selectedFamilyMember && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase bg-amber-100 text-amber-900 border border-amber-200">
+                          {selectedFamilyMember.relation}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs font-bold text-zinc-900">
+                      {selectedFamilyMember ? (
+                        <span>Booking for <strong className="text-amber-800">{selectedFamilyMember.name}</strong></span>
+                      ) : (
+                        <span>For <strong className="text-zinc-900">{userData?.name || "Me"}</strong> (Myself)</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {/* Myself Option */}
+                <div className="flex items-center gap-1.5">
+                  {selectedFamilyMember && (
+                    <button
+                      type="button"
+                      onClick={() => handleSelectRider(null)}
+                      className="text-[11px] font-bold text-zinc-500 hover:text-zinc-900 px-2 py-1 rounded-lg hover:bg-zinc-200/80 transition"
+                    >
+                      Switch to Me
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={() => handleSelectRider(null)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 ${
-                      selectedFamilyMember === null
-                        ? "bg-zinc-900 text-white shadow-sm"
-                        : "bg-white text-zinc-700 border border-amber-200 hover:border-amber-400"
-                    }`}
+                    onClick={() => setRiderDropdownOpen(!riderDropdownOpen)}
+                    className="flex items-center gap-1 bg-white border border-zinc-200 px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-800 hover:border-zinc-400 shadow-xs transition"
                   >
-                    <span>Myself</span>
+                    <span>{selectedFamilyMember ? "Change" : "For Me ▾"}</span>
+                    <ChevronDown size={14} className={`text-zinc-500 transition-transform ${riderDropdownOpen ? "rotate-180" : ""}`} />
                   </button>
-
-                  {/* Family Members */}
-                  {familyAccount.members.map((member: any, mIdx: number) => {
-                    const isSelected = selectedFamilyMember?.name === member.name && selectedFamilyMember?.relation === member.relation;
-                    return (
-                      <button
-                        key={mIdx}
-                        type="button"
-                        onClick={() => handleSelectRider(member)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 ${
-                          isSelected
-                            ? "bg-amber-600 text-white shadow-sm"
-                            : "bg-white text-zinc-700 border border-amber-200 hover:border-amber-400"
-                        }`}
-                      >
-                        <span>{member.name}</span>
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded-full uppercase font-black ${
-                          isSelected ? "bg-amber-700 text-white" : "bg-amber-100 text-amber-800"
-                        }`}>
-                          {member.relation}
-                        </span>
-                      </button>
-                    );
-                  })}
                 </div>
               </div>
-            )}
+
+              {/* DROPDOWN MENU */}
+              <AnimatePresence>
+                {riderDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full left-0 right-0 mt-2 z-40 bg-white border border-zinc-200 rounded-2xl shadow-2xl p-3 space-y-2"
+                  >
+                    <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Select Passenger</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRiderDropdownOpen(false);
+                          setShowAddContactModal(true);
+                        }}
+                        className="flex items-center gap-1 text-xs font-bold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg transition"
+                      >
+                        <UserPlus size={13} />
+                        <span>+ Add Contact</span>
+                      </button>
+                    </div>
+
+                    {/* Option 1: Myself */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSelectRider(null);
+                        setRiderDropdownOpen(false);
+                      }}
+                      className={`w-full p-2.5 rounded-xl flex items-center justify-between text-left transition ${
+                        selectedFamilyMember === null ? "bg-zinc-900 text-white" : "hover:bg-zinc-50 text-zinc-900"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                          selectedFamilyMember === null ? "bg-zinc-800 text-white" : "bg-zinc-100 text-zinc-800"
+                        }`}>
+                          <User size={14} />
+                        </div>
+                        <div>
+                          <p className={`text-xs font-bold ${selectedFamilyMember === null ? "text-white" : "text-zinc-900"}`}>
+                            {userData?.name || "Myself"} (Me)
+                          </p>
+                          <p className={`text-[11px] ${selectedFamilyMember === null ? "text-zinc-300" : "text-zinc-400"}`}>
+                            {userData?.mobileNumber ? `+91 ${userData.mobileNumber}` : "Personal ride"}
+                          </p>
+                        </div>
+                      </div>
+                      {selectedFamilyMember === null && <Check size={16} className="text-white" />}
+                    </button>
+
+                    {/* Option 2: Saved Contacts */}
+                    <div className="pt-1">
+                      <div className="flex items-center justify-between px-1 mb-1">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">My Contacts & Family</p>
+                        {familyAccount?.members?.length > 0 && (
+                          <span className="text-[9px] font-bold text-zinc-400">{familyAccount.members.length} saved</span>
+                        )}
+                      </div>
+
+                      {familyAccount?.members && familyAccount.members.length > 0 ? (
+                        <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+                          {familyAccount.members.map((member: any, idx: number) => {
+                            const isSelected = selectedFamilyMember?.name === member.name && selectedFamilyMember?.phone === member.phone;
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => {
+                                  handleSelectRider(member);
+                                  setRiderDropdownOpen(false);
+                                }}
+                                className={`w-full p-2.5 rounded-xl flex items-center justify-between text-left transition ${
+                                  isSelected ? "bg-amber-50 border border-amber-300 shadow-xs" : "hover:bg-zinc-50 border border-transparent"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center font-bold text-xs">
+                                    {member.name.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-1.5">
+                                      <p className="text-xs font-bold text-zinc-900">{member.name}</p>
+                                      <span className="text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase bg-zinc-100 text-zinc-600">
+                                        {member.relation}
+                                      </span>
+                                    </div>
+                                    <p className="text-[11px] text-zinc-400">{member.phone ? `+91 ${member.phone}` : "No phone saved"}</p>
+                                  </div>
+                                </div>
+                                {isSelected && <Check size={16} className="text-amber-700" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="p-3 text-center bg-zinc-50 rounded-xl border border-dashed border-zinc-200">
+                          <p className="text-xs text-zinc-500 font-medium">No contacts saved yet</p>
+                          <p className="text-[10px] text-zinc-400 mt-0.5">Add someone to book rides for friends or family</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* ➕ ADD NEW CONTACT MODAL */}
+            <AnimatePresence>
+              {showAddContactModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-zinc-100"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
+                          <UserPlus size={16} />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-black text-zinc-900">Book for Someone Else</h3>
+                          <p className="text-[11px] text-zinc-400 font-medium">Driver will call passenger directly</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddContactModal(false)}
+                        className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleAddNewContact} className="space-y-3.5">
+                      {contactError && (
+                        <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium">
+                          {contactError}
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1 block">
+                          Passenger Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newContactName}
+                          onChange={(e) => setNewContactName(e.target.value)}
+                          placeholder="e.g. Rahul Sharma"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 outline-none transition"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1 block">
+                          Passenger Phone Number *
+                        </label>
+                        <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-zinc-200 focus-within:border-zinc-900 transition">
+                          <span className="text-sm font-bold text-zinc-400">+91</span>
+                          <input
+                            type="tel"
+                            required
+                            maxLength={10}
+                            value={newContactPhone}
+                            onChange={(e) => setNewContactPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                            placeholder="10-digit mobile number"
+                            className="w-full text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1 block">
+                          Relationship / Tag
+                        </label>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {["Friend", "Family", "Colleague", "Other"].map((tag) => (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => setNewContactRelation(tag)}
+                              className={`py-1.5 rounded-lg text-xs font-bold transition ${
+                                newContactRelation === tag
+                                  ? "bg-zinc-900 text-white shadow-xs"
+                                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                              }`}
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-1">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={saveContactForFuture}
+                            onChange={(e) => setSaveContactForFuture(e.target.checked)}
+                            className="w-4 h-4 rounded text-zinc-900 focus:ring-0"
+                          />
+                          <span className="text-xs text-zinc-600 font-medium">Save to my contacts for future rides</span>
+                        </label>
+                      </div>
+
+                      <div className="pt-2 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowAddContactModal(false)}
+                          className="flex-1 py-2.5 rounded-xl border border-zinc-200 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={addingContact}
+                          className="flex-1 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-black hover:bg-zinc-800 transition flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          {addingContact ? "Saving..." : "Set as Passenger"}
+                        </button>
+                      </div>
+                    </form>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
 
             <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 focus-within:bg-white transition-all">
               <div className="w-8 h-8 rounded-xl bg-zinc-200 flex items-center justify-center flex-shrink-0">
