@@ -92,9 +92,12 @@ export default function SearchPageContent() {
         <RouteMap
           pickup={pickup}
           drop={drop}
+          pickupCoords={(pickupLat && pickupLng) ? [pickupLat, pickupLng] : null}
+          dropCoords={(params.get("dropLat") && params.get("dropLng")) ? [Number(params.get("dropLat")), Number(params.get("dropLng"))] : null}
           onDistance={handleDistance}
           onChange={handleMapChange}
           vehicles={vehicles}
+          bottomPadding={260}
         />
 
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-zinc-100 to-transparent pointer-events-none z-10" />
