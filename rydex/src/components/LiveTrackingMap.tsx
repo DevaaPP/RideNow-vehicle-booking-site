@@ -169,54 +169,69 @@ function createDropPinEl(): HTMLElement {
 }
 
 /* ─── ROUTE LAYER SETUP ─────────────────────────────────────────────── */
-function setupRouteLayers(map: maplibregl.Map) {
-  // Trip route (pickup → drop) — grey road-following line
-  if (!map.getSource("trip-route")) {
-    map.addSource("trip-route", {
-      type: "geojson",
-      data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } },
-    });
-    map.addLayer({
-      id: "trip-casing",
-      type: "line",
-      source: "trip-route",
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: { "line-color": "#ffffff", "line-width": 10, "line-opacity": 1 },
-    });
-    map.addLayer({
-      id: "trip-core",
-      type: "line",
-      source: "trip-route",
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: { "line-color": "#475569", "line-width": 5.5, "line-opacity": 0.95 },
-    });
-  }
+function setupRouteLayers(map: maplibregl.Map): boolean {
+  if (!map || !map.isStyleLoaded()) return false;
 
-  // Driver approach route (driver → pickup) — dashed blue line
-  if (!map.getSource("driver-route")) {
-    map.addSource("driver-route", {
-      type: "geojson",
-      data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } },
-    });
-    map.addLayer({
-      id: "driver-casing",
-      type: "line",
-      source: "driver-route",
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: { "line-color": "#ffffff", "line-width": 8.5, "line-opacity": 0.85 },
-    });
-    map.addLayer({
-      id: "driver-core",
-      type: "line",
-      source: "driver-route",
-      layout: { "line-join": "round", "line-cap": "butt" },
-      paint: {
-        "line-color": "#3b82f6",
-        "line-width": 4.5,
-        "line-opacity": 0.85,
-        "line-dasharray": [0.5, 2.5],
-      },
-    });
+  try {
+    // 1. Trip route (active or preview road route)
+    if (!map.getSource("trip-route")) {
+      map.addSource("trip-route", {
+        type: "geojson",
+        data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } },
+      });
+    }
+    if (!map.getLayer("trip-casing")) {
+      map.addLayer({
+        id: "trip-casing",
+        type: "line",
+        source: "trip-route",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#ffffff", "line-width": 9.5, "line-opacity": 1.0 },
+      });
+    }
+    if (!map.getLayer("trip-core")) {
+      map.addLayer({
+        id: "trip-core",
+        type: "line",
+        source: "trip-route",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#2563eb", "line-width": 5.5, "line-opacity": 1.0 },
+      });
+    }
+
+    // 2. Driver approach route (Driver -> Pickup)
+    if (!map.getSource("driver-route")) {
+      map.addSource("driver-route", {
+        type: "geojson",
+        data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } },
+      });
+    }
+    if (!map.getLayer("driver-casing")) {
+      map.addLayer({
+        id: "driver-casing",
+        type: "line",
+        source: "driver-route",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#ffffff", "line-width": 8.5, "line-opacity": 0.9 },
+      });
+    }
+    if (!map.getLayer("driver-core")) {
+      map.addLayer({
+        id: "driver-core",
+        type: "line",
+        source: "driver-route",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: {
+          "line-color": "#0284c7",
+          "line-width": 4.5,
+          "line-opacity": 0.9,
+          "line-dasharray": [1, 2],
+        },
+      });
+    }
+    return true;
+  } catch (e) {
+    return false;
   }
 }
 
@@ -225,7 +240,7 @@ async function fetchRoadRoute(
   from: [number, number],
   to: [number, number]
 ): Promise<[number, number][] | null> {
-  // Try OSRM directly first (fast, client-side)
+  // Try OSRM directly first (fast, client-side, <300ms)
   try {
     const res = await fetch(
       `https://router.project-osrm.org/route/v1/driving/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson`,
@@ -246,9 +261,12 @@ async function fetchRoadRoute(
       signal: AbortSignal.timeout(5000),
     });
     if (res.ok) {
-      const data = await res.json();
-      if (data.success && data.primary?.geojsonCoords?.length) {
-        return data.primary.geojsonCoords; // [lng, lat][]
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("json")) {
+        const data = await res.json();
+        if (data.success && data.primary?.geojsonCoords?.length) {
+          return data.primary.geojsonCoords; // [lng, lat][]
+        }
       }
     }
   } catch (_) {}
@@ -268,7 +286,7 @@ export default function LiveTrackingMap({
 }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const mapReadyRef = useRef(false); // Use ref for synchronous access in async functions
+  const mapReadyRef = useRef(false);
 
   const driverMarkerRef = useRef<maplibregl.Marker | null>(null);
   const vehicleElRef = useRef<HTMLElement | null>(null);
@@ -278,7 +296,8 @@ export default function LiveTrackingMap({
 
   const lastPosRef = useRef<[number, number] | null>(null);
   const lastDriverRouteFetchRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
-  const tripRouteDrawnRef = useRef(false); // Prevent redundant trip route fetches
+  const lastTripRouteFetchRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
+  const tripRouteDrawnRef = useRef(false);
   const [ready, setReady] = useState(false);
 
   /* ─── INITIALIZE MAP ─── */
@@ -301,14 +320,11 @@ export default function LiveTrackingMap({
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
 
     const onStyleLoaded = () => {
-      if (!map.getSource("trip-route")) {
-        setupRouteLayers(map);
-      }
+      setupRouteLayers(map);
       mapReadyRef.current = true;
       setReady(true);
     };
 
-    // Use both events to handle style loading reliably
     map.on("load", onStyleLoaded);
     map.on("styledata", () => {
       if (map.isStyleLoaded() && !mapReadyRef.current) {
@@ -386,41 +402,74 @@ export default function LiveTrackingMap({
     }
   }, [driverLocation, ready, vehicleType, etaMinutes]);
 
-  /* ─── PERSISTENT TRIP ROUTE (PICKUP → DROP) ─── */
+  /* ─── DYNAMIC TRIP ROUTE (PICKUP → DROP OR DRIVER → DROP) ─── */
   const updateTripRoute = useCallback(async () => {
     const map = mapRef.current;
     if (!map || !mapReadyRef.current) return;
-    if (tripRouteDrawnRef.current) return; // Already drawn — don't re-fetch
 
-    const coords = await fetchRoadRoute(pickupLocation, dropLocation);
-    if (!coords || !mapRef.current || !mapReadyRef.current) return;
+    if (status === "ongoing") {
+      // Ride active: route is from driver's current position to drop location!
+      const startPt = driverLocation || pickupLocation;
+      const last = lastTripRouteFetchRef.current;
+      if (last && driverLocation) {
+        const dist = Math.hypot(driverLocation[0] - last.lat, driverLocation[1] - last.lng);
+        const elapsed = Date.now() - last.time;
+        if (dist < 0.001 && elapsed < 12000) return; // Throttle: <120m moved and <12s elapsed
+      }
+      if (driverLocation) {
+        lastTripRouteFetchRef.current = { lat: driverLocation[0], lng: driverLocation[1], time: Date.now() };
+      }
 
-    const source = mapRef.current.getSource("trip-route") as maplibregl.GeoJSONSource;
-    if (source) {
-      source.setData({
-        type: "Feature",
-        properties: {},
-        geometry: { type: "LineString", coordinates: coords },
-      });
-      tripRouteDrawnRef.current = true;
-    }
+      setupRouteLayers(map);
+      const coords = await fetchRoadRoute(startPt, dropLocation);
+      if (!coords || !mapRef.current) return;
 
-    // Calculate distance/duration from OSRM response isn't directly available here,
-    // so fire a separate stats fetch via the API to get structured data
-    try {
-      const ptsParam = `${pickupLocation[0]},${pickupLocation[1]};${dropLocation[0]},${dropLocation[1]}`;
-      const res = await fetch(`/api/route?points=${encodeURIComponent(ptsParam)}`);
-      const data = await res.json();
-      if (data.success && data.primary && onStats) {
-        onStats({
-          distanceToPickup: 0,
-          durationToPickup: 0,
-          distanceToDrop: data.primary.distanceKm,
-          durationToDrop: data.primary.durationMinutes,
+      const source = mapRef.current.getSource("trip-route") as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: coords },
         });
       }
-    } catch (_) {}
-  }, [pickupLocation, dropLocation, onStats]);
+
+      // Clear driver approach route once trip is ongoing
+      const driverSource = mapRef.current.getSource("driver-route") as maplibregl.GeoJSONSource;
+      if (driverSource) {
+        driverSource.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: [] },
+        });
+      }
+    } else if (status === "arriving") {
+      // Driver heading to pickup: trip route is pickup -> drop (upcoming trip preview)
+      if (tripRouteDrawnRef.current) return;
+      setupRouteLayers(map);
+      const coords = await fetchRoadRoute(pickupLocation, dropLocation);
+      if (!coords || !mapRef.current) return;
+
+      const source = mapRef.current.getSource("trip-route") as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: coords },
+        });
+        tripRouteDrawnRef.current = true;
+      }
+    } else {
+      // Completed: clear route
+      const source = map.getSource("trip-route") as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: [] },
+        });
+      }
+    }
+  }, [driverLocation, pickupLocation, dropLocation, status]);
 
   /* ─── DRIVER APPROACH ROUTE (DRIVER → PICKUP) ─── */
   const updateDriverRoute = useCallback(async () => {
@@ -432,12 +481,13 @@ export default function LiveTrackingMap({
       if (last) {
         const dist = Math.hypot(driverLocation[0] - last.lat, driverLocation[1] - last.lng);
         const elapsed = Date.now() - last.time;
-        if (dist < 0.001 && elapsed < 15000) return; // Throttle: <120m moved and <15s elapsed
+        if (dist < 0.001 && elapsed < 12000) return; // Throttle: <120m moved and <12s elapsed
       }
       lastDriverRouteFetchRef.current = { lat: driverLocation[0], lng: driverLocation[1], time: Date.now() };
 
+      setupRouteLayers(map);
       const coords = await fetchRoadRoute(driverLocation, pickupLocation);
-      if (!coords || !mapRef.current || !mapReadyRef.current) return;
+      if (!coords || !mapRef.current) return;
 
       const source = mapRef.current.getSource("driver-route") as maplibregl.GeoJSONSource;
       if (source) {
@@ -447,21 +497,6 @@ export default function LiveTrackingMap({
           geometry: { type: "LineString", coordinates: coords },
         });
       }
-
-      // Get structured stats
-      try {
-        const ptsParam = `${driverLocation[0]},${driverLocation[1]};${pickupLocation[0]},${pickupLocation[1]}`;
-        const res = await fetch(`/api/route?points=${encodeURIComponent(ptsParam)}`);
-        const data = await res.json();
-        if (data.success && data.primary && onStats) {
-          onStats({
-            distanceToPickup: data.primary.distanceKm,
-            durationToPickup: data.primary.durationMinutes,
-            distanceToDrop: 0,
-            durationToDrop: 0,
-          });
-        }
-      } catch (_) {}
     } else {
       // Clear driver approach line when ride is ongoing/completed
       const source = mapRef.current?.getSource("driver-route") as maplibregl.GeoJSONSource;
@@ -473,19 +508,19 @@ export default function LiveTrackingMap({
         });
       }
     }
-  }, [driverLocation, pickupLocation, status, onStats]);
+  }, [driverLocation, pickupLocation, status]);
 
-  // Draw trip route as soon as map is ready
+  // Initial and reactive trip route
   useEffect(() => {
     if (ready) updateTripRoute();
   }, [ready, updateTripRoute]);
 
-  // Update driver approach route on driver movement
+  // Reactive driver approach route
   useEffect(() => {
     if (ready) updateDriverRoute();
   }, [ready, updateDriverRoute]);
 
-  // Reset trip route drawn flag when pickup/drop changes (e.g., ride completes → new ride)
+  // Reset trip route drawn flag when endpoints change
   useEffect(() => {
     tripRouteDrawnRef.current = false;
   }, [pickupLocation[0], pickupLocation[1], dropLocation[0], dropLocation[1]]);

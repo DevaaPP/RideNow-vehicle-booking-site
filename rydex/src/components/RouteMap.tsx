@@ -150,13 +150,11 @@ function createCarEl(): HTMLElement {
   return el;
 }
 
-/* ─── ROUTE LAYER HELPER (HIGH-CONTRAST ROAD ROUTING ON LIGHT MAP) ─── */
-
 function ensureRouteLayers(map: maplibregl.Map): boolean {
-  if (!map) return false;
+  if (!map || !map.isStyleLoaded()) return false;
 
   try {
-    // 1. Alternative Route Source & Layers (Rendered underneath primary)
+    // 1. Alternative Route Source & Layers
     if (!map.getSource("route-alt-source")) {
       map.addSource("route-alt-source", {
         type: "geojson",
@@ -166,7 +164,9 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
           geometry: { type: "LineString", coordinates: [] },
         },
       });
+    }
 
+    if (!map.getLayer("route-alt-casing")) {
       map.addLayer({
         id: "route-alt-casing",
         type: "line",
@@ -174,11 +174,13 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
           "line-color": "#ffffff",
-          "line-width": 6.0,
+          "line-width": 7.0,
           "line-opacity": 0.8,
         },
       });
+    }
 
+    if (!map.getLayer("route-alt-core")) {
       map.addLayer({
         id: "route-alt-core",
         type: "line",
@@ -186,13 +188,13 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
           "line-color": "#94a3b8",
-          "line-width": 4.0,
+          "line-width": 4.5,
           "line-opacity": 0.85,
         },
       });
     }
 
-    // 2. Primary Route Source & Layers (Dominant road route)
+    // 2. Primary Route Source & Layers (Vivid, road-following Google Maps style)
     if (!map.getSource("route-source")) {
       map.addSource("route-source", {
         type: "geojson",
@@ -202,21 +204,10 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
           geometry: { type: "LineString", coordinates: [] },
         },
       });
+    }
 
-      // Soft ambient shadow underneath route
-      map.addLayer({
-        id: "route-shadow",
-        type: "line",
-        source: "route-source",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: {
-          "line-color": "#000000",
-          "line-width": 12,
-          "line-opacity": 0.12,
-        },
-      });
-
-      // Crisp white casing providing maximum separation from OSM road lines
+    // White halo casing for maximum contrast over OSM roads
+    if (!map.getLayer("route-casing")) {
       map.addLayer({
         id: "route-casing",
         type: "line",
@@ -224,20 +215,22 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
           "line-color": "#ffffff",
-          "line-width": 8.5,
-          "line-opacity": 0.98,
+          "line-width": 9.5,
+          "line-opacity": 1.0,
         },
       });
+    }
 
-      // Core route line: bold black line (#09090b) matching modern ride-hailing reference
+    // Core road polyline — vivid blue route line
+    if (!map.getLayer("route-core")) {
       map.addLayer({
         id: "route-core",
         type: "line",
         source: "route-source",
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": "#09090b",
-          "line-width": 5.2,
+          "line-color": "#2563eb",
+          "line-width": 5.5,
           "line-opacity": 1.0,
         },
       });
@@ -270,6 +263,8 @@ export default function RouteMap({
   const stopMarkersRef = useRef<maplibregl.Marker[]>([]);
   const vehicleMarkersRef = useRef<maplibregl.Marker[]>([]);
   const routeRetryTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastRouteCoordsRef = useRef<[number, number][]>([]);
+  const lastRouteKeyRef = useRef<string>("");
 
   const [p1, setP1] = useState<[number, number] | null>(pickupCoords ?? null);
   const [p2, setP2] = useState<[number, number] | null>(dropCoords ?? null);
@@ -368,7 +363,22 @@ export default function RouteMap({
     });
 
     const onReady = () => {
-      ensureRouteLayers(map);
+      if (map.isStyleLoaded()) {
+        ensureRouteLayers(map);
+        if (lastRouteCoordsRef.current && lastRouteCoordsRef.current.length > 0) {
+          const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+          if (source) {
+            source.setData({
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "LineString",
+                coordinates: lastRouteCoordsRef.current,
+              },
+            });
+          }
+        }
+      }
     };
 
     map.on("load", onReady);
@@ -389,27 +399,29 @@ export default function RouteMap({
   /* ─── SAFE & CRASH-PROOF ROUTE RENDERING ─── */
   const applyRouteLine = useCallback(
     (coords: [number, number][], altCoords?: [number, number][]) => {
+      lastRouteCoordsRef.current = coords;
       const map = mapRef.current;
       if (!map) return;
 
       const tryApply = () => {
         try {
+          if (!map.isStyleLoaded()) return false;
           ensureRouteLayers(map);
           const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
           const altSource = map.getSource("route-alt-source") as maplibregl.GeoJSONSource;
 
-          if (altSource) {
+          if (altSource && altCoords && altCoords.length > 0) {
             altSource.setData({
               type: "Feature",
               properties: {},
               geometry: {
                 type: "LineString",
-                coordinates: altCoords || [],
+                coordinates: altCoords,
               },
             });
           }
 
-          if (source) {
+          if (source && coords && coords.length > 0) {
             source.setData({
               type: "Feature",
               properties: {},
@@ -420,17 +432,15 @@ export default function RouteMap({
             });
 
             // Fit map bounds smoothly around route with bottom sheet padding
-            if (coords.length > 0) {
-              const bounds = new maplibregl.LngLatBounds();
-              for (const c of coords) {
-                bounds.extend(c as [number, number]);
-              }
-              map.fitBounds(bounds, {
-                padding: { top: 90, bottom: bottomPadding, left: 60, right: 60 },
-                duration: 900,
-                maxZoom: 16,
-              });
+            const bounds = new maplibregl.LngLatBounds();
+            for (const c of coords) {
+              bounds.extend(c as [number, number]);
             }
+            map.fitBounds(bounds, {
+              padding: { top: 90, bottom: bottomPadding, left: 60, right: 60 },
+              duration: 800,
+              maxZoom: 16,
+            });
             return true;
           }
         } catch (err) {
@@ -481,58 +491,69 @@ export default function RouteMap({
         dropPt,
       ];
 
+      const currentKey = waypoints.map((w) => `${w[0].toFixed(5)},${w[1].toFixed(5)}`).join(";");
+      if (currentKey === lastRouteKeyRef.current && lastRouteCoordsRef.current.length > 0) {
+        applyRouteLine(lastRouteCoordsRef.current);
+        return;
+      }
+      lastRouteKeyRef.current = currentKey;
+
       setIsRouting(true);
-      const pointsParam = waypoints.map(([lat, lng]) => `${lat},${lng}`).join(";");
 
       let routeData: any = null;
       let altRouteData: any = null;
 
-      // Tier 1: Next.js API Server Route
+      // Tier 1: Fast direct Client-Side OSRM Road Router (<300ms)
       try {
-        const res = await fetch(`/api/route?points=${encodeURIComponent(pointsParam)}`);
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && json.primary?.geojsonCoords?.length > 0) {
-            routeData = json.primary;
-            if (json.alternatives && json.alternatives.length > 0) {
-              altRouteData = json.alternatives[0];
+        const coordStr = waypoints.map(([lat, lon]) => `${lon},${lat}`).join(";");
+        const osrmRes = await fetch(
+          `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson&alternatives=true`,
+          { signal: AbortSignal.timeout(4500) }
+        );
+        if (osrmRes.ok) {
+          const osrmJson = await osrmRes.json();
+          if (osrmJson.routes && osrmJson.routes.length > 0) {
+            const r = osrmJson.routes[0];
+            routeData = {
+              distanceKm: +((r.distance / 1000).toFixed(2)),
+              durationMinutes: Math.max(2, Math.round(r.duration / 60)),
+              geojsonCoords: r.geometry.coordinates,
+              engine: "osrm",
+            };
+            if (osrmJson.routes.length > 1) {
+              altRouteData = {
+                geojsonCoords: osrmJson.routes[1].geometry.coordinates,
+              };
             }
           }
         }
       } catch (e) {
-        console.warn("Proxy route fetch failed, trying direct OSRM:", e);
+        console.warn("Client OSRM fallback failed, trying API route:", e);
       }
 
-      // Tier 2: Direct Client Browser OSRM Fallback
+      // Tier 2: Next.js API Server Route Fallback (OSRM -> Valhalla -> synthetic)
       if (!routeData) {
         try {
-          const coordStr = waypoints.map(([lat, lon]) => `${lon},${lat}`).join(";");
-          const osrmRes = await fetch(
-            `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson&alternatives=true`
-          );
-          if (osrmRes.ok) {
-            const osrmJson = await osrmRes.json();
-            if (osrmJson.routes?.length > 0) {
-              const r = osrmJson.routes[0];
-              routeData = {
-                distanceKm: +((r.distance / 1000).toFixed(2)),
-                durationMinutes: Math.max(2, Math.round(r.duration / 60)),
-                geojsonCoords: r.geometry.coordinates,
-                engine: "osrm",
-              };
-              if (osrmJson.routes.length > 1) {
-                altRouteData = {
-                  geojsonCoords: osrmJson.routes[1].geometry.coordinates,
-                };
+          const pointsParam = waypoints.map(([lat, lng]) => `${lat},${lng}`).join(";");
+          const res = await fetch(`/api/route?points=${encodeURIComponent(pointsParam)}`);
+          if (res.ok) {
+            const contentType = res.headers.get("content-type") || "";
+            if (contentType.includes("json")) {
+              const json = await res.json();
+              if (json.success && json.primary?.geojsonCoords?.length > 0) {
+                routeData = json.primary;
+                if (json.alternatives && json.alternatives.length > 0) {
+                  altRouteData = json.alternatives[0];
+                }
               }
             }
           }
-        } catch (e2) {
-          console.warn("Direct OSRM fallback failed:", e2);
+        } catch (e) {
+          console.warn("Proxy route fetch failed:", e);
         }
       }
 
-      if (routeData) {
+      if (routeData && routeData.geojsonCoords?.length > 0) {
         setKm(routeData.distanceKm);
         setDurationMin(routeData.durationMinutes);
         onDistance?.(routeData.distanceKm);
@@ -662,7 +683,7 @@ export default function RouteMap({
     if (p1 && p2) {
       renderRoute(p1, p2, stops);
     }
-  }, [p1, p2, stops, durationMin, renderRoute, drop, onChange, onCoordinatesChange, pickup]);
+  }, [p1, p2, stops, renderRoute, drop, onChange, onCoordinatesChange, pickup]);
 
   // 5. Vehicles (Auto-rickshaws & Cars)
   useEffect(() => {
