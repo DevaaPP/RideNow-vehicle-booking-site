@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, memo } from "react";
 import * as maplibregl from "maplibre-gl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, Plus, Minus, Layers, RotateCcw } from "lucide-react";
@@ -200,7 +200,7 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
   }
 }
 
-export default function RouteMap({
+function RouteMapComponent({
   pickup,
   drop,
   pickupCoords,
@@ -765,3 +765,5 @@ export default function RouteMap({
     </div>
   );
 }
+
+export default memo(RouteMapComponent);

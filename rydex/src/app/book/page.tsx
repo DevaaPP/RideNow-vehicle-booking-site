@@ -374,6 +374,22 @@ export default function BookPage() {
     return Number(total.toFixed(1));
   };
 
+  const validStopsForMap = useMemo(() => {
+    return stops
+      .filter((s) => s.lat !== null && s.lng !== null)
+      .map((s) => ({ address: s.address, lat: s.lat!, lng: s.lng! }));
+  }, [stops]);
+
+  const memoizedPickupCoords = useMemo<[number, number] | null>(
+    () => (pickupLat && pickupLng ? [pickupLat, pickupLng] : null),
+    [pickupLat, pickupLng]
+  );
+
+  const memoizedDropCoords = useMemo<[number, number] | null>(
+    () => (dropLat && dropLng ? [dropLat, dropLng] : null),
+    [dropLat, dropLng]
+  );
+
   const allStopsValid = stops.every(s => s.address.trim().length > 0 && s.lat !== null && s.lng !== null);
   const distanceValidity = getDistanceValidity();
   const canContinue = !!(
@@ -1559,8 +1575,8 @@ export default function BookPage() {
         <RouteMap
           pickup={pickup}
           drop={drop}
-          pickupCoords={pickupLat && pickupLng ? [pickupLat, pickupLng] : null}
-          dropCoords={dropLat && dropLng ? [dropLat, dropLng] : null}
+          pickupCoords={memoizedPickupCoords}
+          dropCoords={memoizedDropCoords}
           onChange={handleMapChange}
           onCoordinatesChange={handleCoordinatesChange}
           onDistance={setRouteDistance}
@@ -1568,7 +1584,7 @@ export default function BookPage() {
           disableFallbackGeocode={false}
           smartPickups={smartPickups}
           onSelectSmartPickup={handleSelectSmartPickup}
-          stops={stops.filter(s => s.lat !== null && s.lng !== null).map(s => ({ address: s.address, lat: s.lat!, lng: s.lng! }))}
+          stops={validStopsForMap}
         />
       </div>
 
