@@ -130,8 +130,8 @@ partnerAmount: number
 
 const BookingSchema = new Schema<IBooking>(
   {
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    driver: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    driver: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     vehicle: { type: Schema.Types.ObjectId, ref: "Vehicle", required: true },
 
     pickupAddress: { type: String, required: true },
@@ -353,6 +353,9 @@ dropOtpExpires: {
   },
   { timestamps: true }
 );
+
+BookingSchema.index({ user: 1, status: 1, createdAt: -1 });
+BookingSchema.index({ driver: 1, status: 1, createdAt: -1 });
 
 const Booking = mongoose.models.Booking ||
   mongoose.model<IBooking>("Booking", BookingSchema);
