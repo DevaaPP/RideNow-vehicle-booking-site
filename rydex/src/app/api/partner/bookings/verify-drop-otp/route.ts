@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Booking from "@/models/booking.model";
+import { settleCompletedRidePayment } from "@/lib/settlePayment";
 
 export async function POST(req: Request) {
 
@@ -48,6 +49,9 @@ export async function POST(req: Request) {
     booking.dropOtpExpires = undefined as any;
 
     await booking.save();
+
+    /* Settle commission and driver wallet earnings */
+    await settleCompletedRidePayment(booking._id);
 
     /* Notify passenger via socket */
     try {

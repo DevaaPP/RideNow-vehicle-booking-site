@@ -21,6 +21,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import PartnerEarningsChart from "./PartnerEarningChart";
+import DriverWalletCard from "./DriverWalletCard";
 import dynamic from "next/dynamic";
 
 const DriverLocationMap = dynamic(() => import("./DriverLocationMap"), { ssr: false });
@@ -1052,6 +1053,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
           </div>
 
+        </div>
+
+        {/* Driver Wallet & Bank Withdrawal */}
+        <div className="w-full">
+          <DriverWalletCard />
         </div>
 
         {/* Performance & Charts */}
