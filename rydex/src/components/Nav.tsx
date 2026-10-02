@@ -14,6 +14,7 @@ import {
   Truck,
   ChevronRight,
   ShieldCheck,
+  Wallet,
 } from "lucide-react";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
@@ -465,8 +466,22 @@ function ProfileContent({ userData, handleLogout, router, mobile }: any) {
       )}
 
       <button
-        onClick={() => router.push("/profile")}
+        onClick={() => router.push("/wallet")}
         className="w-full flex items-center gap-3 py-3 px-3 hover:bg-gray-100 rounded-xl text-left text-sm font-semibold mt-2"
+      >
+        <Wallet size={16} className="text-zinc-600" />
+        RideNow Wallet
+        {userData.walletBalance !== undefined && (
+          <span className="ml-auto text-[11px] font-black px-2 py-0.5 rounded-full bg-zinc-900 text-white">
+            ₹{userData.walletBalance}
+          </span>
+        )}
+        <ChevronRight size={16} className="ml-1 text-gray-400" />
+      </button>
+
+      <button
+        onClick={() => router.push("/profile")}
+        className="w-full flex items-center gap-3 py-3 px-3 hover:bg-gray-100 rounded-xl text-left text-sm font-semibold mt-1"
       >
         <svg
           width="16"

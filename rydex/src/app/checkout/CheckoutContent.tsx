@@ -86,7 +86,8 @@ export default function CheckoutContent() {
   const [loading,       setLoading]       = useState(false);
   const [bookingId,     setBookingId]     = useState<string | null>(null);
   const [status,        setStatus]        = useState<Status>("idle");
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | "wallet" | null>(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [countdown,     setCountdown]     = useState(20);
   const [rates,         setRates]         = useState<any>(null);
   const [bookingBreakdown, setBookingBreakdown] = useState<any>(null);
@@ -131,6 +132,26 @@ export default function CheckoutContent() {
       setMobileNumber(tenDigits);
     }
   }, [userData, mobileNumber]);
+
+  /* Fetch Wallet Balance */
+  useEffect(() => {
+    const fetchWallet = async () => {
+      try {
+        const res = await fetch("/api/wallet");
+        const data = await res.json();
+        if (data.success) {
+          setWalletBalance(data.balance ?? 0);
+          // If wallet has sufficient balance, default to wallet payment
+          if (data.balance >= fare) {
+            setPaymentMethod("wallet");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch wallet in checkout:", err);
+      }
+    };
+    fetchWallet();
+  }, [fare]);
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -304,6 +325,29 @@ export default function CheckoutContent() {
         }
 
         return;
+      }
+
+      if (paymentMethod === "wallet") {
+        const res = await fetch("/api/wallet/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId }),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          window.location.href = `/ride/${bookingId}`;
+          return;
+        } else if (data.insufficientBalance) {
+          alert(
+            `Insufficient wallet balance.\nAvailable: ₹${data.balance}\nRequired: ₹${data.required}\nShortfall: ₹${data.shortfall}\n\nPlease choose Online Payment or Cash, or add funds to your wallet.`
+          );
+          return;
+        } else {
+          alert(data.error || "Wallet payment failed");
+          return;
+        }
       }
 
       /* LOAD RAZORPAY SCRIPT */
@@ -1084,17 +1128,37 @@ export default function CheckoutContent() {
 
                     <div className="space-y-3">
                       {[
-                        { id: "cash",   Icon: Banknote,    title: "Cash",           sub: "Pay driver after ride" },
-                        { id: "online", Icon: Wallet,      title: "Online Payment",  sub: "UPI · Card · Netbanking" },
-                      ].map(({ id, Icon, title, sub }) => {
+                        {
+                          id: "wallet",
+                          Icon: Wallet,
+                          title: "RideNow Cash (Wallet)",
+                          sub:
+                            walletBalance !== null
+                              ? `Available: ₹${walletBalance} ${
+                                  walletBalance >= fare
+                                    ? "· Instant 1-Tap"
+                                    : `· (₹${fare - walletBalance} short — Top up in Wallet)`
+                                }`
+                              : "Instant 1-Tap Checkout",
+                          badge: walletBalance !== null && walletBalance >= fare ? "Instant" : null,
+                        },
+                        { id: "online", Icon: CreditCard,  title: "Online Payment",  sub: "UPI · Card · Netbanking", badge: null },
+                        { id: "cash",   Icon: Banknote,    title: "Cash",           sub: "Pay driver after ride",    badge: null },
+                      ].map(({ id, Icon, title, sub, badge }) => {
                         const active = paymentMethod === id;
+                        const isInsufficientWallet = id === "wallet" && walletBalance !== null && walletBalance < fare;
+
                         return (
                           <motion.button
                             key={id}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => setPaymentMethod(id as any)}
                             className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-200 ${
-                              active ? "bg-zinc-900 border-zinc-900" : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
+                              active
+                                ? "bg-zinc-900 border-zinc-900"
+                                : isInsufficientWallet
+                                ? "bg-zinc-50/60 border-zinc-200 opacity-70 hover:opacity-100 hover:border-zinc-300"
+                                : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
                             }`}
                           >
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
@@ -1103,8 +1167,19 @@ export default function CheckoutContent() {
                               <Icon size={18} className={active ? "text-white" : "text-zinc-600"} />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className={`text-sm font-bold ${active ? "text-white" : "text-zinc-900"}`}>{title}</p>
-                              <p className={`text-xs font-medium ${active ? "text-zinc-400" : "text-zinc-400"}`}>{sub}</p>
+                              <div className="flex items-center gap-2">
+                                <p className={`text-sm font-bold ${active ? "text-white" : "text-zinc-900"}`}>{title}</p>
+                                {badge && (
+                                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                    active ? "bg-amber-400 text-zinc-950" : "bg-amber-100 text-amber-900"
+                                  }`}>
+                                    {badge}
+                                  </span>
+                                )}
+                              </div>
+                              <p className={`text-xs font-medium ${active ? "text-zinc-400" : isInsufficientWallet ? "text-amber-700" : "text-zinc-400"}`}>
+                                {sub}
+                              </p>
                             </div>
                             <AnimatePresence>
                               {active && (
@@ -1127,6 +1202,8 @@ export default function CheckoutContent() {
                     >
                       {loading
                         ? <Loader2 size={17} className="animate-spin" />
+                        : paymentMethod === "wallet"
+                        ? <><Wallet size={16} /><span>Pay ₹{fare} from Wallet (1-Tap)</span></>
                         : paymentMethod === "cash"
                         ? <><Banknote size={16} /><span>Confirm Cash Ride</span></>
                         : paymentMethod === "online"

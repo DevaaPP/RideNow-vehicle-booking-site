@@ -62,6 +62,9 @@ socketId:string | null
     verifiedAt?: Date;
   };
 
+  /* ===== WALLET ===== */
+  walletBalance: number;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -188,6 +191,14 @@ const UserSchema = new Schema<IUser>(
       eduEmail: String,
       institution: String,
       verifiedAt: Date,
+    },
+
+    /* ===== WALLET ===== */
+    walletBalance: {
+      type: Number,
+      default: 0,
+      min: 0,
+      index: true,
     },
   },
   { timestamps: true }
