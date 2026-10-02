@@ -8,7 +8,7 @@ import {
   Plus, Trash2, X, Users, Clock, Calendar, Sparkles
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -319,7 +319,8 @@ export default function BookPage() {
     if (!value || value.trim().length < 3) {
       setStops(prev => prev.map(s => (s.id === id ? { ...s, results: [] } : s)));
     } else {
-      searchAddress(
+      debouncedSearchAddress(
+        "stop-" + id,
         value,
         (res) => {
           setStops(prev => prev.map(s => (s.id === id ? { ...s, results: res } : s)));
@@ -445,6 +446,27 @@ export default function BookPage() {
       console.error("Autocomplete error:", err);
       setResults([]);
     }
+  };
+
+  const searchDebounceRef = useRef<Record<string, NodeJS.Timeout>>({});
+
+  const debouncedSearchAddress = (
+    key: string,
+    q: string,
+    setResults: (r: Place[]) => void,
+    restrict?: string | null,
+    isDrop?: boolean
+  ) => {
+    if (searchDebounceRef.current[key]) {
+      clearTimeout(searchDebounceRef.current[key]);
+    }
+    if (!q || q.trim().length < 3) {
+      setResults([]);
+      return;
+    }
+    searchDebounceRef.current[key] = setTimeout(() => {
+      searchAddress(q, setResults, restrict, isDrop);
+    }, 350);
   };
 
   const fmt = (p: Place) => p.name;
@@ -1065,7 +1087,7 @@ export default function BookPage() {
                       if (e.target.value.trim().length === 0) {
                         setPickupResults([]);
                       } else {
-                        searchAddress(e.target.value, setPickupResults);
+                        debouncedSearchAddress("pickup", e.target.value, setPickupResults);
                       }
                     }}
                     onKeyDown={e => handleKeyDown(e, true)}
@@ -1198,7 +1220,7 @@ export default function BookPage() {
                       if (e.target.value.trim().length === 0) {
                         setDropResults([]);
                       } else {
-                        searchAddress(e.target.value, setDropResults, pickupCountry || "in", true);
+                        debouncedSearchAddress("drop", e.target.value, setDropResults, pickupCountry || "in", true);
                       }
                     }}
                     onKeyDown={e => handleKeyDown(e, false)}

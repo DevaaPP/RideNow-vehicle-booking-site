@@ -88,7 +88,10 @@ export async function GET(req: NextRequest) {
         };
       });
 
-      return NextResponse.json({ predictions, status: "OK" });
+      return NextResponse.json(
+        { predictions, status: "OK" },
+        { headers: { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=86400" } }
+      );
     }
 
     if (action === "details") {
@@ -117,7 +120,7 @@ export async function GET(req: NextRequest) {
                 },
               ],
             },
-          });
+          }, { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" } });
         }
       }
       return NextResponse.json({ status: "INVALID_REQUEST", message: "Invalid placeId format" }, { status: 400 });
@@ -214,7 +217,10 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        return NextResponse.json({ results, status: "OK" });
+        return NextResponse.json(
+          { results, status: "OK" },
+          { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } }
+        );
       } else if (lat && lng) {
         let results: any[] = [];
         try {
@@ -290,7 +296,10 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        return NextResponse.json({ results, status: "OK" });
+        return NextResponse.json(
+          { results, status: "OK" },
+          { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } }
+        );
       }
       return NextResponse.json({ status: "INVALID_REQUEST", message: "Missing coordinates or address" }, { status: 400 });
     }
