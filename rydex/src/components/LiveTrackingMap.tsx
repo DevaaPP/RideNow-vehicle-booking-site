@@ -7,10 +7,10 @@ import { LIVE_TRACKING_MAP_STYLE } from "@/lib/mapConfig";
 type VehicleType = "auto" | "car" | "bike" | "suv" | string;
 
 type Props = {
-  driverLocation: [number, number] | null;
-  pickupLocation: [number, number];
-  dropLocation: [number, number];
-  status: "arriving" | "ongoing" | "completed";
+  driverLocation?: [number, number] | null;
+  pickupLocation?: [number, number] | null;
+  dropLocation?: [number, number] | null;
+  status: "arriving" | "ongoing" | "completed" | string;
   vehicleType?: VehicleType;
   etaMinutes?: number;
   onStats?: (data: {
@@ -290,7 +290,6 @@ export default function LiveTrackingMap({
 }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const mapReadyRef = useRef(false);
 
   const driverMarkerRef = useRef<maplibregl.Marker | null>(null);
   const vehicleElRef = useRef<HTMLElement | null>(null);
@@ -302,7 +301,6 @@ export default function LiveTrackingMap({
   const lastDriverRouteFetchRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
   const lastTripRouteFetchRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
   const tripRouteDrawnRef = useRef(false);
-  const [ready, setReady] = useState(false);
 
   const tripCoordsRef = useRef<[number, number][]>([]);
   const driverCoordsRef = useRef<[number, number][]>([]);
@@ -351,9 +349,11 @@ export default function LiveTrackingMap({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const initialCenter: [number, number] = driverLocation
+    const initialCenter: [number, number] = (driverLocation && typeof driverLocation[0] === "number")
       ? [driverLocation[1], driverLocation[0]]
-      : [pickupLocation[1], pickupLocation[0]];
+      : (pickupLocation && typeof pickupLocation[0] === "number")
+      ? [pickupLocation[1], pickupLocation[0]]
+      : [91.7516, 26.1884];
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
@@ -366,19 +366,14 @@ export default function LiveTrackingMap({
 
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
 
-    const onStyleLoaded = () => {
+    const onStyleReady = () => {
       setupRouteLayers(map);
-      mapReadyRef.current = true;
-      setReady(true);
       updateSvgOverlay();
+      map.triggerRepaint();
     };
 
-    map.on("load", onStyleLoaded);
-    map.on("styledata", () => {
-      if (map.isStyleLoaded() && !mapReadyRef.current) {
-        onStyleLoaded();
-      }
-    });
+    map.on("load", onStyleReady);
+    map.on("styledata", onStyleReady);
 
     map.on("render", updateSvgOverlay);
     map.on("move", updateSvgOverlay);
@@ -388,7 +383,6 @@ export default function LiveTrackingMap({
     mapRef.current = map;
 
     return () => {
-      mapReadyRef.current = false;
       map.remove();
       mapRef.current = null;
     };
@@ -404,18 +398,34 @@ export default function LiveTrackingMap({
   /* ─── STATIC PINS (PICKUP & DROP) ─── */
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !ready) return;
-    if (!pickupMarkerRef.current && pickupLocation) {
-      pickupMarkerRef.current = new maplibregl.Marker({ element: createPickupPinEl(), anchor: "bottom" })
-        .setLngLat([pickupLocation[1], pickupLocation[0]])
-        .addTo(map);
+    if (!map) return;
+
+    if (pickupLocation && typeof pickupLocation[0] === "number" && typeof pickupLocation[1] === "number") {
+      if (!pickupMarkerRef.current) {
+        pickupMarkerRef.current = new maplibregl.Marker({ element: createPickupPinEl(), anchor: "bottom" })
+          .setLngLat([pickupLocation[1], pickupLocation[0]])
+          .addTo(map);
+      } else {
+        pickupMarkerRef.current.setLngLat([pickupLocation[1], pickupLocation[0]]);
+      }
+    } else if (pickupMarkerRef.current) {
+      pickupMarkerRef.current.remove();
+      pickupMarkerRef.current = null;
     }
-    if (!dropMarkerRef.current && dropLocation) {
-      dropMarkerRef.current = new maplibregl.Marker({ element: createDropPinEl(), anchor: "bottom" })
-        .setLngLat([dropLocation[1], dropLocation[0]])
-        .addTo(map);
+
+    if (dropLocation && typeof dropLocation[0] === "number" && typeof dropLocation[1] === "number") {
+      if (!dropMarkerRef.current) {
+        dropMarkerRef.current = new maplibregl.Marker({ element: createDropPinEl(), anchor: "bottom" })
+          .setLngLat([dropLocation[1], dropLocation[0]])
+          .addTo(map);
+      } else {
+        dropMarkerRef.current.setLngLat([dropLocation[1], dropLocation[0]]);
+      }
+    } else if (dropMarkerRef.current) {
+      dropMarkerRef.current.remove();
+      dropMarkerRef.current = null;
     }
-  }, [pickupLocation, dropLocation, ready]);
+  }, [pickupLocation, dropLocation]);
 
   /* ─── UPDATE ETA BADGE REACTIVELY ─── */
   useEffect(() => {
@@ -429,36 +439,41 @@ export default function LiveTrackingMap({
   /* ─── DRIVER MARKER + BEARING ─── */
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !ready || !driverLocation) return;
+    if (!map) return;
 
-    if (lastPosRef.current && vehicleElRef.current) {
-      const dist = Math.hypot(
-        driverLocation[0] - lastPosRef.current[0],
-        driverLocation[1] - lastPosRef.current[1]
-      );
-      if (dist > 0.00005) {
-        const bearing = calculateBearing(lastPosRef.current, driverLocation);
-        vehicleElRef.current.style.transform = `rotate(${Math.round(bearing)}deg)`;
+    if (driverLocation && typeof driverLocation[0] === "number" && typeof driverLocation[1] === "number") {
+      if (lastPosRef.current && vehicleElRef.current) {
+        const dist = Math.hypot(
+          driverLocation[0] - lastPosRef.current[0],
+          driverLocation[1] - lastPosRef.current[1]
+        );
+        if (dist > 0.00005) {
+          const bearing = calculateBearing(lastPosRef.current, driverLocation);
+          vehicleElRef.current.style.transform = `rotate(${Math.round(bearing)}deg)`;
+        }
       }
-    }
-    lastPosRef.current = driverLocation;
+      lastPosRef.current = driverLocation;
 
-    if (!driverMarkerRef.current) {
-      const { container, vehicleEl, etaBadge } = createDriverMarkerEl(vehicleType, etaMinutes);
-      vehicleElRef.current = vehicleEl;
-      etaBadgeRef.current = etaBadge;
-      driverMarkerRef.current = new maplibregl.Marker({ element: container, anchor: "bottom" })
-        .setLngLat([driverLocation[1], driverLocation[0]])
-        .addTo(map);
-    } else {
-      driverMarkerRef.current.setLngLat([driverLocation[1], driverLocation[0]]);
+      if (!driverMarkerRef.current) {
+        const { container, vehicleEl, etaBadge } = createDriverMarkerEl(vehicleType, etaMinutes);
+        vehicleElRef.current = vehicleEl;
+        etaBadgeRef.current = etaBadge;
+        driverMarkerRef.current = new maplibregl.Marker({ element: container, anchor: "bottom" })
+          .setLngLat([driverLocation[1], driverLocation[0]])
+          .addTo(map);
+      } else {
+        driverMarkerRef.current.setLngLat([driverLocation[1], driverLocation[0]]);
+      }
+    } else if (driverMarkerRef.current) {
+      driverMarkerRef.current.remove();
+      driverMarkerRef.current = null;
     }
-  }, [driverLocation, ready, vehicleType, etaMinutes]);
+  }, [driverLocation, vehicleType, etaMinutes]);
 
   /* ─── DYNAMIC TRIP ROUTE (PICKUP → DROP OR DRIVER → DROP) ─── */
   const updateTripRoute = useCallback(async () => {
     const map = mapRef.current;
-    if (!map || !mapReadyRef.current) return;
+    if (!map || !pickupLocation || !dropLocation) return;
 
     if (status === "ongoing") {
       // Ride active: route is from driver's current position to drop location!
@@ -501,8 +516,8 @@ export default function LiveTrackingMap({
           geometry: { type: "LineString", coordinates: [] },
         });
       }
-    } else if (status === "arriving") {
-      // Driver heading to pickup: trip route is pickup -> drop (upcoming trip preview)
+    } else if (status !== "completed") {
+      // Driver heading to pickup OR booking requested: trip route is pickup -> drop
       if (tripRouteDrawnRef.current) return;
       setupRouteLayers(map);
       const coords = await fetchRoadRoute(pickupLocation, dropLocation);
@@ -540,9 +555,9 @@ export default function LiveTrackingMap({
   /* ─── DRIVER APPROACH ROUTE (DRIVER → PICKUP) ─── */
   const updateDriverRoute = useCallback(async () => {
     const map = mapRef.current;
-    if (!map || !mapReadyRef.current || !driverLocation || !pickupLocation) return;
+    if (!map || !driverLocation || !pickupLocation) return;
 
-    if (status === "arriving") {
+    if (status !== "ongoing" && status !== "completed") {
       const last = lastDriverRouteFetchRef.current;
       if (last) {
         const dist = Math.hypot(driverLocation[0] - last.lat, driverLocation[1] - last.lng);
@@ -584,23 +599,23 @@ export default function LiveTrackingMap({
 
   // Initial and reactive trip route
   useEffect(() => {
-    if (ready) updateTripRoute();
-  }, [ready, updateTripRoute]);
+    updateTripRoute();
+  }, [updateTripRoute]);
 
   // Reactive driver approach route
   useEffect(() => {
-    if (ready) updateDriverRoute();
-  }, [ready, updateDriverRoute]);
+    updateDriverRoute();
+  }, [updateDriverRoute]);
 
   // Reset trip route drawn flag when endpoints change
   useEffect(() => {
     tripRouteDrawnRef.current = false;
-  }, [pickupLocation[0], pickupLocation[1], dropLocation[0], dropLocation[1]]);
+  }, [pickupLocation?.[0], pickupLocation?.[1], dropLocation?.[0], dropLocation?.[1]]);
 
   /* ─── CAMERA FRAMING ─── */
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !ready) return;
+    if (!map || !pickupLocation || !dropLocation) return;
 
     const bounds = new maplibregl.LngLatBounds();
     bounds.extend([pickupLocation[1], pickupLocation[0]]);
@@ -608,11 +623,11 @@ export default function LiveTrackingMap({
     if (driverLocation) bounds.extend([driverLocation[1], driverLocation[0]]);
 
     map.fitBounds(bounds, {
-      padding: { top: 100, bottom: 180, left: 60, right: 60 },
+      padding: { top: 100, bottom: 200, left: 60, right: 60 },
       duration: 1000,
       maxZoom: 16.5,
     });
-  }, [ready, pickupLocation, dropLocation, status]);
+  }, [pickupLocation, dropLocation, driverLocation]);
 
   return (
     <div className="relative w-full h-full overflow-hidden select-none">
