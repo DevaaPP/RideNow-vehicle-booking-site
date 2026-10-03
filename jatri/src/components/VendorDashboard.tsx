@@ -23,8 +23,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { getSocket } from "@/lib/socket";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { setUserData } from "@/redux/userSlice";
 import PartnerEarningsChart from "./PartnerEarningChart";
 import DriverWalletCard from "./DriverWalletCard";
 import dynamic from "next/dynamic";
@@ -79,61 +80,80 @@ export default function VendorDashboard({
   vendorStep,
   vendorStatus,
   videoKycStatus: propVideoKycStatus,
+  initialPricing,
+  initialUserData,
 }: {
   vendorStep: number;
   vendorStatus: VendorStatus;
   videoKycStatus?: string;
+  initialPricing?: PricingData | null;
+  initialUserData?: any;
 }) {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const { userData } = useSelector(
     (state: RootState) => state.user
   );
 
+  const currentUser = userData || initialUserData;
+
+  useEffect(() => {
+    if (initialUserData && !userData) {
+      dispatch(setUserData(initialUserData));
+    }
+  }, [initialUserData, userData, dispatch]);
+
   const [showPricing, setShowPricing] = useState(false);
-  const [pricing, setPricing] = useState<PricingData | null>(null);
+  const [pricing, setPricing] = useState<PricingData | null>(initialPricing || null);
+  const [loadingPricing, setLoadingPricing] = useState(!initialPricing);
+
   const requestKycAgain = async () => {
-  try {
-    await axios.patch("/api/partner/video-kyc/request");
-    window.location.reload();
-  } catch (err: any) {
-    alert(err.response?.data?.message || "Error");
-  }
-};
+    try {
+      await axios.patch("/api/partner/video-kyc/request");
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Error");
+    }
+  };
 
   const videoKycStatus: VideoKycStatus =
     (propVideoKycStatus as any) ||
-    userData?.videoKycStatus ||
+    currentUser?.videoKycStatus ||
     "not_required";
 
- const getActiveStep = () => {
-  let step = vendorStep + 1;
+  const getActiveStep = () => {
+    if (pricing?.status === "approved" || vendorStep >= 7) {
+      return 6; // Live
+    }
 
-  if (step > 5 && videoKycStatus !== "approved") {
-    return 5;
-  }
+    let step = vendorStep + 1;
 
-  if (vendorStep >= 7) {
-    return 6; // Live
-  }
+    if (step > 5 && videoKycStatus !== "approved") {
+      return 5;
+    }
 
-  return Math.min(step, TOTAL_STEPS);
-};
+    return Math.min(step, TOTAL_STEPS);
+  };
 
-const activeStep = getActiveStep();
-
+  const activeStep = getActiveStep();
 
   const progressPercent =
     ((activeStep - 1) / (TOTAL_STEPS - 1)) * 100;
 
-  const roomId = userData?.videoKycRoomId;
+  const roomId = currentUser?.videoKycRoomId;
 
   /* ================= LOAD PRICING ================= */
 
   useEffect(() => {
     axios
       .get("/api/partner/vehicle/pricing")
-      .then((res) => setPricing(res.data.pricing))
-      .catch(() => {});
+      .then((res) => {
+        if (res.data?.pricing) {
+          setPricing(res.data.pricing);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingPricing(false));
   }, []);
 
   /* ================= NAVIGATION ================= */
@@ -155,7 +175,7 @@ const activeStep = getActiveStep();
     return (
       <RejectionCard
         title="Documents Rejected"
-        reason={userData?.vendorRejectionReason}
+        reason={currentUser?.vendorRejectionReason}
         actionLabel="Update Documents"
         onAction={() =>
           router.push("/partner/onboard/documents")
@@ -192,7 +212,7 @@ const activeStep = getActiveStep();
       return (
         <RejectionCard
           title="Video KYC Rejected"
-          reason={userData?.videoKycRejectionReason}
+          reason={currentUser?.videoKycRejectionReason}
           actionLabel="Request Again"
           onAction={requestKycAgain}
         />
@@ -274,16 +294,33 @@ const activeStep = getActiveStep();
 
   /* ================= UI ================= */
 
-  const isLive = activeStep === 6 && pricing?.status === "approved";
+  const isLive = (activeStep === 6 || vendorStep >= 7) && pricing?.status === "approved";
 
   if (isLive) {
     return (
       <LiveVendorDashboard
-        userData={userData}
+        userData={currentUser}
         pricing={pricing}
         setShowPricing={setShowPricing}
         showPricing={showPricing}
       />
+    );
+  }
+
+  /* Guard against flash while pricing is loading for onboarded or nearly onboarded partners */
+  if ((activeStep === 6 || vendorStep >= 6) && loadingPricing) {
+    return (
+      <section className="min-h-screen bg-zinc-50 pt-28 pb-20 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
+          <div className="h-10 bg-zinc-200 rounded-2xl w-48" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="h-44 bg-zinc-200 rounded-3xl" />
+            <div className="h-44 bg-zinc-200 rounded-3xl" />
+            <div className="h-44 bg-zinc-200 rounded-3xl" />
+          </div>
+          <div className="h-96 bg-zinc-200 rounded-3xl" />
+        </div>
+      </section>
     );
   }
 
