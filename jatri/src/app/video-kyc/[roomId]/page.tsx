@@ -14,8 +14,9 @@ import {
   X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/redux/store";
+import { setUserData } from "@/redux/userSlice";
 import axios from "axios";
 
 export default function VideoKYCPage() {
@@ -26,7 +27,22 @@ export default function VideoKYCPage() {
 
   const params = useParams();
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const { userData } = useSelector((state: RootState) => state.user);
+
+  const [currentUser, setCurrentUser] = useState<any>(userData || null);
+
+  useEffect(() => {
+    axios
+      .get("/api/me")
+      .then((res) => {
+        if (res.data) {
+          setCurrentUser(res.data);
+          dispatch(setUserData(res.data));
+        }
+      })
+      .catch(() => {});
+  }, [dispatch]);
 
   const roomId =
     typeof params?.roomId === "string"
@@ -35,7 +51,7 @@ export default function VideoKYCPage() {
       ? params.roomId[0]
       : null;
 
-  const isAdmin = userData?.role === "admin";
+  const isAdmin = (currentUser || userData)?.role === "admin";
 
   const [joined, setJoined] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -155,6 +171,31 @@ const handleReject = async () => {
     setMicOn(!micOn);
   };
 
+  /* Driver auto-detection: when admin approves or rejects during call */
+  useEffect(() => {
+    if (isAdmin || !joined) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await axios.get("/api/me");
+        const me = res.data;
+        if (me) {
+          if (me.videoKycStatus === "approved") {
+            clearInterval(interval);
+            zpRef.current?.destroy();
+            router.push("/partners/dashboard");
+          } else if (me.videoKycStatus === "rejected") {
+            clearInterval(interval);
+            zpRef.current?.destroy();
+            router.push("/partners/dashboard");
+          }
+        }
+      } catch (err) {}
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [isAdmin, joined, router]);
+
   /* ================= START CALL ================= */
 
   const startCall = async () => {
@@ -165,35 +206,34 @@ const handleReject = async () => {
     setLoading(true);
 
     try {
-      const appID = Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID);
-
-      const userId = userData?._id?.toString();
-      if (!userId) {
-        alert("Session data is loading, please try again in a few seconds.");
-        joinedRef.current = false;
-        setLoading(false);
-        return;
+      // Release camera preview tracks so Zego can acquire the webcam hardware
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+        setStream(null);
       }
 
-      const displayName = isAdmin
-        ? "Admin"
-        : `${userData?.name || "Vendor"} (${userData?.email || ""})`;
-
-      const { ZegoUIKitPrebuilt } = await import("@zegocloud/zego-uikit-prebuilt");
-
       const tokenRes = await axios.post("/api/zego/token", { roomId });
-      const { token, appID: serverAppID } = tokenRes.data;
+      const { token, appID: serverAppID, userID, userName } = tokenRes.data;
 
       if (!token) {
         throw new Error("Unable to obtain secure video verification session token.");
       }
 
+      const activeUserId =
+        userID || (currentUser || userData)?._id?.toString() || `user-${Date.now()}`;
+      const activeUserName =
+        isAdmin
+          ? "Admin"
+          : userName || (currentUser || userData)?.name || "Vendor";
+
+      const { ZegoUIKitPrebuilt } = await import("@zegocloud/zego-uikit-prebuilt");
+
       const kitToken = ZegoUIKitPrebuilt.generateKitTokenForProduction(
-        serverAppID || appID,
+        serverAppID || Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID),
         token,
         roomId,
-        userId,
-        displayName
+        activeUserId,
+        activeUserName
       );
 
       const zp = ZegoUIKitPrebuilt.create(kitToken);
@@ -205,18 +245,36 @@ const handleReject = async () => {
           mode: ZegoUIKitPrebuilt.OneONoneCall,
         },
         showPreJoinView: false,
+        onLeaveRoom: () => {
+          if (isAdmin) {
+            router.push("/admin/dashboard");
+          } else {
+            router.push("/partners/dashboard");
+          }
+        },
       });
 
       setJoined(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(err.message || "Failed to start call");
       joinedRef.current = false;
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= ADMIN ACTIONS ================= */
+  const handleEndCall = () => {
+    try {
+      zpRef.current?.destroy();
+    } catch (e) {}
+
+    if (isAdmin) {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/partners/dashboard");
+    }
+  };
 
   
 
@@ -264,7 +322,7 @@ const handleReject = async () => {
             )}
 
             <button
-              onClick={() => router.push("/")}
+              onClick={handleEndCall}
               className="bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full text-sm flex items-center gap-2"
             >
               <PhoneOff size={16} />

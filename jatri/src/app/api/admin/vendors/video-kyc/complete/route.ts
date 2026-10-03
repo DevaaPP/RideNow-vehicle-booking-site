@@ -14,11 +14,11 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const { roomId, action, reason } = await req.json();
+    const { roomId, vendorId, action, reason } = await req.json();
 
-    if (!roomId) {
+    if (!roomId && !vendorId) {
       return NextResponse.json(
-        { message: "Room ID required" },
+        { message: "Room ID or Vendor ID required" },
         { status: 400 }
       );
     }
@@ -32,10 +32,14 @@ export async function PATCH(req: Request) {
 
     await connectDB();
 
-    const vendor = await User.findOne({
-      videoKycRoomId: roomId,
-      role: "vendor",
-    });
+    const query: any = { role: "vendor" };
+    if (roomId) {
+      query.videoKycRoomId = roomId;
+    } else if (vendorId) {
+      query._id = vendorId;
+    }
+
+    const vendor = await User.findOne(query);
 
     if (!vendor) {
       return NextResponse.json(

@@ -70,7 +70,7 @@ export default function PartnerBankPage() {
 
   const handleSubmit = async () => {
     if (completed && !editMode) {
-      router.push("/");
+      router.push("/partners/dashboard");
       return;
     }
 
@@ -86,7 +86,7 @@ export default function PartnerBankPage() {
         mobileNumber: mobileNumber.trim(),
       });
 
-      router.push("/");
+      router.push("/partners/dashboard");
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||

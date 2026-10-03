@@ -26,10 +26,10 @@ export async function PATCH(
 
     vendor.videoKycStatus = "in_progress";
     vendor.videoKycRoomId = roomId;
-    vendor.vendorOnboardingStep = 4;
+    vendor.videoKycRejectionReason = undefined;
+    vendor.vendorOnboardingStep = Math.max(vendor.vendorOnboardingStep || 0, 4);
 
     await vendor.save();
-    
 
     return NextResponse.json({ roomId });
   } catch (error) {

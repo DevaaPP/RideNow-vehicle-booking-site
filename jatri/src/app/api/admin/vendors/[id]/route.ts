@@ -33,7 +33,7 @@ export async function GET(
     /* ---------- USER ---------- */
     const user = await User.findById(vendorId)
       .select(
-        "name email role vendorStatus vendorOnboardingStep"
+        "name email role vendorStatus vendorOnboardingStep videoKycStatus videoKycRoomId videoKycRejectionReason vendorRejectionReason"
       )
       .lean();
 
@@ -78,6 +78,10 @@ export async function GET(
         email: user.email,
         vendorStatus: user.vendorStatus,
         vendorOnboardingStep: user.vendorOnboardingStep,
+        videoKycStatus: user.videoKycStatus || "pending",
+        videoKycRoomId: user.videoKycRoomId || null,
+        videoKycRejectionReason: user.videoKycRejectionReason || null,
+        vendorRejectionReason: user.vendorRejectionReason || null,
 
         vehicle: vehicle
           ? {

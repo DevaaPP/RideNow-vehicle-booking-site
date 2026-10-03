@@ -18,6 +18,9 @@ import {
   TrendingUp,
   Calendar,
   Shield,
+  Car,
+  FileText,
+  Landmark,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
@@ -67,9 +70,10 @@ const STEPS: Step[] = [
   { id: 1, title: "Vehicle", route: "/partner/onboard/vehicle" },
   { id: 2, title: "Documents", route: "/partner/onboard/documents" },
   { id: 3, title: "Bank", route: "/partner/onboard/bank" },
-  { id: 4, title: "Review" },
+  { id: 4, title: "Doc Review" },
   { id: 5, title: "Video KYC" },
-  { id: 6, title: "Live" },
+  { id: 6, title: "Vehicle Photo" },
+  { id: 7, title: "Live" },
 ];
 
 const TOTAL_STEPS = STEPS.length;
@@ -110,9 +114,12 @@ export default function VendorDashboard({
   const requestKycAgain = async () => {
     try {
       await axios.patch("/api/partner/video-kyc/request");
-      window.location.reload();
+      const meRes = await axios.get("/api/me");
+      if (meRes?.data) {
+        dispatch(setUserData(meRes.data));
+      }
     } catch (err: any) {
-      alert(err.response?.data?.message || "Error");
+      alert(err.response?.data?.message || "Error requesting Video KYC");
     }
   };
 
@@ -123,16 +130,25 @@ export default function VendorDashboard({
 
   const getActiveStep = () => {
     if (pricing?.status === "approved" || vendorStep >= 7) {
-      return 6; // Live
+      return 7; // Live
     }
 
-    let step = vendorStep + 1;
+    if (vendorStep < 1) return 1;
+    if (vendorStep < 2) return 2;
+    if (vendorStep < 3) return 3;
 
-    if (step > 5 && videoKycStatus !== "approved") {
+    // Step 4: Documents under review by admin
+    if (vendorStatus !== "approved" || vendorStep < 4) {
+      return 4;
+    }
+
+    // Step 5: Video KYC
+    if (videoKycStatus !== "approved" && videoKycStatus !== "not_required") {
       return 5;
     }
 
-    return Math.min(step, TOTAL_STEPS);
+    // Step 6: Vehicle Photo & Review
+    return 6;
   };
 
   const activeStep = getActiveStep();
@@ -156,145 +172,231 @@ export default function VendorDashboard({
       .finally(() => setLoadingPricing(false));
   }, []);
 
+  const isLive =
+    activeStep === 7 ||
+    vendorStep >= 7 ||
+    (pricing?.status === "approved" && videoKycStatus === "approved");
+
+  /* ================= BACKGROUND POLLING (AUTO REFRESH STEPS) ================= */
+
+  useEffect(() => {
+    if (isLive) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const [meRes, pricingRes] = await Promise.all([
+          axios.get("/api/me").catch(() => null),
+          axios.get("/api/partner/vehicle/pricing").catch(() => null),
+        ]);
+
+        if (meRes?.data) {
+          dispatch(setUserData(meRes.data));
+        }
+        if (pricingRes?.data?.pricing) {
+          setPricing(pricingRes.data.pricing);
+        }
+      } catch (e) {}
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isLive, dispatch]);
+
   /* ================= NAVIGATION ================= */
 
   const goToStep = (step: Step) => {
     if (step.route && step.id <= activeStep) {
       router.push(step.route);
+    } else if (step.id === 6 && activeStep === 6) {
+      setShowPricing(true);
     }
   };
 
-
-
   /* ================= STATUS SECTION ================= */
 
- const renderStatus = () => {
-
-  /* ===== DOCUMENT REVIEW REJECTED ===== */
-  if (activeStep === 4 && vendorStatus === "rejected") {
-    return (
-      <RejectionCard
-        title="Documents Rejected"
-        reason={currentUser?.vendorRejectionReason}
-        actionLabel="Update Documents"
-        onAction={() =>
-          router.push("/partner/onboard/documents")
-        }
-      />
-    );
-  }
-
-  /* ===== DOCUMENT REVIEW PENDING ===== */
-  if (activeStep === 4 && vendorStatus === "pending") {
-    return (
-      <StatusCard
-        icon={<Clock size={20} />}
-        title="Documents Under Review"
-        desc="Admin is verifying your documents."
-      />
-    );
-  }
-
-  /* ===== VIDEO KYC STEP ===== */
-  if (activeStep === 5) {
-
-    if (videoKycStatus === "approved") {
-      return (
-        <StatusCard
-          icon={<Check size={20} />}
-          title="Video KYC Approved"
-          desc="Your account is approved! Waiting for vehicle verification."
-        />
-      );
-    }
-
-    if (videoKycStatus === "rejected") {
-      return (
-        <RejectionCard
-          title="Video KYC Rejected"
-          reason={currentUser?.videoKycRejectionReason}
-          actionLabel="Request Again"
-          onAction={requestKycAgain}
-        />
-      );
-    }
-
-    if (videoKycStatus === "in_progress" && roomId) {
+  const renderStatus = () => {
+    /* ===== STEP 1: VEHICLE DETAILS ===== */
+    if (activeStep === 1) {
       return (
         <ActionCard
-          icon={<Video />}
-          title="Admin Started Video KYC"
-          button="Join Call"
-          onClick={() =>
-            router.push(`/video-kyc/${roomId}`)
+          icon={<Car size={24} />}
+          title="Step 1: Vehicle Information"
+          desc="Add your vehicle type, registration number, and model to begin partner onboarding."
+          button="Enter Vehicle Details"
+          onClick={() => router.push("/partner/onboard/vehicle")}
+        />
+      );
+    }
+
+    /* ===== STEP 2: DOCUMENTS UPLOAD ===== */
+    if (activeStep === 2) {
+      return (
+        <ActionCard
+          icon={<FileText size={24} />}
+          title="Step 2: Upload Documents"
+          desc="Upload your Driving License, Vehicle RC, and Aadhaar card for verification."
+          button="Upload Documents"
+          onClick={() => router.push("/partner/onboard/documents")}
+        />
+      );
+    }
+
+    /* ===== STEP 3: BANK DETAILS ===== */
+    if (activeStep === 3) {
+      return (
+        <ActionCard
+          icon={<Landmark size={24} />}
+          title="Step 3: Bank Account & Payouts"
+          desc="Provide your bank account details or UPI ID for direct trip payouts and earnings."
+          button="Enter Bank Details"
+          onClick={() => router.push("/partner/onboard/bank")}
+        />
+      );
+    }
+
+    /* ===== STEP 4: DOCUMENT REVIEW REJECTED ===== */
+    if (activeStep === 4 && vendorStatus === "rejected") {
+      return (
+        <RejectionCard
+          title="Documents Rejected"
+          reason={currentUser?.vendorRejectionReason || "Some documents could not be verified."}
+          actionLabel="Update Documents"
+          onAction={() =>
+            router.push("/partner/onboard/documents")
           }
         />
       );
     }
 
-    return (
-      <StatusCard
-        icon={<Clock size={20} />}
-        title="Waiting for Admin"
-        desc="Admin will initiate Video KYC shortly."
-      />
-    );
-  }
+    /* ===== STEP 4: DOCUMENT REVIEW PENDING ===== */
+    if (activeStep === 4) {
+      return (
+        <StatusCard
+          icon={<Clock size={20} />}
+          title="Documents Under Review"
+          desc="Admin is reviewing your documents. Once approved, you will proceed to Video KYC."
+        />
+      );
+    }
 
-  /* ===== VEHICLE REVIEW ===== */
-  if (activeStep === 6 && pricing?.status === "pending") {
-    return (
-      <StatusCard
-        icon={<Clock size={20} />}
-        title="Vehicle Under Review"
-        desc="Admin is reviewing your vehicle details and registration."
-      />
-    );
-  }
+    /* ===== STEP 5: VIDEO KYC STEP ===== */
+    if (activeStep === 5) {
+      if (videoKycStatus === "approved") {
+        return (
+          <StatusCard
+            icon={<Check size={20} />}
+            title="Video KYC Approved"
+            desc="Your identity is verified! Please proceed to upload your vehicle photograph."
+          />
+        );
+      }
 
-  /* ===== VEHICLE REJECTED ===== */
-  if (pricing?.status === "rejected") {
-    return (
-      <RejectionCard
-        title="Vehicle Rejected"
-        reason={pricing.rejectionReason}
-        actionLabel="Update Details"
-        onAction={() => router.push("/partner/onboard/vehicle")}
-      />
-    );
-  }
+      if (videoKycStatus === "rejected") {
+        return (
+          <RejectionCard
+            title="Video KYC Rejected"
+            reason={currentUser?.videoKycRejectionReason || "Verification call could not be completed."}
+            actionLabel="Request Again"
+            onAction={requestKycAgain}
+          />
+        );
+      }
 
-  /* ===== LIVE ===== */
-  if (
-    activeStep === 6 &&
-    pricing?.status === "approved"
-  ) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-black text-white rounded-3xl p-10 shadow-2xl"
-      >
-        <h2 className="text-2xl font-bold">
-          🚀 You’re Live
-        </h2>
+      if (videoKycStatus === "in_progress" && roomId) {
+        return (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-gradient-to-r from-blue-900 via-indigo-950 to-neutral-950 text-white rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6 border border-blue-500/30"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center shrink-0 animate-pulse">
+                <Video size={28} className="text-blue-400" />
+              </div>
+              <div>
+                <span className="text-xs uppercase tracking-wider font-bold text-blue-400">Live Call Active</span>
+                <h2 className="text-xl sm:text-2xl font-bold mt-0.5">Admin Started Your Video KYC</h2>
+                <p className="text-sm text-blue-200/80 mt-1">Please join the call now to complete your identity verification.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push(`/video-kyc/${roomId}`)}
+              className="w-full sm:w-auto px-8 py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl shadow-lg transition transform hover:scale-105 shrink-0 flex items-center justify-center gap-2"
+            >
+              <Video size={18} /> Join Call Now
+            </button>
+          </motion.div>
+        );
+      }
 
-        <button
-          onClick={() => router.push("/partner/bookings")}
-          className="mt-6 bg-white text-black px-6 py-3 rounded-xl font-semibold flex items-center gap-2"
+      return (
+        <StatusCard
+          icon={<Clock size={20} />}
+          title="Waiting for Admin Call"
+          desc="Your documents are approved. Admin will initiate your quick 2-minute Video KYC shortly."
+        />
+      );
+    }
+
+    /* ===== STEP 6: VEHICLE PHOTO & REVIEW ===== */
+    if (activeStep === 6) {
+      if (pricing?.status === "pending") {
+        return (
+          <StatusCard
+            icon={<Clock size={20} />}
+            title="Vehicle Under Review"
+            desc="Admin is reviewing your vehicle photograph. You'll be live as soon as it is approved."
+          />
+        );
+      }
+
+      if (pricing?.status === "rejected") {
+        return (
+          <RejectionCard
+            title="Vehicle Photo Rejected"
+            reason={pricing?.rejectionReason || "Please upload a clearer vehicle exterior photo."}
+            actionLabel="Re-upload Vehicle Photo"
+            onAction={() => setShowPricing(true)}
+          />
+        );
+      }
+
+      return (
+        <ActionCard
+          icon={<ImagePlus size={24} />}
+          title="Step 6: Upload Vehicle Photo"
+          desc="Your Video KYC is verified! Upload a clear photo of your vehicle exterior to finish onboarding."
+          button="Upload Vehicle Photo"
+          onClick={() => setShowPricing(true)}
+        />
+      );
+    }
+
+    /* ===== STEP 7: LIVE ===== */
+    if (activeStep === 7) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-black text-white rounded-3xl p-10 shadow-2xl"
         >
-          Go to Orders <ArrowRight size={16} />
-        </button>
-      </motion.div>
-    );
-  }
+          <h2 className="text-2xl font-bold">
+            🚀 You’re Live
+          </h2>
 
-  return null;
-};
+          <button
+            onClick={() => router.push("/partner/bookings")}
+            className="mt-6 bg-white text-black px-6 py-3 rounded-xl font-semibold flex items-center gap-2"
+          >
+            Go to Orders <ArrowRight size={16} />
+          </button>
+        </motion.div>
+      );
+    }
+
+    return null;
+  };
 
   /* ================= UI ================= */
-
-  const isLive = (activeStep === 6 || vendorStep >= 7) && pricing?.status === "approved";
 
   if (isLive) {
     return (
@@ -308,7 +410,7 @@ export default function VendorDashboard({
   }
 
   /* Guard against flash while pricing is loading for onboarded or nearly onboarded partners */
-  if ((activeStep === 6 || vendorStep >= 6) && loadingPricing) {
+  if ((activeStep >= 6 || vendorStep >= 6) && loadingPricing && !initialPricing) {
     return (
       <section className="min-h-screen bg-zinc-50 pt-28 pb-20 px-4 md:px-8">
         <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
@@ -396,18 +498,22 @@ export default function VendorDashboard({
       </div>
 
       <PricingModal
-  open={showPricing}
-  onClose={() => setShowPricing(false)}
-  pricing={pricing}
-  isLive={isLive}
-/>
+        open={showPricing}
+        onClose={() => setShowPricing(false)}
+        pricing={pricing}
+        isLive={isLive}
+        onSaved={(newPricing: any, newUserData: any) => {
+          if (newPricing) setPricing(newPricing);
+          if (newUserData) dispatch(setUserData(newUserData));
+        }}
+      />
     </section>
   );
 }
 
 /* ================= PRICING MODAL ================= */
 
-function PricingModal({ open, onClose, pricing, isLive }: any){
+function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -417,13 +523,25 @@ function PricingModal({ open, onClose, pricing, isLive }: any){
     if (image) formData.append("image", image);
 
     setLoading(true);
-    if (isLive) {
-      await axios.patch("/api/partner/vehicle/pricing/edit", formData);
-    } else {
-      await axios.post("/api/partner/vehicle/pricing", formData);
+    try {
+      if (isLive) {
+        await axios.patch("/api/partner/vehicle/pricing/edit", formData);
+      } else {
+        await axios.post("/api/partner/vehicle/pricing", formData);
+      }
+      onClose();
+      const [pricingRes, meRes] = await Promise.all([
+        axios.get("/api/partner/vehicle/pricing").catch(() => null),
+        axios.get("/api/me").catch(() => null),
+      ]);
+      if (onSaved) {
+        onSaved(pricingRes?.data?.pricing, meRes?.data);
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to submit vehicle photo");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    window.location.reload();
   };
 
    useEffect(() => {
@@ -544,7 +662,7 @@ function StatusCard({ icon, title, desc }: any) {
 
 /* ================= ACTION CARD ================= */
 
-function ActionCard({ icon, title, button, onClick }: any) {
+function ActionCard({ icon, title, desc, button, onClick }: any) {
   return (
     <div
       className="
@@ -565,9 +683,16 @@ function ActionCard({ icon, title, button, onClick }: any) {
           {icon}
         </div>
 
-        <h3 className="text-base sm:text-lg md:text-xl font-semibold">
-          {title}
-        </h3>
+        <div>
+          <h3 className="text-base sm:text-lg md:text-xl font-semibold">
+            {title}
+          </h3>
+          {desc && (
+            <p className="text-gray-600 text-sm mt-1">
+              {desc}
+            </p>
+          )}
+        </div>
       </div>
 
       <button

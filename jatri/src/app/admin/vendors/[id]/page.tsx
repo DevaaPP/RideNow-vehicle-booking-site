@@ -10,6 +10,8 @@ import {
   FileText,
   Landmark,
   ShieldCheck,
+  Video,
+  Loader2,
 } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -139,6 +141,23 @@ export default function AdminVendorReviewPage() {
             <InfoRow label="UPI ID" value={data.bank?.upi || "—"} />
           </AnimatedCard>
 
+          {data.vendorStatus === "rejected" && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-[32px] p-8 shadow-xl space-y-4 border border-red-200"
+            >
+              <div className="flex items-center gap-2 font-semibold text-red-600">
+                <XCircle size={18} />
+                Documents Rejected
+              </div>
+              <p className="text-sm text-gray-700 bg-red-50 p-4 rounded-2xl border border-red-100">
+                <span className="font-semibold block text-red-900 mb-1">Reason:</span>
+                {data.vendorRejectionReason || "Documents were rejected by admin."}
+              </p>
+            </motion.div>
+          )}
+
           {data.vendorStatus === "pending" && (
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -169,6 +188,75 @@ export default function AdminVendorReviewPage() {
                   Reject Vendor
                 </button>
               </div>
+            </motion.div>
+          )}
+
+          {data.vendorStatus === "approved" && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-[32px] p-8 shadow-xl space-y-6"
+            >
+              <div className="flex items-center gap-2 font-semibold">
+                <Video size={18} />
+                Video KYC Verification
+              </div>
+
+              {data.videoKycStatus === "approved" ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-200 px-4 py-3 rounded-2xl text-sm font-semibold">
+                    <CheckCircle size={18} />
+                    Video KYC Approved
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Vendor identity confirmed. Vendor is eligible to upload vehicle photo and submit fares.
+                  </p>
+                </div>
+              ) : data.videoKycStatus === "in_progress" ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-blue-700 bg-blue-50 border border-blue-200 px-4 py-3 rounded-2xl text-sm font-semibold">
+                    <Clock size={18} />
+                    Call Currently In Progress
+                  </div>
+                  <button
+                    onClick={() => router.push(`/video-kyc/${data.videoKycRoomId}`)}
+                    className="w-full py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-blue-500/20"
+                  >
+                    <Video size={16} /> Join Ongoing Call
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-500">
+                    Documents are verified. Initiate live video verification call with this vendor.
+                  </p>
+                  {data.videoKycStatus === "rejected" && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+                      <span className="font-bold">Last KYC Rejected:</span> {data.videoKycRejectionReason || "No reason given"}
+                    </div>
+                  )}
+                  <button
+                    onClick={async () => {
+                      try {
+                        setActionLoading(true);
+                        const res = await axios.patch(`/api/admin/vendors/video-kyc/start/${id}`);
+                        if (res.data?.roomId) {
+                          router.push(`/video-kyc/${res.data.roomId}`);
+                        }
+                      } catch (err: any) {
+                        alert(err?.response?.data?.message || "Failed to start Video KYC");
+                      } finally {
+                        setActionLoading(false);
+                      }
+                    }}
+                    disabled={actionLoading}
+                    className="w-full py-3 rounded-2xl bg-black hover:bg-zinc-800 text-white font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50"
+                  >
+                    {actionLoading ? <Loader2 className="animate-spin" size={16} /> : <Video size={16} />}
+                    Start Video KYC
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </div>
