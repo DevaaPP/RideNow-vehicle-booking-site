@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
-import Booking from "@/models/booking.model";
+import { auth } from "@/auth";
+import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { settleCompletedRidePayment } from "@/lib/settlePayment";
 
 export async function POST(
@@ -8,33 +9,46 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
-
   await connectDb();
+  const session = await auth();
 
-  const booking = await Booking.findById(id);
-
-  if (!booking) {
-    return NextResponse.json(
-      { message: "Not found" },
-      { status: 404 }
-    );
-  }
+  const actorRole = session?.user?.role === "vendor" || session?.user?.role === "driver" ? "driver" : session?.user?.role === "admin" ? "admin" : "driver";
+  const actorId = session?.user?.id;
 
   const now = new Date();
-  booking.status = "completed";
-  booking.completedAt = now;
-  booking.actualDropoffTime = now;
-  if (booking.startedAt) {
-    booking.tripDurationMinutes = Math.max(
-      1,
-      Math.round((now.getTime() - new Date(booking.startedAt).getTime()) / (1000 * 60))
-    );
+
+  const transitionRes = await transitionBookingState({
+    bookingId: id,
+    targetStatus: "completed",
+    actorId,
+    actorRole,
+    payload: {
+      completedAt: now,
+      actualDropoffTime: now,
+    },
+  });
+
+  if (!transitionRes.success) {
+    const status = transitionRes.errorCode === "UNAUTHORIZED" ? 403 : 400;
+    return NextResponse.json({ message: transitionRes.message || "Could not complete ride" }, { status });
   }
 
-  await booking.save();
+  const booking = transitionRes.booking!;
 
-  /* Settle commission and driver wallet earnings */
-  await settleCompletedRidePayment(booking._id);
+  // If this was an active transition (not a duplicate call), calculate duration & settle earnings
+  if (!transitionRes.isDuplicateCall) {
+    if (booking.startedAt) {
+      const durationMins = Math.max(
+        1,
+        Math.round((now.getTime() - new Date(booking.startedAt).getTime()) / (1000 * 60))
+      );
+      booking.tripDurationMinutes = durationMins;
+      await booking.save();
+    }
 
-  return NextResponse.json({ success: true });
+    /* Settle commission and driver wallet earnings */
+    await settleCompletedRidePayment(booking._id);
+  }
+
+  return NextResponse.json({ success: true, booking, isDuplicate: transitionRes.isDuplicateCall });
 }

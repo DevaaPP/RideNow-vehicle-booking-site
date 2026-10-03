@@ -1,24 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
-import Booking from "@/models/booking.model";
+import { transitionBookingState } from "@/lib/bookingStateMachine";
 
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   await connectDb();
-const id =(await context.params).id
-  const booking =await Booking.findOneAndUpdate(
-  { _id: id, status: "requested" },
-  { status: "expired" }
-);
-  if (!booking)
-    return NextResponse.json({ message: "Not found" }, { status: 404 });
-booking.status = "expired";
+  const id = (await context.params).id;
 
+  const transitionRes = await transitionBookingState({
+    bookingId: id,
+    targetStatus: "expired",
+    actorRole: "system",
+  });
 
+  if (!transitionRes.success) {
+    return NextResponse.json({ message: transitionRes.message || "Could not expire booking" }, { status: 400 });
+  }
 
-  await booking.save();
-
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, booking: transitionRes.booking });
 }

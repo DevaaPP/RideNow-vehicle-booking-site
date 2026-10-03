@@ -1,8 +1,8 @@
 import connectDb from "@/lib/db";
-import Booking from "@/models/booking.model";
-import axios from "axios";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import axios from "axios";
+import { transitionBookingState } from "@/lib/bookingStateMachine";
 
 export async function POST(
   req: Request,
@@ -11,22 +11,32 @@ export async function POST(
   await connectDb();
   const session = await auth();
   const id = (await context.params).id;
-  const booking = await Booking.findById(id);
 
-  if (!booking || booking.status !== "requested")
-    return NextResponse.json({ message: "Invalid" }, { status: 400 });
+  const actorRole = session?.user?.role === "vendor" || session?.user?.role === "driver" ? "driver" : session?.user?.role === "admin" ? "admin" : "driver";
+  const actorId = session?.user?.id;
 
-  if (session?.user?.id && session.user.role === "vendor") {
-    booking.driver = session.user.id;
+  const duration = 15;
+  const now = new Date();
+
+  const transitionRes = await transitionBookingState({
+    bookingId: id,
+    targetStatus: "awaiting_payment",
+    actorId,
+    actorRole,
+    payload: {
+      driver: actorId || undefined,
+      acceptedAt: now,
+      paymentDeadline: new Date(Date.now() + 5 * 60 * 1000),
+      estimatedDropoffTime: new Date(Date.now() + duration * 60 * 1000),
+    },
+  });
+
+  if (!transitionRes.success) {
+    const status = transitionRes.errorCode === "RACE_CONDITION" ? 409 : transitionRes.errorCode === "UNAUTHORIZED" ? 403 : 400;
+    return NextResponse.json({ message: transitionRes.message || "Could not accept booking" }, { status });
   }
 
-  booking.status = "awaiting_payment";
-  booking.acceptedAt = new Date();
-  booking.paymentDeadline = new Date(Date.now() + 5 * 60 * 1000);
-  const duration = booking.tripDurationMinutes || 15;
-  booking.estimatedDropoffTime = new Date(Date.now() + duration * 60 * 1000);
-
-  await booking.save();
+  const booking = transitionRes.booking!;
 
   try {
     if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
@@ -47,7 +57,6 @@ export async function POST(
     console.warn("Socket notification in accept route failed:", socketErr);
   }
 
-  // Trigger web push to passenger
   try {
     const { sendPushToUser } = await import("@/lib/webPush");
     await sendPushToUser(booking.user.toString(), {
@@ -59,5 +68,5 @@ export async function POST(
     console.warn("Push notification error on accept:", pushErr);
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, booking, isDuplicate: transitionRes.isDuplicateCall });
 }
