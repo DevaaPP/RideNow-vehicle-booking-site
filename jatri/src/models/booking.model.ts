@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export type BookingStatus =
   | "requested"
+  | "searching_driver"
   | "awaiting_payment"
   | "confirmed"
   | "driver_arriving"
