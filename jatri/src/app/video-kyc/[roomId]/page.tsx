@@ -166,7 +166,6 @@ const handleReject = async () => {
 
     try {
       const appID = Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID);
-      const serverSecret = process.env.NEXT_PUBLIC_ZEGO_SERVER_SECRET;
 
       const userId = userData?._id?.toString();
       if (!userId) {
@@ -182,26 +181,20 @@ const handleReject = async () => {
 
       const { ZegoUIKitPrebuilt } = await import("@zegocloud/zego-uikit-prebuilt");
 
-      let kitToken: string;
-      try {
-        const tokenRes = await axios.post("/api/zego/token", { roomId });
-        const { token, appID: serverAppID } = tokenRes.data;
-        kitToken = ZegoUIKitPrebuilt.generateKitTokenForProduction(
-          serverAppID || appID,
-          token,
-          roomId,
-          userId,
-          displayName
-        );
-      } catch {
-        kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
-          appID,
-          serverSecret || "",
-          roomId,
-          userId,
-          displayName
-        );
+      const tokenRes = await axios.post("/api/zego/token", { roomId });
+      const { token, appID: serverAppID } = tokenRes.data;
+
+      if (!token) {
+        throw new Error("Unable to obtain secure video verification session token.");
       }
+
+      const kitToken = ZegoUIKitPrebuilt.generateKitTokenForProduction(
+        serverAppID || appID,
+        token,
+        roomId,
+        userId,
+        displayName
+      );
 
       const zp = ZegoUIKitPrebuilt.create(kitToken);
       zpRef.current = zp;

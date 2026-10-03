@@ -16,6 +16,10 @@ import RideChat from "@/components/RideChat";
 import NotificationToggle from "@/components/NotificationToggle";
 import { getMinDistanceToPolyline, haversineKm } from "@/lib/routeUtils";
 import { useTranslation } from "@/context/LanguageContext";
+import RideCompletedView from "@/features/rides/components/RideCompletedView";
+import RideFailedView from "@/features/rides/components/RideFailedView";
+import RideSafetyAlert from "@/features/rides/components/RideSafetyAlert";
+import { calculateCancellationPenalty } from "@/lib/cancellationRules";
 
 const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr: false });
 
@@ -588,15 +592,18 @@ export default function RidePage() {
 
   /* ══ COMPLETED — FULL SCREEN ══ */
   if (isCompleted) {
-    return (
-      <CompletedScreen booking={booking} router={router} />
-    );
+    return <RideCompletedView booking={booking} />;
   }
 
   /* ══ FAILED — FULL SCREEN ══ */
   if (isFailed) {
     return (
-      <FailedScreen booking={booking} status={status} cfg={cfg} router={router} />
+      <RideFailedView
+        booking={booking}
+        status={status}
+        label={cfg.label}
+        sublabel={cfg.sublabel}
+      />
     );
   }
 
@@ -1173,301 +1180,9 @@ export default function RidePage() {
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   COMPLETED FULL SCREEN
-══════════════════════════════════════════════════════════════════════ */
-function CompletedScreen({ booking, router }: { booking: BookingDetails; router: any }) {
-  const [selectedRating, setSelectedRating] = useState(0);
-  const [submitted,      setSubmitted]      = useState(false);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="h-screen w-full bg-zinc-950 flex flex-col overflow-y-auto"
-    >
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
 
-        {/* Icon */}
-        <motion.div
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-8"
-        >
-          <div className="w-32 h-32 rounded-full bg-emerald-400/10 flex items-center justify-center">
-            <div className="w-24 h-24 rounded-full bg-emerald-400/20 flex items-center justify-center">
-              <CheckCircle2 size={52} className="text-emerald-400" />
-            </div>
-          </div>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="w-full max-w-sm"
-        >
-          <p className="text-zinc-400 text-xs uppercase tracking-[0.25em] font-semibold text-center mb-2">Trip Complete</p>
-          <h1 className="text-white text-3xl font-black text-center mb-1">You've Arrived!</h1>
-          <p className="text-zinc-500 text-sm text-center mb-8">Thank you for riding with us.</p>
-
-          {/* Fare card */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-3">
-            <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold mb-1 text-center">Total Fare</p>
-            <p className="text-white text-5xl font-black flex items-center justify-center gap-1 mb-4">
-              <IndianRupee size={30} strokeWidth={2.5} /> {booking.fare}
-            </p>
-            <div className="flex items-center justify-between text-xs border-t border-zinc-800 pt-3">
-              <span className="text-zinc-500">Payment</span>
-              <span className={`px-2.5 py-1 rounded-full font-semibold text-[11px] ${PAYMENT_LABEL[booking.paymentStatus]?.cls ?? "bg-zinc-700 text-zinc-300"}`}>
-                {PAYMENT_LABEL[booking.paymentStatus]?.label ?? booking.paymentStatus}
-              </span>
-            </div>
-          </div>
-
-          {/* Driver card */}
-          {booking.driver && (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-3 mb-3">
-              <div className="w-11 h-11 rounded-xl bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                <User2 size={20} className="text-zinc-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-zinc-500 text-[10px] uppercase tracking-wider font-semibold">Driver</p>
-                <p className="text-white text-sm font-bold truncate">{booking.driver.name}</p>
-              </div>
-              {booking.vehicle && (
-                <div className="flex-shrink-0 bg-zinc-800 px-2.5 py-1.5 rounded-lg">
-                  <p className="text-zinc-300 text-xs font-black tracking-widest font-mono">{booking.vehicle.number}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Route */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden mb-6">
-            <div className="flex gap-3 p-4 border-b border-zinc-800">
-              <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-500 border-2 border-zinc-900" />
-                <div className="w-px bg-zinc-700 mt-1" style={{ height: 18 }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Pickup</p>
-                <p className="text-sm text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
-              </div>
-            </div>
-            <div className="flex gap-3 p-4">
-              <div className="flex-shrink-0 pt-1">
-                <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400 border-2 border-zinc-900" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Drop</p>
-                <p className="text-sm text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
-                {(booking.actualDropoffTime || booking.completedAt) && (
-                  <p className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-                    <CheckCircle2 size={12} />
-                    <span>
-                      Dropped off at {new Date(booking.actualDropoffTime || booking.completedAt!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
-                      {booking.tripDurationMinutes ? ` (~${booking.tripDurationMinutes} mins)` : ""}
-                    </span>
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Family Account Ride Indicator */}
-          {booking.isFamilyRide && booking.familyMemberDetails && (
-            <div className="bg-amber-950/60 border border-amber-800/80 rounded-2xl p-4 mb-4 flex items-center gap-3 text-left">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shadow-sm flex-shrink-0">
-                👨👩👧
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[9px] font-black uppercase bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full tracking-wider border border-amber-500/30">
-                    Family Account Ride
-                  </span>
-                </div>
-                <p className="text-xs font-bold text-zinc-200 truncate">
-                  Booked for {booking.familyMemberDetails.name} ({booking.familyMemberDetails.relation})
-                </p>
-                {booking.familyMemberDetails.phone && (
-                  <p className="text-[10px] text-zinc-400 font-medium">
-                    Phone: {booking.familyMemberDetails.phone}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Rating */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-4">
-            <p className="text-zinc-400 text-sm font-semibold text-center mb-3">How was your experience?</p>
-            <div className="flex justify-center gap-2 mb-3">
-              {[1, 2, 3, 4, 5].map(n => (
-                <button
-                  key={n}
-                  onClick={() => !submitted && setSelectedRating(n)}
-                  className={`w-12 h-12 rounded-xl text-xl transition-all active:scale-90 ${
-                    selectedRating >= n
-                      ? "bg-amber-400 text-zinc-900"
-                      : "bg-zinc-800 hover:bg-zinc-700 text-zinc-500"
-                  }`}
-                >★</button>
-              ))}
-            </div>
-            <AnimatePresence>
-              {selectedRating > 0 && !submitted && (
-                <motion.button
-                  initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  onClick={() => setSubmitted(true)}
-                  className="w-full bg-white text-zinc-900 py-3 rounded-xl text-sm font-bold hover:bg-zinc-100 transition-colors"
-                >
-                  Submit Rating
-                </motion.button>
-              )}
-              {submitted && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center justify-center gap-2 py-2"
-                >
-                  <CheckCircle2 size={16} className="text-emerald-400" />
-                  <p className="text-emerald-400 text-sm font-semibold">Thanks for your feedback!</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <button
-            onClick={() => router.push("/")}
-            className="w-full border border-zinc-700 text-zinc-400 py-3.5 rounded-2xl text-sm font-semibold hover:bg-zinc-900 transition-colors"
-          >
-            Back to Home
-          </button>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════════════
-   FAILED FULL SCREEN (cancelled / rejected / expired)
-══════════════════════════════════════════════════════════════════════ */
-function FailedScreen({ booking, status, cfg, router }: { booking: BookingDetails; status: BookingStatus; cfg: any; router: any }) {
-  const isExpired = status === "expired";
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="h-screen w-full bg-zinc-950 flex flex-col items-center justify-center px-6"
-    >
-      <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="mb-8"
-      >
-        <div className={`w-28 h-28 rounded-full flex items-center justify-center ${isExpired ? "bg-orange-400/10" : "bg-red-400/10"}`}>
-          <div className={`w-20 h-20 rounded-full flex items-center justify-center ${isExpired ? "bg-orange-400/20" : "bg-red-400/20"}`}>
-            {isExpired
-              ? <AlertCircle size={44} className="text-orange-400" />
-              : <XCircle     size={44} className="text-red-400" />
-            }
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="w-full max-w-sm text-center"
-      >
-        <h1 className="text-white text-2xl font-black mb-2">{cfg.label}</h1>
-        <p className="text-zinc-500 text-sm mb-6">{cfg.sublabel}</p>
-
-        {status === "cancelled" && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-6 text-left space-y-2.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-zinc-400 font-semibold">Reason</span>
-              <span className="text-zinc-200 font-bold max-w-[200px] truncate text-right">
-                {booking.cancellationReason || "Cancelled by passenger"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs pt-2 border-t border-zinc-800">
-              <span className="text-zinc-400 font-semibold">Cancellation Fee</span>
-              <span className={`font-bold ${booking.cancellationFeeApplied ? "text-amber-400" : "text-emerald-400"}`}>
-                {booking.cancellationFeeApplied && booking.cancellationFee
-                  ? `₹${booking.cancellationFee} applied (>3 min)`
-                  : "₹0 (Free Cancellation)"}
-              </span>
-            </div>
-            {booking.paymentStatus === "refunded" && (
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-zinc-800">
-                <span className="text-zinc-400 font-semibold">Refund Status</span>
-                <span className="text-emerald-400 font-bold">Processed to Wallet</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Route recap */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden mb-6 text-left">
-          <div className="flex gap-3 p-4 border-b border-zinc-800">
-            <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
-              <div className="w-px bg-zinc-700 mt-1" style={{ height: 18 }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Pickup</p>
-              <p className="text-sm text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
-            </div>
-          </div>
-
-          {/* Intermediate Stops recap */}
-          {booking.stops && booking.stops.length > 0 && booking.stops.map((stop: any, idx: number) => (
-            <div key={idx} className="flex gap-3 p-4 border-b border-zinc-800 bg-zinc-900/50">
-              <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                <div className="w-px bg-zinc-700 mt-1" style={{ height: 16 }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-0.5">Stop {idx + 1}</p>
-                <p className="text-sm text-zinc-300 leading-snug">{stop.address || "—"}</p>
-              </div>
-            </div>
-          ))}
-
-          <div className="flex gap-3 p-4">
-            <div className="flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-sm bg-zinc-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Drop</p>
-              <p className="text-sm text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={() => router.push("/book")}
-          className="w-full bg-white text-zinc-900 py-4 rounded-2xl text-sm font-bold hover:bg-zinc-100 transition-colors mb-3"
-        >
-          Book a New Ride
-        </button>
-        <button
-          onClick={() => router.push("/")}
-          className="w-full border border-zinc-800 text-zinc-500 py-3.5 rounded-2xl text-sm font-semibold hover:bg-zinc-900 transition-colors"
-        >
-          Back to Home
-        </button>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 /* ══════════════════════════════════════════════════════════════════════
    PANEL CONTENT
