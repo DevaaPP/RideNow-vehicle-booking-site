@@ -211,9 +211,9 @@ function TabButton({ active, onClick, children, icon, count }: any) {
 }
 
 const KYC_STATUS: Record<string, { label: string; pill: string; dot: string }> = {
-  pending:     { label: "Pending",     pill: "bg-amber-50 text-amber-800 border border-amber-200",   dot: "bg-amber-500" },
-  in_progress: { label: "In Progress", pill: "bg-blue-50  text-blue-800  border border-blue-200",    dot: "bg-blue-500" },
-  completed:   { label: "Completed",   pill: "bg-green-50 text-green-800 border border-green-200",   dot: "bg-green-500" },
+  pending:     { label: "Pending", pill: "bg-amber-50 text-amber-800 border border-amber-200", dot: "bg-amber-500" },
+  in_progress: { label: "Call Active / In Room", pill: "bg-blue-50 text-blue-800 border border-blue-200", dot: "bg-blue-500 animate-ping" },
+  completed:   { label: "Completed", pill: "bg-green-50 text-green-800 border border-green-200", dot: "bg-green-500" },
 };
 
 const AVATAR_COLORS = [

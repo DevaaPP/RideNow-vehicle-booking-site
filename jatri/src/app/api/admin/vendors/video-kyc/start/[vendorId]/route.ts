@@ -22,7 +22,10 @@ export async function PATCH(
       return NextResponse.json({ message: "Vendor not found" }, { status: 404 });
     }
 
-    const roomId = `kyc-${vendor._id}-${Date.now()}`;
+    const roomId =
+      vendor.videoKycStatus === "in_progress" && vendor.videoKycRoomId
+        ? vendor.videoKycRoomId
+        : `kyc-${vendor._id}-${Date.now()}`;
 
     vendor.videoKycStatus = "in_progress";
     vendor.videoKycRoomId = roomId;

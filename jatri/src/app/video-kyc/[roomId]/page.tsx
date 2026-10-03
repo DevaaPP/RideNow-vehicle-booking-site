@@ -54,6 +54,7 @@ export default function VideoKYCPage() {
   const isAdmin = (currentUser || userData)?.role === "admin";
 
   const [joined, setJoined] = useState(false);
+  const [remoteJoined, setRemoteJoined] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
@@ -245,6 +246,14 @@ const handleReject = async () => {
           mode: ZegoUIKitPrebuilt.OneONoneCall,
         },
         showPreJoinView: false,
+        onUserJoin: (users: any[]) => {
+          if (users && users.length > 0) {
+            setRemoteJoined(true);
+          }
+        },
+        onUserLeave: () => {
+          setRemoteJoined(false);
+        },
         onLeaveRoom: () => {
           if (isAdmin) {
             router.push("/admin/dashboard");
@@ -335,6 +344,15 @@ const handleReject = async () => {
 
       {/* BODY */}
       <div className="flex-1 relative">
+
+        {joined && !remoteJoined && (
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+            <div className="bg-black/80 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm px-5 py-2.5 rounded-full flex items-center gap-3 shadow-2xl">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
+              <span>Waiting for {isAdmin ? "driver" : "admin"} to connect...</span>
+            </div>
+          </div>
+        )}
 
         <div
           ref={containerRef}

@@ -110,6 +110,21 @@ export default function VendorDashboard({
   const [showPricing, setShowPricing] = useState(false);
   const [pricing, setPricing] = useState<PricingData | null>(initialPricing || null);
   const [loadingPricing, setLoadingPricing] = useState(!initialPricing);
+  const [startingKyc, setStartingKyc] = useState(false);
+
+  const startDriverKyc = async () => {
+    try {
+      setStartingKyc(true);
+      const res = await axios.post("/api/partner/video-kyc/start");
+      if (res.data?.roomId) {
+        router.push(`/video-kyc/${res.data.roomId}`);
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to start Video KYC");
+    } finally {
+      setStartingKyc(false);
+    }
+  };
 
   const requestKycAgain = async () => {
     try {
@@ -313,26 +328,28 @@ export default function VendorDashboard({
                 <Video size={28} className="text-blue-400" />
               </div>
               <div>
-                <span className="text-xs uppercase tracking-wider font-bold text-blue-400">Live Call Active</span>
-                <h2 className="text-xl sm:text-2xl font-bold mt-0.5">Admin Started Your Video KYC</h2>
-                <p className="text-sm text-blue-200/80 mt-1">Please join the call now to complete your identity verification.</p>
+                <span className="text-xs uppercase tracking-wider font-bold text-blue-400">Call Session Ready</span>
+                <h2 className="text-xl sm:text-2xl font-bold mt-0.5">Video KYC Call Active</h2>
+                <p className="text-sm text-blue-200/80 mt-1">A verification room is open. Join now to complete your identity check.</p>
               </div>
             </div>
             <button
               onClick={() => router.push(`/video-kyc/${roomId}`)}
               className="w-full sm:w-auto px-8 py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl shadow-lg transition transform hover:scale-105 shrink-0 flex items-center justify-center gap-2"
             >
-              <Video size={18} /> Join Call Now
+              <Video size={18} /> Join Video KYC Call
             </button>
           </motion.div>
         );
       }
 
       return (
-        <StatusCard
-          icon={<Clock size={20} />}
-          title="Waiting for Admin Call"
-          desc="Your documents are approved. Admin will initiate your quick 2-minute Video KYC shortly."
+        <ActionCard
+          icon={<Video size={24} />}
+          title="Step 5: Live Video KYC Verification"
+          desc="Your documents are approved! You can initiate your live 2-minute verification call now or wait for an admin to call."
+          button={startingKyc ? "Connecting..." : "Start Video KYC"}
+          onClick={startDriverKyc}
         />
       );
     }
