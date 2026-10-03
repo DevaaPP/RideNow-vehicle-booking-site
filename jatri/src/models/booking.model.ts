@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 export type BookingStatus =
   | "requested"
   | "searching_driver"
+  | "driver_assigned"
   | "awaiting_payment"
   | "confirmed"
   | "driver_arriving"
@@ -17,6 +18,8 @@ export type BookingStatus =
   | "expired"
   | "auto_rematching"
   | "no_drivers_available"
+  | "payment_failed"
+  | "disputed"
   | "scheduled";
 
 export type PaymentStatus =
