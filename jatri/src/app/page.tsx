@@ -9,6 +9,8 @@ import PublicHome from "@/components/PublicHome";
 import { redirect, RedirectType } from "next/navigation";
 import GeoUpdater from "@/components/GeoUpdater";
 
+import ActiveRideBanner from "@/features/rides/components/ActiveRideBanner";
+
 export default async function Home() {
   const session = await auth();
 
@@ -34,6 +36,9 @@ export default async function Home() {
       ) : (
         <PublicHome />
       )}
+
+      {/* Floating active ride recovery pill when user has an ongoing trip */}
+      <ActiveRideBanner variant="floating" />
 
       <Footer />
     </div>

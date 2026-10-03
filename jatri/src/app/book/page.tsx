@@ -21,6 +21,7 @@ import FamilyRiderSelector from "@/features/booking/components/FamilyRiderSelect
 import StudentPassModal from "@/features/booking/components/StudentPassModal";
 import ScheduleRidePicker from "@/features/booking/components/ScheduleRidePicker";
 import WaypointsManager from "@/features/booking/components/WaypointsManager";
+import ActiveRideBanner from "@/features/rides/components/ActiveRideBanner";
 
 const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
 
@@ -71,6 +72,7 @@ export default function BookPage() {
 
   const [rates, setRates] = useState<any>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
+  const [activeExistingRide, setActiveExistingRide] = useState<any | null>(null);
 
   /* ── SEARCH & UI STATE ── */
   const [activeSearchField, setActiveSearchField] = useState<"pickup" | "drop" | null>(null);
@@ -404,6 +406,7 @@ export default function BookPage() {
   const allStopsValid = stops.every(s => s.address.trim().length > 0 && s.lat !== null && s.lng !== null);
   const distanceValidity = getDistanceValidity();
   const canContinue = !!(
+    !activeExistingRide &&
     pickup &&
     drop &&
     vehicle &&
@@ -1273,6 +1276,9 @@ export default function BookPage() {
             )}
           </div>
 
+          {/* Active Ride Recovery & Double Booking Protection */}
+          <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
+
           {/* Location Inputs */}
           {renderLocationInputs()}
         </div>
@@ -1308,10 +1314,17 @@ export default function BookPage() {
 
           {!canContinue && (
             <p className="text-center text-[10px] font-bold mt-2 text-zinc-400 uppercase tracking-wider truncate">
-              {!drop ? "Set drop location" :
-               mobile.length !== 10 ? "Enter valid 10-digit mobile" :
-               !distanceValidity.valid ? distanceValidity.message :
-               !isScheduleValid ? "Scheduled time must be at least 30 mins ahead" : "Complete route setup"}
+              {activeExistingRide
+                ? "Active ride already in progress. Complete or cancel it first."
+                : !drop
+                ? "Set drop location"
+                : mobile.length !== 10
+                ? "Enter valid 10-digit mobile"
+                : !distanceValidity.valid
+                ? distanceValidity.message
+                : !isScheduleValid
+                ? "Scheduled time must be at least 30 mins ahead"
+                : "Complete route setup"}
             </p>
           )}
         </div>
@@ -1333,6 +1346,7 @@ export default function BookPage() {
               </button>
               <h1 className="text-sm font-black text-zinc-900">Book a Ride</h1>
             </div>
+            <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
             {renderLocationInputs()}
           </div>
         )}

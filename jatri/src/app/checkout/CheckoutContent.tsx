@@ -283,6 +283,7 @@ export default function CheckoutContent() {
 
   /* ── CREATE BOOKING ── */
   const handleCreateBooking = async () => {
+    if (loading) return;
     setBookingError(null);
 
     if (!userData) {
@@ -375,7 +376,7 @@ export default function CheckoutContent() {
 
   /* ── PAYMENT CONFIRM ── */
   const handlePaymentConfirm = async () => {
-    if (!bookingId) return;
+    if (!bookingId || loading) return;
 
     try {
       setLoading(true);
@@ -445,24 +446,35 @@ export default function CheckoutContent() {
         name: "RideNow",
         description: "Ride Payment",
         order_id: orderData.orderId,
-
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          },
+        },
         handler: async function (response:any) {
+          setLoading(true);
+          try {
+            const verify = await fetch("/api/payment/verify",{
+              method:"POST",
+              headers:{ "Content-Type":"application/json" },
+              body:JSON.stringify({
+                bookingId,
+                ...response
+              })
+            });
 
-          const verify = await fetch("/api/payment/verify",{
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body:JSON.stringify({
-              bookingId,
-              ...response
-            })
-          });
+            const verifyData = await verify.json();
 
-          const verifyData = await verify.json();
-
-          if(verifyData.success){
-            window.location.href = `/ride/${bookingId}`;
+            if(verifyData.success){
+              window.location.href = `/ride/${bookingId}`;
+            } else {
+              alert(verifyData.message || "Payment verification failed");
+              setLoading(false);
+            }
+          } catch {
+            alert("Payment verification error");
+            setLoading(false);
           }
-
         }
       };
 

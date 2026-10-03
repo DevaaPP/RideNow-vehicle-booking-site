@@ -556,13 +556,24 @@ export default function RidePage() {
 
   if (error || !booking) return (
     <div className="h-screen w-full bg-zinc-950 flex items-center justify-center px-6">
-      <div className="flex flex-col items-center gap-4 text-center">
+      <div className="flex flex-col items-center gap-4 text-center max-w-sm">
         <AlertCircle size={48} className="text-red-400" />
-        <p className="text-white font-bold text-lg">Failed to load ride</p>
-        <p className="text-zinc-400 text-sm">{error || "Booking not found"}</p>
-        <button onClick={() => router.back()} className="mt-2 bg-white text-zinc-900 px-6 py-3 rounded-xl font-semibold text-sm">
-          Go Back
-        </button>
+        <p className="text-white font-bold text-lg">Unable to load ride</p>
+        <p className="text-zinc-400 text-xs">{error || "Trip details could not be retrieved. Please check your connection."}</p>
+        <div className="flex items-center gap-2.5 mt-2 w-full">
+          <button
+            onClick={() => fetchBooking(false)}
+            className="flex-1 bg-white text-zinc-900 py-3 rounded-xl font-bold text-xs hover:bg-zinc-100 transition shadow-sm"
+          >
+            Retry Connection
+          </button>
+          <button
+            onClick={() => router.push("/bookings")}
+            className="flex-1 bg-zinc-800 text-white py-3 rounded-xl font-bold text-xs hover:bg-zinc-700 transition border border-zinc-700"
+          >
+            All Bookings
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -106,13 +106,18 @@ export async function POST(req: Request) {
       const existing = await Booking.findOne({
         user: session.user.id,
         status: {
-          $in: ["requested", "awaiting_payment", "confirmed", "started"],
+          $in: ["requested", "awaiting_payment", "confirmed", "started", "auto_rematching"],
         },
         isScheduled: { $ne: true },
       });
 
       if (existing) {
-        return NextResponse.json({ success: true, booking: existing });
+        return NextResponse.json({
+          success: true,
+          alreadyActive: true,
+          booking: existing,
+          message: "Active ride restored",
+        });
       }
     }
 

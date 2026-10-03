@@ -54,6 +54,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
   const [pendingCount, setPendingCount] = useState(0);
   const [activeCount, setActiveCount] = useState(0);
+  const [passengerActiveRide, setPassengerActiveRide] = useState<any | null>(null);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -93,6 +94,31 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
     fetchCounts();
  
+  }, [currentUser?.role, isVendorRoute]);
+
+  /* Fetch passenger active ride */
+  useEffect(() => {
+    if (!currentUser || currentUser?.role === "vendor" || isVendorRoute) {
+      setPassengerActiveRide(null);
+      return;
+    }
+
+    const checkActive = async () => {
+      try {
+        const res = await axios.get("/api/booking/my-active");
+        if (res.data?.booking) {
+          setPassengerActiveRide(res.data.booking);
+        } else {
+          setPassengerActiveRide(null);
+        }
+      } catch {
+        setPassengerActiveRide(null);
+      }
+    };
+
+    checkActive();
+    const interval = setInterval(checkActive, 15000);
+    return () => clearInterval(interval);
   }, [currentUser?.role, isVendorRoute]);
 
   /* Close on route change */
@@ -249,6 +275,17 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           {/* RIGHT */}
           <div className="flex items-center gap-3 relative">
+            {/* Desktop Ongoing Ride Indicator */}
+            {passengerActiveRide && (
+              <Link
+                href={`/ride/${passengerActiveRide._id}`}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-black animate-pulse transition hover:bg-emerald-500/30"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span>Ongoing Ride</span>
+              </Link>
+            )}
+
             {/* Desktop Notification & Language controls */}
             <div className="hidden md:flex items-center gap-2">
               <NotificationToggle />
@@ -393,6 +430,23 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               <span>{t("nav.signIn", "Login or Sign Up")}</span>
               <ArrowRight size={15} />
             </button>
+          </div>
+        )}
+
+        {/* Passenger Active Ride Banner in Mobile Drawer */}
+        {passengerActiveRide && (
+          <div className="p-3 border-b border-white/10">
+            <Link
+              href={`/ride/${passengerActiveRide._id}`}
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-between p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition hover:bg-emerald-500/25"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <span>Active Ride in Progress</span>
+              </div>
+              <ArrowRight size={14} />
+            </Link>
           </div>
         )}
 
