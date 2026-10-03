@@ -24,7 +24,6 @@ const WalletSchema = new Schema<IWallet>(
     balance: {
       type: Number,
       default: 0,
-      min: 0,
     },
     pendingEarnings: {
       type: Number,

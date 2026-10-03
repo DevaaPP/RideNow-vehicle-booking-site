@@ -42,10 +42,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Mark verified
-    user.isMobileVerified = true;
-    user.otp = undefined;
-    user.otpExpiresAt = undefined;
-    await user.save();
+    await User.findByIdAndUpdate(user._id, {
+      isMobileVerified: true,
+      $unset: { otp: 1, otpExpiresAt: 1 },
+    });
 
     return NextResponse.json({
       success: true,

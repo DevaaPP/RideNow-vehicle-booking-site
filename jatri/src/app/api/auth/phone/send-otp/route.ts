@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       // Create new user account with mobile number
-      user = new User({
+      user = await User.create({
         name: `User ${tenDigits.slice(-4)}`,
         mobileNumber: tenDigits,
         email: `${tenDigits}@ridenow.in`,
@@ -44,11 +44,11 @@ export async function POST(req: NextRequest) {
         otp,
         otpExpiresAt,
       });
-      await user.save();
     } else {
-      user.otp = otp;
-      user.otpExpiresAt = otpExpiresAt;
-      await user.save();
+      await User.findByIdAndUpdate(user._id, {
+        otp,
+        otpExpiresAt,
+      });
     }
 
     // Send OTP via WhatsApp

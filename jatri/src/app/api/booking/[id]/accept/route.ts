@@ -2,17 +2,23 @@ import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import axios from "axios";
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 export async function POST(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   await connectDb();
+  const session = await auth();
   const id = (await context.params).id;
   const booking = await Booking.findById(id);
 
   if (!booking || booking.status !== "requested")
     return NextResponse.json({ message: "Invalid" }, { status: 400 });
+
+  if (session?.user?.id && session.user.role === "vendor") {
+    booking.driver = session.user.id;
+  }
 
   booking.status = "awaiting_payment";
   booking.acceptedAt = new Date();

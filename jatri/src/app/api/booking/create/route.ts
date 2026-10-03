@@ -226,12 +226,13 @@ export async function POST(req: Request) {
           },
         });
       } else {
-        platformVendor.isOnline = true;
-        platformVendor.location = {
-          type: "Point",
-          coordinates: [pLng, pLat],
-        };
-        await platformVendor.save();
+        await User.findByIdAndUpdate(platformVendor._id, {
+          isOnline: true,
+          location: {
+            type: "Point",
+            coordinates: [pLng, pLat],
+          },
+        });
       }
 
       let platformVehicle = await Vehicle.findOne({

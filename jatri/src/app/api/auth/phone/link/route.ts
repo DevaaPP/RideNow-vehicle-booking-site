@@ -68,11 +68,11 @@ export async function POST(req: NextRequest) {
       await User.findByIdAndDelete(phoneRecord._id);
     }
 
-    currentUser.mobileNumber = tenDigits;
-    currentUser.isMobileVerified = true;
-    currentUser.otp = undefined;
-    currentUser.otpExpiresAt = undefined;
-    await currentUser.save();
+    await User.findByIdAndUpdate(currentUser._id, {
+      mobileNumber: tenDigits,
+      isMobileVerified: true,
+      $unset: { otp: 1, otpExpiresAt: 1 },
+    });
 
     return NextResponse.json({
       success: true,
