@@ -2,7 +2,9 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
+import Wallet from "@/models/wallet.model";
 import WalletTransaction from "@/models/wallet-transaction.model";
+import { getOrCreateWallet, generateTransactionId } from "@/lib/walletLedger";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -43,20 +45,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid booking fare" }, { status: 400 });
     }
 
-    // Atomic deduction: only deduct if user's walletBalance >= fare
-    const updatedUser = await User.findOneAndUpdate(
+    const riderWallet = await getOrCreateWallet(user._id);
+
+    // Atomic deduction: ensure rider's wallet balance >= fare
+    const updatedWallet = await Wallet.findOneAndUpdate(
       {
-        _id: user._id,
-        walletBalance: { $gte: fare },
+        _id: riderWallet._id,
+        balance: { $gte: fare },
       },
       {
-        $inc: { walletBalance: -fare },
+        $inc: { balance: -fare },
       },
       { new: true }
     );
 
-    if (!updatedUser) {
-      const currentBalance = user.walletBalance || 0;
+    if (!updatedWallet) {
+      const currentBalance = riderWallet.balance || 0;
       return NextResponse.json(
         {
           error: "Insufficient wallet balance",
@@ -69,13 +73,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const balanceBefore = user.walletBalance || 0;
-    const balanceAfter = updatedUser.walletBalance || 0;
+    // Sync User balance
+    await User.findByIdAndUpdate(user._id, {
+      $inc: { walletBalance: -fare },
+    });
+
+    const balanceBefore = riderWallet.balance || 0;
+    const balanceAfter = updatedWallet.balance || 0;
+    const txnId = generateTransactionId("TXN_PAY");
 
     // Record rider debit transaction
     await WalletTransaction.create({
+      transactionId: txnId,
+      walletId: updatedWallet._id,
       userId: user._id,
       type: "debit",
+      transactionType: "RIDE_PAYMENT",
       category: "ride_payment",
       amount: fare,
       balanceBefore,
@@ -85,9 +98,9 @@ export async function POST(req: NextRequest) {
       status: "success",
     });
 
-    // Commission split
-    const adminCommission = Math.round(fare * 0.10);
-    const partnerAmount = fare - adminCommission;
+    // Commission split: Standard 15% platform commission
+    const adminCommission = Math.round(fare * 0.15);
+    const partnerAmount = Math.max(0, fare - adminCommission);
 
     booking.paymentStatus = "paid";
     booking.status = "confirmed";
@@ -100,31 +113,6 @@ export async function POST(req: NextRequest) {
     booking.adminCommission = adminCommission;
     booking.partnerAmount = partnerAmount;
     await booking.save();
-
-    // If driver is already assigned, credit driver wallet directly
-    if (booking.driver) {
-      const driver = await User.findById(booking.driver);
-      if (driver) {
-        const driverBalanceBefore = driver.walletBalance || 0;
-        const driverBalanceAfter = driverBalanceBefore + partnerAmount;
-
-        await User.findByIdAndUpdate(driver._id, {
-          $inc: { walletBalance: partnerAmount },
-        });
-
-        await WalletTransaction.create({
-          userId: driver._id,
-          type: "credit",
-          category: "partner_earning",
-          amount: partnerAmount,
-          balanceBefore: driverBalanceBefore,
-          balanceAfter: driverBalanceAfter,
-          bookingId: booking._id,
-          description: `Ride earnings (90%) for ride #${booking._id.toString().slice(-6)}`,
-          status: "success",
-        });
-      }
-    }
 
     // Emit live socket event to driver and passenger
     try {

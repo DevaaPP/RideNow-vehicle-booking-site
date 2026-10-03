@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import WalletTransaction from "@/models/wallet-transaction.model";
+import { getOrCreateWallet } from "@/lib/walletLedger";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -25,7 +26,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const currentBalance = user.walletBalance || 0;
+    const wallet = await getOrCreateWallet(user._id);
+    const currentBalance = wallet.balance ?? user.walletBalance ?? 0;
 
     // Fetch last 50 transactions
     const transactions = await WalletTransaction.find({ userId: user._id })

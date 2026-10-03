@@ -8,7 +8,8 @@ export type CleanWalletType =
   | "EARNING"
   | "REFUND"
   | "WITHDRAWAL"
-  | "ADJUSTMENT";
+  | "ADJUSTMENT"
+  | "TOPUP";
 
 export type TransactionCategory =
   | "topup"
@@ -17,17 +18,22 @@ export type TransactionCategory =
   | "partner_earning"
   | "commission_deduct"
   | "withdrawal"
-  | "promo_bonus";
+  | "withdrawal_refund"
+  | "promo_bonus"
+  | "admin_adjustment";
 
-export type TransactionStatus = "pending" | "success" | "failed";
+export type TransactionStatus = "pending" | "success" | "failed" | "reversed";
 
 export interface IWalletTransaction extends Document {
+  transactionId: string;
   walletId?: Types.ObjectId;
   userId: Types.ObjectId;
   rideId?: Types.ObjectId;
   bookingId?: Types.ObjectId;
+  withdrawalId?: Types.ObjectId;
+  adminId?: Types.ObjectId;
   type: TransactionType;
-  transactionType?: CleanWalletType;
+  transactionType: CleanWalletType;
   category: TransactionCategory;
   amount: number;
   balanceBefore: number;
@@ -36,12 +42,19 @@ export interface IWalletTransaction extends Document {
   razorpayOrderId?: string;
   description: string;
   status: TransactionStatus;
+  metadata?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const WalletTransactionSchema = new Schema<IWalletTransaction>(
   {
+    transactionId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
+    },
     walletId: {
       type: Schema.Types.ObjectId,
       ref: "Wallet",
@@ -66,6 +79,18 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
       default: null,
       index: true,
     },
+    withdrawalId: {
+      type: Schema.Types.ObjectId,
+      ref: "Withdrawal",
+      default: null,
+      index: true,
+    },
+    adminId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+      index: true,
+    },
     type: {
       type: String,
       enum: ["credit", "debit"],
@@ -81,6 +106,7 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
         "REFUND",
         "WITHDRAWAL",
         "ADJUSTMENT",
+        "TOPUP",
       ],
       default: "EARNING",
       index: true,
@@ -94,7 +120,9 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
         "partner_earning",
         "commission_deduct",
         "withdrawal",
+        "withdrawal_refund",
         "promo_bonus",
+        "admin_adjustment",
       ],
       required: true,
       index: true,
@@ -130,9 +158,13 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
     },
     status: {
       type: String,
-      enum: ["pending", "success", "failed"],
+      enum: ["pending", "success", "failed", "reversed"],
       default: "success",
       index: true,
+    },
+    metadata: {
+      type: Schema.Types.Mixed,
+      default: {},
     },
   },
   { timestamps: true }
@@ -140,6 +172,7 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
 
 WalletTransactionSchema.index({ userId: 1, createdAt: -1 });
 WalletTransactionSchema.index({ walletId: 1, createdAt: -1 });
+WalletTransactionSchema.index({ bookingId: 1, transactionType: 1 });
 
 const WalletTransaction =
   mongoose.models.WalletTransaction ||

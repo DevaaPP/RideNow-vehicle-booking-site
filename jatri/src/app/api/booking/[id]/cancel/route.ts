@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
-import WalletTransaction from "@/models/wallet-transaction.model";
+import { processRideCancellationRefund } from "@/lib/walletLedger";
 import { sendPushToUser } from "@/lib/webPush";
 import { haversineDistance } from "@/lib/routeUtils";
 
@@ -102,58 +102,15 @@ export async function POST(
     refundAmount = Math.max(0, booking.fare - cancellationFee);
 
     try {
-      // Refund to rider
-      if (refundAmount > 0) {
-        const rider = await User.findById(booking.user);
-        if (rider) {
-          const balanceBefore = rider.walletBalance || 0;
-          const balanceAfter = balanceBefore + refundAmount;
-
-          await User.findByIdAndUpdate(rider._id, {
-            $inc: { walletBalance: refundAmount },
-          });
-
-          await WalletTransaction.create({
-            userId: rider._id,
-            type: "credit",
-            category: "ride_refund",
-            amount: refundAmount,
-            balanceBefore,
-            balanceAfter,
-            bookingId: booking._id,
-            description: cancellationFeeApplied
-              ? `Refund for ride #${booking._id.toString().slice(-6)} (₹${cancellationFee} cancellation penalty applied after 3 min)`
-              : `100% full refund for cancelled ride #${booking._id.toString().slice(-6)}`,
-            status: "success",
-          });
-        }
-      }
-
-      // Compensate driver if penalty applied
-      if (cancellationFeeApplied && cancellationFee > 0 && booking.driver) {
-        const driver = await User.findById(booking.driver);
-        if (driver) {
-          const driverFee = Math.max(30, cancellationFee - 10); // ₹40 to driver, ₹10 platform fee
-          const dBefore = driver.walletBalance || 0;
-          const dAfter = dBefore + driverFee;
-
-          await User.findByIdAndUpdate(driver._id, {
-            $inc: { walletBalance: driverFee },
-          });
-
-          await WalletTransaction.create({
-            userId: driver._id,
-            type: "credit",
-            category: "ride_commission",
-            amount: driverFee,
-            balanceBefore: dBefore,
-            balanceAfter: dAfter,
-            bookingId: booking._id,
-            description: `Driver cancellation compensation for ride #${booking._id.toString().slice(-6)} (Passenger cancelled after 3 min)`,
-            status: "success",
-          });
-        }
-      }
+      await processRideCancellationRefund({
+        bookingId: booking._id,
+        riderId: booking.user,
+        driverId: booking.driver,
+        refundAmount,
+        cancellationFee,
+        cancellationFeeApplied,
+        reason,
+      });
 
       booking.paymentStatus = "refunded";
     } catch (refundErr) {

@@ -1,7 +1,9 @@
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
+import Wallet from "@/models/wallet.model";
 import WalletTransaction from "@/models/wallet-transaction.model";
+import { getOrCreateWallet, generateTransactionId } from "@/lib/walletLedger";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -71,18 +73,29 @@ export async function POST(req: NextRequest) {
     }
 
     const creditAmount = Math.round(Number(amount));
-    const balanceBefore = user.walletBalance || 0;
+    const wallet = await getOrCreateWallet(user._id);
+    const balanceBefore = wallet.balance || 0;
     const balanceAfter = balanceBefore + creditAmount;
+
+    // Atomically increment Wallet balance
+    await Wallet.findByIdAndUpdate(wallet._id, {
+      $inc: { balance: creditAmount },
+    });
 
     // Atomically increment user's walletBalance
     await User.findByIdAndUpdate(user._id, {
       $inc: { walletBalance: creditAmount },
     });
 
+    const txnId = generateTransactionId("TXN_TOPUP");
+
     // Create immutable ledger transaction record
     const transaction = await WalletTransaction.create({
+      transactionId: txnId,
+      walletId: wallet._id,
       userId: user._id,
       type: "credit",
+      transactionType: "TOPUP",
       category: "topup",
       amount: creditAmount,
       balanceBefore,
