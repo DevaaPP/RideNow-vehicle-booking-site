@@ -11,7 +11,9 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await User.findById(session.user.id).select("isOnline location");
+    const user = await User.findById(session.user.id).select(
+      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate"
+    );
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
@@ -20,6 +22,9 @@ export async function GET() {
       success: true,
       isOnline: user.isOnline,
       location: user.location,
+      vendorStatus: user.vendorStatus,
+      isVendorBlocked: user.isVendorBlocked,
+      lastLocationUpdate: user.lastLocationUpdate,
     });
   } catch (error) {
     console.error("Partner status GET error:", error);
@@ -35,11 +40,40 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const driver = await User.findById(session.user.id);
+    if (!driver || driver.role !== "vendor") {
+      return NextResponse.json({ message: "Unauthorized driver account" }, { status: 403 });
+    }
+
     const { isOnline, latitude, longitude } = await req.json();
+
+    // Compliance & approval checks before going online
+    if (isOnline === true) {
+      if (driver.vendorStatus !== "approved") {
+        return NextResponse.json(
+          {
+            error: "Your partner account is pending admin/vehicle verification. You can go online once approved.",
+            vendorStatus: driver.vendorStatus,
+          },
+          { status: 403 }
+        );
+      }
+
+      if (driver.isVendorBlocked) {
+        return NextResponse.json(
+          {
+            error: "Your partner account is temporarily restricted. Please contact driver support.",
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     const updateData: any = {};
     if (typeof isOnline === "boolean") {
       updateData.isOnline = isOnline;
     }
+
     if (typeof latitude === "number" && typeof longitude === "number") {
       updateData.location = {
         type: "Point",
@@ -48,16 +82,17 @@ export async function PATCH(req: Request) {
       updateData.lastLocationUpdate = new Date();
     }
 
-    const user = await User.findByIdAndUpdate(
-      session.user.id,
+    const updatedUser = await User.findByIdAndUpdate(
+      driver._id,
       updateData,
       { new: true }
-    ).select("isOnline location");
+    ).select("isOnline location vendorStatus lastLocationUpdate");
 
     return NextResponse.json({
       success: true,
-      isOnline: user.isOnline,
-      location: user.location,
+      isOnline: updatedUser.isOnline,
+      location: updatedUser.location,
+      lastLocationUpdate: updatedUser.lastLocationUpdate,
     });
   } catch (error) {
     console.error("Partner status PATCH error:", error);

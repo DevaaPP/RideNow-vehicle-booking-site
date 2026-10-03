@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Booking from "@/models/booking.model";
+import { transitionBookingState } from "@/lib/bookingStateMachine";
 
 export async function POST(req: Request) {
 
@@ -40,18 +41,31 @@ export async function POST(req: Request) {
       );
     }
 
-    /* update status */
+    /* update status via canonical State Machine */
 
     const now = new Date();
-    booking.status = "started";
-    booking.startedAt = now;
     const duration = booking.tripDurationMinutes || (booking.fareBreakdown?.timeMinutes ? Math.round(booking.fareBreakdown.timeMinutes) : 15);
-    booking.estimatedDropoffTime = new Date(now.getTime() + duration * 60 * 1000);
+    const estimatedDropoffTime = new Date(now.getTime() + duration * 60 * 1000);
 
-    booking.pickupOtp = "";
-    booking.pickupOtpExpires = undefined as any;
+    const transitionRes = await transitionBookingState({
+      bookingId: booking._id,
+      targetStatus: "started",
+      actorRole: "driver",
+      payload: {
+        startedAt: now,
+        estimatedDropoffTime,
+        tripDurationMinutes: duration,
+        pickupOtp: "",
+        pickupOtpExpires: null,
+      },
+    });
 
-    await booking.save();
+    if (!transitionRes.success) {
+      return NextResponse.json(
+        { message: transitionRes.message || "Failed to start ride" },
+        { status: 400 }
+      );
+    }
 
     /* Notify passenger via socket */
     try {

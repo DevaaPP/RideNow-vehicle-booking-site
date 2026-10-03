@@ -37,7 +37,7 @@ export async function POST(
     return NextResponse.json({ message: "Booking not found" }, { status: 404 });
   }
 
-  if (booking.driver.toString() !== driverId) {
+  if (!booking.driver || booking.driver.toString() !== driverId.toString()) {
     return NextResponse.json({ message: "You are not assigned to this booking" }, { status: 403 });
   }
 

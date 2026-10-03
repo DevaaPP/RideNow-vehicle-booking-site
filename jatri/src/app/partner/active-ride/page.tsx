@@ -7,7 +7,8 @@ import {
   CheckCircle2, KeyRound, ArrowRight,
   MapPin, Navigation, MessageCircle,
   AlertCircle, XCircle, AlertTriangle,
-  Mic, MicOff, Volume2, PhoneOff, PhoneCall, Siren, ShieldAlert
+  Mic, MicOff, Volume2, PhoneOff, PhoneCall, Siren, ShieldAlert,
+  ExternalLink
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useEffect, useRef, useState } from "react";
@@ -575,6 +576,7 @@ export default function DriverRidePage() {
 
   const panelProps = {
     booking, status, cfg, isActive, canChat, displayEta, displayDistance,
+    pickupPos, dropPos,
     otpMode, otp, loadingOtp, otpVerified, otpError,
     setOtpMode, setOtp, setOtpError, handleVerifyOtp, sendPickupOtp,
     dropOtpMode, dropOtp, loadingDropOtp, dropOtpError,
@@ -1004,6 +1006,9 @@ export default function DriverRidePage() {
 ══════════════════════════════════════════════════════════════════════ */
 function ActionBar({
   status,
+  booking,
+  pickupPos,
+  dropPos,
   otpMode, otp, loadingOtp, otpVerified, otpError,
   setOtpMode, setOtp, setOtpError, handleVerifyOtp, sendPickupOtp,
   dropOtpMode, dropOtp, loadingDropOtp, dropOtpError,
@@ -1011,8 +1016,26 @@ function ActionBar({
 }: any) {
   if (!["confirmed", "started"].includes(status)) return null;
 
+  const targetCoords = status === "started" ? dropPos : pickupPos;
+  const targetAddress = status === "started" ? booking?.dropAddress : booking?.pickupAddress;
+  const navUrl = targetCoords
+    ? `https://www.google.com/maps/dir/?api=1&destination=${targetCoords[0]},${targetCoords[1]}&travelmode=driving`
+    : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(targetAddress || "")}&travelmode=driving`;
+
   return (
     <div className="flex-shrink-0 border-t border-zinc-100 bg-white px-5 py-4">
+      {/* 🧭 Turn-by-Turn GPS Navigation Action */}
+      <a
+        href={navUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full mb-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+      >
+        <Navigation size={14} className="fill-white" />
+        <span>Navigate in Google Maps ({status === "started" ? "To Drop" : "To Pickup"})</span>
+        <ExternalLink size={13} className="opacity-80 ml-1" />
+      </a>
+
       <AnimatePresence mode="wait">
 
         {/* STATE 1 — Arrived */}
