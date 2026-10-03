@@ -91,3 +91,34 @@ export function getMinDistanceToPolyline(
 
   return minDistance === Infinity ? 0 : Math.round(minDistance);
 }
+
+/**
+ * Calculates peak-hour traffic duration multiplier based on hour of day (0-23).
+ * Peak morning (8-10 AM) and evening (5-8 PM) experience 1.3x slowdown.
+ * Late night (11 PM - 5 AM) experiences 0.9x faster flow.
+ */
+export function calculateTrafficMultiplier(hour?: number): number {
+  const h = hour !== undefined ? hour : new Date().getHours();
+  if ((h >= 8 && h <= 10) || (h >= 17 && h <= 20)) {
+    return 1.3; // Peak traffic congestion
+  }
+  if (h >= 23 || h <= 5) {
+    return 0.9; // Smooth night traffic
+  }
+  return 1.05; // Standard daytime traffic
+}
+
+/**
+ * Calculates estimated travel duration in minutes considering distance, base speed, and traffic multipliers.
+ */
+export function calculateTrafficAdjustedDuration(
+  distanceKm: number,
+  baseSpeedKmph = 30,
+  hour?: number
+): number {
+  if (distanceKm <= 0) return 1;
+  const baseMinutes = (distanceKm / baseSpeedKmph) * 60;
+  const multiplier = calculateTrafficMultiplier(hour);
+  return Math.max(1, Math.round(baseMinutes * multiplier));
+}
+

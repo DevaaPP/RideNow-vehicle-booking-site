@@ -17,6 +17,7 @@ import { RootState } from "@/redux/store";
 import useGetMe from "@/hooks/useGetMe";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { haversineKm as getHaversineDistance } from "@/lib/routeUtils";
+import { validateServiceArea, getRecentDestinations, saveRecentDestination, RecentLocation } from "@/lib/serviceArea";
 import FamilyRiderSelector from "@/features/booking/components/FamilyRiderSelector";
 import StudentPassModal from "@/features/booking/components/StudentPassModal";
 import ScheduleRidePicker from "@/features/booking/components/ScheduleRidePicker";
@@ -214,7 +215,13 @@ export default function BookPage() {
   const [dropLat,   setDropLat]   = useState<number | null>(null);
   const [dropLng,   setDropLng]   = useState<number | null>(null);
   const [locating,  setLocating]  = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [recentDestinations, setRecentDestinations] = useState<RecentLocation[]>([]);
   const [vehicles,  setVehicles]  = useState<any[]>([]);
+
+  useEffect(() => {
+    setRecentDestinations(getRecentDestinations());
+  }, []);
 
   /* ── SMART PICKUP STATE ── */
   const [smartPickups, setSmartPickups] = useState<any[]>([]);
@@ -372,6 +379,19 @@ export default function BookPage() {
   );
 
   const getDistanceValidity = () => {
+    if (pickupLat && pickupLng) {
+      const pCheck = validateServiceArea(pickupLat, pickupLng);
+      if (!pCheck.isSupported) {
+        return { valid: false, message: `Pickup area: ${pCheck.message || "Outside operational bounds"}` };
+      }
+    }
+    if (dropLat && dropLng) {
+      const dCheck = validateServiceArea(dropLat, dropLng);
+      if (!dCheck.isSupported) {
+        return { valid: false, message: `Drop area: ${dCheck.message || "Outside operational bounds"}` };
+      }
+    }
+
     if (routeDistance === -1) {
       return { valid: false, message: "No rides available (no road connection found)" };
     }
@@ -501,6 +521,14 @@ export default function BookPage() {
 
   const selectPlace = async (p: Place, isPickup: boolean) => {
     if (typeof p.lat === "number" && typeof p.lng === "number") {
+      saveRecentDestination({
+        name: p.title || p.name,
+        subtitle: p.subtitle,
+        lat: p.lat,
+        lng: p.lng,
+      });
+      setRecentDestinations(getRecentDestinations());
+
       if (isPickup) {
         setPickup(p.title || p.name);
         setPickupCountry(p.countrycode || "in");
@@ -535,6 +563,14 @@ export default function BookPage() {
           }
         }
 
+        saveRecentDestination({
+          name: formattedAddress,
+          subtitle: p.subtitle,
+          lat,
+          lng,
+        });
+        setRecentDestinations(getRecentDestinations());
+
         if (isPickup) {
           setPickup(formattedAddress);
           setPickupCountry(countrycode);
@@ -559,6 +595,7 @@ export default function BookPage() {
     const lat = coords.latitude;
     const lng = coords.longitude;
 
+    setLocationError(null);
     setPickupLat(lat);
     setPickupLng(lng);
     setPickupResults([]);
@@ -590,8 +627,25 @@ export default function BookPage() {
     }
   };
 
+  const handleGeolocationError = (err: GeolocationPositionError) => {
+    let msg = "Could not retrieve current location. Please select manually.";
+    if (err.code === 1) {
+      msg = "Location permission denied. Please allow location access or pick on map.";
+    } else if (err.code === 2) {
+      msg = "GPS signal unavailable. Please ensure location services are enabled.";
+    } else if (err.code === 3) {
+      msg = "Location request timed out. Please try again or search manually.";
+    }
+    setLocationError(msg);
+    setLocating(false);
+  };
+
   const useCurrentLocation = () => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocationError(null);
     setLocating(true);
 
     navigator.geolocation.getCurrentPosition(
@@ -602,7 +656,7 @@ export default function BookPage() {
           ({ coords }) => handleGeolocationSuccess(coords),
           (err2) => {
             console.error("Standard geolocation failed:", err2);
-            setLocating(false);
+            handleGeolocationError(err2);
           },
           { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 }
         );
@@ -778,6 +832,19 @@ export default function BookPage() {
   /* ── SHARED FORM SECTIONS (REUSABLE ACROSS UNIFIED PANEL) ── */
   const renderLocationInputs = () => (
     <div className="space-y-2.5">
+      {locationError && (
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-medium flex items-center justify-between gap-2">
+          <span>⚠️ {locationError}</span>
+          <button
+            type="button"
+            onClick={() => setLocationError(null)}
+            className="text-amber-700 hover:text-amber-900 font-bold text-xs shrink-0"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Pickup Row */}
       <div className="relative">
         <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all">
@@ -903,7 +970,7 @@ export default function BookPage() {
           <Navigation size={13} className="text-zinc-400 flex-shrink-0" />
         </div>
 
-        {/* Drop Autocomplete Results */}
+        {/* Drop Autocomplete Results & Recent Destinations */}
         <AnimatePresence>
           {activeSearchField === "drop" && dropResults.length > 0 && (
             <motion.div
@@ -932,6 +999,48 @@ export default function BookPage() {
                       <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">
                         {p.subtitle}
                       </p>
+                    )}
+                  </div>
+                  <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
+                </button>
+              ))}
+            </motion.div>
+          )}
+
+          {activeSearchField === "drop" && dropResults.length === 0 && recentDestinations.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50 divide-y divide-zinc-100"
+            >
+              <div className="px-3.5 py-2 bg-zinc-50 border-b border-zinc-100 flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">🕒 Recent Destinations</span>
+              </div>
+              {recentDestinations.map((recent) => (
+                <button
+                  key={recent.id}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    selectPlace(
+                      {
+                        id: recent.id,
+                        name: recent.name,
+                        title: recent.name,
+                        subtitle: recent.subtitle,
+                        lat: recent.lat,
+                        lng: recent.lng,
+                      },
+                      false
+                    );
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
+                >
+                  <span className="text-sm flex-shrink-0 text-zinc-400">🕒</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-zinc-900 truncate">{recent.name}</p>
+                    {recent.subtitle && (
+                      <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">{recent.subtitle}</p>
                     )}
                   </div>
                   <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
