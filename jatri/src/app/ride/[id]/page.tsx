@@ -509,7 +509,11 @@ export default function RidePage() {
       const res = await fetch(`/api/booking/${id}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: finalReason, cancelledBy: "user" }),
+        body: JSON.stringify({
+          reason: finalReason,
+          cancelledBy: "user",
+          distanceToPickupKm: distanceToPickup || undefined,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -754,44 +758,91 @@ export default function RidePage() {
                 {(() => {
                   const elapsedSec = getElapsedAcceptanceSeconds();
                   const hasDriverAccepted = Boolean(booking?.acceptedAt || booking?.status === "confirmed");
-
-                  if (hasDriverAccepted) {
-                    if (elapsedSec <= 180) {
-                      return (
-                        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-left">
-                          <div className="flex items-center gap-1.5 text-emerald-900 text-xs font-black mb-1">
-                            <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
-                            <span>{t("cancellation.graceActive", "Free Cancellation Window Active")}</span>
-                          </div>
-                          <p className="text-[11px] text-emerald-800 leading-relaxed">
-                            Driver accepted {Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago. You are within the 3-minute grace period — <strong>₹0 penalty fee</strong> will be charged and you will receive a full refund.
-                          </p>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 text-left">
-                          <div className="flex items-center gap-1.5 text-amber-950 text-xs font-black mb-1">
-                            <AlertTriangle size={15} className="text-amber-600 flex-shrink-0" />
-                            <span>{t("cancellation.feeActive", "₹50 Cancellation Fee Applies")}</span>
-                          </div>
-                          <p className="text-[11px] text-amber-900 leading-relaxed">
-                            The driver accepted {Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago (&gt; 3 mins) and is actively en route. Under our driver protection policy, a <strong>₹50 cancellation penalty</strong> applies to compensate driver fuel and time.
-                          </p>
-                        </div>
-                      );
-                    }
-                  }
+                  const hasDriverArrived = Boolean(booking?.pickupOtp) || (distanceToPickup > 0 && distanceToPickup <= 0.15);
+                  const isDriverEnRoute = distanceToPickup > 0 && distanceToPickup <= 2.5;
 
                   return (
-                    <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3.5 text-left">
-                      <div className="flex items-center gap-1.5 text-zinc-900 text-xs font-black mb-1">
-                        <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
-                        <span>{t("cancellation.zeroFee", "Zero Cancellation Fee")}</span>
-                      </div>
-                      <p className="text-[11px] text-zinc-600 leading-relaxed">
-                        {t("cancellation.zeroFeeDesc", "No driver has accepted this ride yet. You can cancel now with no penalty.")}
-                      </p>
+                    <div className="space-y-3">
+                      {/* Live Status Indicators (Time & Location) */}
+                      {hasDriverAccepted && (
+                        <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold">
+                          <div className="bg-zinc-100 border border-zinc-200 rounded-xl p-2.5 flex items-center gap-2 text-zinc-700">
+                            <Clock size={14} className="text-zinc-500 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold">Accepted</p>
+                              <p className="truncate font-black text-zinc-900">{Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago</p>
+                            </div>
+                          </div>
+                          <div className="bg-zinc-100 border border-zinc-200 rounded-xl p-2.5 flex items-center gap-2 text-zinc-700">
+                            <Navigation size={14} className="text-zinc-500 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold">Driver Location</p>
+                              <p className="truncate font-black text-zinc-900">
+                                {hasDriverArrived
+                                  ? "At Pickup"
+                                  : distanceToPickup > 0
+                                  ? `${distanceToPickup.toFixed(1)} km (${etaToPickup}m)`
+                                  : "En route"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Policy Evaluation Banner */}
+                      {hasDriverAccepted ? (
+                        hasDriverArrived ? (
+                          <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 text-left">
+                            <div className="flex items-center gap-1.5 text-red-950 text-xs font-black mb-1">
+                              <AlertTriangle size={15} className="text-red-600 flex-shrink-0" />
+                              <span>₹50 Cancellation Fee Applies (Driver Arrived)</span>
+                            </div>
+                            <p className="text-[11px] text-red-900 leading-relaxed">
+                              The driver has already reached your pickup location. Under our driver protection policy, a <strong>₹50 penalty</strong> is charged to compensate the driver for fuel and travel time.
+                            </p>
+                          </div>
+                        ) : elapsedSec <= 180 ? (
+                          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-left">
+                            <div className="flex items-center gap-1.5 text-emerald-900 text-xs font-black mb-1">
+                              <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                              <span>{t("cancellation.graceActive", "Free Cancellation Window Active")}</span>
+                            </div>
+                            <p className="text-[11px] text-emerald-800 leading-relaxed">
+                              You have <strong>{Math.max(0, 180 - elapsedSec)}s remaining</strong> in your 3-minute grace period — <strong>₹0 penalty fee</strong> will be charged and you will receive a full refund.
+                            </p>
+                          </div>
+                        ) : distanceToPickup > 3.0 ? (
+                          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3.5 text-left">
+                            <div className="flex items-center gap-1.5 text-blue-950 text-xs font-black mb-1">
+                              <CheckCircle2 size={15} className="text-blue-600 flex-shrink-0" />
+                              <span>Zero Penalty Eligible (Driver Delayed)</span>
+                            </div>
+                            <p className="text-[11px] text-blue-900 leading-relaxed">
+                              Driver is still {distanceToPickup.toFixed(1)} km away after {Math.floor(elapsedSec / 60)} minutes. Selecting <em>"Driver is taking too long to arrive"</em> will waive the cancellation penalty.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 text-left">
+                            <div className="flex items-center gap-1.5 text-amber-950 text-xs font-black mb-1">
+                              <AlertTriangle size={15} className="text-amber-600 flex-shrink-0" />
+                              <span>{t("cancellation.feeActive", "₹50 Cancellation Fee Applies")}</span>
+                            </div>
+                            <p className="text-[11px] text-amber-900 leading-relaxed">
+                              The driver accepted {Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago (&gt; 3 mins) and is actively en route ({distanceToPickup > 0 ? `${distanceToPickup.toFixed(1)} km away` : "approaching"}). A <strong>₹50 penalty fee</strong> applies.
+                            </p>
+                          </div>
+                        )
+                      ) : (
+                        <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3.5 text-left">
+                          <div className="flex items-center gap-1.5 text-zinc-900 text-xs font-black mb-1">
+                            <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                            <span>{t("cancellation.zeroFee", "Zero Cancellation Fee")}</span>
+                          </div>
+                          <p className="text-[11px] text-zinc-600 leading-relaxed">
+                            {t("cancellation.zeroFeeDesc", "No driver has accepted this ride yet. You can cancel now with no penalty.")}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}

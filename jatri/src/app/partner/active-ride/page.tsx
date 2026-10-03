@@ -19,6 +19,15 @@ import { haversineKm } from "@/lib/routeUtils";
 
 const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr: false });
 
+export const DRIVER_CANCELLATION_REASONS = [
+  "Vehicle breakdown / Mechanical issue",
+  "Heavy traffic / Impassable route",
+  "Rider requested cancellation",
+  "Rider did not answer phone / Unavailable",
+  "Personal or medical emergency",
+  "Other operational reason",
+];
+
 /* ─── TYPES ──────────────────────────────────────────────────────────── */
 export type BookingStatus =
   | "requested" | "awaiting_payment" | "confirmed"
@@ -130,6 +139,9 @@ export default function DriverRidePage() {
   const [dropOtpError,   setDropOtpError]   = useState("");
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showCancelError, setShowCancelError] = useState<string | null>(null);
+  const [selectedDriverReason, setSelectedDriverReason] = useState<string>("");
+  const [customDriverNote, setCustomDriverNote] = useState<string>("");
+  const [cancellingRide, setCancellingRide] = useState<boolean>(false);
 
   /* Chat & Sheet */
   const [chatOpen, setChatOpen] = useState(false);
@@ -434,22 +446,44 @@ export default function DriverRidePage() {
     finally   { setLoadingDropOtp(false); }
   };
 
+  const getElapsedAcceptanceSeconds = () => {
+    const ref = (booking as any)?.acceptedAt || booking?.updatedAt || booking?.createdAt;
+    if (!ref) return 0;
+    return Math.max(0, Math.floor((Date.now() - new Date(ref).getTime()) / 1000));
+  };
+
   const handleCancel = () => {
+    setSelectedDriverReason("");
+    setCustomDriverNote("");
     setShowCancelConfirm(true);
   };
 
   const confirmCancelRide = async () => {
     if (!booking?._id) return;
+    const finalReason =
+      selectedDriverReason === "Other operational reason" && customDriverNote.trim()
+        ? `Other: ${customDriverNote.trim()}`
+        : selectedDriverReason || "Driver cancelled ride";
+
     try {
-      const res = await fetch(`/api/booking/${booking._id}/cancel`, { method: "POST" });
+      setCancellingRide(true);
+      const res = await fetch(`/api/partner/bookings/${booking._id}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: finalReason, cancelledBy: "driver" }),
+      });
       if (res.ok) {
-        setBooking(prev => prev ? { ...prev, status: "cancelled" } : null);
+        setShowCancelConfirm(false);
+        setBooking(prev => (prev ? { ...prev, status: "cancelled", cancellationReason: finalReason } : null));
       } else {
-        setShowCancelError("Failed to cancel booking. Please try again.");
+        const data = await res.json().catch(() => ({}));
+        setShowCancelError(data.message || "Failed to cancel booking. Please try again.");
       }
     } catch (err) {
       console.error(err);
       setShowCancelError("Failed to cancel booking due to a network error.");
+    } finally {
+      setCancellingRide(false);
     }
   };
 
@@ -660,7 +694,7 @@ export default function DriverRidePage() {
           <ActionBar {...panelProps} />
         </motion.div>
       </div>
-      {/* Custom Confirm Cancel Modal */}
+      {/* ── DRIVER CANCELLATION & PENALTY WARNING MODAL ── */}
       <AnimatePresence>
         {showCancelConfirm && (
           <motion.div
@@ -670,37 +704,147 @@ export default function DriverRidePage() {
             className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-zinc-100"
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 flex flex-col max-h-[90vh]"
             >
-              <div className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500 animate-pulse">
-                  <AlertTriangle size={28} />
+              {/* Header */}
+              <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+                    <AlertTriangle size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-zinc-900">Cancel Accepted Ride</h3>
+                    <p className="text-[11px] text-zinc-400 font-semibold">Review reasons and penalty policy</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-lg font-black text-zinc-900">Cancel Ride?</h3>
-                  <p className="text-zinc-500 text-xs font-semibold leading-relaxed">
-                    Are you sure you want to cancel this ride? This action cannot be undone.
-                  </p>
-                </div>
-              </div>
-              <div className="px-6 pb-6 pt-2 flex gap-3">
                 <button
                   onClick={() => setShowCancelConfirm(false)}
-                  className="flex-1 py-3 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-sm font-semibold transition active:scale-[0.98]"
+                  className="w-8 h-8 rounded-full hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-700 transition"
                 >
-                  Go Back
+                  ✕
+                </button>
+              </div>
+
+              {/* Scrollable Body */}
+              <div className="p-5 space-y-4 overflow-y-auto">
+                {/* Time & Location Indicators */}
+                {(() => {
+                  const elapsedSec = getElapsedAcceptanceSeconds();
+                  const isNearPickup = distanceToPickup > 0 && distanceToPickup <= 1.0;
+
+                  return (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold">
+                        <div className="bg-zinc-100 border border-zinc-200 rounded-xl p-2.5 flex items-center gap-2 text-zinc-700">
+                          <Clock size={14} className="text-zinc-500 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold">Accepted</p>
+                            <p className="truncate font-black text-zinc-900">{Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago</p>
+                          </div>
+                        </div>
+                        <div className="bg-zinc-100 border border-zinc-200 rounded-xl p-2.5 flex items-center gap-2 text-zinc-700">
+                          <Navigation size={14} className="text-zinc-500 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold">Pickup Distance</p>
+                            <p className="truncate font-black text-zinc-900">
+                              {distanceToPickup > 0 ? `${distanceToPickup.toFixed(1)} km (${etaToPickup}m)` : "Arrived"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Penalty Impact Warning */}
+                      {isNearPickup || elapsedSec > 120 ? (
+                        <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 text-left">
+                          <div className="flex items-center gap-1.5 text-red-950 text-xs font-black mb-1">
+                            <AlertTriangle size={15} className="text-red-600 flex-shrink-0" />
+                            <span>Driver Penalty & Reliability Impact</span>
+                          </div>
+                          <p className="text-[11px] text-red-900 leading-relaxed">
+                            You accepted this ride <strong>{Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago</strong> and are <strong>{distanceToPickup > 0 ? `${distanceToPickup.toFixed(1)} km from pickup` : "at pickup"}</strong>. Cancelling after approaching the passenger lowers your Reliability Score and may temporarily pause new booking requests.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-left">
+                          <div className="flex items-center gap-1.5 text-amber-950 text-xs font-black mb-1">
+                            <AlertCircle size={15} className="text-amber-600 flex-shrink-0" />
+                            <span>Early Cancellation Notice</span>
+                          </div>
+                          <p className="text-[11px] text-amber-900 leading-relaxed">
+                            Please cancel only when unavoidable. Another nearby driver will be auto-dispatched to assist the passenger.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Driver Reasons */}
+                <div>
+                  <p className="text-xs font-bold text-zinc-800 mb-2">Select cancellation reason:</p>
+                  <div className="space-y-1.5">
+                    {DRIVER_CANCELLATION_REASONS.map((r) => {
+                      const isSelected = selectedDriverReason === r;
+                      return (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => setSelectedDriverReason(r)}
+                          className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs transition-all flex items-center justify-between border ${
+                            isSelected
+                              ? "bg-zinc-950 text-white border-zinc-950 font-bold shadow-sm"
+                              : "bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200"
+                          }`}
+                        >
+                          <span>{r}</span>
+                          <span
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ml-2 ${
+                              isSelected ? "border-white bg-white" : "border-zinc-300 bg-white"
+                            }`}
+                          >
+                            {isSelected && <span className="w-2 h-2 rounded-full bg-zinc-950" />}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {selectedDriverReason === "Other operational reason" && (
+                    <textarea
+                      value={customDriverNote}
+                      onChange={(e) => setCustomDriverNote(e.target.value)}
+                      placeholder="Please specify operational reason..."
+                      className="w-full text-xs p-3 border border-zinc-200 rounded-xl outline-none focus:border-zinc-900 mt-2.5 resize-none text-zinc-900"
+                      rows={2}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Actions Footer */}
+              <div className="p-5 pt-3 border-t border-zinc-100 bg-zinc-50/50 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCancelConfirm(false)}
+                  disabled={cancellingRide}
+                  className="flex-1 py-3 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-xs font-bold transition active:scale-[0.98] disabled:opacity-50"
+                >
+                  Keep Ride
                 </button>
                 <button
-                  onClick={() => {
-                    setShowCancelConfirm(false);
-                    confirmCancelRide();
-                  }}
-                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition active:scale-[0.98] shadow-lg shadow-red-600/10"
+                  type="button"
+                  onClick={confirmCancelRide}
+                  disabled={!selectedDriverReason || cancellingRide}
+                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black transition active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
-                  Cancel Ride
+                  {cancellingRide ? (
+                    <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  ) : (
+                    "Confirm Cancellation"
+                  )}
                 </button>
               </div>
             </motion.div>

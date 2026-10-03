@@ -4,6 +4,7 @@ import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import WalletTransaction from "@/models/wallet-transaction.model";
 import { sendPushToUser } from "@/lib/webPush";
+import { haversineDistance } from "@/lib/routeUtils";
 
 export async function POST(
   req: NextRequest,
@@ -41,16 +42,57 @@ export async function POST(
     ? new Date(booking.updatedAt).getTime()
     : null;
 
+  // Location computation: check driver distance to pickup
+  let distanceToPickupKm: number | null = typeof body.distanceToPickupKm === "number" ? body.distanceToPickupKm : null;
+  if (distanceToPickupKm === null && booking.pickupLocation?.coordinates && booking.driver) {
+    const driverDoc = await User.findById(booking.driver).select("location").lean();
+    if (driverDoc?.location?.coordinates && driverDoc.location.coordinates.length >= 2) {
+      distanceToPickupKm = Number(
+        haversineDistance(
+          driverDoc.location.coordinates as [number, number],
+          booking.pickupLocation.coordinates as [number, number]
+        ).toFixed(2)
+      );
+    }
+  }
+
   let cancellationFee = 0;
   let cancellationFeeApplied = false;
   let elapsedSeconds = 0;
+  let penaltyReason = "";
 
-  if (isDriverAssigned && acceptedTime) {
+  if (isDriverAssigned && acceptedTime && cancelledBy === "user") {
     elapsedSeconds = Math.max(0, Math.floor((Date.now() - acceptedTime) / 1000));
-    // Policy: > 3 minutes (180 seconds) from driver acceptance = ₹50 penalty
-    if (elapsedSeconds > 180 && cancelledBy === "user") {
+
+    const isDriverArrived = Boolean(booking.pickupOtp) || (distanceToPickupKm !== null && distanceToPickupKm <= 0.2);
+    const isDriverDelayedOrOffTrack =
+      reason.toLowerCase().includes("taking too long") ||
+      reason.toLowerCase().includes("wrong direction");
+
+    // Condition A: Driver has arrived at pickup location (<= 200m or pickup OTP generated)
+    if (isDriverArrived) {
       cancellationFee = Math.min(50, booking.fare);
       cancellationFeeApplied = true;
+      penaltyReason = "Driver already arrived at pickup location";
+    }
+    // Condition B: Elapsed time > 180 seconds (3 minutes) from driver acceptance
+    else if (elapsedSeconds > 180) {
+      // If driver is far away (> 3 km) or delayed, and rider cited delay or wrong direction, waive the penalty!
+      if (isDriverDelayedOrOffTrack && distanceToPickupKm !== null && distanceToPickupKm > 3.0) {
+        cancellationFee = 0;
+        cancellationFeeApplied = false;
+        penaltyReason = "Penalty waived: Driver delayed (>3 km away)";
+      } else {
+        cancellationFee = Math.min(50, booking.fare);
+        cancellationFeeApplied = true;
+        penaltyReason = "Cancelled after 3-minute grace period with driver en route";
+      }
+    }
+    // Condition C: Within 3 minutes -> Free cancellation grace window
+    else {
+      cancellationFee = 0;
+      cancellationFeeApplied = false;
+      penaltyReason = "Within 3-minute free cancellation grace period";
     }
   }
 
@@ -200,6 +242,8 @@ export async function POST(
     cancellationFeeApplied,
     refundAmount,
     elapsedSeconds,
+    distanceToPickupKm,
+    penaltyReason,
     reason,
   });
 }

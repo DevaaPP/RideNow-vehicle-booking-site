@@ -5,6 +5,7 @@ import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 import { auth } from "@/auth";
 import axios from "axios";
+import { sendPushToUser } from "@/lib/webPush";
 
 async function notifySocket(userId: string, event: string, data: any) {
   try {
@@ -40,7 +41,13 @@ export async function POST(
     return NextResponse.json({ message: "You are not assigned to this booking" }, { status: 403 });
   }
 
-  // Record this driver in cancelledDriverIds
+  const body = await req.json().catch(() => ({}));
+  const reason = (body.reason as string) || "Driver cancelled ride";
+
+  // Record this driver in cancelledDriverIds & record reason
+  booking.cancelledBy = "driver";
+  booking.cancellationReason = reason;
+
   const cancelledIds = booking.cancelledDriverIds ? [...booking.cancelledDriverIds.map((d: any) => d.toString())] : [];
   if (!cancelledIds.includes(driverId)) {
     cancelledIds.push(driverId);
@@ -154,8 +161,20 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
     await notifySocket(booking.user.toString(), "auto-rematch-searching", {
       bookingId: booking._id,
       status: "auto_rematching",
-      message: "Driver cancelled. Searching for a new nearby driver...",
+      message: `Driver cancelled (${reason}). Searching for a new nearby driver...`,
     });
+
+    // Send Web Push notification to passenger
+    try {
+      await sendPushToUser(booking.user.toString(), {
+        title: "Driver Cancelled Ride ⚠️",
+        body: `Your driver cancelled (${reason}). We're automatically searching for a new nearby driver for you.`,
+        url: `/ride/${booking._id.toString()}`,
+        tag: `booking-driver-cancel-${booking._id.toString()}`,
+      });
+    } catch (pushErr) {
+      console.warn("Web Push on driver cancellation failed:", pushErr);
+    }
 
     return NextResponse.json({
       success: true,
