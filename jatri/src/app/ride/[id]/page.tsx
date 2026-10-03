@@ -1403,27 +1403,27 @@ function PanelContent({
 
           {/* Call, Message & Share Trip */}
           {isActive && (
-            <div className="flex gap-2 mt-2 flex-wrap">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mt-2">
               <button
                 onClick={onCallClick}
-                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 active:scale-[0.97] transition-all text-white py-3 rounded-xl text-sm font-semibold shadow-sm"
+                className="flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 active:scale-[0.97] transition-all text-white py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold shadow-sm"
               >
-                <Phone size={15} /> In-App Call
+                <Phone size={14} className="sm:w-[15px] sm:h-[15px]" /> In-App Call
               </button>
               {booking.driverMobileNumber && (
                 <a
                   href={`tel:${booking.driverMobileNumber}`}
-                  className="flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 active:scale-[0.97] transition-all px-3.5 py-3 rounded-xl text-xs font-bold shadow-sm"
+                  className="flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 active:scale-[0.97] transition-all px-2 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold shadow-sm"
                   title="Direct Cellular Phone Call"
                 >
-                  <PhoneCall size={14} /> Phone
+                  <PhoneCall size={14} className="sm:w-[15px] sm:h-[15px]" /> Phone
                 </a>
               )}
               {canChat && (
                 <button onClick={onChatToggle}
-                  className={`flex-1 flex items-center justify-center gap-2 active:scale-[0.97] transition-all py-3 rounded-xl text-sm font-semibold ${chatOpen ? "bg-zinc-200 text-zinc-900" : "bg-zinc-900 hover:bg-zinc-800 text-white"}`}
+                  className={`flex items-center justify-center gap-1.5 active:scale-[0.97] transition-all py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold ${chatOpen ? "bg-zinc-200 text-zinc-900" : "bg-zinc-900 hover:bg-zinc-800 text-white"}`}
                 >
-                  <MessageCircle size={15} />
+                  <MessageCircle size={14} className="sm:w-[15px] sm:h-[15px]" />
                   {chatOpen ? "Close Chat" : "Message"}
                 </button>
               )}
@@ -1440,9 +1440,9 @@ function PanelContent({
                     alert("Live tracking link copied to clipboard!");
                   }
                 }}
-                className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 active:scale-[0.97] transition-all py-3 rounded-xl text-sm font-semibold"
+                className="flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 active:scale-[0.97] transition-all py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold"
               >
-                <Share2 size={15} /> Share Trip
+                <Share2 size={14} className="sm:w-[15px] sm:h-[15px]" /> Share Trip
               </button>
             </div>
           )}

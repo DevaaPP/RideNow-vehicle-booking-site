@@ -93,38 +93,39 @@ export default function PartnerDocumentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50/50 sm:bg-white flex flex-col justify-center px-3 sm:px-4 py-6 sm:py-12">
       <motion.div
-        initial={{ opacity: 0, y: 28 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-xl bg-white rounded-3xl border border-gray-200 shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-6 sm:p-8"
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-xl mx-auto bg-white rounded-2xl sm:rounded-3xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] sm:shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-5 sm:p-8"
       >
         {/* ================= HEADER ================= */}
         <div className="relative text-center">
           <button
             onClick={() => router.back()}
-            className="absolute left-0 top-0 w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+            aria-label="Go back"
+            className="absolute left-0 top-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition active:scale-95"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
-          <p className="text-xs text-gray-500 font-medium">
+          <p className="text-[11px] sm:text-xs text-gray-500 font-semibold tracking-wide uppercase">
             Step 2 of 3
           </p>
 
-          <h1 className="text-2xl font-bold mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold mt-1 tracking-tight">
             Upload Documents
           </h1>
 
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
             Required for verification
           </p>
 
           {completed && !editMode && (
-            <div className="mt-4 flex flex-col items-center gap-2">
-              <div className="flex items-center gap-2 text-green-600 text-sm font-semibold">
-                <CheckCircle size={16} />
+            <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5">
+              <div className="flex items-center gap-1.5 text-green-600 text-xs sm:text-sm font-semibold">
+                <CheckCircle size={15} />
                 Uploaded successfully
               </div>
 
@@ -132,7 +133,7 @@ export default function PartnerDocumentsPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setEditMode(true)}
-                className="text-xs font-semibold text-black underline flex items-center gap-1"
+                className="text-xs font-semibold text-black underline flex items-center gap-1 py-1"
               >
                 <Pencil size={12} />
                 Edit documents
@@ -143,7 +144,7 @@ export default function PartnerDocumentsPage() {
 
         {/* ================= DOCUMENT LIST ================= */}
         <div
-          className={`mt-8 space-y-5 ${
+          className={`mt-6 sm:mt-8 space-y-3.5 sm:space-y-4 ${
             completed && !editMode
               ? "opacity-50 pointer-events-none"
               : ""
@@ -176,28 +177,27 @@ export default function PartnerDocumentsPage() {
         </div>
 
         {/* INFO */}
-        <div className="mt-6 flex items-start gap-3 text-xs text-gray-500">
-          <FileCheck size={16} className="mt-0.5" />
-          <p>
-            Documents are securely stored and manually verified
-            by our team.
+        <div className="mt-5 flex items-start gap-2.5 text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
+          <FileCheck size={16} className="mt-0.5 shrink-0 text-gray-700" />
+          <p className="leading-relaxed">
+            Documents are securely stored and manually verified by our team.
           </p>
         </div>
 
         {/* ERROR */}
         {error && (
-          <p className="mt-4 text-sm text-red-500">
+          <p className="mt-4 text-xs sm:text-sm text-red-500 bg-red-50 p-2.5 rounded-lg border border-red-100">
             {error}
           </p>
         )}
 
         {/* CTA */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           disabled={loading}
           onClick={submitDocuments}
-          className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
+          className="mt-6 sm:mt-8 w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-black text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 disabled:opacity-40 transition shadow-lg active:scale-98"
         >
           {completed && !editMode
             ? "Continue"
@@ -206,7 +206,7 @@ export default function PartnerDocumentsPage() {
             : loading
             ? "Uploading..."
             : "Continue"}
-          <ArrowRight size={18} />
+          <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
         </motion.button>
       </motion.div>
     </div>
@@ -227,32 +227,31 @@ function DocUpload({
   onChange: (f: File | null) => void;
 }) {
   return (
-    <motion.label
-      whileHover={{ scale: 1.02 }}
-      className="flex items-center justify-between p-4 rounded-2xl border border-gray-200 cursor-pointer hover:border-black transition"
+    <label
+      className="flex items-center justify-between p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 cursor-pointer hover:border-black active:scale-[0.99] transition bg-white"
     >
-      <div>
-        <p className="text-sm font-semibold">
+      <div className="min-w-0 pr-2">
+        <p className="text-xs sm:text-sm font-semibold truncate text-gray-900">
           {label}
         </p>
-        <p className="text-xs text-gray-500">
-          {desc}
+        <p className="text-[11px] sm:text-xs text-gray-500 truncate">
+          {file ? file.name : desc}
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {file ? (
-          <span className="text-xs text-green-600 font-medium">
+          <span className="text-[11px] sm:text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
             Selected
           </span>
         ) : (
-          <span className="text-xs text-gray-400">
+          <span className="text-[11px] sm:text-xs text-gray-400 font-medium">
             Upload
           </span>
         )}
 
-        <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center">
-          <UploadCloud size={18} />
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black text-white flex items-center justify-center shadow-sm">
+          <UploadCloud size={16} className="sm:w-[18px] sm:h-[18px]" />
         </div>
       </div>
 
@@ -264,6 +263,6 @@ function DocUpload({
           onChange(e.target.files?.[0] || null)
         }
       />
-    </motion.label>
+    </label>
   );
 }

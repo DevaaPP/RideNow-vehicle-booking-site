@@ -20,9 +20,9 @@ export default function Footer() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         viewport={{ once: true }}
-        className="max-w-7xl mx-auto px-6 py-16"
+        className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-12">
 
           {/* BRAND */}
           <div>
@@ -159,8 +159,8 @@ export default function Footer() {
 
       {/* BOTTOM BAR */}
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col lg:flex-row justify-between items-center text-xs text-gray-500 gap-4">
-          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-6 flex flex-col lg:flex-row justify-between items-center text-xs text-gray-500 gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center sm:text-left">
             <p>© {new Date().getFullYear()} RideNow Mobility Technologies Pvt. Ltd. All rights reserved.</p>
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
             <LanguageSelector variant="footer" />

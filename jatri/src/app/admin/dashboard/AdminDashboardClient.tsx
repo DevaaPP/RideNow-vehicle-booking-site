@@ -87,24 +87,24 @@ export default function AdminDashboardClient() {
 
       {/* HEADER */}
       <header className="sticky top-0 bg-white/80 backdrop-blur-lg border-b z-40">
-        <div className="max-w-7xl mx-auto h-16 px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-black text-white flex items-center justify-center font-bold">
+        <div className="max-w-7xl mx-auto h-14 sm:h-16 px-3 sm:px-6 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-black text-white flex items-center justify-center font-bold text-sm sm:text-base">
               R
             </div>
-            <span className="font-bold text-lg tracking-wide">
-              RideNow ADMIN
+            <span className="font-bold text-sm sm:text-lg tracking-wide">
+              RideNow <span className="text-xs sm:text-sm text-gray-500 font-semibold">ADMIN</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-green-100 text-green-700 font-semibold select-none">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-green-100 text-green-700 font-semibold select-none">
               <ShieldCheck size={14} />
               Secure Mode
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="text-xs font-bold text-gray-500 hover:text-red-600 transition-colors border px-3 py-1.5 rounded-full bg-white hover:bg-zinc-50 shadow-sm"
+              className="text-xs font-bold text-gray-500 hover:text-red-600 transition-colors border px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-full bg-white hover:bg-zinc-50 shadow-sm active:scale-95"
             >
               Logout
             </button>
@@ -112,28 +112,28 @@ export default function AdminDashboardClient() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12 space-y-16">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10 space-y-6 sm:space-y-12">
 
         {/* KPI SECTION */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
           <Kpi
             label="Total Vendors" value={stats.totalVendors}
-            icon={<Users size={18} />} variant="totalVendors"
+            icon={<Users size={16} className="sm:w-[18px] sm:h-[18px]" />} variant="totalVendors"
             trend="+12%" trendDir="up" sub="vs last month"
           />
           <Kpi
             label="Approved" value={stats.approved}
-            icon={<CheckCircle2 size={18} />} variant="approved"
+            icon={<CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" />} variant="approved"
             trend="+8%" trendDir="up" sub="verified vendors"
           />
           <Kpi
             label="Pending" value={stats.pending}
-            icon={<Clock size={18} />} variant="pending"
+            icon={<Clock size={16} className="sm:w-[18px] sm:h-[18px]" />} variant="pending"
             trend="0%" trendDir="flat" sub="awaiting review"
           />
           <Kpi
             label="Rejected" value={stats.rejected}
-            icon={<XCircle size={18} />} variant="rejected"
+            icon={<XCircle size={16} className="sm:w-[18px] sm:h-[18px]" />} variant="rejected"
             trend="-3%" trendDir="down" sub="declined"
           />
         </div>
@@ -141,21 +141,21 @@ export default function AdminDashboardClient() {
         <StatusAreaChart stats={stats}/>
         <AdminEarningsChart/>
 
-        <div className="bg-white rounded-2xl p-2 shadow-lg border border-gray-100 flex flex-wrap gap-2">
+        <div className="bg-white rounded-2xl p-1.5 sm:p-2 shadow-md border border-gray-100 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none">
           <TabButton active={activeTab === "kyc"} count={videoKycReviews.length}
-            onClick={() => setActiveTab("kyc")} icon={<Video size={15} />}>
+            onClick={() => setActiveTab("kyc")} icon={<Video size={14} className="sm:w-[15px] sm:h-[15px]" />}>
             Video KYC
           </TabButton>
           <TabButton active={activeTab === "vendor"} count={vendorReviews.length}
-            onClick={() => setActiveTab("vendor")} icon={<Users size={15} />}>
-            Vendor Reviews
+            onClick={() => setActiveTab("vendor")} icon={<Users size={14} className="sm:w-[15px] sm:h-[15px]" />}>
+            Vendors
           </TabButton>
           <TabButton active={activeTab === "vehicle"} count={vehicleReviews.length}
-            onClick={() => setActiveTab("vehicle")} icon={<Truck size={15} />}>
-            Vehicle Reviews
+            onClick={() => setActiveTab("vehicle")} icon={<Truck size={14} className="sm:w-[15px] sm:h-[15px]" />}>
+            Vehicles
           </TabButton>
           <TabButton active={activeTab === "pricing"} count={0}
-            onClick={() => setActiveTab("pricing")} icon={<IndianRupee size={15} />}>
+            onClick={() => setActiveTab("pricing")} icon={<IndianRupee size={14} className="sm:w-[15px] sm:h-[15px]" />}>
             Category Fares
           </TabButton>
         </div>
@@ -184,9 +184,9 @@ function TabButton({ active, onClick, children, icon, count }: any) {
     <motion.button
       onClick={onClick}
       whileTap={{ scale: 0.97 }}
-      className={`relative flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200 select-none
+      className={`relative flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 select-none shrink-0
         ${active
-          ? "bg-neutral-950 text-white shadow-lg shadow-black/20"
+          ? "bg-neutral-950 text-white shadow-md shadow-black/20"
           : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
         }`}
     >
@@ -194,9 +194,9 @@ function TabButton({ active, onClick, children, icon, count }: any) {
         {icon}
       </span>
 
-      <span className="hidden sm:inline">{children}</span>
+      <span className="whitespace-nowrap">{children}</span>
 
-      <span className={`min-w-[22px] h-5 px-1.5 text-[11px] font-bold rounded-full flex items-center justify-center transition-all
+      <span className={`min-w-[18px] sm:min-w-[22px] h-4 sm:h-5 px-1 sm:px-1.5 text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center transition-all
         ${active
           ? "bg-white text-black"
           : count > 0
@@ -278,17 +278,17 @@ function ContentList({ data, type }: any) {
                   : `/admin/vendors/${item._id}`
               )
             }
-            className="bg-white border border-gray-100 rounded-2xl px-5 py-4 flex items-center justify-between gap-4 shadow-sm transition-shadow cursor-pointer select-none"
+            className="bg-white border border-gray-100 rounded-xl sm:rounded-2xl p-3.5 sm:px-5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-sm transition-all cursor-pointer select-none"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${avColor}`}>
+              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 ${avColor}`}>
                 {initials}
               </div>
-              <div className="min-w-0">
-                <p className="font-bold text-sm text-gray-900 truncate">{name}</p>
-                <p className="text-xs text-gray-400 truncate">{email}</p>
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-xs sm:text-sm text-gray-900 truncate">{name}</p>
+                <p className="text-[11px] sm:text-xs text-gray-400 truncate">{email}</p>
                 {type === "kyc" && (
-                  <span className={`mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${s.pill}`}>
+                  <span className={`mt-1 inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full ${s.pill}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
                     {s.label}
                   </span>
@@ -296,7 +296,7 @@ function ContentList({ data, type }: any) {
               </div>
             </div>
 
-            <div className="shrink-0">
+            <div className="shrink-0 w-full sm:w-auto flex sm:block justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-gray-100">
               {type === "kyc" ? (
                 item.videoKycStatus === "in_progress" ? (
                   <motion.button
@@ -307,7 +307,7 @@ function ContentList({ data, type }: any) {
                       e.stopPropagation();
                       router.push(`/video-kyc/${item.videoKycRoomId}`);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
+                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors"
                   >
                     <Video size={13} /> Join Call
                   </motion.button>
@@ -317,7 +317,7 @@ function ContentList({ data, type }: any) {
                       e.stopPropagation();
                       startKyc(item._id);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-sm font-semibold transition-colors"
+                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold transition-colors"
                   >
                     <Video size={13} /> Start KYC
                   </motion.button>
@@ -332,7 +332,7 @@ function ContentList({ data, type }: any) {
                         : `/admin/vendors/${item._id}`
                     );
                   }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-sm font-semibold transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold transition-colors"
                 >
                   Review <ArrowRight size={13} />
                 </motion.button>
@@ -392,9 +392,9 @@ function Kpi({
   const cfg = KPI_CONFIG[variant];
 
   const trendIcon =
-    trendDir === "up"   ? <TrendingUp size={11} />   :
-    trendDir === "down" ? <TrendingDown size={11} />  :
-    <Minus size={11} />;
+    trendDir === "up"   ? <TrendingUp size={10} />   :
+    trendDir === "down" ? <TrendingDown size={10} />  :
+    <Minus size={10} />;
 
   const trendColor =
     trendDir === "up"   ? "bg-green-50 text-green-800" :
@@ -403,40 +403,40 @@ function Kpi({
 
   return (
     <motion.div
-      whileHover={{ y: -5, boxShadow: "0 20px 48px rgba(0,0,0,0.10)" }}
+      whileHover={{ y: -3, boxShadow: "0 12px 30px rgba(0,0,0,0.08)" }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       onClick={onClick}
-      className={`bg-white rounded-2xl p-5 border border-gray-100 shadow-sm
+      className={`bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-gray-100 shadow-sm
         cursor-pointer select-none relative overflow-hidden group ${cfg.cardHover}`}
     >
       <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
-        rounded-2xl ${cfg.iconBg}`} style={{ zIndex: 0 }} />
+        rounded-xl sm:rounded-2xl ${cfg.iconBg}`} style={{ zIndex: 0 }} />
 
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-2 sm:mb-4">
           <motion.div
             whileHover={{ rotate: -6, scale: 1.1 }}
             transition={{ type: "spring", stiffness: 400 }}
-            className={`w-11 h-11 rounded-xl flex items-center justify-center ${cfg.iconBg} ${cfg.iconColor}`}
+            className={`w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center ${cfg.iconBg} ${cfg.iconColor}`}
           >
             {icon}
           </motion.div>
 
           {trend && (
-            <span className={`inline-flex items-center gap-1 text-[11px] font-bold
-              px-2 py-1 rounded-full ${trendColor}`}>
+            <span className={`inline-flex items-center gap-0.5 text-[9px] sm:text-[11px] font-bold
+              px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full ${trendColor}`}>
               {trendIcon}
               {trend}
             </span>
           )}
         </div>
 
-        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">
+        <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-400 mb-0.5 sm:mb-1 truncate">
           {label}
         </p>
 
         <motion.p
-          className="text-3xl font-extrabold text-gray-950 leading-tight"
+          className="text-xl sm:text-3xl font-extrabold text-gray-950 leading-tight"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
@@ -445,10 +445,10 @@ function Kpi({
         </motion.p>
 
         {sub && (
-          <div className="flex items-center justify-between mt-3 pt-3
+          <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-3
             border-t border-gray-100">
-            <p className="text-[11px] text-gray-400">{sub}</p>
-            <Clock size={11} className="text-gray-300" />
+            <p className="text-[10px] sm:text-[11px] text-gray-400 truncate">{sub}</p>
+            <Clock size={10} className="text-gray-300 shrink-0" />
           </div>
         )}
       </div>

@@ -444,21 +444,74 @@ export default function VendorDashboard({
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 px-4 pt-28 pb-20">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 px-3 sm:px-6 pt-20 sm:pt-28 pb-16">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-12">
 
         <div>
-          <h1 className="text-4xl font-bold">
+          <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 tracking-tight">
             Vendor Onboarding
           </h1>
-          <p className="text-gray-600 mt-3">
-            Complete all steps to activate your account
+          <p className="text-zinc-600 text-xs sm:text-sm mt-1 sm:mt-2">
+            Complete all steps to activate your partner driver account
           </p>
         </div>
 
-        {/* PROGRESS UI (UNCHANGED) */}
-        <div className="bg-white rounded-3xl p-10 shadow-xl border overflow-x-auto">
-          <div className="relative min-w-[800px]">
+        {/* MOBILE STEPPER (NATIVE APP STYLE) */}
+        <div className="block md:hidden bg-white rounded-2xl p-4 shadow-lg border border-gray-100 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Step {activeStep} of {TOTAL_STEPS}
+            </span>
+            <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-black text-white">
+              {STEPS[activeStep - 1]?.title || "Onboarding"}
+            </span>
+          </div>
+
+          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+            <motion.div
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.5 }}
+              className="h-full bg-black rounded-full"
+            />
+          </div>
+
+          {/* Swipeable Step Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
+            {STEPS.map((step) => {
+              const completed = activeStep > step.id;
+              const active = activeStep === step.id;
+              const locked = step.id > activeStep;
+
+              return (
+                <button
+                  key={step.id}
+                  disabled={locked}
+                  onClick={() => goToStep(step)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all ${
+                    completed
+                      ? "bg-zinc-100 text-zinc-900 border border-zinc-300"
+                      : active
+                      ? "bg-black text-white shadow-md shadow-black/20"
+                      : "bg-zinc-50 text-zinc-400 border border-zinc-200/60"
+                  }`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      completed ? "text-emerald-600" : active ? "text-white" : "text-zinc-400"
+                    }`}
+                  >
+                    {completed ? "✓" : step.id}
+                  </span>
+                  <span>{step.title}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* DESKTOP STEPPER */}
+        <div className="hidden md:block bg-white rounded-3xl p-8 sm:p-10 shadow-xl border overflow-x-auto">
+          <div className="relative min-w-[700px]">
 
             <div className="absolute top-7 left-0 w-full h-[3px] bg-gray-200 rounded-full" />
 
@@ -1095,41 +1148,41 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   };
 
   return (
-    <section className="min-h-screen bg-zinc-50 px-4 pt-28 pb-20 relative">
+    <section className="min-h-screen bg-zinc-50 px-3 sm:px-6 pt-20 sm:pt-28 pb-16 relative">
       <div className="fixed inset-0 pointer-events-none"
         style={{ backgroundImage: "radial-gradient(circle, #e4e4e7 1px, transparent 1px)", backgroundSize: "24px 24px", opacity: 0.5 }}
       />
 
-      <div className="relative max-w-7xl mx-auto space-y-8 z-10">
+      <div className="relative max-w-7xl mx-auto space-y-5 sm:space-y-8 z-10">
         
         {/* Header Block */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-3xl p-6 md:p-8 border border-zinc-200/65 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-950 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-zinc-950/20">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-zinc-200/65 shadow-sm">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-zinc-950 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-lg shadow-zinc-950/20 shrink-0">
               {userData?.name?.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black text-zinc-900 tracking-tight">{userData?.name}</h1>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight truncate">{userData?.name}</h1>
                 <span className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-zinc-200">
                   Live Partner
                 </span>
               </div>
-              <p className="text-zinc-400 text-sm mt-0.5 font-semibold">Manage your online status, vehicle details, and track performance</p>
+              <p className="text-zinc-400 text-xs sm:text-sm mt-0.5 font-semibold truncate">Manage online status and live fleet rides</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => window.location.href = "/partner/pending-requests"}
-              className="flex items-center gap-2 bg-zinc-950 hover:bg-black text-white text-sm font-bold px-6 py-3.5 rounded-2xl shadow-lg shadow-zinc-950/10 transition-all active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl sm:rounded-2xl shadow-lg shadow-zinc-950/10 transition-all active:scale-[0.98]"
             >
               <span>Incoming Requests</span>
               <ArrowRight size={15} />
             </button>
             <button
               onClick={() => window.location.href = "/partner/bookings"}
-              className="flex items-center gap-2 border border-zinc-200 hover:bg-zinc-50 bg-white text-zinc-800 text-sm font-bold px-5 py-3.5 rounded-2xl transition-all active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 border border-zinc-200 hover:bg-zinc-50 bg-white text-zinc-800 text-xs sm:text-sm font-bold px-4 py-3 rounded-xl sm:rounded-2xl transition-all active:scale-[0.98]"
             >
               Ride History
             </button>
@@ -1137,71 +1190,71 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         </div>
 
         {/* Today's Shift Performance Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
               <span className="text-[10px] font-black uppercase tracking-wider">Today's Earnings</span>
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <IndianRupee size={15} />
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <IndianRupee size={13} />
               </div>
             </div>
             <div>
-              <p className="text-2xl font-black text-zinc-900 tracking-tight leading-none">
+              <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight leading-none">
                 ₹{shiftSummary?.todayEarnings ?? 0}
               </p>
-              <p className="text-[11px] text-zinc-400 font-semibold mt-1">Net partner take-home</p>
+              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1">Net take-home</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
+          <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
               <span className="text-[10px] font-black uppercase tracking-wider">Trips Completed</span>
-              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                <CheckCircle2 size={15} />
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                <CheckCircle2 size={13} className="sm:w-[15px] sm:h-[15px]" />
               </div>
             </div>
             <div>
-              <p className="text-2xl font-black text-zinc-900 tracking-tight leading-none">
+              <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight leading-none">
                 {shiftSummary?.todayTrips ?? 0}
               </p>
-              <p className="text-[11px] text-zinc-400 font-semibold mt-1">
+              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1 truncate">
                 {shiftSummary?.totalCompleted ? `${shiftSummary.totalCompleted} all-time` : "Today's shift"}
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
+          <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
               <span className="text-[10px] font-black uppercase tracking-wider">Online Shift</span>
-              <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                <Clock size={15} />
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                <Clock size={13} className="sm:w-[15px] sm:h-[15px]" />
               </div>
             </div>
             <div>
-              <p className="text-2xl font-black text-zinc-900 tracking-tight leading-none">
-                {shiftSummary?.hoursOnline ?? 0}<span className="text-sm font-normal text-zinc-400 ml-0.5">hrs</span>
+              <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight leading-none">
+                {shiftSummary?.hoursOnline ?? 0}<span className="text-xs sm:text-sm font-normal text-zinc-400 ml-0.5">hrs</span>
               </p>
-              <p className="text-[11px] text-zinc-400 font-semibold mt-1">Active driving shift</p>
+              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1">Active driving shift</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
+          <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
               <span className="text-[10px] font-black uppercase tracking-wider">Driver Rating</span>
-              <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                <Shield size={15} />
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                <Shield size={13} className="sm:w-[15px] sm:h-[15px]" />
               </div>
             </div>
             <div>
-              <div className="flex items-baseline gap-1.5 leading-none">
-                <p className="text-2xl font-black text-zinc-900 tracking-tight">
+              <div className="flex items-baseline gap-1 sm:gap-1.5 leading-none">
+                <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight">
                   ★ {shiftSummary?.rating ?? 4.9}
                 </p>
-                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                <span className="text-[9px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1 sm:px-1.5 py-0.5 rounded">
                   {shiftSummary?.acceptanceRate ?? 96}%
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400 font-semibold mt-1">Acceptance rate</p>
+              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1">Acceptance rate</p>
             </div>
           </div>
         </div>

@@ -118,38 +118,39 @@ export default function PartnerVehiclePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50/50 sm:bg-white flex flex-col justify-center px-3 sm:px-4 py-6 sm:py-12">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-xl bg-white rounded-3xl border border-gray-200 shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-6 sm:p-8"
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-xl mx-auto bg-white rounded-2xl sm:rounded-3xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] sm:shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-5 sm:p-8"
       >
         {/* ================= HEADER ================= */}
         <div className="relative text-center">
           <button
             onClick={() => router.back()}
-            className="absolute left-0 top-0 w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+            aria-label="Go back"
+            className="absolute left-0 top-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition active:scale-95"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
-          <p className="text-xs text-gray-500 font-medium">
+          <p className="text-[11px] sm:text-xs text-gray-500 font-semibold tracking-wide uppercase">
             Step 1 of 3
           </p>
 
-          <h1 className="text-2xl font-bold mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold mt-1 tracking-tight">
             Vehicle Details
           </h1>
 
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
             Add your vehicle information
           </p>
 
           {completed && !editMode && (
-            <div className="mt-4 flex flex-col items-center gap-2">
-              <div className="flex items-center gap-2 text-green-600 text-sm font-semibold">
-                <CheckCircle size={16} />
+            <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5">
+              <div className="flex items-center gap-1.5 text-green-600 text-xs sm:text-sm font-semibold">
+                <CheckCircle size={15} />
                 Completed
               </div>
 
@@ -157,7 +158,7 @@ export default function PartnerVehiclePage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setEditMode(true)}
-                className="text-xs font-semibold text-black underline flex items-center gap-1"
+                className="text-xs font-semibold text-black underline flex items-center gap-1 py-1"
               >
                 <Pencil size={12} />
                 Edit details
@@ -168,7 +169,7 @@ export default function PartnerVehiclePage() {
 
         {/* ================= FORM ================= */}
         <div
-          className={`mt-8 space-y-6 ${
+          className={`mt-6 sm:mt-8 space-y-5 sm:space-y-6 ${
             completed && !editMode
               ? "opacity-50 pointer-events-none"
               : ""
@@ -176,11 +177,11 @@ export default function PartnerVehiclePage() {
         >
           {/* VEHICLE TYPE */}
           <div>
-            <p className="text-xs font-semibold text-gray-500 mb-3">
+            <p className="text-xs font-semibold text-gray-600 mb-2.5">
               Vehicle type
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
               {VEHICLES.map((v) => {
                 const Icon = v.icon;
                 const active = vehicleType === v.id;
@@ -188,33 +189,33 @@ export default function PartnerVehiclePage() {
                 return (
                   <motion.button
                     key={v.id}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => setVehicleType(v.id)}
-                    className={`rounded-2xl border p-4 flex flex-col items-center gap-2 transition
+                    className={`rounded-xl sm:rounded-2xl border p-3 sm:p-4 flex flex-col items-center gap-1.5 sm:gap-2 transition text-center
                       ${
                         active
-                          ? "bg-black text-white border-black"
-                          : "border-gray-200 hover:border-black"
+                          ? "bg-black text-white border-black shadow-md"
+                          : "border-gray-200 hover:border-black bg-white"
                       }`}
                   >
                     <div
-                      className={`w-11 h-11 rounded-full flex items-center justify-center
+                      className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center shrink-0
                         ${
                           active
                             ? "bg-white text-black"
                             : "bg-black text-white"
                         }`}
                     >
-                      <Icon size={20} />
+                      <Icon size={18} className="sm:w-5 sm:h-5" />
                     </div>
 
-                    <p className="text-sm font-semibold">
+                    <p className="text-xs sm:text-sm font-semibold leading-tight">
                       {v.label}
                     </p>
 
                     <p
-                      className={`text-xs ${
+                      className={`text-[10px] sm:text-xs leading-tight ${
                         active
                           ? "text-gray-300"
                           : "text-gray-500"
@@ -230,7 +231,7 @@ export default function PartnerVehiclePage() {
 
           {/* VEHICLE NUMBER */}
           <div>
-            <label className="text-xs font-semibold text-gray-500">
+            <label className="text-xs font-semibold text-gray-600 block">
               Vehicle number
             </label>
             <input
@@ -239,38 +240,38 @@ export default function PartnerVehiclePage() {
                 setVehicleNumber(e.target.value.toUpperCase())
               }
               placeholder="MH12AB1234"
-              className="mt-2 w-full border-b border-gray-300 pb-2 text-sm focus:outline-none focus:border-black transition"
+              className="mt-1.5 w-full border-b border-gray-300 pb-2 text-sm sm:text-base focus:outline-none focus:border-black transition bg-transparent uppercase font-mono tracking-wider"
             />
           </div>
 
           {/* VEHICLE MODEL */}
           <div>
-            <label className="text-xs font-semibold text-gray-500">
+            <label className="text-xs font-semibold text-gray-600 block">
               Vehicle model / capacity
             </label>
             <input
               value={vehicleModel}
               onChange={(e) => setVehicleModel(e.target.value)}
               placeholder="Tata Ace / 1.5 Ton"
-              className="mt-2 w-full border-b border-gray-300 pb-2 text-sm focus:outline-none focus:border-black transition"
+              className="mt-1.5 w-full border-b border-gray-300 pb-2 text-sm sm:text-base focus:outline-none focus:border-black transition bg-transparent"
             />
           </div>
         </div>
 
         {/* ERROR */}
         {error && (
-          <p className="mt-4 text-sm text-red-500">
+          <p className="mt-4 text-xs sm:text-sm text-red-500 bg-red-50 p-2.5 rounded-lg border border-red-100">
             {error}
           </p>
         )}
 
         {/* CTA */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           disabled={loading}
           onClick={submitVehicle}
-          className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
+          className="mt-6 sm:mt-8 w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-black text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 disabled:opacity-40 transition shadow-lg active:scale-98"
         >
           {completed && !editMode
             ? "Continue"
@@ -279,7 +280,7 @@ export default function PartnerVehiclePage() {
             : loading
             ? "Submitting..."
             : "Continue"}
-          <ArrowRight size={18} />
+          <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
         </motion.button>
       </motion.div>
     </div>

@@ -92,18 +92,19 @@ export default function AdminVendorReviewPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
 
       {/* ================= HEADER ================= */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/70 border-b">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-4">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center gap-2.5 sm:gap-4">
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-100 transition"
+            aria-label="Back"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition active:scale-95 shrink-0"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
-          <div className="flex-1">
-            <p className="font-semibold text-lg">{data.name}</p>
-            <p className="text-xs text-gray-500">{data.email}</p>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm sm:text-lg truncate">{data.name}</p>
+            <p className="text-[11px] sm:text-xs text-gray-500 truncate">{data.email}</p>
           </div>
 
           <StatusBadge status={data.vendorStatus} />
@@ -111,10 +112,10 @@ export default function AdminVendorReviewPage() {
       </header>
 
       {/* ================= MAIN ================= */}
-      <main className="max-w-7xl mx-auto px-4 py-12 grid lg:grid-cols-3 gap-10">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-10 grid lg:grid-cols-3 gap-5 sm:gap-8">
 
         {/* LEFT SIDE */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-5 sm:space-y-8">
 
           <AnimatedCard title="Vehicle Details" icon={<Car size={18} />}>
             <InfoRow label="Vehicle Type" value={data.vehicle?.type} />
@@ -123,7 +124,7 @@ export default function AdminVendorReviewPage() {
           </AnimatedCard>
 
           <AnimatedCard title="Documents" icon={<FileText size={18} />}>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-6">
               <DocPreview label="Aadhaar" url={data.documents?.aadhaarUrl} />
               <DocPreview label="License" url={data.documents?.licenseUrl} />
               <DocPreview label="RC" url={data.documents?.rcUrl} />
@@ -133,7 +134,7 @@ export default function AdminVendorReviewPage() {
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="space-y-8">
+        <div className="space-y-5 sm:space-y-8">
 
           <AnimatedCard title="Bank Details" icon={<Landmark size={18} />}>
             <InfoRow label="Account Holder" value={data.bank?.accountHolderName} />
@@ -291,10 +292,10 @@ export default function AdminVendorReviewPage() {
 function AnimatedCard({ title, icon, children }: any) {
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      className="bg-white rounded-[32px] p-8 shadow-xl space-y-6"
+      whileHover={{ y: -2 }}
+      className="bg-white rounded-2xl sm:rounded-[32px] p-4 sm:p-8 shadow-md sm:shadow-xl space-y-4 sm:space-y-6 border border-gray-100/80"
     >
-      <div className="flex items-center gap-2 font-semibold">
+      <div className="flex items-center gap-2 font-semibold text-sm sm:text-base">
         {icon}
         {title}
       </div>
@@ -308,26 +309,27 @@ function DocPreview({ label, url }: any) {
   const isPdf = url?.endsWith(".pdf");
 
   return (
-    <div className="bg-gray-50 rounded-2xl border overflow-hidden shadow-sm">
-      <div className="px-4 py-2 border-b text-sm font-semibold">
+    <div className="bg-gray-50 rounded-xl sm:rounded-2xl border overflow-hidden shadow-sm">
+      <div className="px-3.5 py-2 border-b text-xs sm:text-sm font-semibold truncate">
         {label}
       </div>
 
-      <div className="h-52 flex items-center justify-center bg-white">
+      <div className="h-44 sm:h-52 flex items-center justify-center bg-white overflow-hidden">
         {!url && <span className="text-xs text-gray-400">Not uploaded</span>}
 
         {isImage && (
-          <img src={url} className="w-full h-full object-cover" />
+          <img src={url} alt={label} className="w-full h-full object-cover" />
         )}
 
-        {isPdf && <iframe src={url} className="w-full h-full" />}
+        {isPdf && <iframe src={url} title={label} className="w-full h-full" />}
       </div>
 
       {url && (
         <a
           href={url}
           target="_blank"
-          className="block text-center text-xs py-2 font-medium hover:bg-gray-100"
+          rel="noopener noreferrer"
+          className="block text-center text-xs py-2 font-medium hover:bg-gray-100 text-blue-600 transition"
         >
           Open full document
         </a>
@@ -347,23 +349,27 @@ function ConfirmModal({ open, title, description, confirmText, loading, onClose,
           exit={{ opacity: 0 }}
         >
           <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            className="bg-white rounded-3xl p-6 w-full max-w-sm"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-sm shadow-2xl"
           >
-            <h2 className="text-lg font-bold">{title}</h2>
-            <p className="text-sm text-gray-500 mt-2">{description}</p>
+            <h2 className="text-base sm:text-lg font-bold">{title}</h2>
+            <div className="text-xs sm:text-sm text-gray-500 mt-2">{description}</div>
 
-            <div className="flex gap-3 mt-6">
-              <button onClick={onClose} className="flex-1 py-2 rounded-xl border">
+            <div className="flex gap-2.5 sm:gap-3 mt-5 sm:mt-6">
+              <button
+                onClick={onClose}
+                className="flex-1 py-2 sm:py-2.5 rounded-xl border text-xs sm:text-sm font-semibold hover:bg-gray-50 active:scale-95 transition"
+              >
                 Cancel
               </button>
               <button
                 onClick={onConfirm}
                 disabled={loading}
-                className="flex-1 py-2 rounded-xl bg-black text-white"
+                className="flex-1 py-2 sm:py-2.5 rounded-xl bg-black text-white text-xs sm:text-sm font-semibold hover:bg-zinc-800 disabled:opacity-50 active:scale-95 transition"
               >
-                {confirmText}
+                {loading ? "Processing..." : confirmText}
               </button>
             </div>
           </motion.div>
@@ -383,7 +389,8 @@ function RejectModal({ open, reason, setReason, loading, onClose, onConfirm }: a
           placeholder="Enter rejection reason (required)"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full mt-3 border rounded-xl p-3 text-sm"
+          className="w-full mt-3 border rounded-xl p-2.5 text-xs sm:text-sm focus:outline-none focus:border-black"
+          rows={3}
         />
       }
       confirmText="Reject"
@@ -396,24 +403,24 @@ function RejectModal({ open, reason, setReason, loading, onClose, onConfirm }: a
 
 function InfoRow({ label, value }: any) {
   return (
-    <div className="flex justify-between text-sm">
-      <span className="text-gray-500">{label}</span>
-      <span className="font-semibold">{value || "—"}</span>
+    <div className="flex justify-between items-center text-xs sm:text-sm gap-2">
+      <span className="text-gray-500 shrink-0">{label}</span>
+      <span className="font-semibold text-right truncate">{value || "—"}</span>
     </div>
   );
 }
 
 function StatusBadge({ status }: any) {
   if (status === "approved")
-    return <Badge text="Approved" icon={<CheckCircle size={14} />} className="bg-green-100 text-green-700" />;
+    return <Badge text="Approved" icon={<CheckCircle size={13} className="sm:w-3.5 sm:h-3.5" />} className="bg-green-100 text-green-700" />;
   if (status === "rejected")
-    return <Badge text="Rejected" icon={<XCircle size={14} />} className="bg-red-100 text-red-700" />;
-  return <Badge text="Pending" icon={<Clock size={14} />} className="bg-yellow-100 text-yellow-700" />;
+    return <Badge text="Rejected" icon={<XCircle size={13} className="sm:w-3.5 sm:h-3.5" />} className="bg-red-100 text-red-700" />;
+  return <Badge text="Pending" icon={<Clock size={13} className="sm:w-3.5 sm:h-3.5" />} className="bg-yellow-100 text-yellow-700" />;
 }
 
 function Badge({ text, icon, className }: any) {
   return (
-    <span className={`px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-2 ${className}`}>
+    <span className={`px-2.5 py-1 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold inline-flex items-center gap-1.5 shrink-0 ${className}`}>
       {icon}
       {text}
     </span>

@@ -121,31 +121,31 @@ export default function VendorPendingPage() {
 
       {/* Top Section */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <h1 className="text-4xl font-semibold text-gray-900">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+          <h1 className="text-2xl sm:text-4xl font-semibold text-gray-900">
             Ride Requests
           </h1>
-          <p className="mt-3 text-gray-500 text-lg">
+          <p className="mt-1.5 sm:mt-3 text-gray-500 text-sm sm:text-lg">
             Manage incoming ride requests and respond in real time.
           </p>
         </div>
       </div>
 
       {/* Content Section */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-3.5 sm:px-6 py-6 sm:py-12">
 
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="animate-spin w-8 h-8 text-gray-700" />
           </div>
         ) : bookings.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center shadow-sm">
-            <p className="text-gray-500 text-lg">
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 sm:p-16 text-center shadow-sm">
+            <p className="text-gray-500 text-base sm:text-lg">
               No pending ride requests.
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {bookings.map((booking) => (
               <motion.div
                 key={booking._id}
@@ -153,42 +153,42 @@ export default function VendorPendingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.25 }}
-                className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition cursor-pointer select-none"
+                className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-8 shadow-sm hover:shadow-md transition cursor-pointer select-none"
               >
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-8">
 
                   {/* Left Info */}
-                  <div className="flex-1 space-y-6">
-                    <div className="flex gap-4">
-                      <div className="bg-gray-100 p-3 rounded-lg flex items-center justify-center">
+                  <div className="flex-1 space-y-4 sm:space-y-6">
+                    <div className="flex gap-3 sm:gap-4">
+                      <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg flex items-center justify-center shrink-0">
                         <MapPin size={18} />
                       </div>
-                      <div>
-                        <p className="text-xs uppercase text-gray-400 mb-1">
+                      <div className="min-w-0">
+                        <p className="text-[10px] sm:text-xs uppercase text-gray-400 mb-0.5 sm:mb-1 font-bold">
                           Pickup Location
                         </p>
-                        <p className="text-gray-900 font-medium">
+                        <p className="text-gray-900 font-medium text-xs sm:text-base leading-snug">
                           {booking.pickupAddress}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex gap-4">
-                      <div className="bg-gray-100 p-3 rounded-lg flex items-center justify-center">
+                    <div className="flex gap-3 sm:gap-4">
+                      <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg flex items-center justify-center shrink-0">
                         <Navigation size={18} />
                       </div>
-                      <div>
-                        <p className="text-xs uppercase text-gray-400 mb-1">
+                      <div className="min-w-0">
+                        <p className="text-[10px] sm:text-xs uppercase text-gray-400 mb-0.5 sm:mb-1 font-bold">
                           Drop Location
                         </p>
-                        <p className="text-gray-900 font-medium">
+                        <p className="text-gray-900 font-medium text-xs sm:text-base leading-snug">
                           {booking.dropAddress}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
-                      <Clock size={14} className="opacity-70" />
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mt-2">
+                      <Clock size={14} className="opacity-70 shrink-0" />
                       <span className="font-medium">
                         {new Date(booking.createdAt).toLocaleString("en-IN", {
                           day: "2-digit",
@@ -202,22 +202,22 @@ export default function VendorPendingPage() {
                   </div>
 
                   {/* Right Side */}
-                  <div className="flex flex-col justify-between lg:items-end gap-6 w-full lg:w-auto">
+                  <div className="flex flex-col justify-between lg:items-end gap-4 sm:gap-6 w-full lg:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-100">
                     <div className="text-left lg:text-right">
-                      <p className="text-xs tracking-wide text-gray-400 uppercase mb-1">
+                      <p className="text-[10px] sm:text-xs tracking-wide text-gray-400 uppercase mb-0.5 sm:mb-1 font-bold">
                         Estimated Fare
                       </p>
-                      <div className="flex items-center gap-2 text-3xl font-bold text-gray-900 lg:justify-end">
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-2xl sm:text-3xl font-bold text-gray-900 lg:justify-end">
                         <IndianRupee size={20} />
                         {booking.fare}
                       </div>
                     </div>
 
-                    <div className="flex gap-4 w-full lg:w-auto">
+                    <div className="flex gap-3 w-full lg:w-auto">
                       <button
                         onClick={() => handleDeclineOrTimeout(booking._id)}
                         disabled={processingId === booking._id}
-                        className="flex-1 lg:flex-none px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-100 transition-all duration-200 active:scale-[0.98] disabled:opacity-50"
+                        className="flex-1 lg:flex-none px-4 sm:px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-xs sm:text-sm font-semibold hover:bg-gray-100 transition-all duration-200 active:scale-[0.98] disabled:opacity-50"
                       >
                         Decline
                       </button>
@@ -225,10 +225,10 @@ export default function VendorPendingPage() {
                       <button
                         onClick={() => handleAccept(booking._id)}
                         disabled={processingId === booking._id}
-                        className="flex-1 lg:flex-none px-8 py-3 rounded-xl bg-black text-white text-sm font-semibold shadow-md hover:bg-gray-900 hover:shadow-lg transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center"
+                        className="flex-1 lg:flex-none px-5 sm:px-8 py-3 rounded-xl bg-black text-white text-xs sm:text-sm font-semibold shadow-md hover:bg-gray-900 hover:shadow-lg transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {processingId === booking._id ? (
-                          <Loader2 className="animate-spin w-5 h-5" />
+                          <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" />
                         ) : (
                           "Accept Ride"
                         )}

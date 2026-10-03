@@ -98,37 +98,39 @@ export default function PartnerBankPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50/50 sm:bg-white flex flex-col justify-center px-3 sm:px-4 py-6 sm:py-12">
       <motion.div
-        initial={{ opacity: 0, y: 28 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-xl bg-white rounded-3xl border border-gray-200 shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-6 sm:p-8"
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-xl mx-auto bg-white rounded-2xl sm:rounded-3xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] sm:shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-5 sm:p-8"
       >
         {/* ================= HEADER ================= */}
         <div className="relative text-center">
           <button
             onClick={() => router.back()}
-            className="absolute left-0 top-0 w-9 h-9 rounded-full border flex items-center justify-center hover:bg-gray-100 transition"
+            aria-label="Go back"
+            className="absolute left-0 top-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition active:scale-95"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
-          <p className="text-xs text-gray-500 font-medium">
+          <p className="text-[11px] sm:text-xs text-gray-500 font-semibold tracking-wide uppercase">
             Step 3 of 3
           </p>
 
-          <h1 className="text-2xl font-bold mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold mt-1 tracking-tight">
             Bank & Payout Setup
           </h1>
 
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
             Used for vendor payouts
           </p>
 
           {completed && !editMode && (
-            <div className="mt-4 flex flex-col items-center gap-2">
-              <div className="flex items-center gap-2 text-green-600 text-sm font-semibold">
-                <CheckCircle size={16} />
+            <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5">
+              <div className="flex items-center gap-1.5 text-green-600 text-xs sm:text-sm font-semibold">
+                <CheckCircle size={15} />
                 Bank details added
               </div>
 
@@ -136,7 +138,7 @@ export default function PartnerBankPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setEditMode(true)}
-                className="text-xs font-semibold underline flex items-center gap-1"
+                className="text-xs font-semibold underline flex items-center gap-1 py-1"
               >
                 <Pencil size={12} />
                 Edit details
@@ -147,7 +149,7 @@ export default function PartnerBankPage() {
 
         {/* ================= FORM ================= */}
         <div
-          className={`mt-8 space-y-6 ${
+          className={`mt-6 sm:mt-8 space-y-4 sm:space-y-5 ${
             completed && !editMode
               ? "opacity-50 pointer-events-none"
               : ""
@@ -200,7 +202,7 @@ export default function PartnerBankPage() {
           />
 
           <InputField
-            label="UPI ID (optional)"
+            label="UPI ID"
             placeholder="name@upi"
             value={upi}
             onChange={setUpi}
@@ -210,7 +212,7 @@ export default function PartnerBankPage() {
 
         {/* ================= WHY DISABLED ================= */}
         {!canSubmit && editMode && (
-          <div className="mt-6 text-xs text-gray-500 space-y-1">
+          <div className="mt-4 sm:mt-5 text-xs text-amber-800 bg-amber-50 p-3 rounded-xl border border-amber-200/60 space-y-1">
             <p className="font-semibold">
               Complete the following to continue:
             </p>
@@ -222,28 +224,27 @@ export default function PartnerBankPage() {
         )}
 
         {/* ================= INFO ================= */}
-        <div className="mt-6 flex items-start gap-3 text-xs text-gray-500">
-          <CheckCircle size={16} className="mt-0.5" />
-          <p>
-            Bank details are verified before first payout.
-            This usually takes 24–48 hours.
+        <div className="mt-5 flex items-start gap-2.5 text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
+          <CheckCircle size={16} className="mt-0.5 shrink-0 text-gray-700" />
+          <p className="leading-relaxed">
+            Bank details are verified before first payout. This usually takes 24–48 hours.
           </p>
         </div>
 
         {/* ================= ERROR ================= */}
         {error && (
-          <p className="mt-4 text-sm text-red-500">
+          <p className="mt-4 text-xs sm:text-sm text-red-500 bg-red-50 p-2.5 rounded-lg border border-red-100">
             {error}
           </p>
         )}
 
         {/* ================= CTA ================= */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           disabled={!canSubmit || loading}
           onClick={handleSubmit}
-          className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold disabled:opacity-40 transition"
+          className="mt-6 sm:mt-8 w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-black text-white font-semibold text-sm sm:text-base disabled:opacity-40 transition shadow-lg active:scale-98"
         >
           {completed && !editMode
             ? "Continue"

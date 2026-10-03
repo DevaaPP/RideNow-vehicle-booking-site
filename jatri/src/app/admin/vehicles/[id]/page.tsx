@@ -115,17 +115,18 @@ export default function AdminVehicleReviewPage() {
 
       {/* HEADER */}
       <header className="sticky top-0 bg-white border-b shadow-sm z-40">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center gap-2.5 sm:gap-4">
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-100 transition"
+            aria-label="Back"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition active:scale-95 shrink-0"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
-          <div className="flex-1">
-            <p className="font-semibold text-lg">{data.owner.name}</p>
-            <p className="text-xs text-gray-500">{data.owner.email}</p>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm sm:text-lg truncate">{data.owner.name}</p>
+            <p className="text-[11px] sm:text-xs text-gray-500 truncate">{data.owner.email}</p>
           </div>
 
           <StatusBadge status={data.status} />
@@ -133,28 +134,29 @@ export default function AdminVehicleReviewPage() {
       </header>
 
       {/* MAIN */}
-      <main className="max-w-7xl mx-auto px-6 py-12 grid lg:grid-cols-2 gap-12">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10 grid lg:grid-cols-2 gap-5 sm:gap-12">
 
         {/* IMAGE */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl overflow-hidden shadow-xl bg-white"
+          className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-md sm:shadow-xl bg-white border border-gray-100"
         >
           {data.imageUrl ? (
             <img
               src={data.imageUrl}
-              className="w-full h-[450px] object-cover"
+              alt="Vehicle"
+              className="w-full h-[220px] sm:h-[420px] object-cover"
             />
           ) : (
-            <div className="h-[450px] grid place-items-center text-gray-300">
-              <ImageIcon size={50} />
+            <div className="h-[220px] sm:h-[420px] grid place-items-center text-gray-300">
+              <ImageIcon size={40} className="sm:w-[50px] sm:h-[50px]" />
             </div>
           )}
         </motion.div>
 
         {/* DETAILS */}
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-8">
 
           <Card title="Vehicle Details" icon={<Truck size={18} />}>
             <Info label="Vehicle Type" value={data.type} />
@@ -173,24 +175,24 @@ export default function AdminVehicleReviewPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-white rounded-3xl p-8 shadow-lg border space-y-6"
+              className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-md sm:shadow-lg border border-gray-100 space-y-4 sm:space-y-6"
             >
-              <div className="flex items-center gap-2 font-semibold">
+              <div className="flex items-center gap-2 font-semibold text-sm sm:text-base">
                 <ShieldCheck size={18} />
                 Admin Decision
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-2.5 sm:gap-4">
                 <button
                   onClick={() => setShowApprove(true)}
-                  className="flex-1 py-3 rounded-xl bg-black text-white font-semibold"
+                  className="flex-1 py-2.5 sm:py-3 rounded-xl bg-black text-white font-semibold text-xs sm:text-sm hover:bg-neutral-800 transition active:scale-95"
                 >
                   Approve
                 </button>
 
                 <button
                   onClick={() => setShowReject(true)}
-                  className="flex-1 py-3 rounded-xl border font-semibold"
+                  className="flex-1 py-2.5 sm:py-3 rounded-xl border border-gray-200 font-semibold text-xs sm:text-sm hover:bg-gray-50 transition active:scale-95"
                 >
                   Reject
                 </button>
@@ -227,10 +229,10 @@ export default function AdminVehicleReviewPage() {
 function Card({ title, icon, children }: any) {
   return (
     <motion.div
-      whileHover={{ y: -3 }}
-      className="bg-white rounded-3xl p-8 shadow-lg border space-y-6"
+      whileHover={{ y: -2 }}
+      className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-md sm:shadow-lg border border-gray-100 space-y-4 sm:space-y-6"
     >
-      <div className="flex items-center gap-2 font-semibold">
+      <div className="flex items-center gap-2 font-semibold text-sm sm:text-base">
         {icon}
         {title}
       </div>
@@ -241,9 +243,9 @@ function Card({ title, icon, children }: any) {
 
 function Info({ label, value }: any) {
   return (
-    <div className="flex justify-between text-sm">
-      <span className="text-gray-500">{label}</span>
-      <span className="font-semibold">{value}</span>
+    <div className="flex justify-between items-center text-xs sm:text-sm gap-2">
+      <span className="text-gray-500 shrink-0">{label}</span>
+      <span className="font-semibold text-right truncate">{value}</span>
     </div>
   );
 }
@@ -251,22 +253,22 @@ function Info({ label, value }: any) {
 function StatusBadge({ status }: any) {
   if (status === "approved")
     return (
-      <span className="px-4 py-2 rounded-full text-xs font-semibold bg-green-100 text-green-700 flex items-center gap-2">
-        <CheckCircle size={14} />
+      <span className="px-2.5 py-1 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold bg-green-100 text-green-700 flex items-center gap-1.5 shrink-0">
+        <CheckCircle size={13} className="sm:w-3.5 sm:h-3.5" />
         Approved
       </span>
     );
 
   if (status === "rejected")
     return (
-      <span className="px-4 py-2 rounded-full text-xs font-semibold bg-red-100 text-red-700 flex items-center gap-2">
-        <XCircle size={14} />
+      <span className="px-2.5 py-1 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold bg-red-100 text-red-700 flex items-center gap-1.5 shrink-0">
+        <XCircle size={13} className="sm:w-3.5 sm:h-3.5" />
         Rejected
       </span>
     );
 
   return (
-    <span className="px-4 py-2 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+    <span className="px-2.5 py-1 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold bg-yellow-100 text-yellow-700 shrink-0">
       Pending
     </span>
   );

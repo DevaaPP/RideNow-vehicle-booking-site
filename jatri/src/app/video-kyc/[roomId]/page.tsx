@@ -295,47 +295,47 @@ const handleReject = async () => {
     <div className="min-h-screen bg-black text-white flex flex-col">
 
       {/* HEADER */}
-      <header className="px-6 py-4 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <header className="px-3.5 py-2.5 sm:px-6 sm:py-3.5 border-b border-white/10 flex items-center justify-between gap-2 shrink-0 z-20">
 
-        <div>
-          <p className="font-semibold tracking-wider">
+        <div className="min-w-0">
+          <p className="font-semibold tracking-wider text-sm sm:text-base truncate">
             RideNow
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-[10px] sm:text-xs text-gray-400 truncate">
             {isAdmin ? "Admin Verification" : "Vendor Video KYC"}
           </p>
         </div>
 
         {/* HEADER ACTIONS */}
         {joined && (
-          <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
 
             {isAdmin && (
               <>
                 <button
                   onClick={() => setShowApproveModal(true)}
-                  className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-full text-sm flex items-center gap-2"
+                  className="bg-green-600 hover:bg-green-700 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 active:scale-95 transition"
                 >
-                  <CheckCircle size={16} />
-                  Approve
+                  <CheckCircle size={14} className="sm:w-4 sm:h-4" />
+                  <span>Approve</span>
                 </button>
 
                 <button
                   onClick={() => setShowRejectModal(true)}
-                  className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-sm flex items-center gap-2"
+                  className="bg-red-600 hover:bg-red-700 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 active:scale-95 transition"
                 >
-                  <XCircle size={16} />
-                  Reject
+                  <XCircle size={14} className="sm:w-4 sm:h-4" />
+                  <span>Reject</span>
                 </button>
               </>
             )}
 
             <button
               onClick={handleEndCall}
-              className="bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full text-sm flex items-center gap-2"
+              className="bg-red-700 hover:bg-red-800 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 active:scale-95 transition"
             >
-              <PhoneOff size={16} />
-              End Call
+              <PhoneOff size={14} className="sm:w-4 sm:h-4" />
+              <span>End</span>
             </button>
 
           </div>
@@ -343,13 +343,13 @@ const handleReject = async () => {
       </header>
 
       {/* BODY */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-hidden flex flex-col">
 
         {joined && !remoteJoined && (
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
-            <div className="bg-black/80 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm px-5 py-2.5 rounded-full flex items-center gap-3 shadow-2xl">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-              <span>Waiting for {isAdmin ? "driver" : "admin"} to connect...</span>
+          <div className="absolute top-3 sm:top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none w-auto max-w-[90vw]">
+            <div className="bg-black/85 backdrop-blur-md border border-white/20 text-white text-[11px] sm:text-sm px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full flex items-center gap-2 sm:gap-3 shadow-2xl justify-center truncate">
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400 animate-ping shrink-0" />
+              <span className="truncate">Waiting for {isAdmin ? "driver" : "admin"} to connect...</span>
             </div>
           </div>
         )}
@@ -362,58 +362,66 @@ const handleReject = async () => {
         />
 
         {!joined && (
-          <div className="h-full flex items-center justify-center px-4 py-10">
-            <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="flex-1 flex items-center justify-center px-4 py-6 sm:py-10 overflow-y-auto">
+            <div className="w-full max-w-md lg:max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
 
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-white/5">
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-xl">
                 <video
                   ref={previewRef}
                   autoPlay
                   muted
                   playsInline
-                  className="w-full h-[300px] sm:h-[400px] object-cover"
+                  className="w-full h-[240px] sm:h-[380px] object-cover"
                 />
 
                 {!cameraOn && (
-                  <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    <VideoOff size={40} />
+                  <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center gap-2 text-gray-400">
+                    <VideoOff size={36} />
+                    <span className="text-xs">Camera is Off</span>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-8 text-center lg:text-left">
-                <h1 className="text-3xl sm:text-4xl font-bold">
-                  Secure Video KYC
-                </h1>
+              <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
+                <div>
+                  <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">
+                    Secure Video KYC
+                  </h1>
+                  <p className="text-xs sm:text-sm text-gray-400 mt-1.5 sm:mt-2">
+                    Check your camera and microphone before entering the verification room
+                  </p>
+                </div>
 
-                <div className="flex justify-center lg:justify-start gap-6">
+                <div className="flex justify-center lg:justify-start gap-4 sm:gap-6">
                   <button
                     onClick={toggleCamera}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center transition ${
+                    aria-label="Toggle camera"
+                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition active:scale-90 ${
                       cameraOn
-                        ? "bg-white text-black"
-                        : "bg-white/10 border border-white/20"
+                        ? "bg-white text-black shadow-md"
+                        : "bg-white/10 border border-white/20 text-white"
                     }`}
                   >
-                    {cameraOn ? <Video /> : <VideoOff />}
+                    {cameraOn ? <Video size={20} /> : <VideoOff size={20} />}
                   </button>
 
                   <button
                     onClick={toggleMic}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center transition ${
+                    aria-label="Toggle microphone"
+                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition active:scale-90 ${
                       micOn
-                        ? "bg-white text-black"
-                        : "bg-white/10 border border-white/20"
+                        ? "bg-white text-black shadow-md"
+                        : "bg-white/10 border border-white/20 text-white"
                     }`}
                   >
-                    {micOn ? <Mic /> : <MicOff />}
+                    {micOn ? <Mic size={20} /> : <MicOff size={20} />}
                   </button>
                 </div>
 
                 <button
                   onClick={startCall}
                   disabled={loading}
-                  className="w-full bg-white text-black py-4 rounded-xl font-semibold"
+                  className="w-full bg-white text-black hover:bg-gray-100 py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg transition active:scale-[0.98] disabled:opacity-50"
                 >
                   {loading ? (
                     <span className="flex justify-center items-center gap-2">

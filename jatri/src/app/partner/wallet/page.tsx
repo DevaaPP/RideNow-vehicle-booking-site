@@ -137,9 +137,9 @@ export default function PartnerWalletPage() {
       <div>
         <Nav />
 
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+        <main className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 sm:pb-16">
           {/* BREADCRUMB / TOP HEADER */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold text-zinc-500 mb-1">
                 <Link
@@ -151,7 +151,7 @@ export default function PartnerWalletPage() {
                 <span>/</span>
                 <span className="text-zinc-800">Wallet & Earnings</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight">
+              <h1 className="text-xl sm:text-3xl font-black text-zinc-900 tracking-tight">
                 Driver Wallet & Earnings
               </h1>
               <p className="text-xs sm:text-sm text-zinc-500 mt-0.5">
@@ -159,17 +159,17 @@ export default function PartnerWalletPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={() => fetchDriverWallet()}
-                className="px-3.5 py-2 rounded-xl bg-white border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition shadow-xs"
+                className="px-3.5 py-2 rounded-xl bg-white border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition shadow-xs active:scale-95 shrink-0"
               >
                 Refresh
               </button>
               <button
                 onClick={() => setShowWithdrawModal(true)}
                 disabled={availableEarnings < 100 || !bankDetails}
-                className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 disabled:opacity-40 text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5"
+                className="flex-1 sm:flex-initial justify-center px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 disabled:opacity-40 text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5 active:scale-95"
               >
                 <ArrowUpRight size={14} /> Withdraw Earnings
               </button>
@@ -363,7 +363,7 @@ export default function PartnerWalletPage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-1.5 p-1 bg-zinc-100 rounded-xl self-start sm:self-center">
+              <div className="flex items-center gap-1.5 p-1 bg-zinc-100 rounded-xl overflow-x-auto max-w-full scrollbar-none shrink-0">
                 {(
                   [
                     { id: "all", label: "All" },
@@ -375,7 +375,7 @@ export default function PartnerWalletPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveFilter(tab.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap shrink-0 ${
                       activeFilter === tab.id
                         ? "bg-white text-zinc-900 shadow-xs"
                         : "text-zinc-600 hover:text-zinc-900"

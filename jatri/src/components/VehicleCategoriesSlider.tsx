@@ -37,7 +37,7 @@ export default function VehicleCategoriesSlider() {
   };
 
   return (
-    <section ref={sectionRef} className="w-full bg-white py-20 px-4 overflow-hidden">
+    <section ref={sectionRef} className="w-full bg-white py-10 sm:py-20 px-3 sm:px-4 overflow-hidden">
       <div className="max-w-7xl mx-auto">
 
         {/* ── HEADER ── */}
@@ -45,15 +45,15 @@ export default function VehicleCategoriesSlider() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-end justify-between mb-10"
+          className="flex items-end justify-between mb-6 sm:mb-10"
         >
           <div>
             {/* Eyebrow */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-2 sm:mb-3">
               <div className="h-px w-8 bg-zinc-900" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Fleet</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-900 leading-none">
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-zinc-900 leading-none">
               Vehicle<br />
               <span className="relative inline-block">
                 Categories
@@ -66,7 +66,7 @@ export default function VehicleCategoriesSlider() {
                 />
               </span>
             </h2>
-            <p className="text-zinc-400 text-sm mt-3 font-medium">Choose the ride that fits your journey</p>
+            <p className="text-zinc-400 text-xs sm:text-sm mt-2 sm:mt-3 font-medium">Choose the ride that fits your journey</p>
           </div>
 
           {/* Nav buttons */}
@@ -98,7 +98,7 @@ export default function VehicleCategoriesSlider() {
             {canLeft && (
               <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"
+                className="absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"
               />
             )}
           </AnimatePresence>
@@ -108,7 +108,7 @@ export default function VehicleCategoriesSlider() {
             {canRight && (
               <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"
+                className="absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"
               />
             )}
           </AnimatePresence>
@@ -116,7 +116,7 @@ export default function VehicleCategoriesSlider() {
           <div
             ref={sliderRef}
             onScroll={onScroll}
-            className="flex gap-5 pt-20 overflow-x-auto scroll-smooth pb-4 px-1"
+            className="flex gap-3.5 sm:gap-5 pt-2 sm:pt-4 overflow-x-auto scroll-smooth pb-4 px-1"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {VEHICLE_CATEGORIES.map((item, i) => {
@@ -130,8 +130,8 @@ export default function VehicleCategoriesSlider() {
                   transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   onHoverStart={() => setHovered(i)}
                   onHoverEnd={() => setHovered(null)}
-                  whileHover={{ y: -8 }}
-                  className="group relative min-w-[220px] sm:min-w-[260px] flex-shrink-0 cursor-pointer select-none"
+                  whileHover={{ y: -6 }}
+                  className="group relative min-w-[200px] sm:min-w-[260px] flex-shrink-0 cursor-pointer select-none"
                   
                 >
                   {/* Card */}
@@ -140,11 +140,11 @@ export default function VehicleCategoriesSlider() {
                       backgroundColor: isHovered ? "#09090b" : "#ffffff",
                       borderColor: isHovered ? "#09090b" : "#e4e4e7",
                       boxShadow: isHovered
-                        ? "0 24px 56px rgba(0,0,0,0.2)"
-                        : "0 2px 16px rgba(0,0,0,0.06)",
+                        ? "0 20px 48px rgba(0,0,0,0.18)"
+                        : "0 2px 14px rgba(0,0,0,0.05)",
                     }}
                     transition={{ duration: 0.25 }}
-                    className="relative rounded-3xl border p-6 sm:p-7 overflow-hidden h-full"
+                    className="relative rounded-2xl sm:rounded-3xl border p-5 sm:p-7 overflow-hidden h-full"
                   >
 
                     {/* BG dot pattern on hover */}
@@ -225,17 +225,17 @@ export default function VehicleCategoriesSlider() {
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 0.7 }}
-          className="flex items-center gap-6 mt-8 pt-6 border-t border-zinc-100"
+          className="flex flex-wrap items-center justify-between sm:justify-start gap-3 sm:gap-6 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-zinc-100"
         >
           {[
             { num: "6+",   label: "Categories"   },
             { num: "50+",  label: "Vehicle types" },
             { num: "24/7", label: "Availability"  },
           ].map((s, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <p className="text-zinc-900 text-lg font-black tracking-tight">{s.num}</p>
-              <p className="text-zinc-400 text-xs font-medium">{s.label}</p>
-              {i < 2 && <div className="w-px h-5 bg-zinc-200 ml-3" />}
+            <div key={i} className="flex items-center gap-2 sm:gap-3">
+              <p className="text-zinc-900 text-base sm:text-lg font-black tracking-tight">{s.num}</p>
+              <p className="text-zinc-400 text-[11px] sm:text-xs font-medium">{s.label}</p>
+              {i < 2 && <div className="hidden sm:block w-px h-5 bg-zinc-200 ml-3" />}
             </div>
           ))}
         </motion.div>

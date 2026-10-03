@@ -610,7 +610,7 @@ export default function CheckoutContent() {
   const vehicleLabel = vehicle.charAt(0).toUpperCase() + vehicle.slice(1);
 
   return (
-    <div className="min-h-screen bg-zinc-100 px-4 py-12">
+    <div className="min-h-screen bg-zinc-100 px-3 sm:px-4 py-6 sm:py-12">
 
       {/* subtle dot grid */}
       <div className="fixed inset-0 pointer-events-none"
@@ -624,29 +624,29 @@ export default function CheckoutContent() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          className="mb-6 sm:mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
         >
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
               <div className="h-px w-8 bg-zinc-900" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Booking</span>
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-zinc-900">Checkout</h1>
-            <p className="text-zinc-400 text-sm mt-1.5 font-medium">Review your ride and confirm</p>
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-zinc-900">Checkout</h1>
+            <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-medium">Review your ride and confirm</p>
           </div>
 
           <Link
             href="/book"
-            className="self-start sm:self-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition shadow-xs"
+            className="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition shadow-xs active:scale-95"
           >
-            <ArrowLeft size={15} />
+            <ArrowLeft size={14} className="sm:w-[15px] sm:h-[15px]" />
             <span>Edit Ride Details</span>
           </Link>
         </motion.div>
 
         {/* Missing locations warning banner */}
         {!pickupLat && !dropLat && (
-          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between shadow-sm">
+          <div className="mb-5 sm:mb-6 p-3.5 sm:p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between shadow-sm gap-2">
             <div className="flex items-center gap-2.5">
               <AlertCircle size={18} className="text-amber-700 flex-shrink-0" />
               <div>
@@ -656,7 +656,7 @@ export default function CheckoutContent() {
             </div>
             <Link
               href="/book"
-              className="px-4 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-xl transition shadow"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-xl transition shadow shrink-0"
             >
               Go to Booking
             </Link>
@@ -664,22 +664,22 @@ export default function CheckoutContent() {
         )}
 
         {/* ── GRID ── */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
 
           {/* ══ LEFT — RIDE DETAILS ══ */}
           <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs">
             {/* Top bar */}
             <div className="h-1 bg-zinc-900" />
 
-            <div className="p-6 sm:p-8">
+            <div className="p-4 sm:p-8">
               {/* Vehicle row */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-1">Selected Vehicle</p>
-                  <h2 className="text-2xl font-black tracking-tight text-zinc-900">{vehicleLabel}</h2>
+                  <h2 className="text-xl sm:text-2xl font-black tracking-tight text-zinc-900">{vehicleLabel}</h2>
                 </div>
-                <div className="w-14 h-14 bg-zinc-900 rounded-xl flex items-center justify-center">
-                  <VehicleIcon size={24} className="text-white" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-zinc-900 rounded-xl flex items-center justify-center shadow-sm">
+                  <VehicleIcon size={22} className="sm:w-6 sm:h-6 text-white" />
                 </div>
               </div>
 
@@ -829,14 +829,14 @@ export default function CheckoutContent() {
                   transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
                   className="flex items-baseline gap-1"
                 >
-                  <span className="text-zinc-400 text-lg font-black">₹</span>
-                  <span className="text-zinc-900 text-5xl font-black tracking-tight leading-none">{effectiveFare}</span>
+                  <span className="text-zinc-400 text-base sm:text-lg font-black">₹</span>
+                  <span className="text-zinc-900 text-3xl sm:text-5xl font-black tracking-tight leading-none">{effectiveFare}</span>
                 </motion.div>
               </div>
 
               {/* 💰 ITEMIZED FARE BREAKDOWN RECEIPT CARD */}
               {computedBreakdown && (
-                <div className="mt-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
+                <div className="mt-4 p-3.5 sm:p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
                   {(() => {
                     const breakdown = computedBreakdown;
                     return (
@@ -906,7 +906,7 @@ export default function CheckoutContent() {
           <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs flex flex-col">
             <div className="h-1 bg-zinc-900" />
 
-            <div className="flex-1 p-6 sm:p-8 flex flex-col">
+            <div className="flex-1 p-4 sm:p-8 flex flex-col">
               <AnimatePresence mode="wait">
 
                 {/* ── IDLE ── */}

@@ -191,19 +191,19 @@ export default function WalletPage() {
         }}
       />
 
-      <main className="relative flex-1 max-w-5xl w-full mx-auto px-4 py-8 sm:py-12 z-10">
+      <main className="relative flex-1 max-w-5xl w-full mx-auto px-3.5 sm:px-6 py-6 sm:py-12 z-10">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
               <div className="h-px w-6 bg-zinc-900" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
                 Payment & Credits
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-zinc-900 tracking-tight flex items-center gap-3">
+            <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 tracking-tight flex items-center gap-2 sm:gap-3 flex-wrap">
               RideNow Cash
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+              <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
                 <Sparkles size={11} /> 1-Tap Checkout
               </span>
             </h1>
@@ -214,7 +214,7 @@ export default function WalletPage() {
 
           <button
             onClick={() => setShowTopupModal(true)}
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-zinc-900 hover:bg-black text-white text-xs sm:text-sm font-black transition-all shadow-md active:scale-95"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-zinc-900 hover:bg-black text-white text-xs sm:text-sm font-black transition-all shadow-md active:scale-95"
           >
             <Plus size={16} /> Add Money
           </button>
@@ -227,11 +227,11 @@ export default function WalletPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mb-6 p-4 rounded-2xl bg-emerald-500 text-white flex items-center justify-between shadow-lg"
+              className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500 text-white flex items-center justify-between shadow-lg"
             >
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 size={18} />
-                <span className="text-sm font-bold">{topupSuccessMsg}</span>
+                <span className="text-xs sm:text-sm font-bold">{topupSuccessMsg}</span>
               </div>
               <button
                 onClick={() => setTopupSuccessMsg(null)}
@@ -244,9 +244,9 @@ export default function WalletPage() {
         </AnimatePresence>
 
         {/* HERO WALLET CARD & QUICK STATS */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Main Card */}
-          <div className="md:col-span-2 relative overflow-hidden rounded-3xl bg-linear-to-br from-zinc-900 via-zinc-950 to-black text-white p-7 sm:p-9 shadow-2xl border border-zinc-800 flex flex-col justify-between min-h-[220px]">
+          <div className="md:col-span-2 relative overflow-hidden rounded-2xl sm:rounded-3xl bg-linear-to-br from-zinc-900 via-zinc-950 to-black text-white p-5 sm:p-9 shadow-xl sm:shadow-2xl border border-zinc-800 flex flex-col justify-between min-h-[190px] sm:min-h-[220px]">
             {/* Background design elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
@@ -257,20 +257,20 @@ export default function WalletPage() {
                   Available Balance
                 </p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                  <span className="text-3xl sm:text-5xl font-black text-white tracking-tight">
                     ₹{balance.toLocaleString("en-IN")}
                   </span>
                   <span className="text-xs font-bold text-zinc-400">INR</span>
                 </div>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-amber-400">
-                <Wallet size={24} />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-amber-400">
+                <Wallet size={20} className="sm:w-6 sm:h-6" />
               </div>
             </div>
 
-            <div className="relative z-10 pt-6 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-400">
+            <div className="relative z-10 pt-4 sm:pt-6 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-zinc-400">
               <div className="flex items-center gap-1.5 font-medium">
-                <ShieldCheck size={14} className="text-emerald-400" />
+                <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
                 <span>Protected by RBI compliant 256-bit encryption</span>
               </div>
               <button

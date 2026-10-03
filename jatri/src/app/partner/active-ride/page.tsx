@@ -1201,17 +1201,17 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
           </div>
 
           {isActive && (
-            <div className="flex gap-2 mt-2 flex-wrap">
+            <div className="grid grid-cols-2 sm:flex gap-2 mt-2">
               <button
                 onClick={onCallClick}
-                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 active:scale-[0.97] transition-all text-white py-3 rounded-xl text-sm font-semibold shadow-sm"
+                className="flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 active:scale-[0.97] transition-all text-white py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold shadow-sm"
               >
                 <Phone size={15} /> In-App Call
               </button>
               {booking.userMobileNumber && (
                 <a
                   href={`tel:${booking.userMobileNumber}`}
-                  className="flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 active:scale-[0.97] transition-all px-3.5 py-3 rounded-xl text-xs font-bold shadow-sm"
+                  className="flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 active:scale-[0.97] transition-all py-3 px-3 rounded-xl text-xs font-bold shadow-sm"
                   title="Direct Cellular Phone Call"
                 >
                   <PhoneCall size={14} /> Phone
@@ -1219,7 +1219,7 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
               )}
               {canChat && (
                 <button onClick={onChatToggle}
-                  className={`flex-1 flex items-center justify-center gap-2 active:scale-[0.97] transition-all py-3 rounded-xl text-sm font-semibold ${chatOpen ? "bg-zinc-200 text-zinc-900" : "bg-zinc-900 hover:bg-zinc-800 text-white"}`}
+                  className={`col-span-2 sm:flex-1 flex items-center justify-center gap-2 active:scale-[0.97] transition-all py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold ${chatOpen ? "bg-zinc-200 text-zinc-900" : "bg-zinc-900 hover:bg-zinc-800 text-white"}`}
                 >
                   <MessageCircle size={15} />
                   {chatOpen ? "Close Chat" : "Message"}
