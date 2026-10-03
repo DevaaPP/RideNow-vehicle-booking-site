@@ -9,6 +9,7 @@ import axios from "axios";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { haversineDistance } from "@/lib/routeUtils";
 import { sendPushToUser } from "@/lib/webPush";
+import { findEligibleCandidates } from "@/lib/driverMatchingEngine";
 
 export async function POST(req: Request) {
   try {
@@ -121,93 +122,33 @@ export async function POST(req: Request) {
       }
     }
 
-    // 1️⃣ Find all registered vehicles of this type
+    // 1️⃣ Find eligible candidate drivers using DriverMatchingEngine
     const vehicleKey = String(vehicle).toLowerCase();
-    let activeVehicles = await Vehicle.find({
-      type: vehicleKey,
-    }).lean();
+    const matchResult = await findEligibleCandidates({
+      pickupLng: pLng,
+      pickupLat: pLat,
+      vehicleType: vehicleKey,
+      maxRadiusKm: 10,
+      maxCandidates: 5,
+    });
 
     let nearestVendor: any = null;
     let nearestVehicle: any = null;
     let sortedCandidates: any[] = [];
 
-    if (activeVehicles.length > 0) {
-      const vehicleOwnerIds = activeVehicles.map((v) => v.owner.toString());
-
-      // Try 1: Query online vendors who own these vehicles within 10km limit
-      let vendors: any[] = [];
-      try {
-        vendors = await User.find({
-          _id: { $in: vehicleOwnerIds },
-          role: "vendor",
-          isOnline: true,
-          location: {
-            $near: {
-              $geometry: {
-                type: "Point",
-                coordinates: [pLng, pLat],
-              },
-              $maxDistance: 10000, // strictly 10km
-            },
-          },
-        }).lean();
-      } catch (geoError) {
-        try {
-          vendors = await User.find({
-            _id: { $in: vehicleOwnerIds },
-            role: "vendor",
-            isOnline: true,
-            location: {
-              $geoWithin: {
-                $centerSphere: [
-                  [pLng, pLat],
-                  10 / 6378.1, // strictly 10km in radians
-                ],
-              },
-            },
-          }).lean();
-        } catch {
-          vendors = [];
-        }
-      }
-
-      // Try 2: If none found via spatial index, search any online vendors owning this vehicle
-      if (!vendors.length) {
-        vendors = await User.find({
-          _id: { $in: vehicleOwnerIds },
-          role: "vendor",
-          isOnline: true,
-        }).lean();
-      }
-
-      // Try 3: If still none online, search any registered vendors who own this vehicle
-      if (!vendors.length) {
-        vendors = await User.find({
-          _id: { $in: vehicleOwnerIds },
-          role: "vendor",
-        }).lean();
-      }
-
-      if (vendors.length > 0) {
-        sortedCandidates = vendors
-          .map((v) => {
-            const coords: [number, number] = v.location?.coordinates || [pLng, pLat];
-            const distance = haversineDistance([pLng, pLat], coords);
-            return { ...v, distance };
-          })
-          .filter((v) => v.distance <= 10) // Strictly limit candidate drivers within 10km range
-          .sort((a, b) => a.distance - b.distance);
-
-        if (sortedCandidates.length > 0) {
-          nearestVendor = sortedCandidates[0];
-          nearestVehicle = activeVehicles.find(
-            (v) => v.owner.toString() === nearestVendor._id.toString()
-          );
-        }
-      }
+    if (matchResult.success && matchResult.candidates.length > 0) {
+      const topMatch = matchResult.candidates[0];
+      nearestVendor = await User.findById(topMatch.driverId).lean();
+      nearestVehicle = await Vehicle.findById(topMatch.vehicleId).lean();
+      sortedCandidates = matchResult.candidates.map((c) => ({
+        _id: c.driverId,
+        name: c.driverName,
+        mobileNumber: c.driverMobile,
+        distance: c.distanceKm,
+      }));
     }
 
-    // Try 4: If no vendor or vehicle found in DB (e.g. testing in a fresh/unseeded database or remote demo)
+    // Fallback in unseeded development environments or demo mode
     if (!nearestVendor || !nearestVehicle) {
       let platformVendor = await User.findOne({ email: "fleet.driver@ridenow.com" });
       if (!platformVendor) {

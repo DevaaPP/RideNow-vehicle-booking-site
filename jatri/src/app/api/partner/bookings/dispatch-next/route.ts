@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
-import Booking from "@/models/booking.model";
-import User from "@/models/user.model";
-import axios from "axios";
+import { escalateToNextCandidate } from "@/lib/driverMatchingEngine";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,70 +11,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Booking ID is required" }, { status: 400 });
     }
 
-    const booking = await Booking.findById(bookingId);
-    if (!booking || booking.status !== "requested") {
-      return NextResponse.json({ message: "Booking not eligible for escalation" }, { status: 400 });
-    }
+    const result = await escalateToNextCandidate(bookingId, "timeout");
 
-    const nextIndex = booking.currentDriverIndex + 1;
-    if (nextIndex < booking.candidateDrivers.length) {
-      const nextDriverId = booking.candidateDrivers[nextIndex];
-      const nextDriver = await User.findById(nextDriverId);
-
-      booking.currentDriverIndex = nextIndex;
-      if (nextDriver) {
-        booking.driver = nextDriver._id;
-        booking.driverMobileNumber = nextDriver.mobileNumber || "";
-      }
-      await booking.save();
-
-      // Emit new dispatch request to the next candidate driver
-      try {
-        const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
-        if (socketServer && nextDriver) {
-          await axios.post(`${socketServer}/emit`, {
-            userId: nextDriver._id.toString(),
-            event: "new-booking",
-            data: booking,
-          });
-        }
-      } catch (err) {
-        console.error("Socket emission error during auto-dispatch escalation:", err);
-      }
-
-      return NextResponse.json({ success: true, escalated: true, currentDriverIndex: nextIndex });
-    } else {
-      // All candidate drivers exhausted in this round
-      const createdAtMs = booking.createdAt ? new Date(booking.createdAt).getTime() : Date.now();
-      const elapsedSeconds = (Date.now() - createdAtMs) / 1000;
-
-      // If under 90s, keep booking active and retry rather than immediately expiring
-      if (elapsedSeconds < 90) {
-        booking.currentDriverIndex = 0;
-        await booking.save();
-        return NextResponse.json({ success: true, escalated: false, retrying: true });
-      }
-
-      booking.status = "expired";
-      await booking.save();
-
-      try {
-        const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
-        if (socketServer && booking.user) {
-          await axios.post(`${socketServer}/emit`, {
-            userId: booking.user.toString(),
-            event: "booking-updated",
-            data: { bookingId: booking._id.toString(), status: "expired" },
-          });
-        }
-      } catch (err) {
-        console.error("Socket emission error during expiry:", err);
-      }
-
-      return NextResponse.json({ success: true, escalated: false, status: "expired" });
-    }
-  } catch (err) {
+    return NextResponse.json({
+      success: result.success,
+      status: result.status,
+      currentDriverIndex: result.currentDriverIndex,
+      message: result.message,
+    });
+  } catch (err: any) {
     console.error("Dispatch escalation error:", err);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ message: err?.message || "Internal Server Error" }, { status: 500 });
   }
 }
