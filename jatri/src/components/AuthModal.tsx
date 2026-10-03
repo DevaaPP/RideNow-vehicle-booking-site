@@ -50,6 +50,7 @@ export default function AuthModal({ open, onClose }: Props) {
   // Phone auth state
   const [mobileNumber, setMobileNumber] = useState("");
   const [phoneOtp, setPhoneOtp] = useState(["", "", "", "", "", ""]);
+  const [selectedChannel, setSelectedChannel] = useState<"whatsapp" | "sms">("whatsapp");
   const [sendingPhoneOtp, setSendingPhoneOtp] = useState(false);
   const [verifyingPhoneOtp, setVerifyingPhoneOtp] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
@@ -115,8 +116,8 @@ export default function AuthModal({ open, onClose }: Props) {
     }
   };
 
-  /* 📲 1. SEND WHATSAPP OTP */
-  const handleSendPhoneOtp = async (e?: React.FormEvent) => {
+  /* 📲 1. SEND WHATSAPP OR SMS OTP */
+  const handleSendPhoneOtp = async (e?: React.FormEvent, channelChoice: "whatsapp" | "sms" = "whatsapp") => {
     if (e) e.preventDefault();
 
     const cleaned = mobileNumber.replace(/\D/g, "");
@@ -130,9 +131,11 @@ export default function AuthModal({ open, onClose }: Props) {
     try {
       setSendingPhoneOtp(true);
       setErrorMessage(null);
+      setSelectedChannel(channelChoice);
 
       const res = await axios.post("/api/auth/phone/send-otp", {
         mobileNumber: tenDigits,
+        channel: channelChoice,
       });
 
       if (res.data.success) {
@@ -142,7 +145,7 @@ export default function AuthModal({ open, onClose }: Props) {
         setStep("phone_otp");
         setResendCountdown(30);
       } else {
-        setErrorMessage(res.data.error || "Failed to send WhatsApp OTP");
+        setErrorMessage(res.data.error || `Failed to send ${channelChoice === "sms" ? "SMS" : "WhatsApp"} OTP`);
       }
     } catch (err: any) {
       console.error("Failed to send OTP:", err);
@@ -390,24 +393,46 @@ export default function AuthModal({ open, onClose }: Props) {
                         />
                       </div>
 
-                      {/* WhatsApp OTP Button */}
-                      <button
-                        type="submit"
-                        disabled={sendingPhoneOtp || mobileNumber.replace(/\D/g, "").length !== 10}
-                        className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center gap-2.5 transition active:scale-98"
-                      >
-                        {sendingPhoneOtp ? (
-                          <>
-                            <Loader2 size={16} className="animate-spin" />
-                            <span>Sending code…</span>
-                          </>
-                        ) : (
-                          <>
-                            <WhatsAppIcon className="w-4 h-4" />
-                            <span>Send code via WhatsApp</span>
-                          </>
-                        )}
-                      </button>
+                      {/* OTP Channel Buttons: WhatsApp & SMS */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => handleSendPhoneOtp(e, "whatsapp")}
+                          disabled={sendingPhoneOtp || mobileNumber.replace(/\D/g, "").length !== 10}
+                          className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-98"
+                        >
+                          {sendingPhoneOtp && selectedChannel === "whatsapp" ? (
+                            <>
+                              <Loader2 size={15} className="animate-spin" />
+                              <span>Sending…</span>
+                            </>
+                          ) : (
+                            <>
+                              <WhatsAppIcon className="w-4 h-4" />
+                              <span>WhatsApp</span>
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleSendPhoneOtp(e, "sms")}
+                          disabled={sendingPhoneOtp || mobileNumber.replace(/\D/g, "").length !== 10}
+                          className="h-11 rounded-xl bg-zinc-900 hover:bg-zinc-800 disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-98"
+                        >
+                          {sendingPhoneOtp && selectedChannel === "sms" ? (
+                            <>
+                              <Loader2 size={15} className="animate-spin" />
+                              <span>Sending…</span>
+                            </>
+                          ) : (
+                            <>
+                              <Phone size={15} />
+                              <span>SMS OTP</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </form>
 
                     {/* DIVIDER */}
@@ -460,15 +485,19 @@ export default function AuthModal({ open, onClose }: Props) {
                       >
                         <ArrowLeft size={14} /> Change Number
                       </button>
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                        WhatsApp OTP Sent
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        selectedChannel === "whatsapp"
+                          ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+                          : "text-zinc-800 bg-zinc-100 border-zinc-200"
+                      }`}>
+                        {selectedChannel === "whatsapp" ? "WhatsApp OTP Sent" : "SMS OTP Sent"}
                       </span>
                     </div>
 
                     <div>
                       <h2 className="text-lg font-black text-zinc-900">Verify your Number</h2>
                       <p className="text-xs text-zinc-500 font-medium mt-0.5">
-                        Enter the 6-digit code sent to{" "}
+                        Enter the 6-digit code sent via {selectedChannel === "whatsapp" ? "WhatsApp" : "SMS"} to{" "}
                         <strong className="text-zinc-900">+91 {mobileNumber}</strong>
                       </p>
                     </div>
@@ -527,21 +556,32 @@ export default function AuthModal({ open, onClose }: Props) {
                       )}
                     </button>
 
-                    {/* Resend via WhatsApp */}
-                    <div className="text-center pt-2">
+                    {/* Resend via WhatsApp or SMS */}
+                    <div className="text-center pt-2 space-y-1.5">
                       {resendCountdown > 0 ? (
                         <p className="text-xs text-zinc-400 font-medium">
-                          Resend code on WhatsApp in <strong className="text-zinc-700">{resendCountdown}s</strong>
+                          Resend code in <strong className="text-zinc-700">{resendCountdown}s</strong>
                         </p>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleSendPhoneOtp()}
-                          className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center justify-center gap-1 mx-auto"
-                        >
-                          <WhatsAppIcon className="w-3.5 h-3.5" />
-                          <span>Resend OTP on WhatsApp</span>
-                        </button>
+                        <div className="flex items-center justify-center gap-3 text-xs font-bold">
+                          <button
+                            type="button"
+                            onClick={() => handleSendPhoneOtp(undefined, "whatsapp")}
+                            className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                          >
+                            <WhatsAppIcon className="w-3.5 h-3.5" />
+                            <span>Resend on WhatsApp</span>
+                          </button>
+                          <span className="text-zinc-300">•</span>
+                          <button
+                            type="button"
+                            onClick={() => handleSendPhoneOtp(undefined, "sms")}
+                            className="text-zinc-700 hover:text-zinc-900 flex items-center gap-1"
+                          >
+                            <Phone size={13} />
+                            <span>Resend via SMS</span>
+                          </button>
+                        </div>
                       )}
                     </div>
                   </motion.div>

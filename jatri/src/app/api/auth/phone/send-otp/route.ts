@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
-import { sendWhatsAppOtp } from "@/lib/whatsapp";
+import { otpService, OTPChannel } from "@/lib/otpService";
 
 export async function POST(req: NextRequest) {
   try {
     await connectDb();
 
-    const { mobileNumber } = await req.json();
+    const { mobileNumber, channel = "whatsapp" } = await req.json();
 
     if (!mobileNumber) {
       return NextResponse.json(
@@ -25,6 +25,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const selectedChannel: OTPChannel = channel === "sms" ? "sms" : "whatsapp";
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -51,23 +53,26 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Send OTP via WhatsApp
-    const sendResult = await sendWhatsAppOtp(tenDigits, otp);
+    // Dispatch OTP via OTPService (WhatsApp or SMS)
+    const sendResult = await otpService.dispatch(tenDigits, otp, selectedChannel);
 
     const devOtp =
       sendResult.devOtp ||
       (process.env.NODE_ENV !== "production" ? otp : undefined);
 
+    const channelName = selectedChannel === "sms" ? "SMS" : "WhatsApp";
+
     return NextResponse.json({
       success: true,
-      message: `Verification OTP sent via WhatsApp to +91 ${tenDigits}`,
+      channel: selectedChannel,
+      message: `Verification OTP sent via ${channelName} to +91 ${tenDigits}`,
       devOtp, // available for testing
-      info: sendResult.error ? `WhatsApp API note: ${sendResult.error}` : undefined,
+      info: sendResult.error ? `${channelName} API note: ${sendResult.error}` : undefined,
     });
   } catch (error: any) {
     console.error("POST /api/auth/phone/send-otp error:", error);
     return NextResponse.json(
-      { error: error?.message || "Failed to send WhatsApp OTP" },
+      { error: error?.message || "Failed to send OTP verification code" },
       { status: 500 }
     );
   }
