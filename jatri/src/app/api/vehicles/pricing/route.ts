@@ -1,36 +1,37 @@
 import { NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import FareConfig from "@/models/fareConfig.model";
-
-const DEFAULT_RATES = [
-  { vehicleType: "bike",    baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0, minDistance: 0, maxDistance: 15 },
-  { vehicleType: "auto",    baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2, minDistance: 0, maxDistance: 30 },
-  { vehicleType: "car",     baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5, minDistance: 0, maxDistance: 100 },
-  { vehicleType: "loading", baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8, minDistance: 0, maxDistance: 150 },
-  { vehicleType: "truck",   baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2, minDistance: 0, maxDistance: 500 },
-];
+import { DEFAULT_VEHICLE_RATES } from "@/lib/fareEngine";
 
 export async function GET() {
   try {
-
     await connectDb();
 
     let configs = await FareConfig.find({});
     
     // Auto-seed fallback if empty
     if (!configs.length) {
-      await FareConfig.insertMany(DEFAULT_RATES);
+      const seedData = Object.entries(DEFAULT_VEHICLE_RATES).map(([vehicleType, rate]) => ({
+        vehicleType,
+        ...rate,
+      }));
+      await FareConfig.insertMany(seedData);
       configs = await FareConfig.find({});
     }
 
-    // Convert into a structured key-value map for quick frontend lookup
-    const ratesMap: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number; minDistance: number; maxDistance: number }> = {};
+    // Convert into a structured key-value map for frontend lookup
+    const ratesMap: Record<string, any> = {};
     configs.forEach((c) => {
       ratesMap[c.vehicleType.toLowerCase()] = {
         baseFare: c.baseFare,
         pricePerKm: c.pricePerKm,
-        pricePerMinute: c.pricePerMinute,
-        multiplier: c.multiplier,
+        pricePerMinute: c.pricePerMinute || 0,
+        waitingChargePerMinute: c.waitingChargePerMinute || 2.5,
+        freeWaitingMinutes: c.freeWaitingMinutes || 3,
+        platformFee: c.platformFee || 15,
+        taxRate: c.taxRate || 0.05,
+        cancellationFee: c.cancellationFee || 50,
+        multiplier: c.multiplier || 1.0,
         minDistance: c.minDistance !== undefined ? c.minDistance : 0,
         maxDistance: c.maxDistance !== undefined ? c.maxDistance : 9999,
       };

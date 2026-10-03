@@ -2,14 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import FareConfig from "@/models/fareConfig.model";
-
-const DEFAULT_RATES = [
-  { vehicleType: "bike",    baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0, minDistance: 0, maxDistance: 15 },
-  { vehicleType: "auto",    baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2, minDistance: 0, maxDistance: 30 },
-  { vehicleType: "car",     baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5, minDistance: 0, maxDistance: 100 },
-  { vehicleType: "loading", baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8, minDistance: 0, maxDistance: 150 },
-  { vehicleType: "truck",   baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2, minDistance: 0, maxDistance: 500 },
-];
+import { DEFAULT_VEHICLE_RATES } from "@/lib/fareEngine";
 
 export async function GET() {
   try {
@@ -24,7 +17,11 @@ export async function GET() {
     
     // Auto-seed if empty
     if (!configs.length) {
-      await FareConfig.insertMany(DEFAULT_RATES);
+      const seedData = Object.entries(DEFAULT_VEHICLE_RATES).map(([vehicleType, rate]) => ({
+        vehicleType,
+        ...rate,
+      }));
+      await FareConfig.insertMany(seedData);
       configs = await FareConfig.find({});
     }
 
@@ -45,18 +42,23 @@ export async function POST(req: Request) {
     await connectDb();
 
     const body = await req.json();
-    const { vehicleType, baseFare, pricePerKm, pricePerMinute, multiplier, minDistance, maxDistance } = body;
+    const {
+      vehicleType,
+      baseFare,
+      pricePerKm,
+      pricePerMinute = 0,
+      waitingChargePerMinute = 2.5,
+      freeWaitingMinutes = 3,
+      platformFee = 15,
+      taxRate = 0.05,
+      cancellationFee = 50,
+      multiplier = 1.0,
+      minDistance = 0,
+      maxDistance = 9999,
+    } = body;
 
-    if (
-      !vehicleType ||
-      baseFare === undefined ||
-      pricePerKm === undefined ||
-      pricePerMinute === undefined ||
-      multiplier === undefined ||
-      minDistance === undefined ||
-      maxDistance === undefined
-    ) {
-      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+    if (!vehicleType || baseFare === undefined || pricePerKm === undefined) {
+      return NextResponse.json({ message: "Missing required fields (vehicleType, baseFare, pricePerKm)" }, { status: 400 });
     }
 
     const config = await FareConfig.findOneAndUpdate(
@@ -65,6 +67,11 @@ export async function POST(req: Request) {
         baseFare: Number(baseFare),
         pricePerKm: Number(pricePerKm),
         pricePerMinute: Number(pricePerMinute),
+        waitingChargePerMinute: Number(waitingChargePerMinute),
+        freeWaitingMinutes: Number(freeWaitingMinutes),
+        platformFee: Number(platformFee),
+        taxRate: Number(taxRate),
+        cancellationFee: Number(cancellationFee),
         multiplier: Number(multiplier),
         minDistance: Number(minDistance),
         maxDistance: Number(maxDistance),
