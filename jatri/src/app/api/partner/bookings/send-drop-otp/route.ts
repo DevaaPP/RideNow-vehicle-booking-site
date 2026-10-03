@@ -23,40 +23,52 @@ export async function POST(req: Request) {
       );
     }
 
-    /* Generate OTP */
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    /* Generate or reuse valid OTP */
+    const otp =
+      booking.dropOtp &&
+      booking.dropOtpExpires &&
+      new Date(booking.dropOtpExpires) > new Date()
+        ? booking.dropOtp
+        : Math.floor(1000 + Math.random() * 9000).toString();
 
     booking.dropOtp = otp;
-    booking.dropOtpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    booking.dropOtpExpires = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
 
     await booking.save();
 
-    /* Send Mail */
-
+    /* Send Mail safely (do not crash if email service fails) */
     if (booking.user?.email) {
+      try {
+        await sendMail(
+          booking.user.email,
+          "Your Drop OTP - RideNow",
+          `
+          <div style="font-family:sans-serif;padding:20px">
+            <h2>Trip Drop-off OTP</h2>
+            <p>Your driver has reached the destination.</p>
+            <p>Your 4-digit Drop OTP is:</p>
+            <h1 style="letter-spacing:6px;font-size:32px;color:#18181b;">${otp}</h1>
+            <p>This OTP is valid for 60 minutes.</p>
+            <p>Share this OTP with your driver to complete the ride.</p>
+            <br/>
+            <b>RideNow Mobility</b>
+          </div>
+          `
+        );
+      } catch (mailErr) {
+        console.warn("sendMail error in send-drop-otp (safely ignored):", mailErr);
+      }
+    }
 
-      await sendMail(
-        booking.user.email,
-        "Your Drop OTP - RideNow",
-        `
-        <div style="font-family:sans-serif;padding:20px">
-          <h2>Ride OTP</h2>
-
-          <p>Your Drop OTP is:</p>
-
-          <h1 style="letter-spacing:6px">${otp}</h1>
-
-          <p>This OTP is valid for 5 minutes.</p>
-
-          <p>Share this OTP with your driver to complete the ride.</p>
-
-          <br/>
-
-          <b>RideNow</b>
-        </div>
-        `
-      );
-
+    /* Send WhatsApp notification if user mobile is available */
+    const userPhone = booking.userMobileNumber || (booking.user as any)?.mobileNumber;
+    if (userPhone) {
+      try {
+        const { sendWhatsAppOtp } = await import("@/lib/whatsapp");
+        await sendWhatsAppOtp(userPhone, otp);
+      } catch (waErr) {
+        console.warn("WhatsApp OTP dispatch error in send-drop-otp:", waErr);
+      }
     }
 
     /* Notify passenger via socket */
@@ -77,9 +89,22 @@ export async function POST(req: Request) {
       console.error("Socket notification for drop OTP failed:", err);
     }
 
+    // Trigger Web Push to passenger
+    try {
+      const { sendPushToUser } = await import("@/lib/webPush");
+      await sendPushToUser(booking.user._id.toString(), {
+        title: "Arrived at Destination 🏁",
+        body: `Share drop OTP ${otp} with your driver to end the trip.`,
+        url: `/ride/${booking._id}`,
+      });
+    } catch (pushErr) {
+      console.warn("Push notification error on drop arrival:", pushErr);
+    }
+
     return NextResponse.json({
       success: true,
-      message: "drop OTP sent",
+      message: "Drop OTP sent",
+      dropOtp: otp,
     });
 
   } catch (error) {

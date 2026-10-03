@@ -54,10 +54,15 @@ export async function POST(req: NextRequest) {
     // Send OTP via WhatsApp
     const sendResult = await sendWhatsAppOtp(tenDigits, otp);
 
+    const devOtp =
+      sendResult.devOtp ||
+      (process.env.NODE_ENV !== "production" ? otp : undefined);
+
     return NextResponse.json({
       success: true,
       message: `Verification OTP sent via WhatsApp to +91 ${tenDigits}`,
-      devOtp: sendResult.devOtp, // available in dev mode
+      devOtp, // available for testing
+      info: sendResult.error ? `WhatsApp API note: ${sendResult.error}` : undefined,
     });
   } catch (error: any) {
     console.error("POST /api/auth/phone/send-otp error:", error);

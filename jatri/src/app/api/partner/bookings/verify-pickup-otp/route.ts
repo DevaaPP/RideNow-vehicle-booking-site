@@ -21,21 +21,21 @@ export async function POST(req: Request) {
 
     if (!booking.pickupOtp) {
       return NextResponse.json(
-        { message: "OTP not generated" },
+        { message: "OTP not generated yet. Please tap 'I've Arrived at Pickup'." },
         { status: 400 }
       );
     }
 
-    if (booking.pickupOtp !== otp) {
+    if (String(booking.pickupOtp).trim() !== String(otp).trim()) {
       return NextResponse.json(
-        { message: "Invalid OTP" },
+        { message: "Invalid OTP. Please check the 4-digit code on the customer's screen." },
         { status: 400 }
       );
     }
 
-    if (booking.pickupOtpExpires < new Date()) {
+    if (booking.pickupOtpExpires && new Date(booking.pickupOtpExpires) < new Date()) {
       return NextResponse.json(
-        { message: "OTP expired" },
+        { message: "OTP expired. Please request a new code." },
         { status: 400 }
       );
     }

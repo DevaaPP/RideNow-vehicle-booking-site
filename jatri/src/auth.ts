@@ -60,7 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new Error("No account found with this mobile number");
           }
 
-          if (!user.otp || user.otp !== otp.trim()) {
+          if (!user.otp || user.otp.trim() !== String(otp).trim()) {
             throw new Error("Invalid OTP code");
           }
 

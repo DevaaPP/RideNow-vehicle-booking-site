@@ -26,18 +26,25 @@ export async function sendWhatsAppOtp(
 
   const token = process.env.WHATSAPP_API_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const isPlaceholder =
+    !token ||
+    !phoneNumberId ||
+    token.trim() === "" ||
+    phoneNumberId.trim() === "" ||
+    token.includes("your_") ||
+    phoneNumberId.includes("your_");
 
   // Development / fallback mode: Log OTP clearly to console for instant testing
-  if (!token || !phoneNumberId) {
+  if (isPlaceholder) {
     console.log("\n=======================================================");
-    console.log(`💬 [WHATSAPP OTP] To: +${formattedPhone}`);
+    console.log(`💬 [WHATSAPP OTP - DEV/FALLBACK] To: +${formattedPhone}`);
     console.log(`🔐 Verification Code: ${otp}`);
     console.log(`⏰ Valid for 10 minutes.`);
     console.log("=======================================================\n");
 
     return {
       success: true,
-      devOtp: process.env.NODE_ENV !== "production" ? otp : undefined,
+      devOtp: otp,
     };
   }
 
@@ -69,8 +76,10 @@ export async function sendWhatsAppOtp(
 
     if (!res.ok) {
       console.error("WhatsApp API dispatch error:", data);
+      console.log(`🔐 [FALLBACK WHATSAPP OTP] To: +${formattedPhone} | Code: ${otp}`);
       return {
-        success: false,
+        success: process.env.NODE_ENV !== "production",
+        devOtp: process.env.NODE_ENV !== "production" ? otp : undefined,
         error: data?.error?.message || "WhatsApp dispatch failed",
       };
     }
@@ -81,8 +90,10 @@ export async function sendWhatsAppOtp(
     };
   } catch (err: any) {
     console.error("WhatsApp network exception:", err);
+    console.log(`🔐 [FALLBACK WHATSAPP OTP] To: +${formattedPhone} | Code: ${otp}`);
     return {
-      success: false,
+      success: process.env.NODE_ENV !== "production",
+      devOtp: process.env.NODE_ENV !== "production" ? otp : undefined,
       error: err?.message || "WhatsApp network error",
     };
   }

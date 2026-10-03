@@ -23,21 +23,24 @@ export async function POST(req: Request) {
 
     if (!booking.dropOtp) {
       return NextResponse.json(
-        { message: "OTP not generated" },
+        { message: "Drop OTP not generated yet. Please tap 'Mark as Dropped'." },
         { status: 400 }
       );
     }
 
-    if (booking.dropOtp !== otp) {
+    if (String(booking.dropOtp).trim() !== String(otp).trim()) {
       return NextResponse.json(
-        { message: "Invalid OTP" },
+        { message: "Invalid Drop OTP. Please check the 4-digit code on the customer's screen." },
         { status: 400 }
       );
     }
 
-    if ((booking.dropOtpExpires || (booking as any).dropExpires) && (booking.dropOtpExpires || (booking as any).dropExpires) < new Date()) {
+    if (
+      (booking.dropOtpExpires || (booking as any).dropExpires) &&
+      new Date(booking.dropOtpExpires || (booking as any).dropExpires) < new Date()
+    ) {
       return NextResponse.json(
-        { message: "OTP expired" },
+        { message: "Drop OTP expired. Please request a new code." },
         { status: 400 }
       );
     }

@@ -177,7 +177,11 @@ export default function AuthModal({ open, onClose }: Props) {
       });
 
       if (res?.error) {
-        setErrorMessage(res.error || "Invalid OTP code");
+        setErrorMessage(
+          res.error === "CredentialsSignin"
+            ? "Invalid or expired verification code. Please check and try again."
+            : res.error
+        );
         return;
       }
 
@@ -242,11 +246,15 @@ export default function AuthModal({ open, onClose }: Props) {
   const handleEmailSignUp = async () => {
     try {
       setErrorMessage(null);
-      await axios.post("/api/auth/register", {
+      const res = await axios.post("/api/auth/register", {
         name,
         email,
         password,
       });
+      if (res.data?.devOtp) {
+        setDevOtpHint(res.data.devOtp);
+      }
+      setResendCountdown(30);
       setStep("email_otp");
     } catch (err: any) {
       setErrorMessage(err.response?.data?.message || "Sign up failed");
@@ -257,10 +265,40 @@ export default function AuthModal({ open, onClose }: Props) {
   const handleVerifyEmailOtp = async () => {
     try {
       setErrorMessage(null);
+      const code = emailOtp.join("");
+      if (code.length !== 6) {
+        setErrorMessage("Please enter the complete 6-digit code");
+        return;
+      }
+
       await axios.post("/api/auth/verify-otp", {
         email,
-        otp: emailOtp.join(""),
+        otp: code,
       });
+
+      // Automatically sign in if password is present
+      if (password) {
+        const loginRes = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (!loginRes?.error) {
+          const meRes = await axios.get("/api/me");
+          dispatch(setUserData(meRes.data));
+          onClose();
+          if (meRes.data.role === "vendor") {
+            router.push("/partners/dashboard");
+          } else if (meRes.data.role === "admin") {
+            router.push("/admin/dashboard");
+          } else {
+            window.location.reload();
+          }
+          return;
+        }
+      }
+
       setStep("email_login");
     } catch (err: any) {
       setErrorMessage(err.response?.data?.message || "Invalid OTP code");
@@ -658,12 +696,45 @@ export default function AuthModal({ open, onClose }: Props) {
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-4"
                   >
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setErrorMessage(null);
+                          setStep("email_signup");
+                        }}
+                        className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-900"
+                      >
+                        <ArrowLeft size={14} /> Back to Sign Up
+                      </button>
+                      <span className="text-[10px] font-bold text-zinc-700 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200">
+                        Email OTP
+                      </span>
+                    </div>
+
                     <div>
                       <h2 className="text-lg font-black text-zinc-900">Verify Email</h2>
-                      <p className="text-xs text-zinc-400 font-medium">
-                        Enter the code sent to <strong>{email}</strong>
+                      <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                        Enter the 6-digit verification code sent to <strong>{email}</strong>
                       </p>
                     </div>
+
+                    {/* Dev OTP Helper */}
+                    {devOtpHint && (
+                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-bold flex items-center justify-between">
+                        <span>Dev OTP: <span className="font-mono text-sm underline">{devOtpHint}</span></span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const digits = devOtpHint.split("");
+                            setEmailOtp(digits);
+                          }}
+                          className="px-2 py-0.5 bg-amber-200 rounded-md text-[10px] font-black"
+                        >
+                          Auto-Fill
+                        </button>
+                      </div>
+                    )}
 
                     <div className="flex justify-between gap-1.5 sm:gap-2 my-4">
                       {emailOtp.map((digit, i) => (
@@ -671,6 +742,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           key={i}
                           id={`email-otp-${i}`}
                           maxLength={1}
+                          inputMode="numeric"
                           value={digit}
                           onChange={(e) => {
                             if (!/^[0-9]?$/.test(e.target.value)) return;
@@ -681,17 +753,41 @@ export default function AuthModal({ open, onClose }: Props) {
                               document.getElementById(`email-otp-${i + 1}`)?.focus();
                             }
                           }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Backspace" && !emailOtp[i] && i > 0) {
+                              document.getElementById(`email-otp-${i - 1}`)?.focus();
+                            }
+                          }}
                           className="w-11 h-13 text-center text-lg font-bold rounded-xl bg-zinc-50 border border-zinc-300 focus:border-zinc-900 focus:bg-white outline-none transition"
                         />
                       ))}
                     </div>
 
                     <button
+                      type="button"
                       onClick={handleVerifyEmailOtp}
-                      className="w-full h-11 rounded-xl bg-zinc-900 text-white font-bold text-sm hover:bg-black transition active:scale-98"
+                      disabled={emailOtp.join("").length !== 6}
+                      className="w-full h-11 rounded-xl bg-zinc-900 disabled:opacity-40 text-white font-bold text-sm hover:bg-black transition active:scale-98"
                     >
                       Verify & Complete Signup
                     </button>
+
+                    <div className="text-center pt-2">
+                      {resendCountdown > 0 ? (
+                        <p className="text-xs text-zinc-400 font-medium">
+                          Resend code in <strong className="text-zinc-700">{resendCountdown}s</strong>
+                        </p>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleEmailSignUp}
+                          className="text-xs font-bold text-zinc-700 hover:text-black flex items-center justify-center gap-1.5 mx-auto underline underline-offset-2"
+                        >
+                          <Mail size={13} />
+                          <span>Resend Email OTP</span>
+                        </button>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

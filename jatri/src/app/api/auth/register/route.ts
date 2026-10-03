@@ -75,24 +75,36 @@ export async function POST(req: NextRequest) {
 
     /* ---------- SEND OTP  ---------- */
 
-    await sendMail(
-       email,
-        "Your OTP for Email Verification",
-    `
-        <div style="font-family: Arial; padding: 20px;">
-        <h2>Verify your email - RideNow</h2>
-        <p>Your OTP code is:</p>
-        <h1 style="letter-spacing: 3px;">${otp}</h1>
-        <p>This code expires in 5 minutes.</p>
-        <hr />
-        <p>If you didn’t request this, ignore this email.</p>
-       </div>
-    `
-    )
+    let mailResult;
+    try {
+      mailResult = await sendMail(
+        email,
+        "Your OTP for Email Verification - RideNow",
+        `
+          <div style="font-family: Arial; padding: 20px;">
+          <h2>Verify your email - RideNow</h2>
+          <p>Your OTP code is:</p>
+          <h1 style="letter-spacing: 3px;">${otp}</h1>
+          <p>This code expires in 10 minutes.</p>
+          <hr />
+          <p>If you didn’t request this, ignore this email.</p>
+         </div>
+        `
+      );
+    } catch (mailErr) {
+      console.warn("Mail dispatch error in register route:", mailErr);
+    }
+
+    const shouldReturnDevOtp =
+      process.env.NODE_ENV !== "production" ||
+      mailResult?.isSimulated ||
+      !mailResult?.success;
 
     return NextResponse.json(
       {
+        success: true,
         message: "OTP sent to email. Please verify.",
+        devOtp: shouldReturnDevOtp ? otp : undefined,
       },
       { status: 201 }
     );

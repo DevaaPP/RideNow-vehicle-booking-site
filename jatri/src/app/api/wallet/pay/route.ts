@@ -91,6 +91,12 @@ export async function POST(req: NextRequest) {
 
     booking.paymentStatus = "paid";
     booking.status = "confirmed";
+
+    if (!booking.pickupOtp) {
+      booking.pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
+    }
+
     booking.adminCommission = adminCommission;
     booking.partnerAmount = partnerAmount;
     await booking.save();
@@ -133,6 +139,7 @@ export async function POST(req: NextRequest) {
               bookingId: booking._id.toString(),
               status: "confirmed",
               paymentStatus: "paid",
+              pickupOtp: booking.pickupOtp,
             },
           }),
         });
@@ -148,6 +155,7 @@ export async function POST(req: NextRequest) {
             bookingId: booking._id.toString(),
             status: "confirmed",
             paymentStatus: "paid",
+            pickupOtp: booking.pickupOtp,
           },
         }),
       });

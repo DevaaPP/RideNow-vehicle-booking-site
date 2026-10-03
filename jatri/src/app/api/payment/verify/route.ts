@@ -40,12 +40,18 @@ export async function POST(req: Request) {
   booking.paymentStatus = "paid"
   booking.status = "confirmed"
 
+  if (!booking.pickupOtp) {
+    booking.pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
+  }
+
   booking.adminCommission = adminCommission
   booking.partnerAmount = partnerAmount
 
   await booking.save()
 
   try {
+    // Notify driver
     await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -56,6 +62,23 @@ export async function POST(req: Request) {
           bookingId: booking._id.toString(),
           status: "confirmed",
           paymentStatus: "paid",
+          pickupOtp: booking.pickupOtp,
+        },
+      }),
+    });
+
+    // Notify passenger
+    await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: booking.user.toString(),
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          status: "confirmed",
+          paymentStatus: "paid",
+          pickupOtp: booking.pickupOtp,
         },
       }),
     });

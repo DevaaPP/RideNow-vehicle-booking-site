@@ -23,40 +23,52 @@ export async function POST(req: Request) {
       );
     }
 
-    /* Generate OTP */
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    /* Generate or reuse valid OTP */
+    const otp =
+      booking.pickupOtp &&
+      booking.pickupOtpExpires &&
+      new Date(booking.pickupOtpExpires) > new Date()
+        ? booking.pickupOtp
+        : Math.floor(1000 + Math.random() * 9000).toString();
 
     booking.pickupOtp = otp;
-    booking.pickupOtpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
 
     await booking.save();
 
-    /* Send Mail */
-
+    /* Send Mail safely (do not crash if email service fails) */
     if (booking.user?.email) {
+      try {
+        await sendMail(
+          booking.user.email,
+          "Your Pickup OTP - RideNow",
+          `
+          <div style="font-family:sans-serif;padding:20px">
+            <h2>Ride Pickup OTP</h2>
+            <p>Your driver has arrived at the pickup location.</p>
+            <p>Your 4-digit Pickup OTP is:</p>
+            <h1 style="letter-spacing:6px;font-size:32px;color:#18181b;">${otp}</h1>
+            <p>This OTP is valid for 60 minutes.</p>
+            <p>Share this code with your driver to start the ride safely.</p>
+            <br/>
+            <b>RideNow Mobility</b>
+          </div>
+          `
+        );
+      } catch (mailErr) {
+        console.warn("sendMail error in send-pickup-otp (safely ignored):", mailErr);
+      }
+    }
 
-      await sendMail(
-        booking.user.email,
-        "Your Pickup OTP - RideNow",
-        `
-        <div style="font-family:sans-serif;padding:20px">
-          <h2>Ride OTP</h2>
-
-          <p>Your pickup OTP is:</p>
-
-          <h1 style="letter-spacing:6px">${otp}</h1>
-
-          <p>This OTP is valid for 5 minutes.</p>
-
-          <p>Share this OTP with your driver to start the ride.</p>
-
-          <br/>
-
-          <b>RideNow</b>
-        </div>
-        `
-      );
-
+    /* Send WhatsApp notification if user mobile is available */
+    const userPhone = booking.userMobileNumber || (booking.user as any)?.mobileNumber;
+    if (userPhone) {
+      try {
+        const { sendWhatsAppOtp } = await import("@/lib/whatsapp");
+        await sendWhatsAppOtp(userPhone, otp);
+      } catch (waErr) {
+        console.warn("WhatsApp OTP dispatch error in send-pickup-otp:", waErr);
+      }
     }
 
     /* Notify passenger via socket */
@@ -92,6 +104,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: "Pickup OTP sent",
+      pickupOtp: otp,
     });
 
   } catch (error) {

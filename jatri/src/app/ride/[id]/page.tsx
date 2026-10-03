@@ -6,7 +6,7 @@ import {
   Star, MessageCircle, Clock, Zap,
   IndianRupee, XCircle, AlertCircle, AlertTriangle,
   CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
-  ShieldAlert, Siren, PhoneCall, Share2, Navigation
+  ShieldAlert, Siren, PhoneCall, Share2, Navigation, KeyRound
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
@@ -1463,6 +1463,58 @@ function PanelContent({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 🔐 START RIDE PICKUP OTP BANNER */}
+      {booking.pickupOtp && status === "confirmed" && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-5 lg:mx-6"
+        >
+          <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                <KeyRound size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-black text-emerald-800">Start Ride PIN</p>
+                <p className="text-xs text-emerald-900 font-medium">Share this code with your driver</p>
+              </div>
+            </div>
+            <div className="bg-white px-3.5 py-1.5 rounded-xl border border-emerald-200 shadow-sm">
+              <span className="font-mono text-2xl font-black tracking-widest text-emerald-950">
+                {booking.pickupOtp}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* 🏁 END RIDE DROP OTP BANNER */}
+      {booking.dropOtp && status === "started" && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-5 lg:mx-6"
+        >
+          <div className="bg-indigo-50 border-2 border-indigo-300 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                <KeyRound size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-black text-indigo-800">Drop-off PIN</p>
+                <p className="text-xs text-indigo-900 font-medium">Share at destination to end trip</p>
+              </div>
+            </div>
+            <div className="bg-white px-3.5 py-1.5 rounded-xl border border-indigo-200 shadow-sm">
+              <span className="font-mono text-2xl font-black tracking-widest text-indigo-950">
+                {booking.dropOtp}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* ROUTE CARD */}
       <div className="mx-5 lg:mx-6">

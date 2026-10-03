@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     /* ---------- OTP MATCH ---------- */
 
-    if (!user.otp || user.otp !== otp) {
+    if (!user.otp || user.otp.trim() !== String(otp).trim()) {
       return NextResponse.json(
         { message: "Invalid OTP" },
         { status: 401 }
