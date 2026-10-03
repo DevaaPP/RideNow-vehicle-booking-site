@@ -17,6 +17,10 @@ import { RootState } from "@/redux/store";
 import useGetMe from "@/hooks/useGetMe";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { haversineKm as getHaversineDistance } from "@/lib/routeUtils";
+import FamilyRiderSelector from "@/features/booking/components/FamilyRiderSelector";
+import StudentPassModal from "@/features/booking/components/StudentPassModal";
+import ScheduleRidePicker from "@/features/booking/components/ScheduleRidePicker";
+import WaypointsManager from "@/features/booking/components/WaypointsManager";
 
 const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
 
@@ -85,24 +89,11 @@ export default function BookPage() {
   /* ── STUDENT MODE STATE ── */
   const [isStudent, setIsStudent] = useState<boolean>(false);
   const [studentDetails, setStudentDetails] = useState<any>(null);
-  const [eduEmailInput, setEduEmailInput] = useState("");
-  const [institutionInput, setInstitutionInput] = useState("");
-  const [verifyingStudent, setVerifyingStudent] = useState(false);
-  const [studentError, setStudentError] = useState<string | null>(null);
   const [showStudentForm, setShowStudentForm] = useState(false);
 
-  /* ── FAMILY ACCOUNT & RIDER CONTACT STATE (FROM NIYAR18) ── */
+  /* ── FAMILY ACCOUNT & RIDER CONTACT STATE ── */
   const [familyAccount, setFamilyAccount] = useState<any>(null);
   const [selectedFamilyMember, setSelectedFamilyMember] = useState<any | null>(null);
-  const [riderDropdownOpen, setRiderDropdownOpen] = useState(false);
-  const [showAddContactModal, setShowAddContactModal] = useState(false);
-  const [newContactName, setNewContactName] = useState("");
-  const [newContactPhone, setNewContactPhone] = useState("");
-  const [newContactRelation, setNewContactRelation] = useState("Friend");
-  const [saveContactForFuture, setSaveContactForFuture] = useState(true);
-  const [addingContact, setAddingContact] = useState(false);
-  const [contactError, setContactError] = useState<string | null>(null);
-  const riderDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchFamily = async () => {
@@ -119,19 +110,6 @@ export default function BookPage() {
     fetchFamily();
   }, []);
 
-  // Close rider dropdown on outside click
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (riderDropdownRef.current && !riderDropdownRef.current.contains(e.target as Node)) {
-        setRiderDropdownOpen(false);
-      }
-    };
-    if (riderDropdownOpen) {
-      document.addEventListener("mousedown", handleOutsideClick);
-    }
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [riderDropdownOpen]);
-
   const handleSelectRider = (member: any | null) => {
     setSelectedFamilyMember(member);
     if (member?.phone) {
@@ -145,59 +123,6 @@ export default function BookPage() {
     }
   };
 
-  const handleAddNewContact = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setContactError(null);
-
-    const name = newContactName.trim();
-    const cleanedPhone = newContactPhone.replace(/\D/g, "");
-    const phone = cleanedPhone.length >= 10 ? cleanedPhone.slice(-10) : cleanedPhone;
-
-    if (!name) {
-      setContactError("Please enter contact's name");
-      return;
-    }
-    if (phone.length !== 10) {
-      setContactError("Please enter a valid 10-digit phone number");
-      return;
-    }
-
-    const newMember = {
-      name,
-      phone,
-      relation: newContactRelation || "Other",
-    };
-
-    if (saveContactForFuture) {
-      setAddingContact(true);
-      try {
-        const res = await fetch("/api/user/family/member", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            phone,
-            relation: ["Spouse", "Child", "Parent", "Sibling"].includes(newContactRelation) ? newContactRelation : "Other",
-          }),
-        });
-        const data = await res.json();
-        if (data.success && data.family) {
-          setFamilyAccount(data.family);
-        }
-      } catch (err) {
-        console.warn("Failed to persist contact:", err);
-      } finally {
-        setAddingContact(false);
-      }
-    }
-
-    handleSelectRider(newMember);
-    setNewContactName("");
-    setNewContactPhone("");
-    setShowAddContactModal(false);
-    setRiderDropdownOpen(false);
-  };
-
   useEffect(() => {
     if (userData?.mobileNumber && !mobile) {
       const cleaned = userData.mobileNumber.replace(/\D/g, "");
@@ -209,31 +134,6 @@ export default function BookPage() {
       setStudentDetails((userData as any).studentDetails || null);
     }
   }, [userData]);
-
-  const handleVerifyStudent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStudentError(null);
-    setVerifyingStudent(true);
-    try {
-      const res = await fetch("/api/user/verify-student", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eduEmail: eduEmailInput, institution: institutionInput }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setIsStudent(true);
-        setStudentDetails(data.studentDetails);
-        setShowStudentForm(false);
-      } else {
-        setStudentError(data.message || "Verification failed");
-      }
-    } catch (err: any) {
-      setStudentError("Network error during student verification");
-    } finally {
-      setVerifyingStudent(false);
-    }
-  };
 
   /* ── SCHEDULED RIDE (ADVANCE BOOKING) STATE ── */
   const [bookingMode, setBookingMode] = useState<"now" | "schedule">("now");
@@ -957,50 +857,14 @@ export default function BookPage() {
       </div>
 
       {/* Intermediate Stops */}
-      {stops.map((stop, sIdx) => (
-        <div key={stop.id} className="relative">
-          <div className="flex items-center gap-3 bg-blue-50/60 border border-blue-200/80 rounded-xl px-3.5 py-2.5 transition">
-            <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-black flex-shrink-0">
-              {sIdx + 1}
-            </span>
-            <input
-              aria-label={`Stop ${sIdx + 1}`}
-              value={stop.address}
-              onChange={(e) => handleStopChange(stop.id, e.target.value)}
-              placeholder={`Stop ${sIdx + 1} location`}
-              className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none truncate"
-            />
-            <button
-              type="button"
-              onClick={() => handleRemoveStop(stop.id)}
-              className="p-1 text-zinc-400 hover:text-zinc-700"
-            >
-              <X size={14} />
-            </button>
-          </div>
-
-          {stop.results && stop.results.length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg max-h-48 overflow-y-auto z-50 divide-y divide-zinc-100">
-              {stop.results.map((p) => (
-                <button
-                  key={p.id}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    selectStopPlace(stop.id, p);
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
-                >
-                  <span className="text-sm flex-shrink-0">{getCategoryIcon(p.category, p.title || p.name)}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-zinc-900 truncate">{p.title || p.name}</p>
-                    {p.subtitle && <p className="text-[10px] text-zinc-500 truncate">{p.subtitle}</p>}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
+      <WaypointsManager
+        stops={stops}
+        onAddStop={handleAddStop}
+        onRemoveStop={handleRemoveStop}
+        onStopChange={handleStopChange}
+        onSelectStopPlace={selectStopPlace}
+        maxStops={2}
+      />
 
       {/* Destination Row */}
       <div className="relative">
@@ -1107,357 +971,47 @@ export default function BookPage() {
         ))}
       </div>
 
-      {/* Add Stop Button */}
-      {stops.length < 2 && (
-        <div className="flex justify-between items-center pt-1 border-t border-zinc-100">
-          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
-            {stops.length === 0 ? "Multi-stop trips supported" : `${stops.length}/2 Stops Added`}
-          </span>
-          <button
-            type="button"
-            onClick={handleAddStop}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1 rounded-xl transition"
-          >
-            <Plus size={12} /> Add Stop
-          </button>
-        </div>
-      )}
     </div>
   );
 
   const renderRideSelection = () => (
     <div className="space-y-4">
-      {/* Mode Switcher: Ride Now vs Schedule */}
-      <div className="flex bg-zinc-100 p-1 rounded-2xl border border-zinc-200/80 w-full">
-        <button
-          type="button"
-          onClick={() => setBookingMode("now")}
-          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
-            bookingMode === "now" ? "bg-zinc-900 text-white shadow-sm" : "text-zinc-600 hover:text-zinc-900"
-          }`}
-        >
-          <span>⚡ Ride Now</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setBookingMode("schedule")}
-          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
-            bookingMode === "schedule" ? "bg-zinc-900 text-white shadow-sm" : "text-zinc-600 hover:text-zinc-900"
-          }`}
-        >
-          <Clock size={13} className={bookingMode === "schedule" ? "text-amber-400" : ""} />
-          <span>Schedule</span>
-        </button>
-      </div>
+      {/* Mode Switcher & Schedule Picker */}
+      <ScheduleRidePicker
+        bookingMode={bookingMode}
+        onModeChange={setBookingMode}
+        scheduledTime={scheduledDateTime}
+        onTimeChange={setScheduledDateTime}
+        minScheduledTime={getMinScheduledDateTime()}
+      />
 
-      {/* Schedule Picker Card */}
-      {bookingMode === "schedule" && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
-              <Calendar size={13} className="text-amber-600" /> Advance Pickup
-            </span>
-            <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-              Free Cancellation
-            </span>
-          </div>
-          <input
-            type="datetime-local"
-            value={scheduledDateTime}
-            min={getMinScheduledDateTime()}
-            max={getMaxScheduledDateTime()}
-            onChange={(e) => setScheduledDateTime(e.target.value)}
-            className="w-full bg-white border border-amber-300 rounded-xl px-3 py-2 text-xs font-bold text-zinc-900 outline-none focus:ring-2 focus:ring-amber-500"
-          />
-          <p className="text-[10px] text-amber-800 leading-tight">
-            Driver assigned 15–30 mins before pickup. Cancel free up to 60 mins before.
-          </p>
-        </div>
-      )}
+      {/* 👤 RIDER & CONTACT DROPDOWN SELECTOR */}
+      <FamilyRiderSelector
+        familyAccount={familyAccount}
+        selectedFamilyMember={selectedFamilyMember}
+        onSelectRider={handleSelectRider}
+        onAddNewContact={async (contact) => {
+          if (contact.saveForFuture) {
+            const res = await fetch("/api/user/family/member", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: contact.name,
+                phone: contact.phone,
+                relation: contact.relation,
+              }),
+            });
+            const data = await res.json();
+            if (data.success && data.family) {
+              setFamilyAccount(data.family);
+            }
+          }
+          handleSelectRider(contact);
+        }}
+        userData={userData}
+      />
 
-      {/* 👤 RIDER & CONTACT DROPDOWN SELECTOR (NIYAR18 COMMIT ea7b601) */}
-      <div className="relative" ref={riderDropdownRef}>
-        <div className="flex items-center justify-between p-3 bg-zinc-50 border border-zinc-200/90 rounded-2xl hover:border-zinc-300 transition-all">
-          <div className="flex items-center gap-2.5">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shadow-xs ${
-              selectedFamilyMember ? "bg-amber-600 text-white" : "bg-zinc-900 text-white"
-            }`}>
-              {selectedFamilyMember ? <Users size={15} /> : <User size={15} />}
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Rider</p>
-                {selectedFamilyMember && (
-                  <span className="text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase bg-amber-100 text-amber-900 border border-amber-200">
-                    {selectedFamilyMember.relation}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs font-bold text-zinc-900 leading-tight">
-                {selectedFamilyMember ? (
-                  <span>For <strong className="text-amber-800">{selectedFamilyMember.name}</strong></span>
-                ) : (
-                  <span>For <strong className="text-zinc-900">{userData?.name || "Me"}</strong> (Myself)</span>
-                )}
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-1.5">
-            {selectedFamilyMember && (
-              <button
-                type="button"
-                onClick={() => handleSelectRider(null)}
-                className="text-[11px] font-bold text-zinc-500 hover:text-zinc-900 px-2 py-1 rounded-lg hover:bg-zinc-200/80 transition"
-              >
-                Switch to Me
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setRiderDropdownOpen(!riderDropdownOpen)}
-              className="flex items-center gap-1 bg-white border border-zinc-200 px-2.5 py-1.5 rounded-xl text-xs font-bold text-zinc-800 hover:border-zinc-400 shadow-xs transition"
-            >
-              <span>{selectedFamilyMember ? "Change" : "For Me ▾"}</span>
-              <ChevronDown size={13} className={`text-zinc-500 transition-transform ${riderDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-          </div>
-        </div>
-
-        {/* DROPDOWN MENU */}
-        <AnimatePresence>
-          {riderDropdownOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -6, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.98 }}
-              transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 right-0 mt-2 z-40 bg-white border border-zinc-200 rounded-xl shadow-lg p-3 space-y-2"
-            >
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-100">
-                <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Select Passenger</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRiderDropdownOpen(false);
-                    setShowAddContactModal(true);
-                  }}
-                  className="flex items-center gap-1 text-xs font-bold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg transition"
-                >
-                  <UserPlus size={13} />
-                  <span>+ Add Contact</span>
-                </button>
-              </div>
-
-              {/* Option 1: Myself */}
-              <button
-                type="button"
-                onClick={() => {
-                  handleSelectRider(null);
-                  setRiderDropdownOpen(false);
-                }}
-                className={`w-full p-2 rounded-xl flex items-center justify-between text-left transition ${
-                  selectedFamilyMember === null ? "bg-zinc-900 text-white" : "hover:bg-zinc-50 text-zinc-900"
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                    selectedFamilyMember === null ? "bg-zinc-800 text-white" : "bg-zinc-100 text-zinc-800"
-                  }`}>
-                    <User size={14} />
-                  </div>
-                  <div>
-                    <p className={`text-xs font-bold ${selectedFamilyMember === null ? "text-white" : "text-zinc-900"}`}>
-                      {userData?.name || "Myself"} (Me)
-                    </p>
-                    <p className={`text-[11px] ${selectedFamilyMember === null ? "text-zinc-300" : "text-zinc-400"}`}>
-                      {userData?.mobileNumber ? `+91 ${userData.mobileNumber}` : "Personal ride"}
-                    </p>
-                  </div>
-                </div>
-                {selectedFamilyMember === null && <Check size={16} className="text-white" />}
-              </button>
-
-              {/* Option 2: Saved Contacts & Family */}
-              <div className="pt-1">
-                <div className="flex items-center justify-between px-1 mb-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">My Contacts & Family</p>
-                  {familyAccount?.members?.length > 0 && (
-                    <span className="text-[9px] font-bold text-zinc-400">{familyAccount.members.length} saved</span>
-                  )}
-                </div>
-
-                {familyAccount?.members && familyAccount.members.length > 0 ? (
-                  <div className="space-y-1 max-h-44 overflow-y-auto pr-1">
-                    {familyAccount.members.map((member: any, idx: number) => {
-                      const isSelected = selectedFamilyMember?.name === member.name && selectedFamilyMember?.phone === member.phone;
-                      return (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => {
-                            handleSelectRider(member);
-                            setRiderDropdownOpen(false);
-                          }}
-                          className={`w-full p-2 rounded-xl flex items-center justify-between text-left transition ${
-                            isSelected ? "bg-amber-50 border border-amber-300 shadow-xs" : "hover:bg-zinc-50 border border-transparent"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center font-bold text-xs">
-                              {member.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-1.5">
-                                <p className="text-xs font-bold text-zinc-900">{member.name}</p>
-                                <span className="text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase bg-zinc-100 text-zinc-600">
-                                  {member.relation}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-zinc-400">{member.phone ? `+91 ${member.phone}` : "No phone saved"}</p>
-                            </div>
-                          </div>
-                          {isSelected && <Check size={16} className="text-amber-700" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="p-3 text-center bg-zinc-50 rounded-xl border border-dashed border-zinc-200">
-                    <p className="text-xs text-zinc-500 font-medium">No contacts saved yet</p>
-                    <p className="text-[10px] text-zinc-400 mt-0.5">Add someone to book rides for friends or family</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* ➕ ADD NEW CONTACT MODAL */}
-      <AnimatePresence>
-        {showAddContactModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 10 }}
-              className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-xl border border-zinc-200"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
-                    <UserPlus size={16} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-black text-zinc-900">Book for Someone Else</h3>
-                    <p className="text-[11px] text-zinc-500 font-medium">Driver will call passenger directly</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddContactModal(false)}
-                  className="w-7 h-7 rounded-lg bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition"
-                  aria-label="Close"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-
-              <form onSubmit={handleAddNewContact} className="space-y-3.5">
-                {contactError && (
-                  <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium">
-                    {contactError}
-                  </div>
-                )}
-
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1 block">
-                    Passenger Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={newContactName}
-                    onChange={(e) => setNewContactName(e.target.value)}
-                    placeholder="e.g. Rahul Sharma"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1 block">
-                    Passenger Phone Number *
-                  </label>
-                  <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-zinc-200 focus-within:border-zinc-900 transition">
-                    <span className="text-sm font-bold text-zinc-400">+91</span>
-                    <input
-                      type="tel"
-                      required
-                      maxLength={10}
-                      value={newContactPhone}
-                      onChange={(e) => setNewContactPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      placeholder="10-digit mobile number"
-                      className="w-full text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1 block">
-                    Relationship / Tag
-                  </label>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {["Friend", "Family", "Colleague", "Other"].map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => setNewContactRelation(tag)}
-                        className={`py-1.5 rounded-lg text-xs font-bold transition ${
-                          newContactRelation === tag
-                            ? "bg-zinc-900 text-white shadow-xs"
-                            : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                        }`}
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-1">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={saveContactForFuture}
-                      onChange={(e) => setSaveContactForFuture(e.target.checked)}
-                      className="w-4 h-4 rounded text-zinc-900 focus:ring-0"
-                    />
-                    <span className="text-xs text-zinc-600 font-medium">Save to my contacts for future rides</span>
-                  </label>
-                </div>
-
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddContactModal(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-zinc-200 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={addingContact}
-                    className="flex-1 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-black hover:bg-zinc-800 transition flex items-center justify-center gap-1.5 shadow-sm"
-                  >
-                    {addingContact ? "Saving..." : "Set as Passenger"}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* Recommended Pickup Selector UI */}
       {smartPickups.length > 0 && (
@@ -1617,7 +1171,7 @@ export default function BookPage() {
         </AnimatePresence>
       </div>
 
-      {/* Student Pass Banner & Verification */}
+      {/* Student Pass Banner & Verification Modal */}
       <div className="p-3 bg-zinc-900 text-white rounded-2xl flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-zinc-800 text-amber-400 flex items-center justify-center">
@@ -1633,34 +1187,24 @@ export default function BookPage() {
         {!isStudent && (
           <button
             type="button"
-            onClick={() => setShowStudentForm(!showStudentForm)}
+            onClick={() => setShowStudentForm(true)}
             className="px-2.5 py-1 bg-amber-400 text-zinc-950 font-black text-[11px] rounded-xl hover:bg-amber-300 transition"
           >
-            {showStudentForm ? "Close" : "Verify"}
+            Verify
           </button>
         )}
       </div>
 
-      {showStudentForm && !isStudent && (
-        <form onSubmit={handleVerifyStudent} className="p-3 bg-zinc-100 border border-zinc-200 rounded-2xl space-y-2">
-          <input
-            type="email"
-            required
-            placeholder="College email (.edu or .ac.in)"
-            value={eduEmailInput}
-            onChange={(e) => setEduEmailInput(e.target.value)}
-            className="w-full bg-white border border-zinc-300 rounded-xl px-3 py-1.5 text-xs font-bold text-zinc-900 outline-none"
-          />
-          {studentError && <p className="text-[10px] font-bold text-rose-500">{studentError}</p>}
-          <button
-            type="submit"
-            disabled={verifyingStudent || !eduEmailInput}
-            className="w-full bg-zinc-900 text-white font-bold text-xs py-2 rounded-xl"
-          >
-            {verifyingStudent ? "Verifying..." : "Activate 10% Discount"}
-          </button>
-        </form>
-      )}
+      <StudentPassModal
+        isOpen={showStudentForm}
+        onClose={() => setShowStudentForm(false)}
+        isStudent={isStudent}
+        studentDetails={studentDetails}
+        onVerified={(details) => {
+          setIsStudent(true);
+          setStudentDetails(details);
+        }}
+      />
 
       {/* Contact Mobile Input Row */}
       <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5">

@@ -17,6 +17,9 @@ import useGetMe from "@/hooks/useGetMe";
 import AuthModal from "@/components/AuthModal";
 import { getSocket } from "@/lib/socket";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
+import GroupRideCard from "@/features/booking/components/GroupRideCard";
+import DriverSearchRadar from "@/features/booking/components/DriverSearchRadar";
+import PaymentMethodSelector from "@/features/booking/components/PaymentMethodSelector";
 
 const VEHICLE_ICONS: Record<string, any> = {
   bike: Bike, auto: Car, car: Car, loading: Truck, truck: Truck,
@@ -869,115 +872,21 @@ export default function CheckoutContent() {
               )}
 
               {/* 🧑🤝🧑 GROUP RIDE & SPLIT FARE CARD */}
-              <div className="mt-6 border-t border-zinc-100 pt-6">
-                <div className="flex items-center justify-between bg-zinc-50 border border-zinc-200/80 rounded-2xl p-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-900 text-white flex items-center justify-center">
-                      <Users size={18} />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-zinc-900">Group Ride & Split Fare</h4>
-                      <p className="text-xs text-zinc-400 font-medium">Split ₹{effectiveFare} with friends</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleToggleGroupRide()}
-                    className={`w-12 h-7 rounded-full transition-colors flex items-center p-1 ${isGroupRide ? "bg-emerald-500 justify-end" : "bg-zinc-300 justify-start"}`}
-                  >
-                    <div className="w-5 h-5 rounded-full bg-white shadow-md" />
-                  </button>
-                </div>
-
-                {isGroupRide && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    className="bg-zinc-900 rounded-2xl p-5 text-white space-y-4"
-                  >
-                    {/* Invite Code Header */}
-                    <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                      <div>
-                        <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">Invite Code</p>
-                        <p className="text-lg font-black text-emerald-400 font-mono tracking-widest">{groupInviteCode || "GEN123"}</p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (typeof window === "undefined") return;
-                          const codeStr = groupInviteCode || "GEN123";
-                          const joinUrl = `${window.location.origin}/group/join?code=${codeStr}`;
-                          navigator.clipboard.writeText(joinUrl);
-                          alert(`Group invite link copied!\n${joinUrl}`);
-                        }}
-                        className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold px-3 py-2 rounded-xl border border-zinc-700 transition"
-                      >
-                        <Share2 size={13} /> Copy Link
-                      </button>
-                    </div>
-
-                    {/* Dynamic Per-Person Split Banner */}
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-center">
-                      <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Split Fare Per Person</p>
-                      <p className="text-2xl font-black text-emerald-400 flex items-center justify-center gap-0.5 mt-0.5">
-                        <IndianRupee size={18} /> {splitFarePerPerson || fare}
-                      </p>
-                      <p className="text-[10px] text-zinc-500 mt-1">
-                        Total ₹{fare} ÷ {Math.max(1, groupMembers.filter((m: any) => m.status !== "declined").length)} members
-                      </p>
-                    </div>
-
-                    {/* Member List */}
-                    {groupMembers.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Group Members</p>
-                        <div className="space-y-1.5 max-h-36 overflow-y-auto">
-                          {groupMembers.map((m: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between bg-zinc-800/80 px-3 py-2 rounded-xl text-xs">
-                              <div>
-                                <p className="font-bold text-white truncate max-w-[160px]">{m.name}</p>
-                                <p className="text-[10px] text-zinc-400">{m.email}</p>
-                              </div>
-                              <div className="text-right">
-                                <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${m.status === "creator" ? "bg-emerald-500/20 text-emerald-300" : m.status === "accepted" ? "bg-blue-500/20 text-blue-300" : "bg-amber-500/20 text-amber-300"}`}>
-                                  {m.status}
-                                </span>
-                                <p className="text-xs font-bold text-white mt-0.5">₹{m.shareAmount}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Invite Friend Input */}
-                    <div className="pt-2 border-t border-zinc-800 space-y-2">
-                      <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Invite a Friend</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          placeholder="Friend Name"
-                          value={inviteName}
-                          onChange={(e) => setInviteName(e.target.value)}
-                          className="bg-zinc-950 border border-zinc-800 text-xs px-3 py-2 rounded-xl text-white outline-none"
-                        />
-                        <input
-                          type="email"
-                          placeholder="Friend Email"
-                          value={inviteEmail}
-                          onChange={(e) => setInviteEmail(e.target.value)}
-                          className="bg-zinc-950 border border-zinc-800 text-xs px-3 py-2 rounded-xl text-white outline-none"
-                        />
-                      </div>
-                      <button
-                        onClick={handleSendInvite}
-                        disabled={inviting || !inviteEmail || !inviteName}
-                        className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"
-                      >
-                        {inviting ? <Loader2 size={13} className="animate-spin" /> : <><UserPlus size={14} /> Send Invite</>}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </div>
+              <GroupRideCard
+                isGroupRide={isGroupRide}
+                effectiveFare={effectiveFare}
+                fare={fare}
+                groupInviteCode={groupInviteCode}
+                groupMembers={groupMembers}
+                splitFarePerPerson={splitFarePerPerson}
+                inviteName={inviteName}
+                inviteEmail={inviteEmail}
+                inviting={inviting}
+                onToggle={() => handleToggleGroupRide()}
+                onNameChange={setInviteName}
+                onEmailChange={setInviteEmail}
+                onSendInvite={handleSendInvite}
+              />
             </div>
           </div>
 
@@ -1044,51 +953,24 @@ export default function CheckoutContent() {
                   </motion.div>
                 )}
 
-                {/* ── REQUESTED ── */}
+                {/* ── REQUESTED (RADAR) ── */}
                 {status === "requested" && (
-                  <motion.div key="requested"
-                    initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                  <motion.div
+                    key="requested"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.35 }}
-                    className="flex flex-col flex-1 items-center justify-center gap-6 text-center"
+                    className="flex flex-col flex-1 items-center justify-center"
                   >
-                    {/* Pulsing ring */}
-                    <div className="relative">
-                      <motion.div
-                        animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute inset-0 rounded-full bg-zinc-900"
-                      />
-                      <div className="relative w-20 h-20 rounded-full bg-zinc-100 border-2 border-zinc-200 flex items-center justify-center">
-                        <Loader2 size={28} className="text-zinc-900 animate-spin" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-zinc-900 mb-1">Finding Your Driver</h3>
-                      <p className="text-zinc-400 text-sm font-medium">Waiting for driver to accept…</p>
-                      <div className="bg-zinc-50 border border-zinc-200/80 rounded-2xl px-4 py-2 mt-4 inline-flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                        <p className="text-zinc-500 text-xs font-semibold">
-                          Trying next driver in <span className="font-mono text-zinc-900 font-bold">{countdown}s</span>
-                        </p>
-                      </div>
-                    </div>
-                    {/* Animated dots */}
-                    <div className="flex gap-1.5">
-                      {[0, 1, 2].map(i => (
-                        <motion.div key={i}
-                          animate={{ opacity: [0.2, 1, 0.2] }}
-                          transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.3 }}
-                          className="w-2 h-2 rounded-full bg-zinc-400"
-                        />
-                      ))}
-                    </div>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleCancelBooking}
-                      className="flex items-center gap-2 text-xs font-bold text-zinc-400 hover:text-zinc-900 transition-colors border border-zinc-200 hover:border-zinc-400 px-4 py-2.5 rounded-xl"
-                    >
-                      <XCircle size={13} /> Cancel Request
-                    </motion.button>
+                    <DriverSearchRadar
+                      countdown={countdown}
+                      pickup={pickup}
+                      drop={drop}
+                      vehicle={vehicle}
+                      onCancel={handleCancelBooking}
+                      cancelling={loading}
+                    />
                   </motion.div>
                 )}
 
@@ -1164,73 +1046,12 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.3 }}
                     className="flex flex-col flex-1 gap-6"
                   >
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-1">Almost there</p>
-                      <h3 className="text-2xl font-black text-zinc-900">Select Payment</h3>
-                    </div>
-
-                    <div className="space-y-3">
-                      {[
-                        {
-                          id: "wallet",
-                          Icon: Wallet,
-                          title: "RideNow Cash (Wallet)",
-                          sub:
-                            walletBalance !== null
-                              ? `Available: ₹${walletBalance} ${
-                                  walletBalance >= fare
-                                    ? "· Instant 1-Tap"
-                                    : `· (₹${fare - walletBalance} short — Top up in Wallet)`
-                                }`
-                              : "Instant 1-Tap Checkout",
-                          badge: walletBalance !== null && walletBalance >= fare ? "Instant" : null,
-                        },
-                        { id: "online", Icon: CreditCard,  title: "Online Payment",  sub: "UPI · Card · Netbanking", badge: null },
-                        { id: "cash",   Icon: Banknote,    title: "Cash",           sub: "Pay driver after ride",    badge: null },
-                      ].map(({ id, Icon, title, sub, badge }) => {
-                        const active = paymentMethod === id;
-                        const isInsufficientWallet = id === "wallet" && walletBalance !== null && walletBalance < fare;
-
-                        return (
-                          <button
-                            key={id}
-                            type="button"
-                            onClick={() => setPaymentMethod(id as any)}
-                            className={`w-full flex items-center gap-4 p-3.5 rounded-xl border text-left transition-colors ${
-                              active
-                                ? "bg-zinc-950 border-zinc-950"
-                                : isInsufficientWallet
-                                ? "bg-zinc-50/60 border-zinc-200 opacity-70 hover:opacity-100 hover:border-zinc-300"
-                                : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
-                            }`}
-                          >
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                              active ? "bg-white/10" : "bg-zinc-200"
-                            }`}>
-                              <Icon size={18} className={active ? "text-white" : "text-zinc-600"} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className={`text-sm font-bold ${active ? "text-white" : "text-zinc-900"}`}>{title}</p>
-                                {badge && (
-                                  <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md ${
-                                    active ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-900"
-                                  }`}>
-                                    {badge}
-                                  </span>
-                                )}
-                              </div>
-                              <p className={`text-xs font-medium ${active ? "text-zinc-400" : isInsufficientWallet ? "text-amber-700" : "text-zinc-500"}`}>
-                                {sub}
-                              </p>
-                            </div>
-                            {active && (
-                              <CheckCircle2 size={16} className="text-white flex-shrink-0" />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <PaymentMethodSelector
+                      selectedMethod={paymentMethod}
+                      onSelect={(method) => setPaymentMethod(method)}
+                      walletBalance={walletBalance}
+                      fare={fare}
+                    />
 
                     <button
                       type="button"

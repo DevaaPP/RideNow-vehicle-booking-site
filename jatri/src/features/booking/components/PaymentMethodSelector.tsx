@@ -3,12 +3,12 @@
 import { motion } from "framer-motion";
 import { Wallet, Banknote, CreditCard, CheckCircle2 } from "lucide-react";
 
-export type PaymentMethodType = "cash" | "wallet" | "razorpay";
+export type PaymentMethodType = "cash" | "wallet" | "online" | "razorpay";
 
 interface PaymentMethodSelectorProps {
-  selectedMethod: PaymentMethodType;
-  onSelect: (method: PaymentMethodType) => void;
-  walletBalance: number;
+  selectedMethod: PaymentMethodType | null;
+  onSelect: (method: any) => void;
+  walletBalance: number | null;
   fare: number;
 }
 
@@ -18,7 +18,8 @@ export default function PaymentMethodSelector({
   walletBalance,
   fare,
 }: PaymentMethodSelectorProps) {
-  const isWalletSufficient = walletBalance >= fare;
+  const isWalletSufficient = walletBalance !== null && walletBalance >= fare;
+  const isOnlineActive = selectedMethod === "online" || selectedMethod === "razorpay";
 
   return (
     <div className="bg-white border border-zinc-200/80 rounded-3xl p-6 shadow-sm mb-6">
@@ -57,9 +58,9 @@ export default function PaymentMethodSelector({
                 selectedMethod === "wallet" ? "text-zinc-300" : "text-zinc-500"
               }`}
             >
-              Balance: ₹{walletBalance}
+              {walletBalance !== null ? `Balance: ₹${walletBalance}` : "Loading..."}
             </p>
-            {!isWalletSufficient && (
+            {!isWalletSufficient && walletBalance !== null && (
               <span className="text-[10px] text-amber-600 font-semibold block mt-1">
                 Insufficient (needs ₹{fare})
               </span>
@@ -102,9 +103,9 @@ export default function PaymentMethodSelector({
         {/* Online / Razorpay */}
         <button
           type="button"
-          onClick={() => onSelect("razorpay")}
+          onClick={() => onSelect("online")}
           className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
-            selectedMethod === "razorpay"
+            isOnlineActive
               ? "border-zinc-900 bg-zinc-900 text-white shadow-md"
               : "border-zinc-200 hover:border-zinc-400 text-zinc-800"
           }`}
@@ -112,18 +113,18 @@ export default function PaymentMethodSelector({
           <div className="flex items-center justify-between mb-3">
             <div
               className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                selectedMethod === "razorpay" ? "bg-white/10 text-white" : "bg-zinc-100 text-zinc-800"
+                isOnlineActive ? "bg-white/10 text-white" : "bg-zinc-100 text-zinc-800"
               }`}
             >
               <CreditCard size={18} />
             </div>
-            {selectedMethod === "razorpay" && <CheckCircle2 size={16} className="text-white" />}
+            {isOnlineActive && <CheckCircle2 size={16} className="text-white" />}
           </div>
           <div>
             <p className="text-xs font-bold leading-tight">UPI / Card / NetBanking</p>
             <p
               className={`text-[11px] mt-0.5 ${
-                selectedMethod === "razorpay" ? "text-zinc-300" : "text-zinc-500"
+                isOnlineActive ? "text-zinc-300" : "text-zinc-500"
               }`}
             >
               Instant Razorpay checkout
