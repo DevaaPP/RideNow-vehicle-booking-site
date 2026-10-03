@@ -23,6 +23,9 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { signOut, useSession } from "next-auth/react";
 import { setUserData } from "@/redux/userSlice";
 import axios from "axios";
+import LanguageSelector from "./LanguageSelector";
+import NotificationToggle from "./NotificationToggle";
+import { useTranslation } from "@/context/LanguageContext";
 
 const NAV_ITEMS = ["Home", "Book Ride", "Bookings", "Fleet", "FAQ", "Contact"];
 const NAV_ROUTES: Record<string, string> = {
@@ -33,8 +36,17 @@ const NAV_ROUTES: Record<string, string> = {
   FAQ: "/faq",
   Contact: "/contact",
 };
+const NAV_KEYS: Record<string, string> = {
+  Home: "nav.home",
+  "Book Ride": "nav.bookRide",
+  Bookings: "nav.bookings",
+  Fleet: "nav.fleet",
+  FAQ: "nav.faq",
+  Contact: "nav.contact",
+};
 
 export default function Nav({ user: propUser }: { user?: any } = {}) {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
@@ -187,7 +199,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   : "text-zinc-400 hover:text-white hover:bg-white/10"
               }`}
             >
-              {item}
+              {t(NAV_KEYS[item] || item, item)}
             </Link>
           );
         })}
@@ -237,6 +249,11 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           {/* RIGHT */}
           <div className="flex items-center gap-3 relative">
+            {/* Desktop Notification & Language controls */}
+            <div className="hidden md:flex items-center gap-2">
+              <NotificationToggle />
+              <LanguageSelector variant="pill" />
+            </div>
 
             {/* DESKTOP PROFILE */}
             <div className="hidden md:block relative" ref={profileRef}>
@@ -269,7 +286,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   onClick={() => setAuthOpen(true)}
                   className="px-6 py-2.5 rounded-full border border-white/20 text-sm font-semibold hover:bg-white hover:text-black transition"
                 >
-                  Login
+                  {t("nav.signIn", "Login")}
                 </button>
               )}
             </div>
@@ -373,11 +390,21 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               }}
               className="w-full py-3 rounded-2xl bg-white text-black font-black text-sm flex items-center justify-center gap-2 shadow-sm active:scale-98 transition"
             >
-              <span>Login or Sign Up</span>
+              <span>{t("nav.signIn", "Login or Sign Up")}</span>
               <ArrowRight size={15} />
             </button>
           </div>
         )}
+
+        {/* Quick Language & Push Notification bar */}
+        <div className="px-5 py-3 border-b border-white/10 flex items-center justify-between bg-white/[0.03]">
+          <div className="flex items-center gap-2">
+            <LanguageSelector variant="pill" />
+          </div>
+          <div className="flex items-center gap-2">
+            <NotificationToggle />
+          </div>
+        </div>
 
         <div className="flex flex-col divide-y divide-white/5 py-1">
 
@@ -390,7 +417,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 }`}
                 onClick={() => setMenuOpen(false)}
               >
-                <span className="text-sm">Partner Dashboard</span>
+                <span className="text-sm">{t("nav.partnerDashboard", "Partner Dashboard")}</span>
                 <ChevronRight size={16} className="text-zinc-500" />
               </Link>
 
@@ -460,7 +487,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     onClick={() => setMenuOpen(false)}
                     className="w-full py-3 px-4 rounded-xl bg-white text-zinc-950 font-black text-sm flex items-center justify-between shadow-sm active:scale-98 transition"
                   >
-                    <span>⚡ Book a Ride Now</span>
+                    <span>⚡ {t("booking.confirmRide", "Book a Ride Now")}</span>
                     <ArrowRight size={16} />
                   </Link>
                 </div>
@@ -478,7 +505,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     }`}
                     onClick={() => setMenuOpen(false)}
                   >
-                    <span>{item}</span>
+                    <span>{t(NAV_KEYS[item] || item, item)}</span>
                     <ChevronRight size={16} className={active ? "text-white" : "text-zinc-600"} />
                   </Link>
                 );

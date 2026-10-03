@@ -75,6 +75,21 @@ export async function POST(req: Request) {
       console.error("Socket notification for verified pickup OTP failed:", err);
     }
 
+    // Trigger Web Push to passenger
+    try {
+      const { sendPushToUser } = await import("@/lib/webPush");
+      const dropTimeStr = booking.estimatedDropoffTime
+        ? new Date(booking.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : "shortly";
+      await sendPushToUser(booking.user.toString(), {
+        title: "Trip Started 🛣️",
+        body: `Heading to ${booking.dropAddress}. Est. drop-off by ${dropTimeStr}.`,
+        url: `/ride/${booking._id}`,
+      });
+    } catch (pushErr) {
+      console.warn("Push notification error on ride start:", pushErr);
+    }
+
     return NextResponse.json({
       success: true,
       message: "OTP verified. Ride started."

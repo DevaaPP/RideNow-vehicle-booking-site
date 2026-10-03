@@ -77,6 +77,18 @@ export async function POST(req: Request) {
       console.error("Socket notification for pickup OTP failed:", err);
     }
 
+    // Trigger Web Push to passenger
+    try {
+      const { sendPushToUser } = await import("@/lib/webPush");
+      await sendPushToUser(booking.user._id.toString(), {
+        title: "Driver Has Arrived 📍",
+        body: `Your driver is waiting at ${booking.pickupAddress}. Share OTP ${otp} to start the trip.`,
+        url: `/ride/${booking._id}`,
+      });
+    } catch (pushErr) {
+      console.warn("Push notification error on driver arrival:", pushErr);
+    }
+
     return NextResponse.json({
       success: true,
       message: "Pickup OTP sent",

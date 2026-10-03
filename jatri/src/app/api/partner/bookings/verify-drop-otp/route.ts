@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Booking from "@/models/booking.model";
 import { settleCompletedRidePayment } from "@/lib/settlePayment";
+import { sendPushToUser } from "@/lib/webPush";
 
 export async function POST(req: Request) {
 
@@ -82,6 +83,18 @@ export async function POST(req: Request) {
       });
     } catch (err) {
       console.error("Socket notification for verified drop OTP failed:", err);
+    }
+
+    /* Send Web Push notification to passenger */
+    try {
+      await sendPushToUser(booking.user.toString(), {
+        title: "Trip Completed! 🎉",
+        body: `You've arrived at your destination. Total: ₹${booking.fare}. Thanks for riding with Jatri!`,
+        url: `/ride/${booking._id.toString()}`,
+        tag: `booking-${booking._id.toString()}`,
+      });
+    } catch (pushErr) {
+      console.error("Push notification for trip completion failed:", pushErr);
     }
 
     return NextResponse.json({

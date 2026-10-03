@@ -41,5 +41,17 @@ export async function POST(
     console.warn("Socket notification in accept route failed:", socketErr);
   }
 
+  // Trigger web push to passenger
+  try {
+    const { sendPushToUser } = await import("@/lib/webPush");
+    await sendPushToUser(booking.user.toString(), {
+      title: "Driver Accepted Your Ride! 🚗",
+      body: "Your driver is heading to the pickup location.",
+      url: `/ride/${booking._id}`,
+    });
+  } catch (pushErr) {
+    console.warn("Push notification error on accept:", pushErr);
+  }
+
   return NextResponse.json({ success: true });
 }

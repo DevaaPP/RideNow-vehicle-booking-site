@@ -5,6 +5,7 @@ import StoreProvider from "@/redux/StoreProvider";
 import InitUser from "@/initUser";
 import Provider from "@/Provider";
 import PhoneLinkModal from "@/components/PhoneLinkModal";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-full min-h-screen`}
       >
         <Provider>
-          <StoreProvider>
-            <InitUser />
-            <PhoneLinkModal />
-            {children}
-          </StoreProvider>
+          <LanguageProvider>
+            <StoreProvider>
+              <InitUser />
+              <PhoneLinkModal />
+              {children}
+            </StoreProvider>
+          </LanguageProvider>
         </Provider>
       </body>
     </html>

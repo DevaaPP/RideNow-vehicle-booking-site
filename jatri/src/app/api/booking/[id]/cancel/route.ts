@@ -3,6 +3,7 @@ import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import WalletTransaction from "@/models/wallet-transaction.model";
+import { sendPushToUser } from "@/lib/webPush";
 
 export async function POST(
   req: NextRequest,
@@ -166,6 +167,31 @@ export async function POST(
     });
   } catch (err) {
     console.error("Socket cancel emit failed:", err);
+  }
+
+  // 5️⃣ Send Web Push alerts
+  try {
+    if (cancelledBy === "user" && booking.driver) {
+      // Notify driver that user cancelled
+      await sendPushToUser(booking.driver.toString(), {
+        title: "Ride Cancelled by Rider ❌",
+        body: cancellationFeeApplied
+          ? `Ride #${booking._id.toString().slice(-6)} was cancelled. ₹40 cancellation compensation credited to your wallet.`
+          : `Ride #${booking._id.toString().slice(-6)} was cancelled by the passenger.`,
+        url: "/partner",
+        tag: `booking-cancelled-${booking._id.toString()}`,
+      });
+    } else if (cancelledBy === "driver") {
+      // Notify passenger that driver cancelled
+      await sendPushToUser(booking.user.toString(), {
+        title: "Ride Cancelled by Driver ⚠️",
+        body: `Your driver cancelled ride #${booking._id.toString().slice(-6)}. Reason: ${reason}. Tap to book another ride.`,
+        url: `/ride/${booking._id.toString()}`,
+        tag: `booking-cancelled-${booking._id.toString()}`,
+      });
+    }
+  } catch (pushErr) {
+    console.error("Web Push on cancellation failed:", pushErr);
   }
 
   return NextResponse.json({

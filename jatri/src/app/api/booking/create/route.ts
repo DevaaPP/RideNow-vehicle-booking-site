@@ -8,6 +8,7 @@ import { auth } from "@/auth";
 import axios from "axios";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { haversineDistance } from "@/lib/routeUtils";
+import { sendPushToUser } from "@/lib/webPush";
 
 export async function POST(req: Request) {
   try {
@@ -409,6 +410,18 @@ export async function POST(req: Request) {
       }
     } catch (err) {
       console.warn("Socket emission error (booking still active):", err);
+    }
+
+    // 5️⃣ Send Web Push notification to candidate driver
+    try {
+      await sendPushToUser(nearestVendor._id.toString(), {
+        title: isScheduled ? "New Scheduled Ride Request! 📅" : "New Ride Request! 🚨",
+        body: `Pickup: ${pickup.length > 35 ? pickup.slice(0, 32) + "..." : pickup} | Fare: ₹${calculatedFare}. Tap to view.`,
+        url: "/partner",
+        tag: `booking-new-${booking._id.toString()}`,
+      });
+    } catch (pushErr) {
+      console.warn("Web Push to driver failed (continuing):", pushErr);
     }
 
     return NextResponse.json({ success: true, booking });

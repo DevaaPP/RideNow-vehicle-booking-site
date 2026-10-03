@@ -13,7 +13,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RideChat from "@/components/RideChat";
+import NotificationToggle from "@/components/NotificationToggle";
 import { getMinDistanceToPolyline, haversineKm } from "@/lib/routeUtils";
+import { useTranslation } from "@/context/LanguageContext";
 
 const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr: false });
 
@@ -109,10 +111,21 @@ const PAYMENT_LABEL: Record<PaymentStatus, { label: string; cls: string }> = {
   refunded: { label: "Refunded",        cls: "bg-emerald-100 text-emerald-700" },
 };
 
+const REASON_KEY_MAP: Record<string, string> = {
+  "Driver is taking too long to arrive": "cancellation.reasons.takingTooLong",
+  "Driver asked to cancel / refuse ride": "cancellation.reasons.driverRefused",
+  "Driver going in the wrong direction": "cancellation.reasons.wrongDirection",
+  "Changed my mind / No longer need ride": "cancellation.reasons.changedMind",
+  "Entered incorrect pickup or drop location": "cancellation.reasons.incorrectLocation",
+  "Booked by mistake": "cancellation.reasons.bookedByMistake",
+  "Other reason": "cancellation.reasons.other",
+};
+
 const PEEK_H = 140;
 
 /* ══════════════════════════════════════════════════════════════════════ */
 export default function RidePage() {
+  const { t } = useTranslation();
   const { id }  = useParams();
   const router  = useRouter();
 
@@ -723,8 +736,8 @@ export default function RidePage() {
                     <AlertTriangle size={16} />
                   </div>
                   <div>
-                    <h3 className="text-base font-black text-zinc-900">Cancel Ride</h3>
-                    <p className="text-[11px] text-zinc-400 font-semibold">Review policy & select reason</p>
+                    <h3 className="text-base font-black text-zinc-900">{t("cancellation.modalTitle", "Cancel Ride")}</h3>
+                    <p className="text-[11px] text-zinc-400 font-semibold">{t("cancellation.reviewPolicy", "Review policy & select reason")}</p>
                   </div>
                 </div>
                 <button
@@ -748,7 +761,7 @@ export default function RidePage() {
                         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-left">
                           <div className="flex items-center gap-1.5 text-emerald-900 text-xs font-black mb-1">
                             <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
-                            <span>Free Cancellation Window Active</span>
+                            <span>{t("cancellation.graceActive", "Free Cancellation Window Active")}</span>
                           </div>
                           <p className="text-[11px] text-emerald-800 leading-relaxed">
                             Driver accepted {Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago. You are within the 3-minute grace period — <strong>₹0 penalty fee</strong> will be charged and you will receive a full refund.
@@ -760,7 +773,7 @@ export default function RidePage() {
                         <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 text-left">
                           <div className="flex items-center gap-1.5 text-amber-950 text-xs font-black mb-1">
                             <AlertTriangle size={15} className="text-amber-600 flex-shrink-0" />
-                            <span>₹50 Cancellation Fee Applies</span>
+                            <span>{t("cancellation.feeActive", "₹50 Cancellation Fee Applies")}</span>
                           </div>
                           <p className="text-[11px] text-amber-900 leading-relaxed">
                             The driver accepted {Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago (&gt; 3 mins) and is actively en route. Under our driver protection policy, a <strong>₹50 cancellation penalty</strong> applies to compensate driver fuel and time.
@@ -774,10 +787,10 @@ export default function RidePage() {
                     <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3.5 text-left">
                       <div className="flex items-center gap-1.5 text-zinc-900 text-xs font-black mb-1">
                         <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
-                        <span>Zero Cancellation Fee</span>
+                        <span>{t("cancellation.zeroFee", "Zero Cancellation Fee")}</span>
                       </div>
                       <p className="text-[11px] text-zinc-600 leading-relaxed">
-                        No driver has accepted this ride yet. You can cancel now with no penalty.
+                        {t("cancellation.zeroFeeDesc", "No driver has accepted this ride yet. You can cancel now with no penalty.")}
                       </p>
                     </div>
                   );
@@ -785,7 +798,7 @@ export default function RidePage() {
 
                 {/* Reasons List */}
                 <div>
-                  <p className="text-xs font-bold text-zinc-800 mb-2">Please tell us why you are cancelling:</p>
+                  <p className="text-xs font-bold text-zinc-800 mb-2">{t("cancellation.selectReason", "Please tell us why you are cancelling:")}</p>
                   <div className="space-y-1.5">
                     {CANCELLATION_REASONS.map((r) => {
                       const isSelected = selectedReason === r;
@@ -800,7 +813,7 @@ export default function RidePage() {
                               : "bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200"
                           }`}
                         >
-                          <span>{r}</span>
+                          <span>{t(REASON_KEY_MAP[r] || r, r)}</span>
                           <span
                             className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ml-2 ${
                               isSelected ? "border-white bg-white" : "border-zinc-300 bg-white"
@@ -833,7 +846,7 @@ export default function RidePage() {
                   disabled={cancellingRide}
                   className="flex-1 py-3 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-xs font-bold transition active:scale-[0.98] disabled:opacity-50"
                 >
-                  Keep Ride
+                  {t("cancellation.keepRide", "Keep Ride")}
                 </button>
                 <button
                   type="button"
@@ -844,7 +857,7 @@ export default function RidePage() {
                   {cancellingRide ? (
                     <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                   ) : (
-                    "Confirm Cancellation"
+                    t("cancellation.confirmCancel", "Confirm Cancellation")
                   )}
                 </button>
               </div>
@@ -1416,6 +1429,13 @@ function PanelContent({
 }: any) {
   return (
     <div className="flex flex-col pt-5 pb-6 gap-3">
+
+      {/* PUSH NOTIFICATION ENABLER BANNER */}
+      {isActive && (
+        <div className="mx-5 lg:mx-6">
+          <NotificationToggle variant="banner" />
+        </div>
+      )}
 
       {/* PANIC ALERT ACTIVE BANNER */}
       {booking?.isPanicActive && (
