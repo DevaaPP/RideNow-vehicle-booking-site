@@ -1654,7 +1654,7 @@ function PanelContent({
       )}
 
       {/* EMERGENCY SOS BUTTON */}
-      {status === "started" && !booking?.isPanicActive && (
+      {["confirmed", "started"].includes(status) && !booking?.isPanicActive && (
         <div className="mx-5 lg:mx-6 mt-2">
           <button
             onClick={onPanicClick}

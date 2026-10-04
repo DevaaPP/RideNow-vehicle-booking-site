@@ -1329,6 +1329,40 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
         </div>
       )}
 
+      {/* DRIVER EMERGENCY SOS & HELPLINE */}
+      {["confirmed", "started"].includes(status) && (
+        <div className="mx-5 lg:mx-6 mt-3 pt-3 border-t border-zinc-100 flex gap-2">
+          <a
+            href="tel:112"
+            className="flex-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 py-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+          >
+            <Siren size={15} className="text-red-600" />
+            Police (112)
+          </a>
+          <button
+            type="button"
+            onClick={async () => {
+              if (confirm("Trigger Driver Emergency Assistance? This will alert RideNow Dispatch & Safety.")) {
+                try {
+                  await fetch(`/api/booking/${booking._id}/panic`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason: "Driver triggered emergency safety assistance" }),
+                  });
+                  alert("Emergency assistance alert dispatched. Operations team alerted.");
+                } catch (e) {
+                  console.error("Driver panic error:", e);
+                }
+              }
+            }}
+            className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+          >
+            <ShieldAlert size={15} className="text-amber-400" />
+            Safety SOS
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }

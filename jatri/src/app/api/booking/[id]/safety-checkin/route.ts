@@ -43,10 +43,18 @@ export async function POST(
     booking.isRouteDeviated = false;
     booking.safetyNotes = notes || `Confirmed safe by passenger (${now.toLocaleTimeString()})`;
   } else if (action === "trigger_sos") {
-    booking.safetyStatus = "sos_activated";
-    booking.isPanicActive = true;
-    booking.panicActivatedAt = now;
-    booking.safetyNotes = notes || `Emergency SOS activated (${now.toLocaleTimeString()})`;
+    const { triggerEmergencySos } = await import("@/lib/safetyEngine");
+    await triggerEmergencySos({
+      bookingId: booking._id,
+      reporterId: session.user.id,
+      reporterRole: "user",
+      reason: notes || "Passenger triggered emergency SOS via safety check-in prompt",
+    });
+    return NextResponse.json({
+      success: true,
+      isPanicActive: true,
+      message: "Emergency SOS triggered and authorities/contacts alerted",
+    });
   } else if (action === "report_deviation") {
     booking.safetyStatus = "deviation_detected";
     booking.isRouteDeviated = true;

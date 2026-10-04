@@ -38,3 +38,7 @@ export type { IPushSubscription } from "./push-subscription.model";
 
 export { default as LegalConsent } from "./legal-consent.model";
 export type { ILegalConsent } from "./legal-consent.model";
+
+export { default as SafetyIncident } from "./safetyIncident.model";
+export type { ISafetyIncident, IncidentType, IncidentStatus, IncidentSeverity } from "./safetyIncident.model";
+

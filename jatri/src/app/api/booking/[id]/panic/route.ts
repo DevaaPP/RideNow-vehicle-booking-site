@@ -1,67 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import connectDb from "@/lib/db";
-import Booking from "@/models/booking.model";
+import { triggerEmergencySos } from "@/lib/safetyEngine";
 
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  await connectDb();
-  const id = (await context.params).id;
-  
-  const booking = await Booking.findByIdAndUpdate(
-    id,
-    { 
-      isPanicActive: true, 
-      panicActivatedAt: new Date() 
-    },
-    { new: true }
-  );
-
-  if (!booking) {
-    return NextResponse.json({ message: "Booking not found" }, { status: 404 });
-  }
-
   try {
-    const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
-    if (socketServer) {
-      // Emit to driver socket
-      if (booking.driver) {
-        await fetch(`${socketServer}/emit`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: booking.driver.toString(),
-            event: "booking-updated",
-            data: {
-              bookingId: booking._id.toString(),
-              isPanicActive: true,
-              panicActivatedAt: booking.panicActivatedAt,
-            }
-          })
-        });
-      }
+    await connectDb();
+    const session = await auth();
+    const id = (await context.params).id;
 
-      // Emit to passenger socket
-      if (booking.user) {
-        await fetch(`${socketServer}/emit`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: booking.user.toString(),
-            event: "booking-updated",
-            data: {
-              bookingId: booking._id.toString(),
-              isPanicActive: true,
-              panicActivatedAt: booking.panicActivatedAt,
-            }
-          })
-        });
-      }
-    }
-  } catch (err) {
-    console.error("Socket panic emit failed:", err);
+    const body = await req.json().catch(() => ({}));
+    const reason = body.reason || "Emergency SOS Panic button pressed";
+    const coordinates = Array.isArray(body.coordinates) ? body.coordinates : undefined;
+
+    const reporterRole =
+      session?.user?.role === "vendor" || session?.user?.role === "driver"
+        ? "driver"
+        : session?.user?.role === "admin"
+        ? "admin"
+        : "user";
+
+    const result = await triggerEmergencySos({
+      bookingId: id,
+      reporterId: session?.user?.id || id,
+      reporterRole,
+      coordinates,
+      reason,
+    });
+
+    return NextResponse.json({
+      success: true,
+      isPanicActive: true,
+      incidentId: result.incidentId,
+      shareUrl: result.shareUrl,
+      emergencyContactsAlerted: result.emergencyContactsAlerted,
+    });
+  } catch (error: any) {
+    console.error("POST /api/booking/[id]/panic error:", error);
+    return NextResponse.json(
+      { error: error?.message || "Failed to trigger emergency SOS" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({ success: true, isPanicActive: true, booking });
 }
