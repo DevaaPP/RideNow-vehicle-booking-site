@@ -2,9 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import { otpService, OTPChannel } from "@/lib/otpService";
+import { rateLimiter, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    const clientIp = getClientIp(req);
+
+    // 1. IP-level rate limiting: 5 requests per 10 minutes
+    const ipCheck = rateLimiter.check(`ip:${clientIp}:send-otp`, 5, 10 * 60 * 1000);
+    if (!ipCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests from this device. Please wait before requesting another OTP." },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(5, ipCheck.remaining, ipCheck.resetMs),
+        }
+      );
+    }
+
     await connectDb();
 
     const { mobileNumber, channel = "whatsapp" } = await req.json();
@@ -23,6 +38,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Please enter a valid 10-digit mobile number" },
         { status: 400 }
+      );
+    }
+
+    // 2. Phone-level rate limiting: 3 requests per 10 minutes
+    const phoneCheck = rateLimiter.check(`phone:${tenDigits}:send-otp`, 3, 10 * 60 * 1000);
+    if (!phoneCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many OTP requests for this phone number. Please try again later." },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(3, phoneCheck.remaining, phoneCheck.resetMs),
+        }
       );
     }
 

@@ -4,12 +4,26 @@ import mongoose from "mongoose";
 import User from "@/models/user.model";
 import connectDb from "@/lib/db";
 import { sendMail } from "@/lib/mailer";
-; // 👈 DB connection helper
+import { rateLimiter, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 
 /* ---------------- POST: REGISTER ---------------- */
 
 export async function POST(req: NextRequest) {
   try {
+    const clientIp = getClientIp(req);
+
+    // IP-level rate limiting: 5 registrations per 15 minutes
+    const ipCheck = rateLimiter.check(`ip:${clientIp}:register`, 5, 15 * 60 * 1000);
+    if (!ipCheck.allowed) {
+      return NextResponse.json(
+        { message: "Too many registration attempts. Please try again later." },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(5, ipCheck.remaining, ipCheck.resetMs),
+        }
+      );
+    }
+
     await connectDb();
 
     const body = await req.json();
@@ -21,6 +35,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
+      );
+    }
+
+    // Email-level rate limiting: 3 attempts per 15 minutes
+    const emailCheck = rateLimiter.check(`email:${email.toLowerCase().trim()}:register`, 3, 15 * 60 * 1000);
+    if (!emailCheck.allowed) {
+      return NextResponse.json(
+        { message: "Too many attempts for this email address. Please try again later." },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(3, emailCheck.remaining, emailCheck.resetMs),
+        }
       );
     }
 

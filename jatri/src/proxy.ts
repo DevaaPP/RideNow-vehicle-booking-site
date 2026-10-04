@@ -19,6 +19,8 @@ const PUBLIC_API_ROUTES = [
   "/api/places",
   "/api/vehicles",
   "/api/track",
+  "/api/payment/webhook",
+  "/api/safety/telemetry",
 ];
 
 const VENDOR_ONBOARDING_START = "/partner/onboard/vehicle";
@@ -77,6 +79,14 @@ function noCacheResponse(res: NextResponse = NextResponse.next()) {
   const session = req.auth;
 
   if (!session) {
+    if (pathname.startsWith("/api")) {
+      return noCacheResponse(
+        NextResponse.json(
+          { success: false, message: "Unauthorized: Authentication required" },
+          { status: 401 }
+        )
+      );
+    }
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
@@ -84,16 +94,27 @@ function noCacheResponse(res: NextResponse = NextResponse.next()) {
 
   /* ================= ROLE BASED ================= */
 
-  /* ----- ADMIN ----- */
+  /* ----- ADMIN (Pages & APIs) ----- */
   if (pathname.startsWith("/admin")) {
     if (role !== "admin") {
       return NextResponse.redirect(new URL("/", req.nextUrl));
     }
   }
 
-  /* ----- PARTNER / VENDOR ----- */
+  if (pathname.startsWith("/api/admin")) {
+    if (role !== "admin") {
+      return noCacheResponse(
+        NextResponse.json(
+          { success: false, message: "Forbidden: Admin privileges required" },
+          { status: 403 }
+        )
+      );
+    }
+  }
+
+  /* ----- PARTNER / VENDOR (Pages) ----- */
   if (pathname === "/partner" || pathname === "/partners" || pathname === "/partner/dashboard") {
-    if (role === "vendor") {
+    if (role === "vendor" || role === "admin") {
       return NextResponse.redirect(new URL("/partners/dashboard", req.nextUrl));
     } else {
       return NextResponse.redirect(new URL(VENDOR_ONBOARDING_START, req.nextUrl));
@@ -106,19 +127,25 @@ function noCacheResponse(res: NextResponse = NextResponse.next()) {
       return noCacheResponse();
     }
 
-    // ❌ Rest partner routes only for vendors
-    if (role !== "vendor") {
+    // ❌ Rest of partner routes only for vendors / admins
+    if (role !== "vendor" && role !== "admin") {
       return NextResponse.redirect(new URL("/", req.nextUrl));
     }
   }
 
-  /* ---------- API (protected) ---------- */
-  if (pathname.startsWith("/api")) {
-    if (!session) {
+  /* ----- PARTNER / VENDOR (APIs) ----- */
+  if (pathname.startsWith("/api/partner")) {
+    const isPartnerOnboardingApi =
+      pathname.startsWith("/api/partner/vehicle") ||
+      pathname.startsWith("/api/partner/documents") ||
+      pathname.startsWith("/api/partner/bank") ||
+      pathname.startsWith("/api/partner/video-kyc");
+
+    if (!isPartnerOnboardingApi && role !== "vendor" && role !== "admin") {
       return noCacheResponse(
         NextResponse.json(
-          { message: "Unauthorized" },
-          { status: 401 }
+          { success: false, message: "Forbidden: Partner privileges required" },
+          { status: 403 }
         )
       );
     }

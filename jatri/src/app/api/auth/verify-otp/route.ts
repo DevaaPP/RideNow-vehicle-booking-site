@@ -2,11 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import User from "@/models/user.model";
 import connectDb from "@/lib/db";
+import { rateLimiter, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 
 /* ---------------- POST: VERIFY OTP ---------------- */
 
 export async function POST(req: NextRequest) {
   try {
+    const clientIp = getClientIp(req);
+
+    // IP rate check
+    const ipCheck = rateLimiter.check(`ip:${clientIp}:verify-email-otp`, 10, 5 * 60 * 1000);
+    if (!ipCheck.allowed) {
+      return NextResponse.json(
+        { message: "Too many attempts from this device. Please wait." },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(10, ipCheck.remaining, ipCheck.resetMs),
+        }
+      );
+    }
+
     await connectDb();
 
     const body = await req.json();
@@ -21,9 +36,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const cleanEmail = email.toLowerCase().trim();
+    const emailLimitKey = `email:${cleanEmail}:verify-otp`;
+    const emailCheck = rateLimiter.check(emailLimitKey, 5, 5 * 60 * 1000);
+
+    if (!emailCheck.allowed) {
+      rateLimiter.lockout(emailLimitKey, 15 * 60 * 1000);
+      return NextResponse.json(
+        { message: "Too many failed attempts. Verification locked for 15 minutes." },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(5, 0, emailCheck.resetMs || 15 * 60 * 1000),
+        }
+      );
+    }
+
     /* ---------- FIND USER ---------- */
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: cleanEmail });
 
     if (!user) {
       return NextResponse.json(
@@ -45,7 +75,11 @@ export async function POST(req: NextRequest) {
 
     if (!user.otp || user.otp.trim() !== String(otp).trim()) {
       return NextResponse.json(
-        { message: "Invalid OTP" },
+        {
+          message: emailCheck.remaining > 0
+            ? `Invalid OTP. ${emailCheck.remaining} attempt(s) remaining.`
+            : "Invalid OTP. Too many failed attempts. Account locked for 15 minutes.",
+        },
         { status: 401 }
       );
     }
@@ -58,6 +92,10 @@ export async function POST(req: NextRequest) {
         { status: 410 }
       );
     }
+
+    // Success - reset rate limits
+    rateLimiter.reset(emailLimitKey);
+    rateLimiter.reset(`ip:${clientIp}:verify-email-otp`);
 
     /* ---------- VERIFY USER ---------- */
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
@@ -13,6 +14,11 @@ export async function POST(
   await connectDb();
   const id = (await context.params).id;
 
+  const session = await auth();
+  const sessionUser = session?.user?.email
+    ? await User.findOne({ email: session.user.email }).select("_id role").lean()
+    : null;
+
   const body = await req.json().catch(() => ({}));
   const reason = (body.reason as string) || "Ride cancelled by passenger";
   const cancelledBy = (body.cancelledBy as "user" | "driver" | "admin" | "system") || "user";
@@ -21,6 +27,30 @@ export async function POST(
 
   if (!booking) {
     return NextResponse.json({ message: "Ride booking not found" }, { status: 404 });
+  }
+
+  // Cross-tenant authorization check (unless triggered by internal system dispatch)
+  if (cancelledBy !== "system") {
+    if (!sessionUser) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const currentUserId = sessionUser._id.toString();
+    const riderId = booking.user?.toString();
+    const driverId = booking.driver?.toString();
+    const isAdmin = sessionUser.role === "admin";
+
+    const isAuthorized =
+      isAdmin ||
+      (cancelledBy === "user" && riderId === currentUserId) ||
+      (cancelledBy === "driver" && driverId === currentUserId);
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { message: "Forbidden: You are not authorized to cancel this ride" },
+        { status: 403 }
+      );
+    }
   }
 
   if (["completed", "cancelled", "rejected", "expired"].includes(booking.status)) {
