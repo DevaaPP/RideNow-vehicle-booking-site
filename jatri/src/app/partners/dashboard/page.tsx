@@ -1,11 +1,11 @@
 import { auth } from "@/auth";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import VendorDashboard from "@/components/VendorDashboard";
+import Nav from "@/shared/components/Nav";
+import Footer from "@/shared/components/Footer";
+import VendorDashboard from "@/features/partner/components/VendorDashboard";
 import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 import connectDb from "@/lib/db";
-import GeoUpdater from "@/components/GeoUpdater";
+import GeoUpdater from "@/features/maps/components/GeoUpdater";
 import { redirect } from "next/navigation";
 
 export default async function PartnersDashboardPage() {

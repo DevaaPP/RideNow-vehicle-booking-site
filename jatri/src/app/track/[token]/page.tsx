@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 
-const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr: false });
+const LiveRideMap = dynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
 type BookingStatus =
   | "requested" | "awaiting_payment" | "confirmed"

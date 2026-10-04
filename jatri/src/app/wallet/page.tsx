@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { setUserData } from "@/redux/userSlice";
-import useGetMe from "@/hooks/useGetMe";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import useGetMe from "@/shared/hooks/useGetMe";
+import Nav from "@/shared/components/Nav";
+import Footer from "@/shared/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
 import { loadRazorpayScript } from "@/lib/loadRazorpay";
 import {

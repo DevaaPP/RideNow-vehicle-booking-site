@@ -15,10 +15,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IUser } from "@/models/user.model";
 import { IVehicle } from "@/models/vehicle.model";
-import RideChat from "@/components/RideChat";
+import RideChat from "@/features/rides/components/RideChat";
 import { haversineKm } from "@/lib/routeUtils";
 
-const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr: false });
+const LiveRideMap = dynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
 export const DRIVER_CANCELLATION_REASONS = [
   "Vehicle breakdown / Mechanical issue",

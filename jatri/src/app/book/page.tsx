@@ -14,7 +14,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import useGetMe from "@/hooks/useGetMe";
+import useGetMe from "@/shared/hooks/useGetMe";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { haversineKm as getHaversineDistance } from "@/lib/routeUtils";
 import { validateServiceArea, getRecentDestinations, saveRecentDestination, RecentLocation } from "@/lib/serviceArea";
@@ -24,7 +24,7 @@ import ScheduleRidePicker from "@/features/booking/components/ScheduleRidePicker
 import WaypointsManager from "@/features/booking/components/WaypointsManager";
 import ActiveRideBanner from "@/features/rides/components/ActiveRideBanner";
 
-const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
+const RouteMap = dynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
 
 type Place = {
   id: string;

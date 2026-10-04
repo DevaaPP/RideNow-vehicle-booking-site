@@ -8,8 +8,8 @@ import { setUserData } from "@/redux/userSlice";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, User, Phone, Mail, Award, Calendar, Check, Loader2, Save, Users, UserPlus, Trash2, Plus, ShieldCheck } from "lucide-react";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import Nav from "@/shared/components/Nav";
+import Footer from "@/shared/components/Footer";
 
 export default function ProfilePage() {
   const router = useRouter();

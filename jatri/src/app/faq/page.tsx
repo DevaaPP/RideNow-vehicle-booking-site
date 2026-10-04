@@ -3,8 +3,8 @@
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import Nav from "@/shared/components/Nav";
+import Footer from "@/shared/components/Footer";
 
 export default function FAQPage() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);

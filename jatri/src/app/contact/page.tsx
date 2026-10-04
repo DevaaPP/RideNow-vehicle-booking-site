@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import Nav from "@/shared/components/Nav";
+import Footer from "@/shared/components/Footer";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({

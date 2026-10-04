@@ -17,8 +17,8 @@ import {
   Percent,
 } from "lucide-react";
 import Link from "next/link";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import Nav from "@/shared/components/Nav";
+import Footer from "@/shared/components/Footer";
 
 export default function PartnerWalletPage() {
   const [loading, setLoading] = useState(true);

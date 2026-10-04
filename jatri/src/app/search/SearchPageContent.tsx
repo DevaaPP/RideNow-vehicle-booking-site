@@ -9,9 +9,9 @@ import {
   Bike, Car, Truck, Clock, Route,
   Zap, Search, RefreshCw
 } from "lucide-react";
-import VehicleBookingCard from "@/components/VehicleBookingCard";
+import VehicleBookingCard from "@/features/booking/components/VehicleBookingCard";
 
-const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
+const RouteMap = dynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
 
 const VEHICLE_META: Record<string, { label: string; Icon: typeof Bike }> = {
   bike:    { label: "Bike",    Icon: Bike  },

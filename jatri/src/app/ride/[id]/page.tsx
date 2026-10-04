@@ -12,8 +12,8 @@ import { getSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import RideChat from "@/components/RideChat";
-import NotificationToggle from "@/components/NotificationToggle";
+import RideChat from "@/features/rides/components/RideChat";
+import NotificationToggle from "@/shared/components/NotificationToggle";
 import { getMinDistanceToPolyline, haversineKm } from "@/lib/routeUtils";
 import { useTranslation } from "@/context/LanguageContext";
 import RideCompletedView from "@/features/rides/components/RideCompletedView";
@@ -21,7 +21,7 @@ import RideFailedView from "@/features/rides/components/RideFailedView";
 import RideSafetyAlert from "@/features/rides/components/RideSafetyAlert";
 import { calculateCancellationPenalty } from "@/lib/cancellationRules";
 
-const LiveRideMap = dynamic(() => import("@/components/LiveTrackingMap"), { ssr: false });
+const LiveRideMap = dynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
 /* ─── TYPES ──────────────────────────────────────────────────────────── */
 type BookingStatus =

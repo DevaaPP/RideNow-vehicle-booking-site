@@ -25,8 +25,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import AdminEarningsChart from "@/components/AdminEarning";
-import StatusAreaChart from "@/components/AdminStatusChart";
+import AdminEarningsChart from "@/features/admin/components/AdminEarningsChart";
+import StatusAreaChart from "@/features/admin/components/AdminStatusChart";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 /* ================= TYPES ================= */

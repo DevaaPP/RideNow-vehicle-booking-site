@@ -4,7 +4,7 @@ import "./globals.css";
 import StoreProvider from "@/redux/StoreProvider";
 import InitUser from "@/initUser";
 import Provider from "@/Provider";
-import PhoneLinkModal from "@/components/PhoneLinkModal";
+import PhoneLinkModal from "@/features/auth/components/PhoneLinkModal";
 import { LanguageProvider } from "@/context/LanguageContext";
 
 const geistSans = Geist({

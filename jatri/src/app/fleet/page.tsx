@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Car, Zap, Shield, TrendingUp } from "lucide-react";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import Nav from "@/shared/components/Nav";
+import Footer from "@/shared/components/Footer";
 
 export default function FleetPage() {
   const features = [
