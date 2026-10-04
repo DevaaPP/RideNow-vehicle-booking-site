@@ -195,13 +195,11 @@ export default function VendorDashboard({
   /* ================= BACKGROUND POLLING (AUTO REFRESH STEPS) ================= */
 
   useEffect(() => {
-    if (isLive) return;
-
-    const interval = setInterval(async () => {
+    const fetchSync = async () => {
       try {
         const [meRes, pricingRes] = await Promise.all([
-          axios.get("/api/me").catch(() => null),
-          axios.get("/api/partner/vehicle/pricing").catch(() => null),
+          axios.get("/api/me", { headers: { "Cache-Control": "no-cache", Pragma: "no-cache" } }).catch(() => null),
+          axios.get("/api/partner/vehicle/pricing", { headers: { "Cache-Control": "no-cache", Pragma: "no-cache" } }).catch(() => null),
         ]);
 
         if (meRes?.data) {
@@ -211,8 +209,13 @@ export default function VendorDashboard({
           setPricing(pricingRes.data.pricing);
         }
       } catch (e) {}
-    }, 4000);
+    };
 
+    fetchSync();
+
+    if (isLive) return;
+
+    const interval = setInterval(fetchSync, 4000);
     return () => clearInterval(interval);
   }, [isLive, dispatch]);
 
@@ -890,7 +893,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
   const fetchShiftSummary = async () => {
     try {
-      const res = await axios.get("/api/partner/shift-summary");
+      const res = await axios.get("/api/partner/shift-summary", {
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      });
       if (res.data.success) {
         setShiftSummary(res.data.shift);
         if (res.data.recentTrips) {
@@ -904,7 +909,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
   const fetchPendingRequest = async () => {
     try {
-      const res = await axios.get("/api/partner/bookings/pending");
+      const res = await axios.get("/api/partner/bookings/pending", {
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      });
       if (res.data.bookings && res.data.bookings.length > 0) {
         setPendingRequest(res.data.bookings[0]);
       } else {
@@ -935,7 +942,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   useEffect(() => {
     // 1. Check if there is an active booking on mount
     const checkActiveRide = () => {
-      axios.get("/api/partner/bookings/active")
+      axios.get("/api/partner/bookings/active", {
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      })
         .then((res) => {
           if (res.data && res.data._id) {
             router.push("/partner/active-ride");
@@ -1015,7 +1024,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
 
   useEffect(() => {
-    axios.get("/api/partner/status")
+    axios.get("/api/partner/status", {
+      headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+    })
       .then((res) => {
         if (res.data.success) {
           setIsOnline(res.data.isOnline || false);

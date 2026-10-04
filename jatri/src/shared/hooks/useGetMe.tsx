@@ -3,28 +3,46 @@
 import { AppDispatch, RootState } from '@/redux/store'
 import { setUserData } from '@/redux/userSlice'
 import axios from 'axios'
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-function useGetMe(enabled: boolean) {
+function useGetMe(enabled: boolean = true, forceRefresh: boolean = false) {
   const dispatch = useDispatch<AppDispatch>()
   const { userData } = useSelector((state: RootState) => state.user)
 
+  const refetch = useCallback(async () => {
+    try {
+      const result = await axios.get('/api/me', {
+        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+      })
+      if (result.data) {
+        dispatch(setUserData(result.data))
+      }
+      return result.data
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        return null
+      }
+      console.error('GET ME FAILED:', error)
+      return null
+    }
+  }, [dispatch])
+
   useEffect(() => {
-    if (!enabled) return // ✅ SAFE
-    if (userData) return // ✅ Already loaded in Redux, skip duplicate network call
+    if (!enabled) return
 
     let cancelled = false
 
     const getMe = async () => {
       try {
-        const result = await axios.get('/api/me')
-        if (!cancelled) {
+        const result = await axios.get('/api/me', {
+          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+        })
+        if (!cancelled && result.data) {
           dispatch(setUserData(result.data))
         }
       } catch (error: any) {
         if (error.response?.status === 401) {
-          // Not authenticated yet - ignore and stay logged out.
           return
         }
         console.error('GET ME FAILED:', error)
@@ -36,7 +54,9 @@ function useGetMe(enabled: boolean) {
     return () => {
       cancelled = true
     }
-  }, [enabled, dispatch])
+  }, [enabled, dispatch, forceRefresh])
+
+  return { userData, refetch }
 }
 
 export default useGetMe

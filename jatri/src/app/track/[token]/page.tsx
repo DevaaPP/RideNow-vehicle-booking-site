@@ -1,6 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
+
+
+import nextDynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -10,7 +12,7 @@ import {
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 
-const LiveRideMap = dynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
+const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
 type BookingStatus =
   | "requested" | "awaiting_payment" | "confirmed"
@@ -125,7 +127,7 @@ export default function PublicTrackPage() {
             pickupLocation={pickupPos}
             dropLocation={dropPos}
             status={mapStatus}
-            onStats={({ durationToPickup, durationToDrop }) => {
+            onStats={({ durationToPickup, durationToDrop }: any) => {
               setEta(Math.round(mapStatus === "arriving" ? durationToPickup : durationToDrop));
             }}
           />

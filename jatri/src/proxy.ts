@@ -57,13 +57,20 @@ export const proxy = auth(async (req) => {
     return NextResponse.next();
   }
 
+function noCacheResponse(res: NextResponse = NextResponse.next()) {
+  res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
+  res.headers.set("Pragma", "no-cache");
+  res.headers.set("Expires", "0");
+  return res;
+}
+
   /* ---------- PUBLIC ROUTES ---------- */
   if (PUBLIC_ROUTES.includes(pathname)) {
-    return NextResponse.next();
+    return noCacheResponse();
   }
 
   if (PUBLIC_API_ROUTES.some((r) => pathname.startsWith(r))) {
-    return NextResponse.next();
+    return noCacheResponse();
   }
 
   /* ---------- AUTH CHECK ---------- */
@@ -96,7 +103,7 @@ export const proxy = auth(async (req) => {
   if (pathname.startsWith("/partner/") || pathname.startsWith("/partners/")) {
     // ✅ Allow all vendor onboarding routes for any logged-in user
     if (pathname.startsWith("/partner/onboard")) {
-      return NextResponse.next();
+      return noCacheResponse();
     }
 
     // ❌ Rest partner routes only for vendors
@@ -108,14 +115,16 @@ export const proxy = auth(async (req) => {
   /* ---------- API (protected) ---------- */
   if (pathname.startsWith("/api")) {
     if (!session) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
+      return noCacheResponse(
+        NextResponse.json(
+          { message: "Unauthorized" },
+          { status: 401 }
+        )
       );
     }
   }
 
-  return NextResponse.next();
+  return noCacheResponse();
 });
 
 export default proxy;

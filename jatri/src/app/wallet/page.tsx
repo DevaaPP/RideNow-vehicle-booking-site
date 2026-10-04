@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
@@ -56,7 +58,10 @@ export default function WalletPage() {
   const fetchWallet = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/wallet");
+      const res = await fetch("/api/wallet", {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      });
       if (res.status === 401) {
         return;
       }

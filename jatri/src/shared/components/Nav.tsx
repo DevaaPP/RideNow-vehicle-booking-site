@@ -86,7 +86,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
     const fetchCounts = async () => {
       try {
-        const res = await axios.get("/api/partner/bookings/counts");
+        const res = await axios.get("/api/partner/bookings/counts", {
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
         setPendingCount(res.data.pending || 0);
         setActiveCount(res.data.active || 0);
       } catch {}
@@ -105,7 +107,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
     const checkActive = async () => {
       try {
-        const res = await axios.get("/api/booking/my-active");
+        const res = await axios.get("/api/booking/my-active", {
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
         if (res.data?.booking) {
           setPassengerActiveRide(res.data.booking);
         } else {

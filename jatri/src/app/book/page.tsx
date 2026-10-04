@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, MapPin, Navigation,
@@ -11,7 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import useGetMe from "@/shared/hooks/useGetMe";
@@ -24,7 +26,7 @@ import ScheduleRidePicker from "@/features/booking/components/ScheduleRidePicker
 import WaypointsManager from "@/features/booking/components/WaypointsManager";
 import ActiveRideBanner from "@/features/rides/components/ActiveRideBanner";
 
-const RouteMap = dynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
+const RouteMap = nextDynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
 
 type Place = {
   id: string;

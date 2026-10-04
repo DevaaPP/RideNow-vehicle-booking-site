@@ -43,7 +43,10 @@ export default function DriverWalletCard() {
   const fetchDriverWallet = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/partner/wallet");
+      const res = await fetch("/api/partner/wallet", {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      });
       const data = await res.json();
       if (data.success) {
         setAvailableEarnings(data.availableEarnings || 0);

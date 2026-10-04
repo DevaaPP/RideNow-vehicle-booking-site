@@ -1,3 +1,4 @@
+
 import { auth } from "@/auth";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";

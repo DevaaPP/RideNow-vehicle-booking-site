@@ -59,8 +59,12 @@ export default function AdminDashboardClient() {
   async function loadAll() {
     try {
       const [dashboardRes, kycRes] = await Promise.all([
-        axios.get("/api/admin/dashboard"),
-        axios.get("/api/admin/vendors/video-kyc/pending"),
+        axios.get("/api/admin/dashboard", {
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        }),
+        axios.get("/api/admin/vendors/video-kyc/pending", {
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        }),
       ]);
 
       setStats(dashboardRes.data.stats);

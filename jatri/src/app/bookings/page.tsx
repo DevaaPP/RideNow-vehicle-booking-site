@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -45,7 +47,9 @@ export default function MyBookingsPage() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await axios.get("/api/user/bookings");
+        const res = await axios.get("/api/user/bookings", {
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
       
         setBookings(res.data.bookings || []);
       } catch (err) {

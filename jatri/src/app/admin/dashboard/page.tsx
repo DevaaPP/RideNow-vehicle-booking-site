@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 ﻿import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import AdminDashboardClient from "./AdminDashboardClient";

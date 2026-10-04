@@ -1,6 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
+
+
+import nextDynamic from "next/dynamic";
 import {
   Phone, User2, Car, IndianRupee,
   ChevronUp, Clock, Zap,
@@ -18,7 +20,7 @@ import { IVehicle } from "@/models/vehicle.model";
 import RideChat from "@/features/rides/components/RideChat";
 import { haversineKm } from "@/lib/routeUtils";
 
-const LiveRideMap = dynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
+const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
 export const DRIVER_CANCELLATION_REASONS = [
   "Vehicle breakdown / Mechanical issue",
@@ -265,7 +267,10 @@ export default function DriverRidePage() {
   const fetchBookingDetails = () => {
     const bookingId = bookingRef.current?._id;
     const url = bookingId ? `/api/booking/${bookingId}` : "/api/partner/bookings/active";
-    fetch(url)
+    fetch(url, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+    })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data && data._id) {
@@ -596,7 +601,7 @@ export default function DriverRidePage() {
           pickupLocation={pickupPos}
           dropLocation={dropPos}
           status={mapStatus}
-          onStats={({ distanceToPickup, durationToPickup, distanceToDrop, durationToDrop }) => {
+          onStats={({ distanceToPickup, durationToPickup, distanceToDrop, durationToDrop }: any) => {
             setDistanceToPickup(distanceToPickup); setEtaToPickup(durationToPickup);
             setDistanceToDrop(distanceToDrop);     setEtaToDrop(durationToDrop);
           }}

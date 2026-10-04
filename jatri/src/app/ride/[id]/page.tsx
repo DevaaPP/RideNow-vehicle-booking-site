@@ -1,6 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
+
+
+import nextDynamic from "next/dynamic";
 import {
   Phone, Car, User2, ChevronUp,
   Star, MessageCircle, Clock, Zap,
@@ -21,7 +23,7 @@ import RideFailedView from "@/features/rides/components/RideFailedView";
 import RideSafetyAlert from "@/features/rides/components/RideSafetyAlert";
 import { calculateCancellationPenalty } from "@/lib/cancellationRules";
 
-const LiveRideMap = dynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
+const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
 /* ─── TYPES ──────────────────────────────────────────────────────────── */
 type BookingStatus =
@@ -344,7 +346,10 @@ export default function RidePage() {
   const fetchBooking = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
-      const res  = await fetch(`/api/booking/${id}`);
+      const res  = await fetch(`/api/booking/${id}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      });
       if (!res.ok) throw new Error("Failed to fetch booking");
       const data = await res.json();
       setBooking(data);
@@ -639,7 +644,7 @@ export default function RidePage() {
           status={mapStatus}
           vehicleType={booking?.vehicle?.type ?? "car"}
           etaMinutes={displayEta}
-          onStats={({ distanceToPickup, durationToPickup, distanceToDrop, durationToDrop }) => {
+          onStats={({ distanceToPickup, durationToPickup, distanceToDrop, durationToDrop }: any) => {
             setDistanceToPickup(distanceToPickup); setEtaToPickup(durationToPickup);
             setDistanceToDrop(distanceToDrop);     setEtaToDrop(durationToDrop);
           }}

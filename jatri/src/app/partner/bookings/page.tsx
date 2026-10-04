@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -47,7 +49,10 @@ export default function PartnerBookingsPage() {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await fetch("/api/partner/bookings");
+        const res = await fetch("/api/partner/bookings", {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
         const data = await res.json();
         setBookings(data.bookings || []);
       } catch (err) {
