@@ -13,7 +13,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { amount, idempotencyKey } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { amount } = body;
+    const idempotencyKey = body.idempotencyKey || req.headers.get("x-idempotency-key") || req.headers.get("idempotency-key");
     const withdrawAmount = Math.round(Number(amount));
 
     if (!withdrawAmount || isNaN(withdrawAmount) || withdrawAmount < 100) {

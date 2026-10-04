@@ -10,15 +10,33 @@ import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { haversineDistance } from "@/lib/routeUtils";
 import { sendPushToUser } from "@/lib/webPush";
 import { findEligibleCandidates } from "@/lib/driverMatchingEngine";
+import { idempotency } from "@/lib/idempotency";
+import { getRequestId } from "@/lib/apiResponse";
 
 export async function POST(req: Request) {
+  const requestId = getRequestId(req);
   try {
+    const idempotencyKey = idempotency.getKey(req);
+    if (idempotencyKey) {
+      const cached = idempotency.get(idempotencyKey);
+      if (cached) {
+        return NextResponse.json(cached.body, {
+          status: cached.status,
+          headers: {
+            ...cached.headers,
+            "X-Request-Id": requestId,
+            "X-Cache-Lookup": "HIT",
+          },
+        });
+      }
+    }
+
     await connectDb();
 
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, message: "Please sign in to request a ride" },
+        { success: false, message: "Please sign in to request a ride", meta: { requestId } },
         { status: 401 }
       );
     }
@@ -371,12 +389,35 @@ export async function POST(req: Request) {
       console.warn("Web Push to driver failed (continuing):", pushErr);
     }
 
-    return NextResponse.json({ success: true, booking });
+    const responsePayload = {
+      success: true,
+      booking,
+      meta: {
+        requestId,
+        timestamp: new Date().toISOString(),
+      },
+    };
+
+    if (idempotencyKey) {
+      idempotency.set(idempotencyKey, 201, responsePayload);
+    }
+
+    return NextResponse.json(responsePayload, {
+      status: 201,
+      headers: { "X-Request-Id": requestId },
+    });
   } catch (error: any) {
-    console.error("Booking creation error:", error);
+    console.error(`[${requestId}] Booking creation error:`, error);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to create booking" },
-      { status: 500 }
+      {
+        success: false,
+        message: error.message || "Failed to create booking",
+        meta: { requestId },
+      },
+      {
+        status: 500,
+        headers: { "X-Request-Id": requestId },
+      }
     );
   }
 }
