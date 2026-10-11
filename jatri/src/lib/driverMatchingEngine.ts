@@ -239,12 +239,19 @@ export async function escalateToNextCandidate(
       // Dispatch real-time WebSocket notification to candidate driver
       try {
         const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
+        const socketSecret = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
         if (socketServer) {
-          await axios.post(`${socketServer}/emit`, {
-            userId: nextDriver._id.toString(),
-            event: "new-booking",
-            data: booking,
-          });
+          await axios.post(
+            `${socketServer}/emit`,
+            {
+              userId: nextDriver._id.toString(),
+              event: "new-booking",
+              data: booking,
+            },
+            {
+              headers: { "x-socket-secret": socketSecret },
+            }
+          );
         }
       } catch (err) {
         console.warn("Socket notification error on dispatch escalation:", err);
@@ -289,12 +296,19 @@ export async function escalateToNextCandidate(
 
       try {
         const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
+        const socketSecret = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
         if (socketServer) {
-          await axios.post(`${socketServer}/emit`, {
-            userId: newDriver.driverId.toString(),
-            event: "new-booking",
-            data: booking,
-          });
+          await axios.post(
+            `${socketServer}/emit`,
+            {
+              userId: newDriver.driverId.toString(),
+              event: "new-booking",
+              data: booking,
+            },
+            {
+              headers: { "x-socket-secret": socketSecret },
+            }
+          );
         }
       } catch (err) {
         console.warn("Socket notification error on fresh candidate sweep:", err);

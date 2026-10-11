@@ -139,10 +139,14 @@ export async function triggerEmergencySos(params: TriggerSosParams) {
     };
 
     try {
+      const socketSecret = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
       if (booking.user) {
         await fetch(`${socketServer}/emit`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-socket-secret": socketSecret,
+          },
           body: JSON.stringify({
             userId: (booking.user._id || booking.user).toString(),
             event: "safety-panic-alert",
@@ -154,7 +158,10 @@ export async function triggerEmergencySos(params: TriggerSosParams) {
       if (booking.driver) {
         await fetch(`${socketServer}/emit`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-socket-secret": socketSecret,
+          },
           body: JSON.stringify({
             userId: (booking.driver._id || booking.driver).toString(),
             event: "safety-panic-alert",

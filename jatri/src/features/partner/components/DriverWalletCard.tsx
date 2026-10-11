@@ -229,9 +229,17 @@ export default function DriverWalletCard() {
                   </p>
                 </div>
               </div>
-              <span className="text-[10px] font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-md">
-                Auto-settling
-              </span>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[10px] font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-md">
+                  Auto-settling
+                </span>
+                <Link
+                  href="/partner/wallet"
+                  className="text-[10px] font-black text-amber-900 underline hover:text-amber-950 transition"
+                >
+                  Clear Online →
+                </Link>
+              </div>
             </div>
           )}
 

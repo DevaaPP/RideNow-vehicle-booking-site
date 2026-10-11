@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
+import { loadRazorpayScript } from "@/lib/loadRazorpay";
 
 export default function PartnerWalletPage() {
   const [loading, setLoading] = useState(true);
@@ -41,6 +42,10 @@ export default function PartnerWalletPage() {
   const [activeFilter, setActiveFilter] = useState<
     "all" | "earning" | "commission" | "dues" | "withdrawal"
   >("all");
+
+  /* Dues Repayment State */
+  const [clearingDues, setClearingDues] = useState(false);
+  const [duesMsg, setDuesMsg] = useState<string | null>(null);
 
   /* Withdrawal Modal State */
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
@@ -129,6 +134,85 @@ export default function PartnerWalletPage() {
       setWithdrawError("Network error processing payout");
     } finally {
       setProcessingWithdraw(false);
+    }
+  };
+
+  const handlePayPlatformDues = async (amountToPay?: number) => {
+    try {
+      setClearingDues(true);
+      setDuesMsg(null);
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        setDuesMsg("Failed to load payment gateway SDK. Please check your internet connection.");
+        setClearingDues(false);
+        return;
+      }
+
+      // Step 1: Create Order
+      const orderRes = await fetch("/api/partner/wallet/settle-dues", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "create_order",
+          amount: amountToPay || platformDues,
+        }),
+      });
+      const orderData = await orderRes.json();
+      if (!orderData.success) {
+        setDuesMsg(orderData.error || "Failed to initialize dues payment order");
+        setClearingDues(false);
+        return;
+      }
+
+      // Step 2: Open Razorpay Checkout Modal
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: "INR",
+        name: "RideNow Partner",
+        description: `Clear Platform Dues (₹${orderData.amountToPay})`,
+        order_id: orderData.orderId,
+        handler: async (response: any) => {
+          try {
+            const verifyRes = await fetch("/api/partner/wallet/settle-dues", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "verify_payment",
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                amount: orderData.amountToPay,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              setDuesMsg(`✓ Success: ${verifyData.message}`);
+              fetchDriverWallet();
+            } else {
+              setDuesMsg(`Payment failed: ${verifyData.error}`);
+            }
+          } catch (err: any) {
+            setDuesMsg("Error confirming dues payment: " + err.message);
+          } finally {
+            setClearingDues(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setClearingDues(false);
+          },
+        },
+        theme: {
+          color: "#059669",
+        },
+      };
+
+      const paymentObj = new (window as any).Razorpay(options);
+      paymentObj.open();
+    } catch (err: any) {
+      setDuesMsg("Payment initialization failed: " + err.message);
+      setClearingDues(false);
     }
   };
 
@@ -299,9 +383,34 @@ export default function PartnerWalletPage() {
                 </div>
                 <p className="text-xs text-zinc-500 mt-1">
                   {platformDues > 0
-                    ? "Commission owed from cash rides. Auto-settled from future online rides."
+                    ? "Commission owed from cash rides. Auto-settled from future online rides or clear instantly online."
                     : "No outstanding platform commission dues."}
                 </p>
+
+                {platformDues > 0 && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      disabled={clearingDues}
+                      onClick={() => handlePayPlatformDues()}
+                      className="w-full bg-amber-800 hover:bg-amber-900 text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition disabled:opacity-50 shadow-xs"
+                    >
+                      {clearingDues ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <IndianRupee size={13} />
+                      )}
+                      {clearingDues
+                        ? "Connecting..."
+                        : `Clear Dues (₹${platformDues.toLocaleString("en-IN")})`}
+                    </button>
+                    {duesMsg && (
+                      <p className="text-[11px] font-medium text-amber-900 mt-2 bg-amber-100/70 p-2 rounded-lg leading-tight">
+                        {duesMsg}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="pt-5 mt-5 border-t border-zinc-100 flex items-center justify-between">

@@ -77,6 +77,36 @@ export default function ProfilePage() {
   const [addingMember, setAddingMember] = useState(false);
   const [familyMsg, setFamilyMsg] = useState<string | null>(null);
 
+  /* ── DPDP ACCOUNT ERASURE STATE ── */
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeletingAccount(true);
+      setDeleteError(null);
+      const res = await axios.post("/api/user/delete-account");
+      if (res.data.success) {
+        setDeleteSuccess(true);
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 3000);
+      } else {
+        setDeleteError(res.data.error || "Failed to process erasure request");
+      }
+    } catch (err: any) {
+      setDeleteError(
+        err.response?.data?.error ||
+          err.message ||
+          "Failed to process account deletion"
+      );
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
   const fetchFamily = async () => {
     try {
       setLoadingFamily(true);
@@ -727,6 +757,157 @@ export default function ProfilePage() {
             </div>
           </div>
         </motion.div>
+
+        {/* 🔒 DPDP ACT, 2023 - PRIVACY & DATA ERASURE */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mt-6 sm:mt-8 bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden"
+        >
+          <div className="h-1.5 bg-zinc-300 w-full" />
+          <div className="p-4 sm:p-8 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-zinc-700 flex items-center justify-center font-bold shrink-0">
+                  <ShieldCheck size={22} />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-zinc-900 leading-tight">
+                    Data Privacy & Account Erasure
+                  </h3>
+                  <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                    Exercise your statutory rights under Section 12 of the Digital Personal Data Protection Act, 2023
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteError(null);
+                  setDeleteSuccess(false);
+                  setShowDeleteModal(true);
+                }}
+                className="inline-flex items-center justify-center gap-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-4 py-2.5 rounded-xl transition w-full sm:w-auto"
+              >
+                <Trash2 size={14} /> Request Account Deletion
+              </button>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3 text-xs text-zinc-500">
+              <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+                <span className="font-bold text-zinc-800 block mb-0.5">Instant Identity Scrubbing:</span>
+                Your name, phone number, login credentials, and saved addresses are immediately anonymized.
+              </div>
+              <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+                <span className="font-bold text-zinc-800 block mb-0.5">Statutory Retention:</span>
+                Past trip logs and tax receipts are archived in anonymized form for statutory audit periods under Motor Vehicle Guidelines.
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 🗑️ ACCOUNT DELETION CONFIRMATION MODAL */}
+        <AnimatePresence>
+          {showDeleteModal && (
+            <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className="bg-white rounded-3xl p-6 sm:p-7 w-full max-w-md shadow-2xl border border-zinc-200 relative overflow-hidden"
+              >
+                <div className="flex items-center justify-between pb-4 border-b border-zinc-100 mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center">
+                      <Trash2 size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black text-zinc-900 leading-tight">
+                        Confirm Account Erasure
+                      </h3>
+                      <p className="text-[11px] text-zinc-500 font-semibold">
+                        Permanent Action under DPDP Act, 2023
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteModal(false)}
+                    className="w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 hover:bg-zinc-200 flex items-center justify-center transition"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {deleteError && (
+                  <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2">
+                    <AlertCircle size={15} className="shrink-0 text-rose-600 mt-0.5" />
+                    <span>{deleteError}</span>
+                  </div>
+                )}
+
+                {deleteSuccess ? (
+                  <div className="text-center py-4 space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                      <CheckCircle2 size={28} />
+                    </div>
+                    <h4 className="text-sm font-black text-zinc-900">Account Erased Successfully</h4>
+                    <p className="text-xs text-zinc-500">
+                      Your personal identifiers have been scrubbed. Redirecting you to home...
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-xs text-zinc-600 leading-relaxed">
+                      Are you sure you want to delete your account? This action cannot be reversed.
+                    </p>
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
+                      <p className="font-bold flex items-center gap-1.5">
+                        <AlertCircle size={14} className="text-amber-700" /> Accounting Prerequisites:
+                      </p>
+                      <ul className="list-disc list-inside text-[11px] text-amber-800 space-y-0.5 pl-1">
+                        <li>No active or scheduled rides ongoing</li>
+                        <li>No pending cancellation or platform dues</li>
+                        <li>Zero wallet balance (withdraw balance first)</li>
+                      </ul>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowDeleteModal(false)}
+                        className="px-4 py-3 rounded-xl border border-zinc-200 text-zinc-700 text-xs font-bold hover:bg-zinc-50 transition"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        disabled={deletingAccount}
+                        onClick={handleDeleteAccount}
+                        className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg transition"
+                      >
+                        {deletingAccount ? (
+                          <>
+                            <Loader2 size={15} className="animate-spin" />
+                            Erasing Identifiers...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 size={15} />
+                            Permanently Erase My Data
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
         {/* 🎓 STUDENT VERIFICATION MODAL (3 STEPS) */}
         <AnimatePresence>
           {showStudentModal && (

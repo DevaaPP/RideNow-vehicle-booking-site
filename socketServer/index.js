@@ -29,6 +29,7 @@ const server=http.createServer(app)
 const port=process.env.PORT || 5000
 
 const nextBaseUrl = process.env.NEXT_BASE_URL ? process.env.NEXT_BASE_URL.replace(/\/$/, "") : "http://localhost:3000";
+const INTERNAL_SECRET = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
 
 const io=new Server(server,{
     cors:{
@@ -36,9 +37,16 @@ const io=new Server(server,{
     }
 })
 
-
-
 app.post("/emit", async (req, res) => {
+  const secret = req.headers["x-socket-secret"];
+  if (process.env.SOCKET_INTERNAL_SECRET || process.env.NODE_ENV === "production") {
+    if (secret !== INTERNAL_SECRET) {
+      return res.status(403).json({ success: false, error: "Unauthorized socket emission secret" });
+    }
+  } else if (secret && secret !== INTERNAL_SECRET) {
+    return res.status(403).json({ success: false, error: "Unauthorized socket emission secret" });
+  }
+
   const { userId, event, data } = req.body;
 
   try {
@@ -67,10 +75,14 @@ app.post("/emit", async (req, res) => {
 io.on("connection", (socket) => {
 
   socket.on("identity", async (userId) => {
+    if (!userId || typeof userId !== "string" || !mongoose.Types.ObjectId.isValid(userId)) {
+      return;
+    }
     socket.userId = userId;
     socket.join(`user-${userId}`);
     try {
       const user = await User.findById(userId);
+      if (!user) return;
       const updateData = { socketId: socket.id };
       if (user && user.role !== "vendor") {
         updateData.isOnline = true;
@@ -82,11 +94,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join-booking", (bookingId) => {
+    if (!bookingId || typeof bookingId !== "string") return;
     console.log("joining room:", `booking-${bookingId}`);
     socket.join(`booking-${bookingId}`);
   });
 
   socket.on("driver-location-update", (data) => {
+    if (!socket.userId || !data?.bookingId) return;
     io.to(`booking-${data.bookingId}`)
       .emit("driver-location", {
         latitude: data.latitude,
@@ -96,7 +110,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat-message", (msg) => {
-    const bookingId = msg.rideId || msg.bookingId;
+    if (!socket.userId) return;
+    const bookingId = msg?.rideId || msg?.bookingId;
+    if (!bookingId) return;
     console.log("chat to room:", `booking-${bookingId}`);
     io.to(`booking-${bookingId}`).emit("chat-message", msg);
   });
