@@ -7,6 +7,7 @@ import connectDb from "@/lib/db";
 import User, { IDriverVerificationStatus } from "@/models/user.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
 import PartnerBank from "@/models/partnerBank.model";
+import { evaluateDocumentExpirations } from "@/lib/documentExpiryEngine";
 
 export async function GET() {
   try {
@@ -65,37 +66,22 @@ export async function GET() {
       blockingReasons.push("Face / Video KYC check not completed");
     }
 
-    // Check Document Expirations
+    // Check Document Expirations via authoritative expiry engine
     let isVehicleCompliant = true;
+    const expiryEvaluation = evaluateDocumentExpirations(doc);
 
     if (doc) {
-      // DL Expiry
+      if (expiryEvaluation.hasCriticalExpiry) {
+        status.vehicle = "expired";
+        isVehicleCompliant = false;
+        blockingReasons.push(...expiryEvaluation.blockingReasons);
+      }
+
+      // Driving License status
       if (doc.licenseExpiry && new Date(doc.licenseExpiry) < now) {
         status.drivingLicense = "expired";
-        blockingReasons.push("Driving licence has expired. Please upload a renewed licence.");
       } else if (doc.licenseUrl && status.drivingLicense !== "verified") {
         status.drivingLicense = "pending";
-      }
-
-      // Insurance Expiry
-      if (doc.insuranceExpiry && new Date(doc.insuranceExpiry) < now) {
-        status.vehicle = "expired";
-        isVehicleCompliant = false;
-        blockingReasons.push("Vehicle insurance policy has expired. Active insurance is required to accept rides.");
-      }
-
-      // Fitness Expiry
-      if (doc.fitnessExpiry && new Date(doc.fitnessExpiry) < now) {
-        status.vehicle = "expired";
-        isVehicleCompliant = false;
-        blockingReasons.push("Vehicle fitness certificate has expired.");
-      }
-
-      // PUC Expiry
-      if (doc.pucExpiry && new Date(doc.pucExpiry) < now) {
-        status.vehicle = "expired";
-        isVehicleCompliant = false;
-        blockingReasons.push("Pollution Under Control (PUC) certificate has expired.");
       }
 
       // RC check
@@ -135,6 +121,10 @@ export async function GET() {
       verificationStatus: status,
       vendorStatus: driver.vendorStatus,
       isOnline: driver.isOnline,
+      expiryAlerts: expiryEvaluation.alerts,
+      hasCriticalExpiry: expiryEvaluation.hasCriticalExpiry,
+      hasUrgentWarning: expiryEvaluation.hasUrgentWarning,
+      hasAdvanceWarning: expiryEvaluation.hasAdvanceWarning,
       documentSummary: {
         hasAadhaar: Boolean(doc?.aadhaarUrl || doc?.aadhaarMaskedNumber),
         hasPAN: Boolean(doc?.panUrl || doc?.panNumber),
