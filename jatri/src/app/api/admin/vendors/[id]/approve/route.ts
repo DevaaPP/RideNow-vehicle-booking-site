@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import User from "@/models/user.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
 import PartnerBank from "@/models/partnerBank.model";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function POST(
   req: NextRequest,
@@ -51,6 +52,12 @@ export async function POST(
       );
     }
 
+    const beforeState = {
+      vendorStatus: user.vendorStatus,
+      vendorOnboardingStep: user.vendorOnboardingStep,
+      isVendorBlocked: user.isVendorBlocked,
+    };
+
     /* ---------- APPROVE ---------- */
     user.vendorStatus = "approved";
     user.isVendorBlocked = false;
@@ -83,6 +90,26 @@ export async function POST(
       bank.status = "verified";
       await bank.save();
     }
+
+    await recordAuditLog({
+      adminId: session.user.id || (session.user as any)._id,
+      adminEmail: session.user.email || undefined,
+      action: "APPROVE_VENDOR",
+      targetId: vendorId,
+      targetType: "VENDOR",
+      beforeState,
+      afterState: {
+        vendorStatus: "approved",
+        vendorOnboardingStep: 4,
+        isVendorBlocked: false,
+      },
+      metadata: {
+        vendorName: user.name,
+        vendorPhone: user.phone,
+        vendorEmail: user.email,
+      },
+      req,
+    });
 
     return NextResponse.json({
       success: true,
