@@ -304,7 +304,7 @@ export default function WalletPage() {
             <div className="relative z-10 pt-4 sm:pt-6 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-zinc-400">
               <div className="flex items-center gap-1.5 font-medium">
                 <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
-                <span>{t("wallet.protectedEncryption", "Protected by RBI compliant 256-bit encryption")}</span>
+                <span>{t("wallet.protectedEncryption", "Payments processed securely through our payment provider")}</span>
               </div>
               <button
                 onClick={() => setShowTopupModal(true)}
