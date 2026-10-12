@@ -69,6 +69,11 @@ socketId:string | null
   lastLocationUpdate?: Date;
   lastHeartbeat?: Date;
 
+  /* ===== RATINGS & REPUTATION ===== */
+  rating?: number; // Rolling average 1.0 - 5.0
+  totalRatingsCount?: number;
+  totalRides?: number;
+
   /* ===== COMMON ===== */
 
   isEmailVerified: boolean;
@@ -259,6 +264,22 @@ const UserSchema = new Schema<IUser>(
     lastHeartbeat: {
       type: Date,
       index: true,
+    },
+
+    /* ===== RATINGS & REPUTATION ===== */
+    rating: {
+      type: Number,
+      default: 5.0,
+      min: 1.0,
+      max: 5.0,
+    },
+    totalRatingsCount: {
+      type: Number,
+      default: 0,
+    },
+    totalRides: {
+      type: Number,
+      default: 0,
     },
 
     /* ===== AUTH ===== */
