@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Vehicle from "@/models/vehicle.model";
 import User from "@/models/user.model";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function POST(
   req: NextRequest,
@@ -24,6 +25,10 @@ export async function POST(
       return NextResponse.json({ message: "Vehicle not found" }, { status: 404 });
     }
 
+    const beforeState = {
+      status: vehicle.status,
+    };
+
     vehicle.status = "approved";
     vehicle.rejectionReason = undefined;
     await vehicle.save();
@@ -31,6 +36,25 @@ export async function POST(
     // 🔥 Move vendor to LIVE step (7)
     await User.findByIdAndUpdate(vehicle.owner, {
       vendorOnboardingStep: 7,
+    });
+
+    await recordAuditLog({
+      adminId: session.user.id,
+      adminEmail: session.user.email || undefined,
+      action: "APPROVE_VEHICLE",
+      targetId: vehicleId,
+      targetType: "VEHICLE",
+      beforeState,
+      afterState: {
+        status: "approved",
+      },
+      metadata: {
+        owner: String(vehicle.owner),
+        number: vehicle.number,
+        type: vehicle.type,
+        vehicleModel: vehicle.vehicleModel,
+      },
+      req,
     });
 
     return NextResponse.json({
