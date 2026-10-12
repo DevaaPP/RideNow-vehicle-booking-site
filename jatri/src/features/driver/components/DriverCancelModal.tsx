@@ -43,9 +43,11 @@ export default function DriverCancelModal({
           </div>
 
           <h3 className="text-white text-xl font-black mb-1">Cancel accepted ride?</h3>
-          <p className="text-zinc-400 text-xs mb-4">
-            Frequent cancellations affect your driver acceptance rating and may incur penalties.
-          </p>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3 mb-4">
+            <p className="text-amber-300 text-xs font-semibold leading-relaxed">
+              ⚠️ Frequent cancellations reduce your acceptance score. Reaching 3 cancellations in a shift initiates an automatic 15-minute dispatch timeout.
+            </p>
+          </div>
 
           <div className="space-y-1.5 max-h-48 overflow-y-auto mb-4 pr-1">
             {DRIVER_CANCELLATION_REASONS.map((reason) => {
