@@ -12,7 +12,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized admin access" }, { status: 403 });
     }
 
-    const { targetUserId, amount, type, reason, notes } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { targetUserId, amount, type, reason, notes } = body;
+
+    const idempotencyKey =
+      req.headers.get("x-idempotency-key") ||
+      req.headers.get("idempotency-key") ||
+      body.idempotencyKey;
 
     if (!targetUserId || !amount || !type || !reason) {
       return NextResponse.json(
@@ -35,11 +41,15 @@ export async function POST(req: NextRequest) {
       type,
       reason,
       notes,
+      idempotencyKey,
     });
 
     return NextResponse.json({
       success: true,
-      message: `Successfully executed admin ${type} adjustment of ₹${result.amount}`,
+      isIdempotentReplay: Boolean((result as any).isIdempotentReplay),
+      message: (result as any).isIdempotentReplay
+        ? `Idempotent replay: adjustment already recorded previously`
+        : `Successfully executed admin ${type} adjustment of ₹${result.amount}`,
       data: result,
     });
   } catch (error: any) {
