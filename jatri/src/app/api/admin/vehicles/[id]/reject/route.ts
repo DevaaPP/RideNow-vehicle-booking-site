@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Vehicle from "@/models/vehicle.model";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function POST(
   req: NextRequest,
@@ -31,9 +32,35 @@ export async function POST(
       return NextResponse.json({ message: "Vehicle not found" }, { status: 404 });
     }
 
+    const beforeState = {
+      status: vehicle.status,
+      rejectionReason: vehicle.rejectionReason,
+    };
+
     vehicle.status = "rejected";
     vehicle.rejectionReason = reason;
     await vehicle.save();
+
+    await recordAuditLog({
+      adminId: session.user.id,
+      adminEmail: session.user.email || undefined,
+      action: "REJECT_VEHICLE",
+      targetId: vehicleId,
+      targetType: "VEHICLE",
+      reason,
+      beforeState,
+      afterState: {
+        status: "rejected",
+        rejectionReason: reason,
+      },
+      metadata: {
+        owner: String(vehicle.owner),
+        number: vehicle.number,
+        type: vehicle.type,
+        vehicleModel: vehicle.vehicleModel,
+      },
+      req,
+    });
 
     return NextResponse.json({
       message: "Vehicle pricing rejected",
