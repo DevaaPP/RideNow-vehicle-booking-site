@@ -775,8 +775,8 @@ export async function processRideCancellationRefund(params: {
       rideId: bookingId,
       bookingId,
       type: "credit",
-      transactionType: "EARNING",
-      category: "partner_earning",
+      transactionType: "CANCELLATION_COMPENSATION",
+      category: "cancellation_compensation",
       amount: compFee,
       balanceBefore: dBefore,
       balanceAfter: dAfter,
@@ -785,6 +785,7 @@ export async function processRideCancellationRefund(params: {
       metadata: {
         cancellationFee,
         driverCompensation: compFee,
+        isPlatformAdvance: Boolean((params as any).isPlatformAdvance),
         reason,
       },
     });
