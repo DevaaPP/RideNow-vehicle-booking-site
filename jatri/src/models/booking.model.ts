@@ -149,6 +149,9 @@ export interface IBooking extends Document {
   cancellationReason?: string;
   cancellationFee?: number;
   cancellationFeeApplied?: boolean;
+  driverCompensation?: number;
+  isPlatformAdvance?: boolean;
+  outstandingAccrued?: number;
   cancelledAt?: Date;
   rating?: number;
   feedback?: string;
@@ -415,6 +418,9 @@ partnerAmount: {
     cancellationReason: { type: String, trim: true },
     cancellationFee: { type: Number, default: 0 },
     cancellationFeeApplied: { type: Boolean, default: false },
+    driverCompensation: { type: Number, default: 0 },
+    isPlatformAdvance: { type: Boolean, default: false },
+    outstandingAccrued: { type: Number, default: 0 },
     cancelledAt: { type: Date },
     rating: { type: Number, min: 1, max: 5 },
     feedback: { type: String, trim: true, maxlength: 500 },
