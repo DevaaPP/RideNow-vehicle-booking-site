@@ -48,6 +48,36 @@ export async function POST(
   booking.cancelledBy = "driver";
   booking.cancellationReason = reason;
 
+  // 0️⃣ Track driver cancellation accountability & trigger cooldown if limit exceeded
+  const driverUser = await User.findById(driverId);
+  let isCooldownTriggered = false;
+  let cooldownMinutes = 0;
+
+  if (driverUser) {
+    const now = new Date();
+    const lastCancel = driverUser.lastCancellationDate ? new Date(driverUser.lastCancellationDate) : null;
+    const isSameDay =
+      lastCancel &&
+      lastCancel.getFullYear() === now.getFullYear() &&
+      lastCancel.getMonth() === now.getMonth() &&
+      lastCancel.getDate() === now.getDate();
+
+    const currentDaily = isSameDay ? (driverUser.dailyCancellationCount || 0) : 0;
+    const newDaily = currentDaily + 1;
+    driverUser.dailyCancellationCount = newDaily;
+    driverUser.cancellationCount = (driverUser.cancellationCount || 0) + 1;
+    driverUser.lastCancellationDate = now;
+
+    // Marketplace Policy: 3 or more cancellations in a single shift triggers an automatic 15-minute dispatch timeout
+    if (newDaily >= 3) {
+      cooldownMinutes = 15;
+      driverUser.dispatchBlockedUntil = new Date(now.getTime() + cooldownMinutes * 60 * 1000);
+      driverUser.isOnline = false; // Take driver offline during timeout
+      isCooldownTriggered = true;
+    }
+    await driverUser.save();
+  }
+
   const cancelledIds = booking.cancelledDriverIds ? [...booking.cancelledDriverIds.map((d: any) => d.toString())] : [];
   if (!cancelledIds.includes(driverId)) {
     cancelledIds.push(driverId);
@@ -150,7 +180,12 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
       success: true,
       rematched: true,
       newDriverId: replacementDriver._id,
-      message: "Driver cancelled ride. Auto re-matched replacement driver successfully.",
+      dailyCancellationCount: driverUser?.dailyCancellationCount || 0,
+      isCooldownTriggered,
+      cooldownMinutes,
+      message: isCooldownTriggered
+        ? `Driver cancelled ride. Cancellation limit reached; dispatch is on cooldown for ${cooldownMinutes} minutes.`
+        : "Driver cancelled ride. Auto re-matched replacement driver successfully.",
     });
   } else {
     // No online driver available immediately
@@ -180,7 +215,12 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
       success: true,
       rematched: false,
       isAutoRematching: true,
-      message: "Driver cancelled. Searching for nearby drivers...",
+      dailyCancellationCount: driverUser?.dailyCancellationCount || 0,
+      isCooldownTriggered,
+      cooldownMinutes,
+      message: isCooldownTriggered
+        ? `Driver cancelled ride. Cancellation limit reached; dispatch is on cooldown for ${cooldownMinutes} minutes.`
+        : "Driver cancelled. Searching for nearby drivers...",
     });
   }
 }
