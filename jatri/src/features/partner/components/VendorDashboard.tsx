@@ -1265,16 +1265,36 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             <div>
               <div className="flex items-baseline gap-1 sm:gap-1.5 leading-none">
                 <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight">
-                  ★ {shiftSummary?.rating ?? 4.9}
+                  ★ {shiftSummary?.rating ?? 5.0}
                 </p>
-                <span className="text-[9px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1 sm:px-1.5 py-0.5 rounded">
-                  {shiftSummary?.acceptanceRate ?? 96}%
+                <span className={`text-[9px] sm:text-[11px] font-bold px-1 sm:px-1.5 py-0.5 rounded ${
+                  (shiftSummary?.cancellationRate ?? 0) > 10
+                    ? "text-red-600 bg-red-50"
+                    : "text-emerald-600 bg-emerald-50"
+                }`}>
+                  {shiftSummary?.acceptanceRate ?? 100}% accept
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1">Acceptance rate</p>
+              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1">
+                {shiftSummary?.dailyCancellations ? `${shiftSummary.dailyCancellations} cancelled today` : "Clean shift"}
+              </p>
             </div>
           </div>
         </div>
+
+        {/* Cooldown Alert Banner */}
+        {shiftSummary?.isCooldownActive && shiftSummary?.dispatchBlockedUntil && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
+            <AlertTriangle className="text-red-500 flex-shrink-0" size={20} />
+            <div className="text-xs">
+              <p className="text-red-700 font-bold">Dispatch Cooldown Active</p>
+              <p className="text-zinc-600 text-[11px] mt-0.5">
+                Multiple ride cancellations today have placed new dispatch assignments on temporary cooldown until{" "}
+                {new Date(shiftSummary.dispatchBlockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Dashboard Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
