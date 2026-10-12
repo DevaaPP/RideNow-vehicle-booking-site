@@ -16,11 +16,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { bookingId } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { bookingId } = body;
 
     if (!bookingId) {
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
+
+    const idempotencyKey =
+      req.headers.get("x-idempotency-key") ||
+      req.headers.get("idempotency-key") ||
+      body.idempotencyKey ||
+      `PAY_BOOKING_${bookingId}`;
 
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
@@ -32,10 +39,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    if (booking.paymentStatus === "paid") {
+    // Idempotency: verify if this payment was already processed
+    const existingTx = await WalletTransaction.findOne({
+      idempotencyKey,
+      status: "success",
+    });
+
+    if (existingTx || booking.paymentStatus === "paid") {
       return NextResponse.json({
         success: true,
+        isIdempotentReplay: true,
         message: "Booking is already paid",
+        transactionId: existingTx?.transactionId || undefined,
         booking,
       });
     }
@@ -94,6 +109,7 @@ export async function POST(req: NextRequest) {
     // Record rider debit transaction for ride fare
     await WalletTransaction.create({
       transactionId: txnId,
+      idempotencyKey,
       walletId: updatedWallet._id,
       userId: user._id,
       type: "debit",
