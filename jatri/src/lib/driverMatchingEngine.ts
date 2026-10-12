@@ -154,6 +154,15 @@ export async function findEligibleCandidates(options: {
     const driverIdStr = driver._id.toString();
     if (excludedSet.has(driverIdStr)) continue;
 
+    // A0. Verify driver cancellation dispatch cooldown lockout
+    if (driver.dispatchBlockedUntil && new Date(driver.dispatchBlockedUntil).getTime() > now) {
+      const remainingSecs = Math.round((new Date(driver.dispatchBlockedUntil).getTime() - now) / 1000);
+      logs.push(
+        `Driver ${driver._id} excluded: under cancellation cooldown for ${remainingSecs}s.`
+      );
+      continue;
+    }
+
     // A. Verify session heartbeat responsiveness
     const heartbeatTime = driver.lastHeartbeat
       ? new Date(driver.lastHeartbeat).getTime()
