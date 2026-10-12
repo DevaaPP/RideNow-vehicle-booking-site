@@ -150,6 +150,10 @@ export interface IBooking extends Document {
   cancellationFee?: number;
   cancellationFeeApplied?: boolean;
   cancelledAt?: Date;
+  rating?: number;
+  feedback?: string;
+  ratingTags?: string[];
+  ratedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -412,6 +416,10 @@ partnerAmount: {
     cancellationFee: { type: Number, default: 0 },
     cancellationFeeApplied: { type: Boolean, default: false },
     cancelledAt: { type: Date },
+    rating: { type: Number, min: 1, max: 5 },
+    feedback: { type: String, trim: true, maxlength: 500 },
+    ratingTags: { type: [String], default: [] },
+    ratedAt: { type: Date },
   },
   { timestamps: true }
 );
