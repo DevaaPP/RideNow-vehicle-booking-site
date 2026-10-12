@@ -6,6 +6,7 @@ import connectDb from "@/lib/db";
 import { auth } from "@/auth";
 import User, { IDriverVerificationStatus, VerificationItemStatus } from "@/models/user.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function POST(
   req: NextRequest,
@@ -77,6 +78,9 @@ export async function POST(
       };
     }
 
+    const beforePillarStatus = driver.driverVerificationStatus?.[pillar];
+    const beforeVendorStatus = driver.vendorStatus;
+
     driver.driverVerificationStatus[pillar] = status;
 
     // Also update VehicleDocument status if relevant
@@ -117,6 +121,31 @@ export async function POST(
 
     driver.markModified("driverVerificationStatus");
     await driver.save();
+
+    await recordAuditLog({
+      adminId: session.user.id || (session.user as any)._id,
+      adminEmail: session.user.email || undefined,
+      action: "VERIFY_PILLAR",
+      targetId: vendorId,
+      targetType: "VENDOR",
+      reason: rejectionReason,
+      beforeState: {
+        pillar,
+        pillarStatus: beforePillarStatus,
+        vendorStatus: beforeVendorStatus,
+      },
+      afterState: {
+        pillar,
+        pillarStatus: status,
+        vendorStatus: driver.vendorStatus,
+      },
+      metadata: {
+        vendorName: driver.name,
+        vendorPhone: driver.phone,
+        rejectionReason,
+      },
+      req,
+    });
 
     return NextResponse.json({
       success: true,
