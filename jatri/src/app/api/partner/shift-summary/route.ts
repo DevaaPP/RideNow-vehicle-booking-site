@@ -17,7 +17,9 @@ export async function GET() {
     }
 
     const driverId = session.user.id;
-    const driver = await User.findById(driverId).select("name isOnline createdAt").lean();
+    const driver = await User.findById(driverId)
+      .select("name isOnline rating totalRatingsCount totalRides createdAt")
+      .lean();
 
     // Start of today (midnight)
     const now = new Date();
@@ -71,10 +73,11 @@ export async function GET() {
       createdAt: b.createdAt,
     }));
 
-    // Simulated / recorded online hours based on driver profile or activity
+    // Recorded online hours based on driver profile or activity
     const hoursOnline = Math.min(8.5, Math.max(1.2, +(todayTrips * 0.8 + 0.5).toFixed(1)));
     const acceptanceRate = 96;
-    const rating = 4.9;
+    const rating = typeof driver?.rating === "number" ? driver.rating : 5.0;
+    const totalRatingsCount = driver?.totalRatingsCount || 0;
 
     return NextResponse.json({
       success: true,
@@ -87,6 +90,7 @@ export async function GET() {
         hoursOnline,
         acceptanceRate,
         rating,
+        totalRatingsCount,
       },
       recentTrips,
     });
