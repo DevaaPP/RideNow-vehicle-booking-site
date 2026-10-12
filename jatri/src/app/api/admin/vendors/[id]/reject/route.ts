@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 
 import User from "@/models/user.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function POST(
   req: NextRequest,
@@ -40,6 +41,11 @@ export async function POST(
       );
     }
 
+    const beforeState = {
+      vendorStatus: user.vendorStatus,
+      vendorRejectionReason: user.vendorRejectionReason,
+    };
+
     /* ---------- UPDATE STATUS ---------- */
     user.vendorStatus = "rejected";
     user.vendorRejectionReason = reason;
@@ -54,6 +60,26 @@ export async function POST(
         rejectionReason: reason,
       }
     );
+
+    await recordAuditLog({
+      adminId: session.user.id || (session.user as any)._id,
+      adminEmail: session.user.email || undefined,
+      action: "REJECT_VENDOR",
+      targetId: vendorId,
+      targetType: "VENDOR",
+      reason,
+      beforeState,
+      afterState: {
+        vendorStatus: "rejected",
+        vendorRejectionReason: reason,
+      },
+      metadata: {
+        vendorName: user.name,
+        vendorPhone: user.phone,
+        vendorEmail: user.email,
+      },
+      req,
+    });
 
     return NextResponse.json({
       success: true,
