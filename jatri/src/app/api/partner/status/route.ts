@@ -4,6 +4,8 @@ export const revalidate = 0;
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
+import VehicleDocument from "@/models/vehicleDocument.model";
+import { evaluateDocumentExpirations } from "@/lib/documentExpiryEngine";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -25,6 +27,9 @@ export async function GET() {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
+    const doc = await VehicleDocument.findOne({ owner: session.user.id }).lean();
+    const expiryEvaluation = evaluateDocumentExpirations(doc);
+
     return NextResponse.json({
       success: true,
       isOnline: user.isOnline,
@@ -36,6 +41,10 @@ export async function GET() {
       driverVerificationStatus: user.driverVerificationStatus || null,
       dispatchBlockedUntil: user.dispatchBlockedUntil || null,
       dailyCancellationCount: user.dailyCancellationCount || 0,
+      expiryAlerts: expiryEvaluation.alerts,
+      hasCriticalExpiry: expiryEvaluation.hasCriticalExpiry,
+      hasUrgentWarning: expiryEvaluation.hasUrgentWarning,
+      hasAdvanceWarning: expiryEvaluation.hasAdvanceWarning,
     });
   } catch (error) {
     console.error("Partner status GET error:", error);
@@ -93,7 +102,6 @@ export async function PATCH(req: Request) {
       }
 
       // Vehicle & Document Compliance Check
-      const VehicleDocument = (await import("@/models/vehicleDocument.model")).default;
       const doc = await VehicleDocument.findOne({ owner: driver._id });
       if (!doc) {
         return NextResponse.json(
@@ -104,22 +112,12 @@ export async function PATCH(req: Request) {
         );
       }
 
-      const now = new Date();
-      if (doc.insuranceExpiry && new Date(doc.insuranceExpiry) < now) {
+      const expiryEvaluation = evaluateDocumentExpirations(doc);
+      if (expiryEvaluation.hasCriticalExpiry) {
         return NextResponse.json(
           {
-            error: "Your vehicle commercial insurance has expired. Active insurance is required by law to accept rides.",
-            expiredField: "insurance",
-          },
-          { status: 403 }
-        );
-      }
-
-      if (doc.licenseExpiry && new Date(doc.licenseExpiry) < now) {
-        return NextResponse.json(
-          {
-            error: "Your driving licence has expired. Please upload a renewed licence.",
-            expiredField: "license",
+            error: expiryEvaluation.blockingReasons[0] || "Critical vehicle compliance documents have expired.",
+            expiredAlerts: expiryEvaluation.alerts.filter((a) => a.status === "expired"),
           },
           { status: 403 }
         );
