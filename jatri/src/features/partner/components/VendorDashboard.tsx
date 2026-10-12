@@ -969,7 +969,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     }, 12000);
 
     // 3. Setup socket listener for incoming requests
-    const socket = getSocket();
+    const socket = getSocket(userData?._id ? { userId: userData._id } : undefined);
     if (userData?._id) {
       socket.emit("identity", userData._id);
     }

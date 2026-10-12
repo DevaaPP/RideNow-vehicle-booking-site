@@ -72,19 +72,60 @@ app.post("/emit", async (req, res) => {
   }
 });
 
+// Handshake Authentication Middleware
+io.use(async (socket, next) => {
+  try {
+    const authPayload = socket.handshake.auth || {};
+    const userId = authPayload.userId || socket.handshake.query?.userId;
+
+    if (userId) {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return next(new Error("Invalid user authentication credentials"));
+      }
+      const user = await User.findById(userId).select("_id role isVendorBlocked isOnline");
+      if (user) {
+        socket.userId = user._id.toString();
+        socket.userRole = user.role;
+        socket.data.userId = user._id.toString();
+        socket.data.userRole = user.role;
+      }
+    }
+    next();
+  } catch (err) {
+    console.error("Socket authentication middleware error:", err);
+    next();
+  }
+});
+
 io.on("connection", (socket) => {
 
   socket.on("identity", async (userId) => {
     if (!userId || typeof userId !== "string" || !mongoose.Types.ObjectId.isValid(userId)) {
       return;
     }
-    socket.userId = userId;
-    socket.join(`user-${userId}`);
+
+    // If socket was pre-authenticated during handshake, prevent impersonating another user
+    if (socket.userId && socket.userId !== userId) {
+      console.warn(`Socket ${socket.id} attempted to identity mismatch: ${socket.userId} vs ${userId}`);
+      return;
+    }
+
     try {
       const user = await User.findById(userId);
       if (!user) return;
-      const updateData = { socketId: socket.id };
-      if (user && user.role !== "vendor") {
+
+      socket.userId = user._id.toString();
+      socket.userRole = user.role;
+      socket.data.userId = user._id.toString();
+      socket.data.userRole = user.role;
+
+      socket.join(`user-${userId}`);
+
+      const updateData = {
+        socketId: socket.id,
+        lastHeartbeat: new Date(),
+      };
+      if (user.role !== "vendor") {
         updateData.isOnline = true;
       }
       await User.findByIdAndUpdate(userId, updateData);
@@ -105,7 +146,7 @@ io.on("connection", (socket) => {
       .emit("driver-location", {
         latitude: data.latitude,
         longitude: data.longitude,
-        status: data.status || "arriving"
+        status: data.status || "arriving",
       });
   });
 
@@ -136,17 +177,34 @@ io.on("connection", (socket) => {
   });
 
   socket.on("update-location", async ({ latitude, longitude }) => {
+    if (!socket.userId) return;
 
-    if (!socket.userId) return
+    if (
+      typeof latitude !== "number" ||
+      typeof longitude !== "number" ||
+      isNaN(latitude) ||
+      isNaN(longitude) ||
+      latitude < -90 ||
+      latitude > 90 ||
+      longitude < -180 ||
+      longitude > 180
+    ) {
+      return;
+    }
 
-    await User.findByIdAndUpdate(socket.userId, {
-      location: {
-        type: "Point",
-        coordinates: [longitude, latitude]
-      }
-    })
-
-  })
+    try {
+      await User.findByIdAndUpdate(socket.userId, {
+        location: {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        },
+        lastLocationUpdate: new Date(),
+        lastHeartbeat: new Date(),
+      });
+    } catch (err) {
+      console.error("update-location db error:", err);
+    }
+  });
  
 
   socket.on("disconnect", async () => {

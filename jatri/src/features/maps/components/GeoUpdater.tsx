@@ -12,7 +12,7 @@ function GeoUpdater({ userId }: { userId: string | undefined }) {
     if (!userId) return;
     if (typeof window === "undefined" || !navigator.geolocation) return;
 
-    socketRef.current = getSocket();
+    socketRef.current = getSocket({ userId });
 
     // Emit identity once
     socketRef.current?.emit?.("identity", userId);

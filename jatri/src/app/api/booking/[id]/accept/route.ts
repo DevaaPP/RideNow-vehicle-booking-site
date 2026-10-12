@@ -16,7 +16,58 @@ export async function POST(
   const actorRole = session?.user?.role === "vendor" || session?.user?.role === "driver" ? "driver" : session?.user?.role === "admin" ? "admin" : "driver";
   const actorId = session?.user?.id;
 
-  const existingBooking = await Booking.findById(id).select("paymentStatus fare pickupOtp");
+  const existingBooking = await Booking.findById(id).select("paymentStatus fare pickupOtp driver status");
+  if (!existingBooking) {
+    return NextResponse.json({ message: "Booking not found" }, { status: 404 });
+  }
+
+  // 1. Idempotency Check: Driver retrying same acceptance request
+  if (
+    actorId &&
+    existingBooking.driver &&
+    existingBooking.driver.toString() === actorId.toString() &&
+    ["driver_assigned", "awaiting_payment", "confirmed", "driver_arriving"].includes(existingBooking.status)
+  ) {
+    return NextResponse.json({
+      success: true,
+      message: "Booking already accepted by you.",
+      booking: existingBooking,
+      isDuplicate: true,
+    });
+  }
+
+  // 2. Concurrency Safety: Ensure driver is not already committed to another active trip
+  if (actorId && actorRole === "driver") {
+    const activeRide = await Booking.findOne({
+      driver: actorId,
+      _id: { $ne: id },
+      status: {
+        $in: [
+          "awaiting_payment",
+          "confirmed",
+          "driver_assigned",
+          "driver_arriving",
+          "driver_arrived",
+          "started",
+          "ride_started",
+          "ride_in_progress",
+        ],
+      },
+    });
+
+    if (activeRide) {
+      return NextResponse.json(
+        {
+          message:
+            "You already have an active ride in progress. Complete or conclude your current trip before accepting another.",
+          errorCode: "DRIVER_BUSY",
+          activeRideId: activeRide._id,
+        },
+        { status: 409 }
+      );
+    }
+  }
+
   const isPaidOrCash = existingBooking?.paymentStatus === "paid" || existingBooking?.paymentStatus === "cash";
   const targetStatus = isPaidOrCash ? "confirmed" : "awaiting_payment";
 
@@ -52,6 +103,7 @@ export async function POST(
 
   try {
     if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
+      const socketSecret = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
       await axios.post(
         `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
         {
@@ -59,10 +111,13 @@ export async function POST(
           event: "booking-updated",
           data: {
             bookingId: booking._id.toString(),
-            status: "awaiting_payment",
+            status: targetStatus,
           },
         },
-        { timeout: 3500 }
+        {
+          headers: { "x-socket-secret": socketSecret },
+          timeout: 3500,
+        }
       );
     }
   } catch (socketErr) {

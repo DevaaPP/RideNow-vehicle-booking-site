@@ -98,6 +98,7 @@ export async function findEligibleCandidates(options: {
   const eligibleOwnerIds = activeVehicles.map((v) => v.owner.toString());
 
   // 3. Duplicate Assignment Prevention: Find drivers currently busy with an active trip
+  // or reserved with an active 25-second pending dispatch countdown
   const busyDriverIds = await Booking.find({
     status: {
       $in: [
@@ -113,12 +114,21 @@ export async function findEligibleCandidates(options: {
     },
   }).distinct("driver");
 
+  const pendingOfferDriverIds = await Booking.find({
+    status: { $in: ["requested", "searching_driver"] },
+    driver: { $exists: true, $ne: null },
+    updatedAt: { $gte: new Date(Date.now() - 25 * 1000) },
+  }).distinct("driver");
+
   const excludedSet = new Set([
     ...busyDriverIds.map((id) => id.toString()),
+    ...pendingOfferDriverIds.map((id) => id.toString()),
     ...excludeDriverIds.map((id) => id.toString()),
   ]);
 
-  logs.push(`Filtered out ${busyDriverIds.length} busy drivers and ${excludeDriverIds.length} excluded drivers.`);
+  logs.push(
+    `Filtered out ${busyDriverIds.length} busy drivers, ${pendingOfferDriverIds.length} pending-offer drivers, and ${excludeDriverIds.length} explicitly excluded drivers.`
+  );
 
   // 4. Query online, approved vendors who own these vehicles
   const candidateDrivers = await User.find({
@@ -131,9 +141,12 @@ export async function findEligibleCandidates(options: {
 
   logs.push(`Found ${candidateDrivers.length} online vendors before location & freshness filtering.`);
 
-  // 5. Filter by location freshness (within 30 mins) and proximity
+  // 5. Dual freshness verification:
+  // - Heartbeat freshness: <= 90 seconds (session responsiveness)
+  // - GPS freshness: <= 120 seconds (accurate vehicle coordinates)
   const now = Date.now();
-  const maxStalenessMs = 30 * 60 * 1000; // 30 minutes
+  const MAX_GPS_STALENESS_MS = 2 * 60 * 1000; // 2 minutes (120s)
+  const MAX_HEARTBEAT_STALENESS_MS = 90 * 1000; // 90 seconds
 
   const eligibleList: CandidateDriver[] = [];
 
@@ -141,13 +154,31 @@ export async function findEligibleCandidates(options: {
     const driverIdStr = driver._id.toString();
     if (excludedSet.has(driverIdStr)) continue;
 
-    // Check location freshness if lastLocationUpdate is present
-    if (driver.lastLocationUpdate) {
-      const diff = now - new Date(driver.lastLocationUpdate).getTime();
-      if (diff > maxStalenessMs) {
-        logs.push(`Driver ${driver._id} excluded due to stale location update (${Math.round(diff / 60000)}m ago).`);
-        continue;
-      }
+    // A. Verify session heartbeat responsiveness
+    const heartbeatTime = driver.lastHeartbeat
+      ? new Date(driver.lastHeartbeat).getTime()
+      : driver.lastLocationUpdate
+      ? new Date(driver.lastLocationUpdate).getTime()
+      : 0;
+    const heartbeatAge = now - heartbeatTime;
+    if (!heartbeatTime || heartbeatAge > MAX_HEARTBEAT_STALENESS_MS) {
+      logs.push(
+        `Driver ${driver._id} excluded: stale session heartbeat (${Math.round(heartbeatAge / 1000)}s ago > 90s limit).`
+      );
+      continue;
+    }
+
+    // B. Verify GPS coordinate freshness
+    if (!driver.lastLocationUpdate) {
+      logs.push(`Driver ${driver._id} excluded: missing GPS timestamp.`);
+      continue;
+    }
+    const gpsAge = now - new Date(driver.lastLocationUpdate).getTime();
+    if (gpsAge > MAX_GPS_STALENESS_MS) {
+      logs.push(
+        `Driver ${driver._id} excluded: stale GPS coordinates (${Math.round(gpsAge / 1000)}s ago > 120s limit).`
+      );
+      continue;
     }
 
     const driverCoords = driver.location?.coordinates;

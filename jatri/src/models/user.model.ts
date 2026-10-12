@@ -67,6 +67,7 @@ socketId:string | null
   };
 
   lastLocationUpdate?: Date;
+  lastHeartbeat?: Date;
 
   /* ===== COMMON ===== */
 
@@ -254,6 +255,10 @@ const UserSchema = new Schema<IUser>(
 
     lastLocationUpdate: {
       type: Date,
+    },
+    lastHeartbeat: {
+      type: Date,
+      index: true,
     },
 
     /* ===== AUTH ===== */

@@ -13,7 +13,7 @@ function InitUser() {
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.id) {
-      const socket = getSocket();
+      const socket = getSocket({ userId: session.user.id });
       socket.emit("identity", session.user.id);
     }
   }, [status, session]);

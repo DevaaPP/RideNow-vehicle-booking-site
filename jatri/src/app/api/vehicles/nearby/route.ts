@@ -73,40 +73,67 @@ export async function POST(req: NextRequest) {
 
     const vendorMap = new Map(vendors.map((v) => [v._id.toString(), v.location]));
 
-    // 2️⃣ Get vehicles of those vendors
+    // 2️⃣ Get vehicles of those vendors with privacy protection:
+    // Strip driver personal identifiers (owner ID, license plate) & fuzz coordinates (~50-80m)
+    // Precise live tracking is strictly reserved for the assigned passenger of an active booking.
     const vehicles = await Vehicle.find({
       owner: { $in: vendorIds },
       ...(vehicleType && { type: vehicleType }),
-    }).lean();
+    })
+      .select("type _id owner")
+      .lean();
 
-    const vehiclesWithLocation = vehicles
+    const sanitizedVehicles = vehicles
       .map((v) => {
         const loc = vendorMap.get(v.owner.toString()) || null;
         let distanceKm = null;
-        if (loc?.coordinates) {
-          distanceKm = getDistance(latitude, longitude, loc.coordinates[1], loc.coordinates[0]);
+        let sanitizedCoords: [number, number] | null = null;
+
+        if (loc?.coordinates && loc.coordinates.length >= 2) {
+          const rawLng = loc.coordinates[0];
+          const rawLat = loc.coordinates[1];
+          distanceKm = getDistance(latitude, longitude, rawLat, rawLng);
+
+          // Deterministic pseudo-jitter based on vehicle ID (~50-70m offset)
+          // to prevent scraping exact driver home/doorstep locations
+          const hashSeed =
+            (v._id.toString().charCodeAt(v._id.toString().length - 1) % 7) - 3;
+          const jitterLat = hashSeed * 0.00018;
+          const jitterLng = hashSeed * 0.00018;
+
+          sanitizedCoords = [
+            Number((rawLng + jitterLng).toFixed(4)),
+            Number((rawLat + jitterLat).toFixed(4)),
+          ];
         }
+
         return {
-          ...v,
-          location: loc,
-          distance: distanceKm !== null ? Number(distanceKm.toFixed(3)) : null,
+          _id: `v_anon_${v._id.toString().slice(-6)}`,
+          type: v.type,
+          distance: distanceKm !== null ? Number(distanceKm.toFixed(2)) : null,
+          location: sanitizedCoords
+            ? {
+                type: "Point",
+                coordinates: sanitizedCoords,
+              }
+            : null,
         };
       })
-      .filter((v) => v.distance !== null && v.distance <= 10); // Strictly limit to <= 10km
+      .filter((v) => v.distance !== null && v.distance <= 10 && v.location !== null);
 
     // Sort by distance ascending
-    vehiclesWithLocation.sort((a, b) => {
+    sanitizedVehicles.sort((a, b) => {
       if (a.distance === null) return 1;
       if (b.distance === null) return -1;
       return a.distance - b.distance;
     });
 
     // Cache in Upstash Redis for 8 seconds to alleviate DB load on repeated user queries
-    await redisSet(cacheKey, vehiclesWithLocation, 8);
+    await redisSet(cacheKey, sanitizedVehicles, 8);
 
     return NextResponse.json({
       success: true,
-      vehicles: vehiclesWithLocation,
+      vehicles: sanitizedVehicles,
     });
   } catch (error: any) {
     console.error("NEARBY API ERROR:", error);

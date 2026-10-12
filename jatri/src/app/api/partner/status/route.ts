@@ -14,8 +14,12 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await User.findById(session.user.id).select(
-      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate driverVerificationStatus"
+    const user = await User.findByIdAndUpdate(
+      session.user.id,
+      { lastHeartbeat: new Date() },
+      { new: true }
+    ).select(
+      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate lastHeartbeat driverVerificationStatus"
     );
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -28,6 +32,7 @@ export async function GET() {
       vendorStatus: user.vendorStatus,
       isVendorBlocked: user.isVendorBlocked,
       lastLocationUpdate: user.lastLocationUpdate,
+      lastHeartbeat: user.lastHeartbeat,
       driverVerificationStatus: user.driverVerificationStatus || null,
     });
   } catch (error) {
@@ -106,12 +111,24 @@ export async function PATCH(req: Request) {
       }
     }
 
-    const updateData: any = {};
+    const updateData: any = {
+      lastHeartbeat: new Date(),
+    };
+
     if (typeof isOnline === "boolean") {
       updateData.isOnline = isOnline;
     }
 
-    if (typeof latitude === "number" && typeof longitude === "number") {
+    if (
+      typeof latitude === "number" &&
+      typeof longitude === "number" &&
+      !isNaN(latitude) &&
+      !isNaN(longitude) &&
+      latitude >= -90 &&
+      latitude <= 90 &&
+      longitude >= -180 &&
+      longitude <= 180
+    ) {
       updateData.location = {
         type: "Point",
         coordinates: [longitude, latitude], // [lng, lat]
@@ -123,13 +140,14 @@ export async function PATCH(req: Request) {
       driver._id,
       updateData,
       { new: true }
-    ).select("isOnline location vendorStatus lastLocationUpdate");
+    ).select("isOnline location vendorStatus lastLocationUpdate lastHeartbeat");
 
     return NextResponse.json({
       success: true,
       isOnline: updatedUser.isOnline,
       location: updatedUser.location,
       lastLocationUpdate: updatedUser.lastLocationUpdate,
+      lastHeartbeat: updatedUser.lastHeartbeat,
     });
   } catch (error) {
     console.error("Partner status PATCH error:", error);
