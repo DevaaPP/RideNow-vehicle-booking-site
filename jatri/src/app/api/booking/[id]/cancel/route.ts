@@ -201,6 +201,10 @@ export async function POST(
     outstandingAccrued = settlement.outstandingAccrued;
     driverCompCredited = settlement.driverCompCredited;
 
+    booking.driverCompensation = driverCompCredited;
+    booking.isPlatformAdvance = settlement.isPlatformAdvance;
+    booking.outstandingAccrued = outstandingAccrued;
+
     if (isPrepaid) {
       booking.paymentStatus = "refunded";
     }
@@ -227,7 +231,11 @@ export async function POST(
       cancellationReason: reason,
       cancellationFee,
       cancellationFeeApplied,
+      driverCompensation: driverCompCredited,
+      isPlatformAdvance: booking.isPlatformAdvance,
       refundAmount,
+      walletDeducted,
+      outstandingAccrued,
       elapsedSeconds,
     };
 
@@ -291,6 +299,7 @@ export async function POST(
     walletDeducted,
     outstandingAccrued,
     driverCompCredited,
+    isPlatformAdvance: booking.isPlatformAdvance,
     elapsedSeconds,
     penaltyReason,
     reason,
