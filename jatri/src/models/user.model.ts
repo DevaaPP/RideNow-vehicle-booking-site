@@ -74,6 +74,12 @@ socketId:string | null
   totalRatingsCount?: number;
   totalRides?: number;
 
+  /* ===== DRIVER CANCELLATION ACCOUNTABILITY & PERFORMANCE ===== */
+  cancellationCount?: number;
+  dailyCancellationCount?: number;
+  lastCancellationDate?: Date;
+  dispatchBlockedUntil?: Date;
+
   /* ===== COMMON ===== */
 
   isEmailVerified: boolean;
@@ -280,6 +286,23 @@ const UserSchema = new Schema<IUser>(
     totalRides: {
       type: Number,
       default: 0,
+    },
+
+    /* ===== DRIVER CANCELLATION ACCOUNTABILITY ===== */
+    cancellationCount: {
+      type: Number,
+      default: 0,
+    },
+    dailyCancellationCount: {
+      type: Number,
+      default: 0,
+    },
+    lastCancellationDate: {
+      type: Date,
+    },
+    dispatchBlockedUntil: {
+      type: Date,
+      index: true,
     },
 
     /* ===== AUTH ===== */
