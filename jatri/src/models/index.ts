@@ -45,3 +45,6 @@ export type { IStudentConfig } from "./studentConfig.model";
 export { default as SafetyIncident } from "./safetyIncident.model";
 export type { ISafetyIncident, IncidentType, IncidentStatus, IncidentSeverity } from "./safetyIncident.model";
 
+export { default as Rating } from "./rating.model";
+export type { IRating } from "./rating.model";
+
