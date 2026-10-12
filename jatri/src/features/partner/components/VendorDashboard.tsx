@@ -892,6 +892,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
   const [shiftSummary, setShiftSummary] = useState<any>(null);
   const [recentTrips, setRecentTrips] = useState<any[]>([]);
+  const [expiryAlerts, setExpiryAlerts] = useState<any[]>([]);
 
   const fetchShiftSummary = async () => {
     try {
@@ -1037,6 +1038,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               longitude: res.data.location.coordinates[0],
               latitude: res.data.location.coordinates[1]
             });
+          }
+          if (Array.isArray(res.data.expiryAlerts)) {
+            setExpiryAlerts(res.data.expiryAlerts);
           }
         }
       })
@@ -1293,6 +1297,64 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 {new Date(shiftSummary.dispatchBlockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Document Expiry Proactive Alerts */}
+        {expiryAlerts.length > 0 && (
+          <div className="space-y-2">
+            {expiryAlerts.map((alert: any, idx: number) => {
+              const isExpired = alert.status === "expired";
+              return (
+                <div
+                  key={idx}
+                  className={`rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    isExpired
+                      ? "bg-red-50 border-red-200 text-red-900"
+                      : "bg-amber-50 border-amber-200 text-amber-900"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle
+                      className={isExpired ? "text-red-500 mt-0.5 flex-shrink-0" : "text-amber-500 mt-0.5 flex-shrink-0"}
+                      size={18}
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-bold">
+                          {isExpired ? "Document Expired — Service Restricted" : "Document Expiry Warning"}
+                        </p>
+                        <span
+                          className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                            isExpired
+                              ? "bg-red-200 text-red-900"
+                              : alert.status === "urgent_7_days"
+                              ? "bg-amber-200 text-amber-900"
+                              : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          {isExpired ? "Expired" : `${alert.daysRemaining} days left`}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-600 mt-0.5 leading-snug">
+                        {alert.message}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/partner/onboard/documents")}
+                    className={`text-xs font-bold px-4 py-2 rounded-xl transition-colors whitespace-nowrap self-start sm:self-center ${
+                      isExpired
+                        ? "bg-red-600 hover:bg-red-500 text-white"
+                        : "bg-amber-500 hover:bg-amber-400 text-zinc-950"
+                    }`}
+                  >
+                    Renew Document
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
 
