@@ -18,7 +18,7 @@ export async function GET() {
 
     const driverId = session.user.id;
     const driver = await User.findById(driverId)
-      .select("name isOnline rating totalRatingsCount totalRides createdAt")
+      .select("name isOnline rating totalRatingsCount totalRides cancellationCount dailyCancellationCount lastCancellationDate dispatchBlockedUntil createdAt")
       .lean();
 
     // Start of today (midnight)
@@ -75,9 +75,28 @@ export async function GET() {
 
     // Recorded online hours based on driver profile or activity
     const hoursOnline = Math.min(8.5, Math.max(1.2, +(todayTrips * 0.8 + 0.5).toFixed(1)));
-    const acceptanceRate = 96;
     const rating = typeof driver?.rating === "number" ? driver.rating : 5.0;
     const totalRatingsCount = driver?.totalRatingsCount || 0;
+
+    // Cancellation accountability metrics
+    const lastCancel = driver?.lastCancellationDate ? new Date(driver.lastCancellationDate) : null;
+    const isSameDay =
+      lastCancel &&
+      lastCancel.getFullYear() === now.getFullYear() &&
+      lastCancel.getMonth() === now.getMonth() &&
+      lastCancel.getDate() === now.getDate();
+
+    const dailyCancellations = isSameDay ? (driver?.dailyCancellationCount || 0) : 0;
+    const totalDriverCancelled = driver?.cancellationCount || 0;
+    const totalAssignedTrips = totalCompleted + totalDriverCancelled;
+    const cancellationRate = totalAssignedTrips > 0
+      ? Number(((totalDriverCancelled / totalAssignedTrips) * 100).toFixed(1))
+      : 0;
+    const acceptanceRate = Math.max(70, Number((100 - cancellationRate).toFixed(1)));
+    const dispatchBlockedUntil = driver?.dispatchBlockedUntil || null;
+    const isCooldownActive = Boolean(
+      dispatchBlockedUntil && new Date(dispatchBlockedUntil).getTime() > Date.now()
+    );
 
     return NextResponse.json({
       success: true,
@@ -89,6 +108,10 @@ export async function GET() {
         totalCompleted,
         hoursOnline,
         acceptanceRate,
+        cancellationRate,
+        dailyCancellations,
+        dispatchBlockedUntil,
+        isCooldownActive,
         rating,
         totalRatingsCount,
       },
