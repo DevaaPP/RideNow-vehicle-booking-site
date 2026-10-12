@@ -58,6 +58,7 @@ export interface IWalletTransaction extends Document {
   platformDuesAfter?: number;
   razorpayPaymentId?: string;
   razorpayOrderId?: string;
+  idempotencyKey?: string;
   description: string;
   status: TransactionStatus;
   metadata?: Record<string, any>;
@@ -68,6 +69,12 @@ export interface IWalletTransaction extends Document {
 const WalletTransactionSchema = new Schema<IWalletTransaction>(
   {
     transactionId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
+    },
+    idempotencyKey: {
       type: String,
       unique: true,
       sparse: true,
