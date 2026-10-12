@@ -189,10 +189,20 @@ function generateTxnId(prefix: string) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 }
 
+export interface CancellationSettlementResult {
+  refundAmount: number;
+  walletDeducted: number;
+  outstandingAccrued: number;
+  driverCompCredited: number;
+  platformAdvanceAmount: number;
+  isPlatformAdvance: boolean;
+}
+
 /**
  * Executes full financial ledger settlement for a cancelled ride:
  * - Customer Wallet deduction / refund
  * - Customer Outstanding Balance accumulation if wallet balance is insufficient
+ * - Platform Advance accounting for driver compensation fronted while customer balance is in shortfall
  * - Driver Earnings Ledger compensation credit (+70% to driver)
  */
 export async function processRideCancellationSettlement(params: {
@@ -205,12 +215,7 @@ export async function processRideCancellationSettlement(params: {
   isPrepaid: boolean;
   paidAmount?: number;
   driverCompensation?: number;
-}): Promise<{
-  refundAmount: number;
-  walletDeducted: number;
-  outstandingAccrued: number;
-  driverCompCredited: number;
-}> {
+}): Promise<CancellationSettlementResult> {
   await connectDb();
 
   const {
@@ -279,6 +284,30 @@ export async function processRideCancellationSettlement(params: {
       await Wallet.findByIdAndUpdate(riderWallet._id, {
         $inc: { outstandingAmount: shortfall },
       });
+
+      // Record customer shortfall debt in wallet ledger as platform receivable
+      await WalletTransaction.create({
+        transactionId: generateTxnId("TXN_CANC_DUE"),
+        walletId: riderWallet._id,
+        userId: riderId,
+        rideId: bookingId,
+        bookingId,
+        type: "debit",
+        transactionType: "CANCELLATION_CHARGE",
+        category: "cancellation_charge",
+        amount: shortfall,
+        balanceBefore: currentRiderBalance,
+        balanceAfter: currentRiderBalance,
+        description: `Cancellation fee shortfall (₹${shortfall}) added to outstanding balance — platform receivable`,
+        status: "success",
+        metadata: {
+          totalFee: cancellationFee,
+          prepaidDeducted: paidAmount,
+          outstandingShortfall: shortfall,
+          isPlatformAdvanceReceivable: true,
+          reason,
+        },
+      });
     }
   } else {
     // Ride was NOT prepaid (cash ride or awaiting payment)
@@ -341,12 +370,13 @@ export async function processRideCancellationSettlement(params: {
             amount: availableToDeduct,
             balanceBefore: currentRiderBalance,
             balanceAfter: 0,
-            description: `Partial cancellation fee deducted. Remaining ₹${unpaidRemainder} added to outstanding balance.`,
+            description: `Partial cancellation fee deducted (₹${availableToDeduct}). Remaining ₹${unpaidRemainder} added to outstanding balance — platform receivable`,
             status: "success",
             metadata: {
               totalFee: cancellationFee,
               deducted: availableToDeduct,
               unpaidOutstanding: unpaidRemainder,
+              isPlatformAdvanceReceivable: true,
               reason,
             },
           });
@@ -357,6 +387,29 @@ export async function processRideCancellationSettlement(params: {
           });
           await Wallet.findByIdAndUpdate(riderWallet._id, {
             $inc: { outstandingAmount: unpaidRemainder },
+          });
+
+          await WalletTransaction.create({
+            transactionId: generateTxnId("TXN_CANC_DUE"),
+            walletId: riderWallet._id,
+            userId: riderId,
+            rideId: bookingId,
+            bookingId,
+            type: "debit",
+            transactionType: "CANCELLATION_CHARGE",
+            category: "cancellation_charge",
+            amount: unpaidRemainder,
+            balanceBefore: 0,
+            balanceAfter: 0,
+            description: `Cancellation fee of ₹${unpaidRemainder} added to outstanding balance (due on next ride) — platform receivable`,
+            status: "success",
+            metadata: {
+              totalFee: cancellationFee,
+              deducted: 0,
+              unpaidOutstanding: unpaidRemainder,
+              isPlatformAdvanceReceivable: true,
+              reason,
+            },
           });
         }
       }
@@ -403,6 +456,15 @@ export async function processRideCancellationSettlement(params: {
       walletBalance: dAfter,
     });
 
+    const isPlatformAdvance = outstandingAccrued > 0;
+    const platformAdvanceAmount = isPlatformAdvance ? Math.min(compFee, outstandingAccrued) : 0;
+    const fundingSource =
+      outstandingAccrued <= 0
+        ? "rider_funds"
+        : walletDeducted > 0 || (isPrepaid && paidAmount > 0)
+        ? "partial_rider_and_platform_advance"
+        : "platform_advance";
+
     await WalletTransaction.create({
       transactionId: generateTxnId("TXN_COMP"),
       walletId: driverWallet._id,
@@ -417,22 +479,33 @@ export async function processRideCancellationSettlement(params: {
       balanceAfter: dAfter,
       platformDuesBefore: currentDues,
       platformDuesAfter: remainingDues,
-      description: `Cancellation compensation (70%) for ride #${bookingId.toString().slice(-6)}`,
+      description: isPlatformAdvance
+        ? `Cancellation compensation (70%) for ride #${bookingId.toString().slice(-6)} [Platform Advance]`
+        : `Cancellation compensation (70%) for ride #${bookingId.toString().slice(-6)}`,
       status: "success",
       metadata: {
         totalCancellationFee: cancellationFee,
         driverCompensation: compFee,
         duesSettled,
+        isPlatformAdvance,
+        platformAdvanceAmount,
+        fundingSource,
+        outstandingReceivableAccrued: outstandingAccrued,
         reason,
       },
     });
   }
+
+  const isPlatformAdvance = outstandingAccrued > 0 && driverCompCredited > 0;
+  const platformAdvanceAmount = isPlatformAdvance ? Math.min(driverCompCredited, outstandingAccrued) : 0;
 
   return {
     refundAmount,
     walletDeducted,
     outstandingAccrued,
     driverCompCredited,
+    platformAdvanceAmount,
+    isPlatformAdvance,
   };
 }
 
@@ -477,12 +550,13 @@ export async function recoverCustomerOutstandingDues(params: {
       amount: recoveredAmount,
       balanceBefore: wallet.balance || 0,
       balanceAfter: wallet.balance || 0,
-      description: `Recovered previous outstanding cancellation dues for ride #${bookingId?.toString().slice(-6) || "recent"}`,
+      description: `Recovered previous outstanding cancellation dues (platform receivable settled) for ride #${bookingId?.toString().slice(-6) || "recent"}`,
       status: "success",
       metadata: {
         previousOutstanding: currentOutstanding,
         recoveredAmount,
         remainingOutstanding,
+        isPlatformReceivableSettled: true,
       },
     });
   }
