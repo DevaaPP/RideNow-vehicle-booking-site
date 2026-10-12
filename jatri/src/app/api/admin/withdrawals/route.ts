@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Withdrawal from "@/models/withdrawal.model";
 import { resolveWithdrawal } from "@/lib/walletLedger";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function GET(req: NextRequest) {
   try {
@@ -93,6 +94,28 @@ export async function POST(req: NextRequest) {
       failureReason,
       adminId: session.user.id,
     });
+
+    if (!(result as any).alreadySettled) {
+      await recordAuditLog({
+        adminId: session.user.id,
+        adminEmail: session.user.email || undefined,
+        action: "PROCESS_WITHDRAWAL",
+        targetId: withdrawalId,
+        targetType: "WITHDRAWAL",
+        reason: failureReason,
+        afterState: {
+          status: targetStatus,
+          processedAt: new Date(),
+        },
+        metadata: {
+          action,
+          amount: (result as any).withdrawal?.amount,
+          driverId: String((result as any).withdrawal?.driver),
+          failureReason,
+        },
+        req,
+      });
+    }
 
     return NextResponse.json({
       success: true,
