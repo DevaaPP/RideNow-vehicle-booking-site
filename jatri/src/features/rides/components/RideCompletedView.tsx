@@ -22,8 +22,36 @@ interface RideCompletedViewProps {
 
 export default function RideCompletedView({ booking }: RideCompletedViewProps) {
   const router = useRouter();
-  const [selectedRating, setSelectedRating] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(booking.rating || 0);
+  const [submitted, setSubmitted] = useState(Boolean(booking.rating));
+  const [submittingRating, setSubmittingRating] = useState(false);
+  const [ratingFeedback, setRatingFeedback] = useState(booking.feedback || "");
+  const [ratingError, setRatingError] = useState<string | null>(null);
+
+  const handleRatingSubmit = async () => {
+    if (!selectedRating || submitted || submittingRating) return;
+    try {
+      setSubmittingRating(true);
+      setRatingError(null);
+      const res = await fetch(`/api/booking/${booking._id}/rate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rating: selectedRating,
+          feedback: ratingFeedback.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to submit rating");
+      }
+      setSubmitted(true);
+    } catch (err: any) {
+      setRatingError(err.message || "Could not submit rating. Please try again.");
+    } finally {
+      setSubmittingRating(false);
+    }
+  };
 
   /* Safety Incident Report Modal State */
   const [showReportModal, setShowReportModal] = useState(false);
@@ -167,15 +195,39 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
 
           <AnimatePresence>
             {selectedRating > 0 && !submitted && (
-              <motion.button
+              <motion.div
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                onClick={() => setSubmitted(true)}
-                className="w-full bg-white text-zinc-900 py-3 rounded-xl text-xs font-bold hover:bg-zinc-100 transition-colors"
+                className="space-y-2 mt-3"
               >
-                Submit Rating
-              </motion.button>
+                <input
+                  type="text"
+                  placeholder="Leave brief feedback (optional)..."
+                  value={ratingFeedback}
+                  onChange={(e) => setRatingFeedback(e.target.value)}
+                  maxLength={200}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
+                />
+                {ratingError && (
+                  <p className="text-red-400 text-[11px] font-medium">{ratingError}</p>
+                )}
+                <button
+                  type="button"
+                  disabled={submittingRating}
+                  onClick={handleRatingSubmit}
+                  className="w-full bg-white text-zinc-900 py-3 rounded-xl text-xs font-bold hover:bg-zinc-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {submittingRating ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Submitting Rating...
+                    </>
+                  ) : (
+                    "Submit Rating"
+                  )}
+                </button>
+              </motion.div>
             )}
 
             {submitted && (
@@ -185,7 +237,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                 className="flex items-center justify-center gap-2 py-2"
               >
                 <CheckCircle2 size={16} className="text-emerald-400" />
-                <p className="text-emerald-400 text-xs font-semibold">Thank you for your rating!</p>
+                <p className="text-emerald-400 text-xs font-semibold">Thank you for rating your driver!</p>
               </motion.div>
             )}
           </AnimatePresence>
