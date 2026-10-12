@@ -8,6 +8,7 @@ import connectDb from "@/lib/db";
 import VehicleDocument from "@/models/vehicleDocument.model";
 import User from "@/models/user.model";
 import uploadOnCloudinary from "@/lib/cloudinary";
+import { evaluateDocumentExpirations } from "@/lib/documentExpiryEngine";
 
 /* ===========================
    GET → Fetch vendor documents
@@ -34,11 +35,14 @@ export async function GET() {
       .select("driverVerificationStatus vendorStatus isVendorBlocked")
       .lean();
 
+    const expiryEvaluation = evaluateDocumentExpirations(documents);
+
     return NextResponse.json({
       success: true,
       documents: documents || null,
       verificationStatus: user?.driverVerificationStatus || null,
       vendorStatus: user?.vendorStatus || "pending",
+      expiryEvaluation,
     });
   } catch (error) {
     console.error("GET DOCUMENT ERROR:", error);
