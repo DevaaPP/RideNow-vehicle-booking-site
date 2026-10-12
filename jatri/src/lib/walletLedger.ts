@@ -366,6 +366,26 @@ export async function settleDriverPlatformDues(params: {
     throw new Error("Invalid settlement amount");
   }
 
+  // Idempotency: prevent double settlement if razorpayPaymentId already processed
+  if (razorpayPaymentId) {
+    const existingTxn = await WalletTransaction.findOne({
+      razorpayPaymentId,
+      transactionType: "SETTLE_DUES",
+      status: "success",
+    });
+    if (existingTxn) {
+      const existingWallet = await getOrCreateWallet(driverId);
+      return {
+        success: true,
+        isIdempotentReplay: true,
+        paidAmount: existingTxn.amount,
+        duesBefore: existingTxn.platformDuesBefore || 0,
+        duesAfter: existingTxn.platformDuesAfter || 0,
+        transaction: existingTxn,
+      };
+    }
+  }
+
   const wallet = await getOrCreateWallet(driverId);
   const duesBefore = wallet.platformDues || 0;
   const duesAfter = Math.max(0, duesBefore - payAmount);
@@ -672,6 +692,24 @@ export async function processRideCancellationRefund(params: {
   let riderTxn = null;
   let driverTxn = null;
 
+  // Idempotency: prevent duplicate refund if refund for this booking already processed
+  const existingRefund = await WalletTransaction.findOne({
+    userId: riderId,
+    bookingId,
+    transactionType: "REFUND",
+    status: "success",
+  });
+  if (existingRefund) {
+    return {
+      success: true,
+      alreadyProcessed: true,
+      isIdempotentReplay: true,
+      riderTxn: existingRefund,
+      driverTxn: null,
+      message: "Refund already processed for this booking",
+    };
+  }
+
   // 1. Credit Rider Refund if refundAmount > 0
   if (refundAmount > 0) {
     const riderWallet = await getOrCreateWallet(riderId);
@@ -772,9 +810,10 @@ export async function executeAdminAdjustment(params: {
   type: "credit" | "debit";
   reason: string;
   notes?: string;
+  idempotencyKey?: string;
 }) {
   await connectDb();
-  const { adminId, targetUserId, amount, type, reason, notes } = params;
+  const { adminId, targetUserId, amount, type, reason, notes, idempotencyKey } = params;
   const adjustAmount = Math.round(Number(amount));
 
   if (!adjustAmount || isNaN(adjustAmount) || adjustAmount <= 0) {
@@ -783,6 +822,25 @@ export async function executeAdminAdjustment(params: {
 
   if (!reason || reason.trim().length === 0) {
     throw new Error("A clear justification reason is required for admin ledger adjustments");
+  }
+
+  // Idempotency: prevent double adjustment if idempotencyKey already processed
+  if (idempotencyKey) {
+    const existing = await WalletTransaction.findOne({
+      idempotencyKey,
+      status: "success",
+    });
+    if (existing) {
+      const currentWallet = await getOrCreateWallet(targetUserId);
+      return {
+        success: true,
+        isIdempotentReplay: true,
+        type: existing.type,
+        amount: existing.amount,
+        newBalance: currentWallet.balance,
+        transaction: existing,
+      };
+    }
   }
 
   const wallet = await getOrCreateWallet(targetUserId);
@@ -811,6 +869,7 @@ export async function executeAdminAdjustment(params: {
     const txnId = generateTransactionId("TXN_ADJ");
     const txn = await WalletTransaction.create({
       transactionId: txnId,
+      idempotencyKey: idempotencyKey || undefined,
       walletId: wallet._id,
       userId: targetUserId,
       adminId,
@@ -842,6 +901,7 @@ export async function executeAdminAdjustment(params: {
     const txnId = generateTransactionId("TXN_ADJ");
     const txn = await WalletTransaction.create({
       transactionId: txnId,
+      idempotencyKey: idempotencyKey || undefined,
       walletId: wallet._id,
       userId: targetUserId,
       adminId,
@@ -858,4 +918,13 @@ export async function executeAdminAdjustment(params: {
 
     return { success: true, type, amount: adjustAmount, newBalance: balanceAfter, transaction: txn };
   }
+}
+
+/**
+ * Looks up any existing wallet transaction by its unique idempotency key.
+ */
+export async function findTransactionByIdempotencyKey(key: string) {
+  if (!key) return null;
+  await connectDb();
+  return await WalletTransaction.findOne({ idempotencyKey: key });
 }
