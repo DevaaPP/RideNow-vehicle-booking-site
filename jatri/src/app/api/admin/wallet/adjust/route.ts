@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import { executeAdminAdjustment } from "@/lib/walletLedger";
+import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,6 +45,27 @@ export async function POST(req: NextRequest) {
       idempotencyKey,
     });
 
+    if (!(result as any).isIdempotentReplay) {
+      await recordAuditLog({
+        adminId: session.user.id,
+        adminEmail: session.user.email || undefined,
+        action: "ADJUST_WALLET",
+        targetId: targetUserId,
+        targetType: "WALLET",
+        reason: `${reason}${notes ? ` - ${notes}` : ""}`,
+        metadata: {
+          amount,
+          type,
+          idempotencyKey,
+          transactionId:
+            (result as any).transaction?.transactionId ||
+            (result as any).transaction?._id,
+          newBalance: result.newBalance,
+        },
+        req,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       isIdempotentReplay: Boolean((result as any).isIdempotentReplay),
@@ -52,6 +74,7 @@ export async function POST(req: NextRequest) {
         : `Successfully executed admin ${type} adjustment of ₹${result.amount}`,
       data: result,
     });
+
   } catch (error: any) {
     console.error("POST /api/admin/wallet/adjust error:", error);
     return NextResponse.json(
