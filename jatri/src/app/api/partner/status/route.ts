@@ -19,7 +19,7 @@ export async function GET() {
       { lastHeartbeat: new Date() },
       { new: true }
     ).select(
-      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate lastHeartbeat driverVerificationStatus"
+      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate lastHeartbeat driverVerificationStatus dispatchBlockedUntil dailyCancellationCount"
     );
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -34,6 +34,8 @@ export async function GET() {
       lastLocationUpdate: user.lastLocationUpdate,
       lastHeartbeat: user.lastHeartbeat,
       driverVerificationStatus: user.driverVerificationStatus || null,
+      dispatchBlockedUntil: user.dispatchBlockedUntil || null,
+      dailyCancellationCount: user.dailyCancellationCount || 0,
     });
   } catch (error) {
     console.error("Partner status GET error:", error);
@@ -72,6 +74,19 @@ export async function PATCH(req: Request) {
         return NextResponse.json(
           {
             error: "Your partner account is temporarily restricted. Please contact driver support.",
+          },
+          { status: 403 }
+        );
+      }
+
+      if (driver.dispatchBlockedUntil && new Date(driver.dispatchBlockedUntil).getTime() > Date.now()) {
+        const remainingMinutes = Math.ceil(
+          (new Date(driver.dispatchBlockedUntil).getTime() - Date.now()) / (60 * 1000)
+        );
+        return NextResponse.json(
+          {
+            error: `Your dispatch is temporarily on cooldown for ${remainingMinutes} more minute(s) due to multiple cancelled rides today.`,
+            dispatchBlockedUntil: driver.dispatchBlockedUntil,
           },
           { status: 403 }
         );
