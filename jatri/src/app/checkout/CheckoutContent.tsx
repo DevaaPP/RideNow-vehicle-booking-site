@@ -7,7 +7,7 @@ import {
   Bike, Car, Truck, Loader2, CheckCircle2,
   XCircle, Clock, CreditCard, Banknote,
   ArrowRight, ArrowLeft, RotateCcw, AlertCircle, Wallet,
-  Users, UserPlus, Share2, IndianRupee
+  Users, UserPlus, Share2, IndianRupee, Package
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
@@ -20,6 +20,7 @@ import { calculateFareBreakdown } from "@/lib/fareEngine";
 import GroupRideCard from "@/features/booking/components/GroupRideCard";
 import DriverSearchRadar from "@/features/booking/components/DriverSearchRadar";
 import PaymentMethodSelector from "@/features/booking/components/PaymentMethodSelector";
+import { VEHICLE_OPTIONS } from "@/lib/vehicleConfig";
 
 const VEHICLE_ICONS: Record<string, any> = {
   bike: Bike, auto: Car, car: Car, loading: Truck, truck: Truck,
@@ -81,6 +82,8 @@ export default function CheckoutContent() {
   const [isScheduled, setIsScheduled] = useState(isScheduledParam);
   const [scheduledPickupTime, setScheduledPickupTime] = useState<string | null>(scheduledTimeParam);
   const scheduledPickupDate = scheduledPickupTime ? new Date(scheduledPickupTime) : null;
+  const [serviceMode, setServiceMode] = useState<"passenger" | "logistics">("passenger");
+  const [cargoDetails, setCargoDetails] = useState<any | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -174,6 +177,8 @@ export default function CheckoutContent() {
           if (draft.familyMemberDetails) setFamilyMemberDetails(draft.familyMemberDetails);
           if (draft.isScheduled !== undefined) setIsScheduled(Boolean(draft.isScheduled));
           if (draft.scheduledTime) setScheduledPickupTime(draft.scheduledTime);
+          if (draft.serviceMode) setServiceMode(draft.serviceMode);
+          if (draft.cargoDetails) setCargoDetails(draft.cargoDetails);
         }
       }
     } catch (err) {
@@ -327,6 +332,8 @@ export default function CheckoutContent() {
           familyMemberDetails,
           isScheduled,
           scheduledPickupTime,
+          serviceMode,
+          cargoDetails,
         }),
       });
 
@@ -607,7 +614,8 @@ export default function CheckoutContent() {
   }, [status, bookingId]);
 
   /* ── label ── */
-  const vehicleLabel = vehicle.charAt(0).toUpperCase() + vehicle.slice(1);
+  const opt = VEHICLE_OPTIONS[vehicle as keyof typeof VEHICLE_OPTIONS];
+  const vehicleLabel = opt?.label || (vehicle.charAt(0).toUpperCase() + vehicle.slice(1));
 
   return (
     <div className="min-h-screen bg-zinc-100 px-3 sm:px-4 py-6 sm:py-12">
@@ -813,6 +821,40 @@ export default function CheckoutContent() {
                     <p className="text-[11px] text-amber-800 mt-1 font-medium">
                       Driver assigned 15–30 mins before pickup. Free cancellation up to 60 mins before.
                     </p>
+                  </div>
+                </div>
+              )}
+
+              {/* 📦 GOODS TRANSPORT CARGO DETAILS BADGE */}
+              {serviceMode === "logistics" && cargoDetails && (
+                <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-orange-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-xs mt-0.5">
+                    <Package size={16} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[9px] font-black uppercase bg-orange-600 text-white px-2 py-0.5 rounded-md tracking-wider">
+                        Goods Transport
+                      </span>
+                      {cargoDetails.cargoWeightKg && (
+                        <span className="text-[10px] text-orange-800 font-bold">
+                          Weight: ~{cargoDetails.cargoWeightKg} kg
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm font-black text-zinc-900 leading-snug">
+                      Cargo: {cargoDetails.cargoType || "General Cargo"}
+                    </p>
+                    {cargoDetails.receiverContact && (
+                      <p className="text-xs text-orange-900 mt-0.5 font-medium">
+                        Receiver Contact: {cargoDetails.receiverContact}
+                      </p>
+                    )}
+                    {cargoDetails.deliveryNotes && (
+                      <p className="text-[11px] text-zinc-600 mt-1 italic bg-white/70 p-2 rounded-lg border border-orange-100">
+                        "{cargoDetails.deliveryNotes}"
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
