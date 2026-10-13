@@ -60,6 +60,8 @@ export async function POST(req: Request) {
       familyMemberDetails,
       isScheduled,
       scheduledPickupTime,
+      serviceMode,
+      cargoDetails,
     } = body;
 
     const pLat = Number(pickupLat);
@@ -78,6 +80,43 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json(
         { success: false, message: "Missing required pickup/drop coordinates. Please select locations on the map." },
+        { status: 400 }
+      );
+    }
+
+    const vehicleKey = String(vehicle).toLowerCase();
+    const VALID_VEHICLES = ["bike", "auto", "car", "loading", "truck"];
+    if (!VALID_VEHICLES.includes(vehicleKey)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Invalid vehicle type '${vehicle}'. Must be one of: ${VALID_VEHICLES.join(", ")}`,
+        },
+        { status: 400 }
+      );
+    }
+
+    const effectiveServiceMode: "passenger" | "logistics" =
+      serviceMode === "logistics" || ["loading", "truck"].includes(vehicleKey)
+        ? "logistics"
+        : "passenger";
+
+    if (effectiveServiceMode === "passenger" && ["loading", "truck"].includes(vehicleKey)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Loading and Truck are reserved for Goods Transport services. Please select Bike, Auto, or RideNow Go.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (effectiveServiceMode === "logistics" && !["loading", "truck"].includes(vehicleKey)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Only Loading and Truck vehicles are available for Goods Transport.",
+        },
         { status: 400 }
       );
     }
@@ -376,6 +415,16 @@ export async function POST(req: Request) {
           : undefined,
       isScheduled: Boolean(isScheduled),
       scheduledPickupTime: parsedScheduledTime,
+      serviceMode: effectiveServiceMode,
+      cargoDetails:
+        effectiveServiceMode === "logistics" && cargoDetails
+          ? {
+              cargoType: cargoDetails.cargoType || "General Goods",
+              cargoWeightKg: cargoDetails.cargoWeightKg ? Number(cargoDetails.cargoWeightKg) : undefined,
+              receiverContact: cargoDetails.receiverContact || "",
+              deliveryNotes: cargoDetails.deliveryNotes || "",
+            }
+          : undefined,
       status: isScheduled ? "scheduled" : "requested",
     });
 
