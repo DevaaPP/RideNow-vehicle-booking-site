@@ -136,6 +136,13 @@ export interface IBooking extends Document {
     relation: string;
     phone?: string;
   };
+  serviceMode?: "passenger" | "logistics";
+  cargoDetails?: {
+    cargoType?: string;
+    cargoWeightKg?: number;
+    receiverContact?: string;
+    deliveryNotes?: string;
+  };
   isScheduled?: boolean;
   scheduledPickupTime?: Date;
   scheduledReminderSent?: boolean;
@@ -391,6 +398,18 @@ partnerAmount: {
       name: { type: String },
       relation: { type: String },
       phone: { type: String },
+    },
+    serviceMode: {
+      type: String,
+      enum: ["passenger", "logistics"],
+      default: "passenger",
+      index: true,
+    },
+    cargoDetails: {
+      cargoType: { type: String, trim: true },
+      cargoWeightKg: { type: Number },
+      receiverContact: { type: String, trim: true },
+      deliveryNotes: { type: String, trim: true },
     },
     isScheduled: {
       type: Boolean,
