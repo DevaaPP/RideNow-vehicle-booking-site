@@ -100,9 +100,16 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
   /* Fetch passenger active ride */
   useEffect(() => {
+    let isMounted = true;
+
     if (!currentUser || currentUser?.role === "vendor" || isVendorRoute) {
-      setPassengerActiveRide(null);
-      return;
+      // Async state reset to prevent synchronous cascade
+      Promise.resolve().then(() => {
+        if (isMounted) setPassengerActiveRide(null);
+      });
+      return () => {
+        isMounted = false;
+      };
     }
 
     const checkActive = async () => {
@@ -110,25 +117,31 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         const res = await axios.get("/api/booking/my-active", {
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
         });
+        if (!isMounted) return;
         if (res.data?.booking) {
           setPassengerActiveRide(res.data.booking);
         } else {
           setPassengerActiveRide(null);
         }
       } catch {
-        setPassengerActiveRide(null);
+        if (isMounted) setPassengerActiveRide(null);
       }
     };
 
     checkActive();
     const interval = setInterval(checkActive, 15000);
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [currentUser?.role, isVendorRoute]);
 
-  /* Close on route change */
+  /* Close menus on route change */
   useEffect(() => {
-    setMenuOpen(false);
-    setProfileOpen(false);
+    Promise.resolve().then(() => {
+      setMenuOpen(false);
+      setProfileOpen(false);
+    });
   }, [pathname]);
 
   /* Desktop outside click */
