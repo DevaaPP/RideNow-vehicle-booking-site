@@ -9,7 +9,7 @@ import {
   CheckCircle2, ChevronRight, GraduationCap,
   Plus, X, Users, Clock, Calendar,
   Search, Edit2, Info, ChevronDown, ChevronUp,
-  User, UserPlus, Check
+  User, UserPlus, Check, Package, Sparkles, SlidersHorizontal
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -26,6 +26,15 @@ import StudentPassModal from "@/features/booking/components/StudentPassModal";
 import ScheduleRidePicker from "@/features/booking/components/ScheduleRidePicker";
 import WaypointsManager from "@/features/booking/components/WaypointsManager";
 import ActiveRideBanner from "@/features/rides/components/ActiveRideBanner";
+import {
+  VEHICLE_OPTIONS,
+  PASSENGER_VEHICLES,
+  LOGISTICS_VEHICLES,
+  VehicleType,
+  ServiceMode,
+  recommendVehicle,
+  VehicleOption,
+} from "@/lib/vehicleConfig";
 
 const RouteMap = nextDynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
 
@@ -40,15 +49,13 @@ type Place = {
   countrycode?: string;
 };
 
-type VehicleType = "bike" | "auto" | "car" | "loading" | "truck";
-
-const VEHICLES = [
-  { id: "bike",    label: "Bike",    Icon: Bike,  desc: "Quick & affordable", etaText: "3 min" },
-  { id: "auto",    label: "Auto",    Icon: Car,   desc: "Everyday rides",     etaText: "4 min" },
-  { id: "car",     label: "Car",     Icon: Car,   desc: "Comfort rides",      etaText: "5 min" },
-  { id: "loading", label: "Loading", Icon: Truck, desc: "Small cargo",        etaText: "8 min" },
-  { id: "truck",   label: "Truck",   Icon: Truck, desc: "Heavy transport",    etaText: "12 min" },
-];
+const VEHICLE_ICONS: Record<VehicleType, any> = {
+  bike: Bike,
+  auto: Car,
+  car: Car,
+  loading: Truck,
+  truck: Truck,
+};
 
 const getCategoryIcon = (category?: string, name?: string) => {
   const c = (category || "").toLowerCase();
@@ -73,7 +80,36 @@ export default function BookPage() {
   const [pickup,   setPickup]   = useState("");
   const [drop,     setDrop]     = useState("");
   const [vehicle,  setVehicle]  = useState<VehicleType>("car");
+  const [serviceMode, setServiceMode] = useState<ServiceMode>("passenger");
   const [mobile,   setMobile]   = useState("");
+
+  /* ── GOODS TRANSPORT (LOGISTICS) CARGO STATE ── */
+  const [cargoType, setCargoType] = useState<string>("Boxes & Cartons");
+  const [cargoWeightKg, setCargoWeightKg] = useState<number>(100);
+  const [receiverContact, setReceiverContact] = useState<string>("");
+  const [deliveryNotes, setDeliveryNotes] = useState<string>("");
+
+  /* ── SMART VEHICLE MATCHING STATE ── */
+  const [showSmartMatcher, setShowSmartMatcher] = useState<boolean>(false);
+  const [smartPassengers, setSmartPassengers] = useState<number>(1);
+  const [smartLuggage, setSmartLuggage] = useState<"none" | "small" | "large">("none");
+  const [smartPreference, setSmartPreference] = useState<"budget" | "comfort">("budget");
+  const [smartMatchResult, setSmartMatchResult] = useState<{ vehicleId: VehicleType; matchScore: number; reason: string } | null>(null);
+
+  useEffect(() => {
+    if (showSmartMatcher) {
+      const rec = recommendVehicle({
+        passengers: smartPassengers,
+        luggage: smartLuggage,
+        preference: smartPreference,
+        isGoods: serviceMode === "logistics",
+        cargoWeightKg,
+      });
+      setSmartMatchResult(rec);
+    } else {
+      setSmartMatchResult(null);
+    }
+  }, [showSmartMatcher, smartPassengers, smartLuggage, smartPreference, serviceMode, cargoWeightKg]);
 
   const [rates, setRates] = useState<any>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
@@ -419,10 +455,10 @@ export default function BookPage() {
     const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
     
     if (dist < min) {
-      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} requires min ${min} km (Current: ${dist.toFixed(1)} km)` };
+      return { valid: false, message: `${VEHICLE_OPTIONS[vehicle]?.label || "Vehicle"} requires min ${min} km (Current: ${dist.toFixed(1)} km)` };
     }
     if (dist > max) {
-      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} is limited to max ${max} km (Current: ${dist.toFixed(1)} km)` };
+      return { valid: false, message: `${VEHICLE_OPTIONS[vehicle]?.label || "Vehicle"} is limited to max ${max} km (Current: ${dist.toFixed(1)} km)` };
     }
     return { valid: true };
   };
@@ -820,6 +856,13 @@ export default function BookPage() {
       familyMemberDetails: selectedFamilyMember || null,
       isScheduled: bookingMode === "schedule" && Boolean(scheduledDateTime),
       scheduledTime: (bookingMode === "schedule" && scheduledDateTime) ? new Date(scheduledDateTime).toISOString() : null,
+      serviceMode,
+      cargoDetails: serviceMode === "logistics" ? {
+        cargoType,
+        cargoWeightKg,
+        receiverContact,
+        deliveryNotes,
+      } : null,
     };
 
     try {
@@ -1166,11 +1209,276 @@ export default function BookPage() {
         </div>
       )}
 
+      {/* ── SERVICE MODE TOGGLE (PASSENGER VS GOODS TRANSPORT) ── */}
+      <div className="bg-zinc-100 p-1 rounded-2xl flex items-center gap-1 border border-zinc-200">
+        <button
+          type="button"
+          onClick={() => {
+            setServiceMode("passenger");
+            if (vehicle === "loading" || vehicle === "truck") setVehicle("car");
+          }}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+            serviceMode === "passenger"
+              ? "bg-white text-zinc-950 shadow-xs"
+              : "text-zinc-600 hover:text-zinc-900"
+          }`}
+        >
+          <Car size={14} />
+          <span>Daily Rides</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setServiceMode("logistics");
+            if (vehicle !== "loading" && vehicle !== "truck") setVehicle("loading");
+          }}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+            serviceMode === "logistics"
+              ? "bg-white text-zinc-950 shadow-xs"
+              : "text-zinc-600 hover:text-zinc-900"
+          }`}
+        >
+          <Package size={14} />
+          <span>Goods Transport</span>
+        </button>
+      </div>
+
+      {/* ── SMART VEHICLE MATCHING WIDGET ── */}
+      <div className="bg-gradient-to-r from-zinc-50 to-emerald-50/40 border border-emerald-200/60 rounded-2xl p-3">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setShowSmartMatcher(!showSmartMatcher)}
+            className="flex items-center gap-1.5 text-left group"
+          >
+            <Sparkles size={14} className="text-emerald-600 flex-shrink-0 animate-pulse" />
+            <span className="text-[11px] font-black uppercase tracking-wider text-zinc-900 group-hover:text-emerald-700 transition">
+              Smart Ride Matcher
+            </span>
+            <span className="text-[10px] text-zinc-400 font-bold ml-1">
+              {showSmartMatcher ? "Hide" : "Find best vehicle"}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowSmartMatcher(!showSmartMatcher)}
+            className="text-zinc-400 hover:text-zinc-600 p-1"
+          >
+            {showSmartMatcher ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+        </div>
+
+        <AnimatePresence>
+          {showSmartMatcher && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-3 pt-3 border-t border-emerald-100 space-y-3"
+            >
+              {serviceMode === "passenger" ? (
+                <>
+                  {/* Passengers Chip selector */}
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1.5 block">
+                      How many passengers?
+                    </label>
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3, 4].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setSmartPassengers(num)}
+                          className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
+                            smartPassengers === num
+                              ? "bg-zinc-900 text-white border-zinc-900 shadow-xs"
+                              : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
+                          }`}
+                        >
+                          {num === 4 ? "4+ Pax" : `${num} Pax`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Luggage Chip selector */}
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1.5 block">
+                      How much luggage?
+                    </label>
+                    <div className="flex gap-1.5">
+                      {(
+                        [
+                          { id: "none", label: "No Bags" },
+                          { id: "small", label: "Small Bag" },
+                          { id: "large", label: "Large Bags" },
+                        ] as const
+                      ).map((lug) => (
+                        <button
+                          key={lug.id}
+                          type="button"
+                          onClick={() => setSmartLuggage(lug.id)}
+                          className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
+                            smartLuggage === lug.id
+                              ? "bg-zinc-900 text-white border-zinc-900 shadow-xs"
+                              : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
+                          }`}
+                        >
+                          {lug.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Preference Chip selector */}
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1.5 block">
+                      Your priority
+                    </label>
+                    <div className="flex gap-1.5">
+                      {(
+                        [
+                          { id: "budget", label: "Lowest Fare" },
+                          { id: "comfort", label: "More Comfort" },
+                        ] as const
+                      ).map((pref) => (
+                        <button
+                          key={pref.id}
+                          type="button"
+                          onClick={() => setSmartPreference(pref.id)}
+                          className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
+                            smartPreference === pref.id
+                              ? "bg-zinc-900 text-white border-zinc-900 shadow-xs"
+                              : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
+                          }`}
+                        >
+                          {pref.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Logistics Cargo Weight selector */
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1.5 block">
+                    Estimated Cargo Weight
+                  </label>
+                  <div className="flex gap-1.5">
+                    {[
+                      { wt: 100, label: "<100 kg" },
+                      { wt: 250, label: "250 kg" },
+                      { wt: 500, label: "500 kg" },
+                      { wt: 1000, label: "1,000+ kg" },
+                    ].map((w) => (
+                      <button
+                        key={w.wt}
+                        type="button"
+                        onClick={() => setCargoWeightKg(w.wt)}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
+                          cargoWeightKg === w.wt
+                            ? "bg-zinc-900 text-white border-zinc-900 shadow-xs"
+                            : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
+                        }`}
+                      >
+                        {w.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recommendation Result Banner */}
+              {smartMatchResult && (
+                <div className="p-2.5 bg-emerald-100/60 border border-emerald-300 rounded-xl flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1 text-[10px] font-black text-emerald-800 uppercase">
+                      <span>⭐ Recommended Match:</span>
+                      <span className="font-extrabold underline">
+                        {VEHICLE_OPTIONS[smartMatchResult.vehicleId]?.label}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-zinc-700 leading-snug truncate mt-0.5 font-medium">
+                      {smartMatchResult.reason}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setVehicle(smartMatchResult.vehicleId)}
+                    className="flex-shrink-0 px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition"
+                  >
+                    Select
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ── GOODS TRANSPORT (LOGISTICS) DETAILS INPUTS ── */}
+      {serviceMode === "logistics" && (
+        <div className="bg-orange-50/60 border border-orange-200 rounded-2xl p-3.5 space-y-2.5">
+          <div className="flex items-center gap-1.5 text-orange-950 text-xs font-black uppercase tracking-wider">
+            <Package size={14} className="text-orange-600" />
+            <span>Goods & Consignment Details</span>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold text-zinc-600 block mb-1">Cargo Type</label>
+            <div className="flex flex-wrap gap-1.5">
+              {["Boxes & Cartons", "Furniture & Home", "Commercial Goods", "Machinery & Parts"].map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setCargoType(type)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition ${
+                    cargoType === type
+                      ? "bg-orange-600 text-white border-orange-600"
+                      : "bg-white text-zinc-700 border-zinc-200 hover:bg-orange-50/40"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-[10px] font-bold text-zinc-600 block mb-1">Receiver Contact (Optional)</label>
+              <input
+                type="tel"
+                placeholder="Alternate phone"
+                value={receiverContact}
+                onChange={(e) => setReceiverContact(e.target.value)}
+                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold text-zinc-600 block mb-1">Delivery Instructions</label>
+              <input
+                type="text"
+                placeholder="e.g. 2nd floor, handle with care"
+                value={deliveryNotes}
+                onChange={(e) => setDeliveryNotes(e.target.value)}
+                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Vehicle Cards List */}
       <div className="space-y-1.5">
-        <p className="text-[11px] font-black uppercase tracking-wider text-zinc-400 mb-1">
-          Available Rides
-        </p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[11px] font-black uppercase tracking-wider text-zinc-400">
+            {serviceMode === "passenger" ? "Passenger Rides" : "Goods Transport Vehicles"}
+          </p>
+          <span className="text-[10px] font-bold text-zinc-400">
+            {serviceMode === "passenger" ? "3 Options" : "2 Freight Sizes"}
+          </span>
+        </div>
 
         {routeDistance === -1 ? (
           <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-center">
@@ -1178,43 +1486,55 @@ export default function BookPage() {
             <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
         ) : (
-              VEHICLES.map((v) => {
-                const isSelected = vehicle === v.id;
-                const isLimitOk = checkLimit(v.id, effectiveDistance);
-                const fare = estimateFare(v.id, effectiveDistance);
-                const vehicleLabel = t(`fleet.${v.id}.title`, v.label);
-                const vehicleDesc = t(`fleet.${v.id}.desc`, v.desc);
+          (serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v) => {
+            const isSelected = vehicle === v.id;
+            const isLimitOk = checkLimit(v.id, effectiveDistance);
+            const fare = estimateFare(v.id, effectiveDistance);
+            const isSmartPick = smartMatchResult?.vehicleId === v.id;
+            const Icon = VEHICLE_ICONS[v.id] || Car;
 
-                return (
-                  <div
-                    key={v.id}
-                    onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition-colors cursor-pointer ${
-                      isSelected
-                        ? "bg-zinc-950 text-white border-zinc-950"
-                        : "bg-zinc-50/80 hover:bg-zinc-100 text-zinc-900 border-zinc-200"
-                    } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        isSelected ? "bg-zinc-800 text-white" : "bg-white text-zinc-900 shadow-xs border border-zinc-200"
+            return (
+              <div
+                key={v.id}
+                onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
+                className={`relative flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-zinc-950 text-white border-zinc-950 shadow-md"
+                    : isSmartPick
+                    ? "bg-emerald-50/60 hover:bg-emerald-100/60 text-zinc-900 border-emerald-300 ring-1 ring-emerald-300"
+                    : "bg-zinc-50/80 hover:bg-zinc-100 text-zinc-900 border-zinc-200"
+                } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
+              >
+                {isSmartPick && (
+                  <span className="absolute -top-2 right-4 bg-emerald-600 text-white text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shadow-xs">
+                    Best Match
+                  </span>
+                )}
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    isSelected ? "bg-zinc-800 text-white" : "bg-white text-zinc-900 shadow-xs border border-zinc-200"
+                  }`}>
+                    <Icon size={20} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="font-extrabold text-sm leading-tight truncate">{v.label}</p>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                        isSelected ? "bg-zinc-800 text-zinc-300" : "bg-zinc-200 text-zinc-600"
                       }`}>
-                        <v.Icon size={20} />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="font-extrabold text-sm leading-tight truncate">{vehicleLabel}</p>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
-                            isSelected ? "bg-zinc-800 text-zinc-300" : "bg-zinc-200 text-zinc-600"
-                          }`}>
-                            {v.etaText}
-                          </span>
-                        </div>
-                        <p className={`text-[11px] truncate mt-0.5 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
-                          {vehicleDesc}
-                        </p>
-                      </div>
+                        {v.etaText}
+                      </span>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md ${
+                        isSelected ? "bg-zinc-800 text-emerald-300" : "bg-emerald-100 text-emerald-800"
+                      }`}>
+                        {v.passengerCapacity ? `${v.passengerCapacity} seats` : `${v.maxWeightKg} kg`}
+                      </span>
                     </div>
+                    <p className={`text-[11px] truncate mt-0.5 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
+                      {v.tagline}
+                    </p>
+                  </div>
+                </div>
 
                 <div className="text-right flex-shrink-0 pl-2">
                   <p className={`font-black text-base leading-tight ${isSelected ? "text-emerald-400" : "text-zinc-900"}`}>
@@ -1426,7 +1746,7 @@ export default function BookPage() {
                 ? t("booking.chooseVehicle", "Choose Destination")
                 : bookingMode === "schedule"
                 ? t("booking.scheduleRide", "Schedule Ride")
-                : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLES.find(v => v.id === vehicle)?.label || "Ride")}`}
+                : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride")}`}
             </span>
             <ArrowRight size={16} />
           </motion.button>
@@ -1543,16 +1863,16 @@ export default function BookPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-zinc-900 text-white flex items-center justify-center shadow-xs">
                       {(() => {
-                        const Icon = VEHICLES.find(v => v.id === vehicle)?.Icon || Car;
+                        const Icon = VEHICLE_ICONS[vehicle] || Car;
                         return <Icon size={20} />;
                       })()}
                     </div>
                     <div>
                       <p className="text-xs font-black text-zinc-900">
-                        {VEHICLES.find(v => v.id === vehicle)?.label || "Car"}
+                        {VEHICLE_OPTIONS[vehicle]?.label || "RideNow Go"}
                       </p>
                       <p className="text-[10px] text-zinc-500 font-bold">
-                        {VEHICLES.find(v => v.id === vehicle)?.etaText || "4 min away"} • {currentBreakdown.timeMinutes} min trip
+                        {VEHICLE_OPTIONS[vehicle]?.etaText || "4 min away"} • {currentBreakdown.timeMinutes} min trip
                       </p>
                     </div>
                   </div>
@@ -1591,7 +1911,7 @@ export default function BookPage() {
                   <span>
                     {bookingMode === "schedule"
                       ? t("booking.scheduleRide", "Schedule Ride")
-                      : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLES.find(v => v.id === vehicle)?.label || "Ride")} • ₹${currentBreakdown.totalFare}`}
+                      : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride")} • ₹${currentBreakdown.totalFare}`}
                   </span>
                   <ArrowRight size={16} />
                 </motion.button>
