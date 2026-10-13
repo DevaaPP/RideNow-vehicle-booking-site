@@ -4,6 +4,8 @@ import { useState } from "react";
 import { GraduationCap, CheckCircle2, Loader2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { validateStudentEmail } from "@/lib/studentVerification";
+
 interface StudentPassModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,8 +31,12 @@ export default function StudentPassModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!eduEmail.includes("@") || !eduEmail.toLowerCase().includes(".edu") && !eduEmail.toLowerCase().includes(".ac.")) {
-      setError("Please enter a valid college or university email (.edu / .ac.in)");
+    const validation = validateStudentEmail(eduEmail);
+    if (!validation.isValid) {
+      setError(
+        validation.reason ||
+          "Please enter a valid accredited college or university email (.edu, .ac.in, .edu.in, .res.in)"
+      );
       return;
     }
 
@@ -114,7 +120,7 @@ export default function StudentPassModal({
                 </label>
                 <input
                   type="email"
-                  placeholder="yourname@college.edu or .ac.in"
+                  placeholder="yourname@college.edu, .ac.in or .edu.in"
                   value={eduEmail}
                   onChange={(e) => setEduEmail(e.target.value)}
                   className="w-full px-3 py-2 text-xs border border-zinc-200 rounded-xl outline-none focus:border-zinc-900"
