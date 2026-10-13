@@ -36,6 +36,7 @@ import {
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import { useTranslation } from "@/context/LanguageContext";
+import { validateStudentEmail } from "@/lib/studentVerification";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -150,8 +151,12 @@ export default function ProfilePage() {
     }
 
     if (verifyMethod === "institutional_email") {
-      if (!eduEmail.includes("@") || (!eduEmail.includes(".edu") && !eduEmail.includes(".ac."))) {
-        setStudentError("Please enter a valid accredited institutional email (.edu / .ac.in / university domain).");
+      const emailValidation = validateStudentEmail(eduEmail);
+      if (!emailValidation.isValid) {
+        setStudentError(
+          emailValidation.reason ||
+            "Please enter a valid accredited institutional email (.edu / .ac.in / .edu.in / .res.in)."
+        );
         return;
       }
     } else if (verifyMethod === "student_id") {
