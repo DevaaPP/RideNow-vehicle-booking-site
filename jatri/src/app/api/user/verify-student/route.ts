@@ -7,36 +7,7 @@ import { auth } from "@/auth";
 import User from "@/models/user.model";
 import StudentConfig from "@/models/studentConfig.model";
 
-// Recognized accredited institutional domain extensions
-function isValidStudentEmail(email: string): boolean {
-  if (!email || !email.includes("@")) return false;
-  const lower = email.toLowerCase().trim();
-  const domain = lower.split("@")[1];
-  if (!domain) return false;
-
-  const validSuffixes = [
-    ".edu",
-    ".ac.in",
-    ".edu.in",
-    ".ac.uk",
-    ".edu.au",
-    ".edu.ca",
-    ".edu.sg",
-    ".edu.cn",
-    ".ac.za",
-    ".ac.nz",
-    ".edu.pk",
-    ".edu.bd",
-    ".edu.np",
-    ".res.in",
-  ];
-
-  return (
-    validSuffixes.some((suffix) => domain.endsWith(suffix)) ||
-    domain.includes(".edu.") ||
-    domain.includes(".ac.")
-  );
-}
+import { validateStudentEmail } from "@/lib/studentVerification";
 
 /**
  * GET /api/user/verify-student
@@ -176,12 +147,14 @@ export async function POST(req: Request) {
         );
       }
 
-      if (!isValidStudentEmail(cleanEduEmail)) {
+      const emailValidation = validateStudentEmail(cleanEduEmail);
+      if (!emailValidation.isValid) {
         return NextResponse.json(
           {
             success: false,
             message:
-              "Invalid educational domain. Email must end with .edu, .ac.in, .edu.in, .ac.uk, or accredited university domain.",
+              emailValidation.reason ||
+              "Invalid educational domain. Email must end with .edu, .ac.in, .edu.in, .res.in, or an accredited university domain.",
           },
           { status: 400 }
         );
