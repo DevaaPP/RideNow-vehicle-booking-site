@@ -9,6 +9,7 @@ import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
 import PartnerBank from "@/models/partnerBank.model";
+import Booking from "@/models/booking.model";
 
 /* ================================
    GET → Single Vendor Full Review
@@ -36,7 +37,7 @@ export async function GET(
     /* ---------- USER ---------- */
     const user = await User.findById(vendorId)
       .select(
-        "name email mobileNumber role vendorStatus vendorOnboardingStep videoKycStatus videoKycRoomId videoKycRejectionReason vendorRejectionReason driverVerificationStatus"
+        "name email mobileNumber role vendorStatus vendorOnboardingStep videoKycStatus videoKycRoomId videoKycRejectionReason vendorRejectionReason driverVerificationStatus isOnline dailyCancellationCount cancellationCount lastCancellationDate dispatchBlockedUntil"
       )
       .lean();
 
@@ -72,6 +73,34 @@ export async function GET(
       )
       .lean();
 
+    /* ---------- SHIFT CANCELLATIONS & COOLDOWN (AUTHORITATIVE) ---------- */
+    const now = new Date();
+    const lastCancel = user.lastCancellationDate ? new Date(user.lastCancellationDate) : null;
+    const isSameDay =
+      lastCancel &&
+      lastCancel.getFullYear() === now.getFullYear() &&
+      lastCancel.getMonth() === now.getMonth() &&
+      lastCancel.getDate() === now.getDate();
+
+    const dailyCancellations = isSameDay ? (user.dailyCancellationCount || 0) : 0;
+    const totalDriverCancellations = user.cancellationCount || 0;
+    const dispatchBlockedUntil = user.dispatchBlockedUntil ? new Date(user.dispatchBlockedUntil) : null;
+    const isCooldownActive = Boolean(
+      dispatchBlockedUntil && dispatchBlockedUntil.getTime() > now.getTime()
+    );
+    const cooldownRemainingMinutes = isCooldownActive
+      ? Math.max(0, Math.ceil((dispatchBlockedUntil!.getTime() - now.getTime()) / (60 * 1000)))
+      : 0;
+
+    // Fetch the driver's most recent cancelled booking (if any) to get the authoritative cancellation reason
+    const latestCancelledTrip = await Booking.findOne({
+      driver: vendorId,
+      cancelledBy: "driver",
+    })
+      .sort({ updatedAt: -1 })
+      .select("cancellationReason cancelledAt updatedAt")
+      .lean();
+
     /* ---------- RESPONSE ---------- */
     return NextResponse.json({
       success: true,
@@ -87,6 +116,19 @@ export async function GET(
         videoKycRejectionReason: user.videoKycRejectionReason || null,
         vendorRejectionReason: user.vendorRejectionReason || null,
         driverVerificationStatus: user.driverVerificationStatus || null,
+        isOnline: Boolean(user.isOnline),
+
+        /* Shift & Cooldown Analytics */
+        shiftAnalytics: {
+          dailyCancellations,
+          totalDriverCancellations,
+          shiftDate: now.toISOString().split("T")[0],
+          lastCancellationDate: user.lastCancellationDate || null,
+          isCooldownActive,
+          dispatchBlockedUntil: dispatchBlockedUntil ? dispatchBlockedUntil.toISOString() : null,
+          cooldownRemainingMinutes,
+          latestCancellationReason: latestCancelledTrip?.cancellationReason || (dailyCancellations >= 3 ? "Shift cancellation limit exceeded (3+)" : null),
+        },
 
         vehicle: vehicle
           ? {
