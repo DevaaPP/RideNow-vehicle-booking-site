@@ -18,6 +18,12 @@ export interface IVehicleDocument {
   panUrl?: string;
   panStatus?: DocVerificationItemStatus;
 
+  // DigiLocker Gov-verified Identity Metadata
+  isDigiLockerVerified?: boolean;
+  digiLockerAadhaarRef?: string;
+  digiLockerDlRef?: string;
+  digiLockerVerifiedAt?: Date;
+
   // Driving License
   licenseUrl?: string;
   licenseNumber?: string;
@@ -90,6 +96,15 @@ const DocumentSchema = new Schema<IVehicleDocument>(
       enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
       default: "not_submitted",
     },
+
+    // DigiLocker Gov-verified Identity Metadata
+    isDigiLockerVerified: {
+      type: Boolean,
+      default: false,
+    },
+    digiLockerAadhaarRef: String,
+    digiLockerDlRef: String,
+    digiLockerVerifiedAt: Date,
 
     // Driving License
     licenseUrl: String,
