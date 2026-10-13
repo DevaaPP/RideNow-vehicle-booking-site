@@ -49,6 +49,46 @@ export default function PartnerDocumentsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /* DigiLocker Instant KYC State */
+  const [digiLockerLoading, setDigiLockerLoading] = useState(false);
+  const [digiLockerSuccess, setDigiLockerSuccess] = useState(false);
+  const [aadhaarLast4Input, setAadhaarLast4Input] = useState("");
+
+  const handleDigiLockerVerify = async () => {
+    try {
+      setDigiLockerLoading(true);
+      setError(null);
+      const res = await axios.post("/api/partner/documents/digilocker", {
+        dlNumber: metadata.licenseNumber || undefined,
+        aadhaarLast4: aadhaarLast4Input || "8821",
+      });
+      if (res.data?.success) {
+        setDigiLockerSuccess(true);
+        setExistingSummary((prev: any) => ({
+          ...prev,
+          isDigiLockerVerified: true,
+          digiLockerDlRef: res.data.documents?.digiLockerDlRef,
+          digiLockerAadhaarRef: res.data.documents?.digiLockerAadhaarRef,
+          licenseNumber: res.data.documents?.licenseNumber,
+          licenseStatus: "verified",
+          panStatus: "verified",
+        }));
+        if (res.data.documents?.licenseNumber) {
+          setMetadata((prev) => ({
+            ...prev,
+            licenseNumber: res.data.documents.licenseNumber,
+          }));
+        }
+      } else {
+        setError(res.data?.message || "DigiLocker verification failed.");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "DigiLocker gateway connection error.");
+    } finally {
+      setDigiLockerLoading(false);
+    }
+  };
+
   /* ================= FETCH EXISTING DOCS ================= */
 
   useEffect(() => {
@@ -174,12 +214,74 @@ export default function PartnerDocumentsPage() {
           )}
         </div>
 
+        {/* ================= DIGILOCKER INSTANT VERIFICATION CARD ================= */}
+        <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-50/80 via-indigo-50/40 to-white border border-blue-200/80 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xs shadow-xs">
+                DL
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-xs sm:text-sm font-black text-blue-950">
+                    Instant DigiLocker Verification
+                  </h3>
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                    Recommended
+                  </span>
+                </div>
+                <p className="text-[11px] text-blue-800/80 font-medium mt-0.5">
+                  Instantly verify your Aadhaar &amp; Driving Licence with National Digital Locker Gateway
+                </p>
+              </div>
+            </div>
+
+            {(existingSummary?.isDigiLockerVerified || digiLockerSuccess) && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wide">
+                <CheckCircle size={12} className="text-emerald-600" />
+                Verified
+              </span>
+            )}
+          </div>
+
+          {existingSummary?.isDigiLockerVerified || digiLockerSuccess ? (
+            <div className="p-3 bg-white/80 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between">
+              <div>
+                <p className="font-bold">✓ Government KYC Verified</p>
+                <p className="text-[10px] text-zinc-500 font-mono mt-0.5">
+                  Ref: {existingSummary?.digiLockerDlRef || "DL-VERIFIED"} • {existingSummary?.digiLockerAadhaarRef || "AADHAAR-MKYC"}
+                </p>
+              </div>
+              <span className="text-[10px] font-bold text-zinc-400">Zero physical paper required</span>
+            </div>
+          ) : (
+            <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <input
+                type="text"
+                placeholder="Aadhaar Last 4 digits (e.g. 8821)"
+                maxLength={4}
+                value={aadhaarLast4Input}
+                onChange={(e) => setAadhaarLast4Input(e.target.value.replace(/\D/g, ""))}
+                className="h-9 px-3 text-xs rounded-xl border border-blue-200 bg-white font-mono placeholder:text-zinc-400 focus:outline-none focus:border-blue-600 sm:w-56"
+              />
+              <button
+                type="button"
+                disabled={digiLockerLoading}
+                onClick={handleDigiLockerVerify}
+                className="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition active:scale-98"
+              >
+                {digiLockerLoading ? "Verifying with Gateway..." : "Verify via DigiLocker"}
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* ================= SECTION 1: DRIVER IDENTITY ================= */}
         <div className={`mt-6 sm:mt-8 space-y-4 ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
           <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
             <UserCheck size={16} className="text-orange-600" />
             <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-gray-700">
-              1. Driver Identity Verification
+              1. Driver Identity Verification (Or Manual Upload)
             </h2>
           </div>
 
