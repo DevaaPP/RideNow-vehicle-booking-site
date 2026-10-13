@@ -200,7 +200,6 @@ export async function POST(req: Request) {
     }
 
     // 1️⃣ Find eligible candidate drivers using DriverMatchingEngine
-    const vehicleKey = String(vehicle).toLowerCase();
     const matchResult = await findEligibleCandidates({
       pickupLng: pLng,
       pickupLat: pLat,
