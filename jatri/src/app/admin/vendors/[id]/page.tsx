@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Video,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -218,6 +219,110 @@ export default function AdminVendorReviewPage() {
 
         {/* RIGHT SIDE */}
         <div className="space-y-5 sm:space-y-8">
+
+          {/* DRIVER SHIFT & COOLDOWN CARD */}
+          <AnimatedCard title="Driver Shift & Cooldown" icon={<AlertTriangle size={18} />}>
+            <div className="space-y-4">
+              {/* Cooldown Status Badge & Summary */}
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                <div>
+                  <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                    Dispatch Cooldown Status
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Triggered after 3+ cancellations in a single shift
+                  </p>
+                </div>
+                {data.shiftAnalytics?.isCooldownActive ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-black uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                    Cooldown Active
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black uppercase tracking-wider">
+                    <CheckCircle size={13} className="text-emerald-600" />
+                    Normal / Eligible
+                  </span>
+                )}
+              </div>
+
+              {/* Cooldown Details when Active */}
+              {data.shiftAnalytics?.isCooldownActive && (
+                <div className="p-3 bg-red-50/80 border border-red-200 rounded-2xl text-xs space-y-1.5 text-red-950">
+                  <div className="flex justify-between items-center font-bold">
+                    <span>Remaining Timeout:</span>
+                    <span className="font-mono text-red-700 bg-red-100 px-2 py-0.5 rounded-lg">
+                      {data.shiftAnalytics.cooldownRemainingMinutes} min
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-[11px] text-red-800">
+                    <span>Blocked Until:</span>
+                    <span className="font-medium">
+                      {new Date(data.shiftAnalytics.dispatchBlockedUntil).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  {data.shiftAnalytics.latestCancellationReason && (
+                    <div className="pt-1.5 border-t border-red-200/80 text-[11px] text-red-900">
+                      <span className="font-bold">Reason: </span>
+                      <span>{data.shiftAnalytics.latestCancellationReason}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Shift Metrics Grid */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                  <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                    Current Shift Date
+                  </span>
+                  <span className="text-sm font-black text-gray-900">
+                    {data.shiftAnalytics?.shiftDate || new Date().toISOString().split("T")[0]}
+                  </span>
+                </div>
+
+                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                  <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                    Today's Cancellations
+                  </span>
+                  <span className={`text-sm font-black ${
+                    (data.shiftAnalytics?.dailyCancellations || 0) >= 3 ? "text-red-600" : "text-gray-900"
+                  }`}>
+                    {data.shiftAnalytics?.dailyCancellations ?? 0}
+                  </span>
+                </div>
+
+                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                  <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                    Total All-Time Driver Cancelled
+                  </span>
+                  <span className="text-sm font-black text-gray-900">
+                    {data.shiftAnalytics?.totalDriverCancellations ?? 0}
+                  </span>
+                </div>
+
+                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                  <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                    Driver Shift State
+                  </span>
+                  <span className={`text-sm font-black ${
+                    data.isOnline ? "text-emerald-600" : "text-gray-500"
+                  }`}>
+                    {data.isOnline ? "Online (On Shift)" : "Offline"}
+                  </span>
+                </div>
+              </div>
+
+              {data.shiftAnalytics?.lastCancellationDate && (
+                <p className="text-[10px] text-gray-400 font-medium italic pt-1">
+                  Last cancellation logged: {new Date(data.shiftAnalytics.lastCancellationDate).toLocaleString()}
+                </p>
+              )}
+            </div>
+          </AnimatedCard>
 
           <AnimatedCard title="Bank Details" icon={<Landmark size={18} />}>
             <InfoRow label="Account Holder" value={data.bank?.accountHolderName} />
