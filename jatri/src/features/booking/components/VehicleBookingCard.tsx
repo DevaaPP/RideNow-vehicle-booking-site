@@ -4,14 +4,15 @@ import { motion } from "framer-motion";
 import {
   Bike, Car, Truck, Zap,
   IndianRupee, Clock, Gauge,
-  ArrowRight, Star
+  ArrowRight, Star, Users, Package
 } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
+import { VEHICLE_OPTIONS, VehicleType } from "@/lib/vehicleConfig";
 
 interface VehicleProps {
   vehicle: {
     _id: string;
-    type: "bike" | "auto" | "car" | "loading" | "truck";
+    type: VehicleType;
     vehicleModel: string;
     number: string;
     imageUrl?: string;
@@ -24,12 +25,12 @@ interface VehicleProps {
   onBook?: () => void;
 }
 
-const TYPE_CONFIG = {
-  bike:    { key: "bikes", label: "Bike",    Icon: Bike  },
-  auto:    { key: "cars", label: "Auto",    Icon: Car   },
-  car:     { key: "cars", label: "Car",     Icon: Car   },
-  loading: { key: "trucks", label: "Loading", Icon: Truck },
-  truck:   { key: "trucks", label: "Truck",   Icon: Truck },
+const TYPE_ICONS: Record<VehicleType, any> = {
+  bike: Bike,
+  auto: Car,
+  car: Car,
+  loading: Truck,
+  truck: Truck,
 };
 
 export default function VehicleBookingCard({
@@ -41,9 +42,9 @@ export default function VehicleBookingCard({
     imageUrl, baseFare = 0, pricePerKm = 0, waitingCharge = 0,
   } = vehicle;
 
-  const conf = TYPE_CONFIG[type] ?? TYPE_CONFIG.car;
-  const label = t(`fleet.${conf.key}`, conf.label);
-  const Icon = conf.Icon;
+  const opt = VEHICLE_OPTIONS[type] ?? VEHICLE_OPTIONS.car;
+  const label = opt.label;
+  const Icon = TYPE_ICONS[type] ?? Car;
   const estimated = Math.round(baseFare + distanceKm * pricePerKm);
 
   return (
@@ -119,10 +120,25 @@ export default function VehicleBookingCard({
             <h3 className="text-zinc-900 text-base font-black tracking-tight leading-tight truncate">
               {vehicleModel}
             </h3>
-            <div className="mt-1.5 inline-flex items-center bg-zinc-100 px-2.5 py-1 rounded-lg border border-zinc-200">
-              <span className="text-zinc-500 text-xs font-black tracking-[0.2em] font-mono uppercase">
-                {number}
-              </span>
+            <div className="mt-1.5 flex items-center gap-2">
+              <div className="inline-flex items-center bg-zinc-100 px-2 py-0.5 rounded-md border border-zinc-200">
+                <span className="text-zinc-500 text-[11px] font-black tracking-[0.15em] font-mono uppercase">
+                  {number}
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-[10px] font-bold">
+                {opt.passengerCapacity ? (
+                  <>
+                    <Users size={10} />
+                    <span>{opt.passengerCapacity} seats</span>
+                  </>
+                ) : (
+                  <>
+                    <Package size={10} />
+                    <span>{opt.maxWeightKg} kg</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-100 border border-zinc-200 flex items-center justify-center">
