@@ -1,25 +1,46 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Booking from "@/models/booking.model";
+import User from "@/models/user.model";
+import { auth } from "@/auth";
 import { sendMail } from "@/lib/mailer";
 
-
 export async function POST(req: Request) {
-
   await connectDB();
 
   try {
+    // ── Authentication ───────────────────────────────────────────────────
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const caller = await User.findOne({ email: session.user.email })
+      .select("_id role")
+      .lean();
+    if (!caller) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     const { bookingId } = await req.json();
 
-    const booking = await Booking
-      .findById(bookingId)
-      .populate("user");
+    const booking = await Booking.findById(bookingId).populate("user");
 
     if (!booking) {
       return NextResponse.json(
         { message: "Booking not found" },
         { status: 404 }
+      );
+    }
+
+    // ── Authorization: caller must be the assigned driver or an admin ────
+    const isAdmin = (caller as any).role === "admin";
+    const isAssignedDriver =
+      booking.driver?.toString() === (caller as any)._id.toString();
+
+    if (!isAdmin && !isAssignedDriver) {
+      return NextResponse.json(
+        { message: "Forbidden: only the assigned driver may send the pickup OTP" },
+        { status: 403 }
       );
     }
 
@@ -37,10 +58,10 @@ export async function POST(req: Request) {
     await booking.save();
 
     /* Send Mail safely (do not crash if email service fails) */
-    if (booking.user?.email) {
+    if ((booking.user as any)?.email) {
       try {
         await sendMail(
-          booking.user.email,
+          (booking.user as any).email,
           "Your Pickup OTP - RideNow",
           `
           <div style="font-family:sans-serif;padding:20px">
@@ -61,7 +82,8 @@ export async function POST(req: Request) {
     }
 
     /* Send WhatsApp notification if user mobile is available */
-    const userPhone = booking.userMobileNumber || (booking.user as any)?.mobileNumber;
+    const userPhone =
+      booking.userMobileNumber || (booking.user as any)?.mobileNumber;
     if (userPhone) {
       try {
         const { sendWhatsAppOtp } = await import("@/lib/whatsapp");
@@ -77,7 +99,7 @@ export async function POST(req: Request) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: booking.user._id.toString(),
+          userId: (booking.user as any)._id.toString(),
           event: "booking-updated",
           data: {
             bookingId: booking._id.toString(),
@@ -92,7 +114,7 @@ export async function POST(req: Request) {
     // Trigger Web Push to passenger
     try {
       const { sendPushToUser } = await import("@/lib/webPush");
-      await sendPushToUser(booking.user._id.toString(), {
+      await sendPushToUser((booking.user as any)._id.toString(), {
         title: "Driver Has Arrived 📍",
         body: `Your driver is waiting at ${booking.pickupAddress}. Share OTP ${otp} to start the trip.`,
         url: `/ride/${booking._id}`,
@@ -106,16 +128,12 @@ export async function POST(req: Request) {
       message: "Pickup OTP sent",
       pickupOtp: otp,
     });
-
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
       { message: "OTP send failed" },
       { status: 500 }
     );
-
   }
-
 }
