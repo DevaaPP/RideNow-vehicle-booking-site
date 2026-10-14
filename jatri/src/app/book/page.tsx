@@ -554,29 +554,8 @@ export default function BookPage() {
       const countryFilter = restrict || pickupCountry || "in";
       let url = `/api/places?action=autocomplete&input=${encodeURIComponent(q.trim())}&country=${countryFilter}`;
       
-      if (isDrop && pickupLat !== null && pickupLng !== null) {
-        const defaultLimits: Record<string, { maxDistance: number }> = {
-          bike:    { maxDistance: 15 },
-          auto:    { maxDistance: 30 },
-          car:     { maxDistance: 100 },
-          loading: { maxDistance: 150 },
-          truck:   { maxDistance: 500 },
-        };
-        const source = rates || defaultLimits;
-        const cfg = source[(vehicle || "car").toLowerCase()] || defaultLimits.car;
-        const radiusKm = (cfg.maxDistance || 100) * 1.2;
-        
-        const deltaLat = radiusKm / 111;
-        const deltaLng = radiusKm / (111 * Math.cos((pickupLat * Math.PI) / 180));
-        
-        const minLat = pickupLat - deltaLat;
-        const maxLat = pickupLat + deltaLat;
-        const minLon = pickupLng - deltaLng;
-        const maxLon = pickupLng + deltaLng;
-        
-        url += `&bbox=${minLon},${minLat},${maxLon},${maxLat}`;
-        url += `&lat=${pickupLat}&lng=${pickupLng}`;
-      } else if (!isDrop && pickupLat !== null && pickupLng !== null) {
+      // Pass soft proximity bias so nearby places rank first without restricting distant destinations
+      if (pickupLat !== null && pickupLng !== null) {
         url += `&lat=${pickupLat}&lng=${pickupLng}`;
       }
       
@@ -1138,7 +1117,7 @@ export default function BookPage() {
 
         {/* Pickup Autocomplete Results */}
         <AnimatePresence>
-          {activeSearchField === "pickup" && pickupResults.length > 0 && (
+          {activeSearchField === "pickup" && (
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1167,6 +1146,25 @@ export default function BookPage() {
                 </span>
               </button>
 
+              {/* Use current GPS location */}
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setActiveSearchField(null);
+                  useCurrentLocation();
+                }}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
+              >
+                <div className="w-7 h-7 rounded-lg bg-zinc-100 text-zinc-800 flex items-center justify-center flex-shrink-0 border border-zinc-200">
+                  <LocateFixed size={13} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-zinc-900 leading-none">Current Location (GPS)</p>
+                  <p className="text-[10px] text-zinc-500 font-medium mt-0.5">Use device geolocation</p>
+                </div>
+              </button>
+
               {pickupResults.map((p) => (
                 <button
                   key={p.id}
@@ -1189,6 +1187,11 @@ export default function BookPage() {
                       </p>
                     )}
                   </div>
+                  {typeof (p as any).distanceKm === "number" && (
+                    <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md flex-shrink-0">
+                      {(p as any).distanceKm} km
+                    </span>
+                  )}
                   <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
                 </button>
               ))}
@@ -1253,7 +1256,7 @@ export default function BookPage() {
 
         {/* Drop Autocomplete Results & Recent Destinations */}
         <AnimatePresence>
-          {activeSearchField === "drop" && dropResults.length > 0 && (
+          {activeSearchField === "drop" && (
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1284,9 +1287,11 @@ export default function BookPage() {
 
               {dropResults.map((p) => {
                 const distToPoint =
-                  typeof p.lat === "number" && typeof p.lng === "number" && pickupLat && pickupLng
-                    ? getHaversineDistance(pickupLat, pickupLng, p.lat, p.lng)
-                    : null;
+                  typeof (p as any).distanceKm === "number"
+                    ? (p as any).distanceKm
+                    : (typeof p.lat === "number" && typeof p.lng === "number" && pickupLat && pickupLng
+                        ? getHaversineDistance(pickupLat, pickupLng, p.lat, p.lng)
+                        : null);
 
                 return (
                   <button
@@ -1313,7 +1318,7 @@ export default function BookPage() {
 
                     {distToPoint !== null && (
                       <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md flex-shrink-0">
-                        {distToPoint.toFixed(1)} km
+                        {typeof distToPoint === "number" ? distToPoint.toFixed(1) : distToPoint} km
                       </span>
                     )}
 
@@ -1321,48 +1326,43 @@ export default function BookPage() {
                   </button>
                 );
               })}
-            </motion.div>
-          )}
 
-          {activeSearchField === "drop" && dropResults.length === 0 && recentDestinations.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50 divide-y divide-zinc-100"
-            >
-              <div className="px-3.5 py-2 bg-zinc-50 border-b border-zinc-100 flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">🕒 Recent Destinations</span>
-              </div>
-              {recentDestinations.map((recent) => (
-                <button
-                  key={recent.id}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    selectPlace(
-                      {
-                        id: recent.id,
-                        name: recent.name,
-                        title: recent.name,
-                        subtitle: recent.subtitle,
-                        lat: recent.lat,
-                        lng: recent.lng,
-                      },
-                      false
-                    );
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
-                >
-                  <span className="text-sm flex-shrink-0 text-zinc-400">🕒</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-zinc-900 truncate">{recent.name}</p>
-                    {recent.subtitle && (
-                      <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">{recent.subtitle}</p>
-                    )}
+              {dropResults.length === 0 && recentDestinations.length > 0 && (
+                <>
+                  <div className="px-3.5 py-1.5 bg-zinc-50 border-b border-zinc-100 flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">🕒 Recent Destinations</span>
                   </div>
-                  <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
-                </button>
-              ))}
+                  {recentDestinations.map((recent) => (
+                    <button
+                      key={recent.id}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        selectPlace(
+                          {
+                            id: recent.id,
+                            name: recent.name,
+                            title: recent.name,
+                            subtitle: recent.subtitle,
+                            lat: recent.lat,
+                            lng: recent.lng,
+                          },
+                          false
+                        );
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
+                    >
+                      <span className="text-sm flex-shrink-0 text-zinc-400">🕒</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-zinc-900 truncate">{recent.name}</p>
+                        {recent.subtitle && (
+                          <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">{recent.subtitle}</p>
+                        )}
+                      </div>
+                      <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
+                    </button>
+                  ))}
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

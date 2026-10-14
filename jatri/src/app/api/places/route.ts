@@ -53,11 +53,10 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ predictions: [], status: "OK" });
       }
       const country = (searchParams.get("country") || "in").toUpperCase();
-      const lat = searchParams.get("lat");
-      const lng = searchParams.get("lng");
-      const bbox = searchParams.get("bbox");
+      const lat = searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : null;
+      const lng = searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : null;
 
-      const cacheKey = `ac_${input.toLowerCase()}_${country}_${bbox || ""}_${lat ? Number(lat).toFixed(2) : ""}_${lng ? Number(lng).toFixed(2) : ""}`;
+      const cacheKey = `ac_v2_${input.toLowerCase()}_${country}_${lat ? lat.toFixed(2) : ""}_${lng ? lng.toFixed(2) : ""}`;
       const cached = await getCached(cacheKey);
       if (cached) {
         return NextResponse.json(
@@ -66,126 +65,157 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}`;
-      
-      if (country && country !== "NULL") {
-        url += `&countrycode=${country}`;
-      }
-      if (bbox) {
-        url += `&bbox=${bbox}`;
-      }
-      if (lat && lng) {
-        url += `&lat=${lat}&lon=${lng}`;
-      }
+      // Build concurrent requests for maximum coverage and speed
+      let photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}&limit=8`;
+      if (country && country !== "NULL") photonUrl += `&countrycode=${country}`;
+      if (lat !== null && lng !== null) photonUrl += `&lat=${lat}&lon=${lng}`;
 
-      let data: any = null;
-      try {
-        const res = await fetch(url, { headers, signal: AbortSignal.timeout(3500) });
-        if (res.ok) data = await res.json();
-      } catch (e) {
-        console.warn("Photon primary autocomplete error:", e);
+      let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}&limit=8&addressdetails=1`;
+      if (country && country !== "NULL") nomUrl += `&countrycodes=${country.toLowerCase()}`;
+      if (lat !== null && lng !== null) {
+        // Bias Nominatim to ~50km around user coordinates
+        const d = 0.45;
+        nomUrl += `&viewbox=${lng - d},${lat + d},${lng + d},${lat - d}&bounded=0`;
       }
 
-      // Fallback 1: If search within bounding box (bbox) returns nothing, try without bbox
-      if (bbox && (!data?.features || data.features.length === 0)) {
-        let fallbackUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}`;
-        if (country && country !== "NULL") {
-          fallbackUrl += `&countrycode=${country}`;
-        }
-        if (lat && lng) {
-          fallbackUrl += `&lat=${lat}&lon=${lng}`;
-        }
-        try {
-          const fallbackRes = await fetch(fallbackUrl, { headers, signal: AbortSignal.timeout(3500) });
-          if (fallbackRes.ok) {
-            data = await fallbackRes.json();
-          }
-        } catch {}
-      }
+      const [photonResult, nomResult] = await Promise.allSettled([
+        fetch(photonUrl, { headers, signal: AbortSignal.timeout(3200) }).then((r) => r.ok ? r.json() : null),
+        fetch(nomUrl, { headers, signal: AbortSignal.timeout(3200) }).then((r) => r.ok ? r.json() : null),
+      ]);
 
-      // Fallback 2: If still nothing, try without country constraint to capture edge results
-      if (!data?.features || data.features.length === 0) {
-        let fallbackUrl2 = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}`;
-        if (lat && lng) {
-          fallbackUrl2 += `&lat=${lat}&lon=${lng}`;
-        }
-        try {
-          const fallbackRes2 = await fetch(fallbackUrl2, { headers, signal: AbortSignal.timeout(3500) });
-          if (fallbackRes2.ok) {
-            data = await fallbackRes2.json();
-          }
-        } catch {}
-      }
+      const photonData = photonResult.status === "fulfilled" ? photonResult.value : null;
+      const nomData = nomResult.status === "fulfilled" ? nomResult.value : null;
 
-      // Map Photon FeatureCollection to client-compatible autocomplete predictions
-      let predictions = (data?.features || []).map((feature: any) => {
-        const props = feature.properties || {};
-        const coords = feature.geometry?.coordinates || [0, 0];
-        
-        const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-        const localArea = props.district || props.suburb || props.locality;
-        const cityTown = props.city || props.town || props.village;
-        const secondary = [streetAndNumber, localArea, cityTown, props.state].filter((s) => s && s !== props.name).join(", ");
-        
-        const parts: string[] = [props.name];
-        if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-        if (localArea && localArea !== props.name) parts.push(localArea);
-        if (cityTown && cityTown !== props.name) parts.push(cityTown);
-        if (props.postcode) parts.push(props.postcode);
-        if (props.state && props.state !== props.name) parts.push(props.state);
-        if (props.country && props.country !== props.name) parts.push(props.country);
-        const description = parts.filter(Boolean).join(", ");
+      const classifyCategory = (rawCat: string, name: string): string => {
+        const text = `${rawCat} ${name}`.toLowerCase();
+        if (text.includes("airport") || text.includes("aerodrome") || text.includes("terminal")) return "airport";
+        if (text.includes("station") || text.includes("railway") || text.includes("junction") || text.includes("metro")) return "train_station";
+        if (text.includes("hospital") || text.includes("clinic") || text.includes("medical") || text.includes("health")) return "hospital";
+        if (text.includes("college") || text.includes("university") || text.includes("school") || text.includes("institute") || text.includes("campus")) return "education";
+        if (text.includes("mall") || text.includes("market") || text.includes("bazaar") || text.includes("plaza") || text.includes("store")) return "shopping";
+        if (text.includes("post office") || text.includes("bank") || text.includes("temple") || text.includes("mosque") || text.includes("church")) return "landmark";
+        return "place";
+      };
 
-        const place_id = `photon_${coords[1]}_${coords[0]}_${(props.countrycode || "in").toLowerCase()}_${encodeURIComponent(description)}`;
+      const rawPredictions: any[] = [];
 
-        return {
-          place_id,
-          description,
-          title: props.name || description,
-          subtitle: secondary || props.country || "India",
-          category: props.osm_value || props.osm_key || "place",
-          lat: coords[1],
-          lng: coords[0],
-          countrycode: (props.countrycode || "in").toLowerCase(),
-          locality: localArea || "",
-          city: cityTown || "",
-          state: props.state || "",
-          postalCode: props.postcode || "",
-        };
-      });
+      // 1. Process Photon results
+      if (photonData?.features && Array.isArray(photonData.features)) {
+        for (const feature of photonData.features) {
+          const props = feature.properties || {};
+          const coords = feature.geometry?.coordinates || [0, 0];
+          const name = props.name || props.street || "";
+          if (!name) continue;
 
-      // Fallback 3: If still empty, query Nominatim
-      if (predictions.length === 0 && input.length >= 2) {
-        try {
-          let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}&limit=8&addressdetails=1`;
-          if (country && country !== "NULL") {
-            nomUrl += `&countrycodes=${country.toLowerCase()}`;
-          }
-          const nomRes = await fetch(nomUrl, { headers, signal: AbortSignal.timeout(3500) });
-          if (nomRes.ok) {
-            const nomData = await nomRes.json();
-            if (Array.isArray(nomData)) {
-              predictions = nomData.map((item: any) => {
-                const addr = item.address || {};
-                const name = item.name || item.display_name.split(",")[0];
-                const subtitle = [addr.suburb || addr.neighbourhood, addr.city || addr.town || addr.county, addr.state].filter(Boolean).join(", ");
-                return {
-                  place_id: `nom_${item.lat}_${item.lon}_${encodeURIComponent(item.display_name)}`,
-                  description: item.display_name,
-                  title: name,
-                  subtitle: subtitle || "India",
-                  category: item.type || item.class || "place",
-                  lat: parseFloat(item.lat),
-                  lng: parseFloat(item.lon),
-                  countrycode: String(addr.country_code || "in").toLowerCase(),
-                };
-              });
-            }
-          }
-        } catch (nomErr) {
-          console.warn("Nominatim autocomplete fallback error:", nomErr);
+          const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+          const localArea = props.district || props.suburb || props.locality;
+          const cityTown = props.city || props.town || props.village;
+          const secondary = [streetAndNumber, localArea, cityTown, props.state].filter((s) => s && s !== name).join(", ");
+
+          const parts: string[] = [name];
+          if (streetAndNumber && streetAndNumber !== name) parts.push(streetAndNumber);
+          if (localArea && localArea !== name) parts.push(localArea);
+          if (cityTown && cityTown !== name) parts.push(cityTown);
+          if (props.postcode) parts.push(props.postcode);
+          if (props.state && props.state !== name) parts.push(props.state);
+          const description = parts.filter(Boolean).join(", ");
+
+          const cat = classifyCategory(props.osm_value || props.osm_key || "", name);
+          const pLat = coords[1];
+          const pLng = coords[0];
+
+          rawPredictions.push({
+            place_id: `photon_${pLat}_${pLng}_${(props.countrycode || "in").toLowerCase()}_${encodeURIComponent(description)}`,
+            description,
+            title: name,
+            subtitle: secondary || props.country || "India",
+            category: cat,
+            lat: pLat,
+            lng: pLng,
+            countrycode: (props.countrycode || "in").toLowerCase(),
+            locality: localArea || "",
+            city: cityTown || "",
+            state: props.state || "",
+            postalCode: props.postcode || "",
+          });
         }
       }
+
+      // 2. Process Nominatim results
+      if (Array.isArray(nomData)) {
+        for (const item of nomData) {
+          const addr = item.address || {};
+          const name = item.name || (item.display_name ? item.display_name.split(",")[0] : "");
+          if (!name) continue;
+
+          const street = [addr.house_number, addr.road].filter(Boolean).join(" ");
+          const localArea = addr.suburb || addr.neighbourhood || addr.residential;
+          const cityTown = addr.city || addr.town || addr.municipality || addr.village;
+          const secondary = [street, localArea, cityTown, addr.state].filter((s) => s && s !== name).join(", ");
+
+          const cat = classifyCategory(item.type || item.class || "", name);
+          const pLat = parseFloat(item.lat);
+          const pLng = parseFloat(item.lon);
+
+          rawPredictions.push({
+            place_id: `nom_${pLat}_${pLng}_in_${encodeURIComponent(item.display_name)}`,
+            description: item.display_name,
+            title: name,
+            subtitle: secondary || "India",
+            category: cat,
+            lat: pLat,
+            lng: pLng,
+            countrycode: String(addr.country_code || "in").toLowerCase(),
+            locality: localArea || "",
+            city: cityTown || "",
+            state: addr.state || "",
+            postalCode: addr.postcode || "",
+          });
+        }
+      }
+
+      // 3. Deduplicate by proximity (< 50m) or identical title
+      const uniquePredictions: any[] = [];
+      const seenTitles = new Set<string>();
+
+      for (const p of rawPredictions) {
+        const normTitle = (p.title || "").toLowerCase().trim();
+        if (seenTitles.has(normTitle)) continue;
+
+        const isDuplicateNearby = uniquePredictions.some((ex) => {
+          const dLat = Math.abs(ex.lat - p.lat);
+          const dLng = Math.abs(ex.lng - p.lng);
+          return dLat < 0.0005 && dLng < 0.0005;
+        });
+
+        if (!isDuplicateNearby) {
+          seenTitles.add(normTitle);
+          uniquePredictions.push(p);
+        }
+      }
+
+      // 4. Calculate proximity distance and sort
+      if (lat !== null && lng !== null) {
+        uniquePredictions.forEach((p) => {
+          const dLat = (p.lat - lat) * (Math.PI / 180);
+          const dLng = (p.lng - lng) * (Math.PI / 180);
+          const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat * (Math.PI / 180)) * Math.cos(p.lat * (Math.PI / 180)) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          p.distanceKm = +(6371 * c).toFixed(1);
+        });
+
+        uniquePredictions.sort((a, b) => {
+          if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+            return a.distanceKm - b.distanceKm;
+          }
+          return 0;
+        });
+      }
+
+      const predictions = uniquePredictions.slice(0, 10);
 
       await setCached(cacheKey, predictions);
       return NextResponse.json(
@@ -196,26 +226,27 @@ export async function GET(req: NextRequest) {
 
     if (action === "details") {
       const placeId = searchParams.get("placeId") || "";
-      
-      if (placeId.startsWith("photon_")) {
+
+      if (placeId.startsWith("photon_") || placeId.startsWith("nom_")) {
         const parts = placeId.split("_");
-        if (parts.length >= 5) {
-          const [_, lat, lng, countrycode, ...descParts] = parts;
+        if (parts.length >= 4) {
+          const isPhoton = placeId.startsWith("photon_");
+          const lat = Number(parts[1]);
+          const lng = Number(parts[2]);
+          const countrycode = isPhoton ? parts[3] : "in";
+          const descParts = isPhoton ? parts.slice(4) : parts.slice(3);
           const description = decodeURIComponent(descParts.join("_"));
           return NextResponse.json({
             status: "OK",
             result: {
               formatted_address: description,
               geometry: {
-                location: {
-                  lat: Number(lat),
-                  lng: Number(lng),
-                },
+                location: { lat, lng },
               },
               address_components: [
                 {
-                  long_name: countrycode.toUpperCase(),
-                  short_name: countrycode.toLowerCase(),
+                  long_name: (countrycode || "IN").toUpperCase(),
+                  short_name: (countrycode || "in").toLowerCase(),
                   types: ["country"],
                 },
               ],

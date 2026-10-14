@@ -19,9 +19,13 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
   - Added structured `IAddressDetails` (`name`, `formattedAddress`, `locality`, `city`, `state`, `postalCode`, `coordinates`) to `Booking` schema, persisted across search, checkout, and invoice completion (`19f1fe5`).
 
 ### Fixed
-- **Routing Engine (`DevaaPP`)**:
+- **Routing & Map Viewport Engine (`DevaaPP`)**:
   - Fixed frozen grey alternative route polyline bug by enforcing client-side purge of `lastAltCoordsRef`, clearing `route-alt-source` GeoJSON on destination change, and setting `alternatives=false` for pre-booking queries (`19f1fe5`).
-  - Gated auto-zoom `fitBounds` to only fire when both locations are confirmed and locked, eliminating jarring map viewport snapping during pin dragging (`19f1fe5`).
+  - Fixed map auto-zoom looping and excessive zoom-out by gating `fitBounds` to run strictly once per new route with responsive desktop (`left: 470`) and mobile viewport paddings.
+  - Eliminated camera snapping during map movement by gating `easeTo` to run only once upon entering active pin mode.
+  - Replaced marker direct dragging (`draggable: false`) with pure moving map mode; tapping placed markers or toolbar buttons activates the centralized pin.
+  - Fixed off-road destination route termination gap by automatically snapping polyline endpoints to the destination pin ground coordinate.
+  - Overhauled places autocomplete with concurrent Photon + Nominatim queries, proximity sorting, removal of restrictive bounding boxes, and universal `action=details` support for `nom_` and `photon_` place IDs.
 
 ---
 

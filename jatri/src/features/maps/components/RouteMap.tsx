@@ -322,6 +322,8 @@ export default function RouteMap({
   const lastRouteCoordsRef = useRef<[number, number][]>([]);
   const lastAltCoordsRef = useRef<[number, number][]>([]);
   const lastRouteKeyRef = useRef<string>("");
+  const hasFittedRouteRef = useRef<string | null>(null);
+  const prevActivePinModeRef = useRef<"pickup" | "drop" | null>(null);
 
   const svgCasingRef = useRef<SVGPathElement | null>(null);
   const svgCoreRef = useRef<SVGPathElement | null>(null);
@@ -582,32 +584,35 @@ export default function RouteMap({
     };
   }, [activePinMode, reverseGeocodeFull]);
 
-  // Handle switching into / out of activePinMode (smooth camera ease)
+  // Handle switching into / out of activePinMode (smooth camera ease ONCE on entry)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    if (activePinMode === "pickup") {
-      const target: [number, number] = p1 ? [p1[1], p1[0]] : [91.7516, 26.1884];
-      map.easeTo({ center: target, zoom: 15.5, duration: 600 });
-      setPinAddress(pickup || "Moving map to pinpoint pickup...");
-      setIsPinGeocoding(true);
-      reverseGeocodeFull(target[1], target[0]).then((res) => {
-        setPinAddress(res.address);
-        setPinDetails(res.details);
-        setIsPinGeocoding(false);
-      });
-    } else if (activePinMode === "drop") {
-      const target: [number, number] = p2 ? [p2[1], p2[0]] : (p1 ? [p1[1], p1[0]] : [91.7516, 26.1884]);
-      map.easeTo({ center: target, zoom: 15.5, duration: 600 });
-      setPinAddress(drop || "Moving map to pinpoint drop...");
-      setIsPinGeocoding(true);
-      reverseGeocodeFull(target[1], target[0]).then((res) => {
-        setPinAddress(res.address);
-        setPinDetails(res.details);
-        setIsPinGeocoding(false);
-      });
+    if (activePinMode && activePinMode !== prevActivePinModeRef.current) {
+      if (activePinMode === "pickup") {
+        const target: [number, number] = p1 ? [p1[1], p1[0]] : [91.7516, 26.1884];
+        map.easeTo({ center: target, zoom: 16, duration: 600 });
+        setPinAddress(pickup || "Moving map to pinpoint pickup...");
+        setIsPinGeocoding(true);
+        reverseGeocodeFull(target[1], target[0]).then((res) => {
+          setPinAddress(res.address);
+          setPinDetails(res.details);
+          setIsPinGeocoding(false);
+        });
+      } else if (activePinMode === "drop") {
+        const target: [number, number] = p2 ? [p2[1], p2[0]] : (p1 ? [p1[1], p1[0]] : [91.7516, 26.1884]);
+        map.easeTo({ center: target, zoom: 16, duration: 600 });
+        setPinAddress(drop || "Moving map to pinpoint drop...");
+        setIsPinGeocoding(true);
+        reverseGeocodeFull(target[1], target[0]).then((res) => {
+          setPinAddress(res.address);
+          setPinDetails(res.details);
+          setIsPinGeocoding(false);
+        });
+      }
     }
+    prevActivePinModeRef.current = activePinMode;
   }, [activePinMode, p1, p2, pickup, drop, reverseGeocodeFull]);
 
   /* ─── CONFIRM PIN SELECTION HANDLER ─── */
@@ -649,7 +654,7 @@ export default function RouteMap({
 
   /* ─── SAFE & CRASH-PROOF ROUTE RENDERING ─── */
   const applyRouteLine = useCallback(
-    (coords: [number, number][], altCoords?: [number, number][]) => {
+    (coords: [number, number][], altCoords?: [number, number][], routeKey?: string) => {
       lastRouteCoordsRef.current = coords || [];
       // STRICT FIX: Always clear alternative coords when none provided (prevents frozen grey line bug)
       lastAltCoordsRef.current = altCoords && altCoords.length > 0 ? altCoords : [];
@@ -713,14 +718,21 @@ export default function RouteMap({
             });
 
             // STRICT FIX: Only fitBounds when NOT in active pin selection mode
-            if (!activePinMode) {
+            // AND only once per new route (routeKey) to prevent auto-zooming loops
+            if (!activePinMode && (!routeKey || hasFittedRouteRef.current !== routeKey)) {
+              if (routeKey) hasFittedRouteRef.current = routeKey;
               const bounds = new maplibregl.LngLatBounds();
               for (const c of coords) {
                 bounds.extend(c as [number, number]);
               }
+              const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
+              const responsivePadding = isDesktop
+                ? { top: 80, bottom: 80, left: 470, right: 80 }
+                : { top: 70, bottom: Math.max(160, bottomPadding), left: 35, right: 35 };
+
               map.fitBounds(bounds, {
-                padding: { top: 90, bottom: bottomPadding, left: 60, right: 60 },
-                duration: 800,
+                padding: responsivePadding,
+                duration: 700,
                 maxZoom: 16,
               });
             }
@@ -776,7 +788,7 @@ export default function RouteMap({
 
       const currentKey = waypoints.map((w) => `${w[0].toFixed(5)},${w[1].toFixed(5)}`).join(";");
       if (currentKey === lastRouteKeyRef.current && lastRouteCoordsRef.current.length > 0) {
-        applyRouteLine(lastRouteCoordsRef.current);
+        applyRouteLine(lastRouteCoordsRef.current, [], currentKey);
         return;
       }
       lastRouteKeyRef.current = currentKey;
@@ -843,11 +855,23 @@ export default function RouteMap({
       }
 
       if (routeData && routeData.geojsonCoords?.length > 0) {
+        // Snap connection: If the route end point snapped away from true drop point, extend directly to the drop coordinate
+        const lastPt = routeData.geojsonCoords[routeData.geojsonCoords.length - 1];
+        const dEndKm = Math.hypot(lastPt[1] - dropPt[0], lastPt[0] - dropPt[1]) * 111;
+        if (dEndKm > 0.012 && dEndKm < 1.5) {
+          routeData.geojsonCoords.push([dropPt[1], dropPt[0]]);
+        }
+
+        const firstPt = routeData.geojsonCoords[0];
+        const dStartKm = Math.hypot(firstPt[1] - pickupPt[0], firstPt[0] - pickupPt[1]) * 111;
+        if (dStartKm > 0.012 && dStartKm < 1.5) {
+          routeData.geojsonCoords.unshift([pickupPt[1], pickupPt[0]]);
+        }
+
         setKm(routeData.distanceKm);
         setDurationMin(routeData.durationMinutes);
         onDistance?.(routeData.distanceKm);
-        // Explicitly clear alternative route
-        applyRouteLine(routeData.geojsonCoords, []);
+        applyRouteLine(routeData.geojsonCoords, [], currentKey);
       }
 
       setIsRouting(false);
@@ -862,30 +886,34 @@ export default function RouteMap({
 
     // 1. Pickup Marker (Hidden while actively setting pickup with center pin)
     if (p1 && activePinMode !== "pickup") {
+      const attachPickupClickHandler = (el: HTMLElement) => {
+        el.style.cursor = "pointer";
+        el.title = "Click to adjust pickup location on map";
+        el.onclick = (e) => {
+          e.stopPropagation();
+          setActivePinMode("pickup");
+          onSelectionModeChange?.("pickup");
+        };
+      };
+
       if (!pickupMarkerRef.current) {
         const el = createPickupEl(durationMin);
+        attachPickupClickHandler(el);
         const marker = new maplibregl.Marker({
           element: el,
-          draggable: true,
+          draggable: false, // Strictly locked to ground, NO direct dragging!
           anchor: "bottom",
         })
           .setLngLat([p1[1], p1[0]])
           .addTo(map);
 
-        marker.on("dragend", async () => {
-          const lngLat = marker.getLngLat();
-          const newPt: [number, number] = [lngLat.lat, lngLat.lng];
-          setP1(newPt);
-          onCoordinatesChange?.(newPt, p2);
-          const res = await reverseGeocodeFull(newPt[0], newPt[1]);
-          if (onChange) onChange(res.address, drop, newPt, p2, res.details?.countrycode || "in", res.details);
-        });
-
         pickupMarkerRef.current = marker;
       } else {
         pickupMarkerRef.current.setLngLat([p1[1], p1[0]]);
         const el = createPickupEl(durationMin);
+        attachPickupClickHandler(el);
         pickupMarkerRef.current.getElement().innerHTML = el.innerHTML;
+        attachPickupClickHandler(pickupMarkerRef.current.getElement());
       }
     } else if (pickupMarkerRef.current) {
       pickupMarkerRef.current.remove();
@@ -894,28 +922,31 @@ export default function RouteMap({
 
     // 2. Drop Marker (Hidden while actively setting drop with center pin)
     if (p2 && activePinMode !== "drop") {
+      const attachDropClickHandler = (el: HTMLElement) => {
+        el.style.cursor = "pointer";
+        el.title = "Click to adjust drop-off location on map";
+        el.onclick = (e) => {
+          e.stopPropagation();
+          setActivePinMode("drop");
+          onSelectionModeChange?.("drop");
+        };
+      };
+
       if (!dropMarkerRef.current) {
         const el = createDropEl();
+        attachDropClickHandler(el);
         const marker = new maplibregl.Marker({
           element: el,
-          draggable: true,
+          draggable: false, // Strictly locked to ground, NO direct dragging!
           anchor: "bottom",
         })
           .setLngLat([p2[1], p2[0]])
           .addTo(map);
 
-        marker.on("dragend", async () => {
-          const lngLat = marker.getLngLat();
-          const newPt: [number, number] = [lngLat.lat, lngLat.lng];
-          setP2(newPt);
-          onCoordinatesChange?.(p1, newPt);
-          const res = await reverseGeocodeFull(newPt[0], newPt[1]);
-          if (onChange) onChange(pickup, res.address, p1, newPt, res.details?.countrycode || "in", undefined, res.details);
-        });
-
         dropMarkerRef.current = marker;
       } else {
         dropMarkerRef.current.setLngLat([p2[1], p2[0]]);
+        attachDropClickHandler(dropMarkerRef.current.getElement());
       }
     } else if (dropMarkerRef.current) {
       dropMarkerRef.current.remove();
@@ -983,17 +1014,25 @@ export default function RouteMap({
       const bounds = new maplibregl.LngLatBounds();
       bounds.extend([p1[1], p1[0]]);
       bounds.extend([p2[1], p2[0]]);
+      const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
+      const responsivePadding = isDesktop
+        ? { top: 80, bottom: 80, left: 470, right: 80 }
+        : { top: 70, bottom: Math.max(160, bottomPadding), left: 35, right: 35 };
+
       map.fitBounds(bounds, {
-        padding: { top: 90, bottom: bottomPadding, left: 60, right: 60 },
-        duration: 800,
+        padding: responsivePadding,
+        duration: 700,
         maxZoom: 16,
       });
     } else if (p1) {
-      map.easeTo({ center: [p1[1], p1[0]], zoom: 15, duration: 700 });
+      map.easeTo({ center: [p1[1], p1[0]], zoom: 16, duration: 600 });
+    } else if (p2) {
+      map.easeTo({ center: [p2[1], p2[0]], zoom: 16, duration: 600 });
     }
   };
 
   const handleReset = () => {
+    hasFittedRouteRef.current = null;
     setP1(null);
     setP2(null);
     onCoordinatesChange?.(null, null);
