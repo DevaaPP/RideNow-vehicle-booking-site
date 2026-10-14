@@ -1,8 +1,31 @@
-import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import connectDb from "@/lib/db";
+import User from "@/models/user.model";
 import { verifyPayment } from "@/lib/paymentService";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
+    await connectDb();
+
+    // ── Authentication ─────────────────────────────────────────────────────
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    const caller = await User.findOne({ email: session.user.email })
+      .select("_id")
+      .lean();
+    if (!caller) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const {
       bookingId,
       razorpay_order_id,
@@ -17,11 +40,14 @@ export async function POST(req: Request) {
       );
     }
 
+    // verifyPayment checks HMAC signature, booking ownership (userId param),
+    // and idempotency before updating any records.
     const result = await verifyPayment({
       bookingId,
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
       signature: razorpay_signature,
+      userId: (caller as any)._id.toString(),
     });
 
     const booking = result.booking;

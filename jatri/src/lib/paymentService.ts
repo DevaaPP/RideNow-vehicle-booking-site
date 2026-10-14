@@ -166,6 +166,11 @@ export async function verifyPayment(params: VerifyPaymentParams) {
     throw new Error("Booking not found");
   }
 
+  // ── Ownership: caller must own this booking ────────────────────────────
+  if (params.userId && booking.user?.toString() !== params.userId.toString()) {
+    throw new Error("Unauthorized to verify payment for this booking");
+  }
+
   // Idempotency: If already confirmed and paid with this transaction, return success
   if (booking.paymentStatus === "paid") {
     const existingSuccess = await Payment.findOne({
@@ -174,7 +179,7 @@ export async function verifyPayment(params: VerifyPaymentParams) {
       status: "success",
     });
     if (existingSuccess) {
-      return { success: true, booking, isDuplicate: true };
+      return { success: true, booking, payment: existingSuccess, isDuplicate: true };
     }
   }
 
@@ -234,15 +239,19 @@ export async function handleRazorpayWebhook(
   await connectDb();
 
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-  if (webhookSecret) {
-    const expectedSignature = crypto
-      .createHmac("sha256", webhookSecret)
-      .update(rawBody)
-      .digest("hex");
+  if (!webhookSecret) {
+    // Fail closed: if the secret is not configured we cannot authenticate the
+    // webhook caller, so we must not process the event.
+    throw new Error("RAZORPAY_WEBHOOK_SECRET is not configured; webhook rejected");
+  }
 
-    if (expectedSignature !== webhookSignature) {
-      throw new Error("Invalid webhook signature");
-    }
+  const expectedSignature = crypto
+    .createHmac("sha256", webhookSecret)
+    .update(rawBody)
+    .digest("hex");
+
+  if (expectedSignature !== webhookSignature) {
+    throw new Error("Invalid webhook signature");
   }
 
   const data: WebhookEventPayload = JSON.parse(rawBody);
