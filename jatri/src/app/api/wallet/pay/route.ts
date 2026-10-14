@@ -39,6 +39,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
+    // ── Ownership check ────────────────────────────────────────────────────
+    if (booking.user?.toString() !== user._id.toString()) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     // Idempotency: verify if this payment was already processed
     const existingTx = await WalletTransaction.findOne({
       idempotencyKey,
