@@ -101,7 +101,13 @@ export async function POST(
 
   const body = await req.json().catch(() => ({}));
   const reason = (body.reason as string) || "Ride cancelled by passenger";
-  const cancelledBy = (body.cancelledBy as "user" | "driver" | "admin" | "system") || "user";
+
+  // ── Security: never trust client-supplied actor ────────────────────────
+  // "system" is an internal-only actor; clients must not be able to set it.
+  // Derive cancelledBy from the authenticated session, not the request body.
+  if (!sessionUser) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   const booking = await Booking.findById(id);
 
@@ -109,28 +115,24 @@ export async function POST(
     return NextResponse.json({ message: "Ride booking not found" }, { status: 404 });
   }
 
-  // Cross-tenant authorization check (unless triggered by internal system dispatch)
-  if (cancelledBy !== "system") {
-    if (!sessionUser) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+  const currentUserId = sessionUser._id.toString();
+  const riderId = booking.user?.toString();
+  const driverId = booking.driver?.toString();
+  const isAdmin = (sessionUser as any).role === "admin";
 
-    const currentUserId = sessionUser._id.toString();
-    const riderId = booking.user?.toString();
-    const driverId = booking.driver?.toString();
-    const isAdmin = sessionUser.role === "admin";
-
-    const isAuthorized =
-      isAdmin ||
-      (cancelledBy === "user" && riderId === currentUserId) ||
-      (cancelledBy === "driver" && driverId === currentUserId);
-
-    if (!isAuthorized) {
-      return NextResponse.json(
-        { message: "Forbidden: You are not authorized to cancel this ride" },
-        { status: 403 }
-      );
-    }
+  // Derive cancelledBy from session role — ignore any client-supplied value
+  let cancelledBy: "user" | "driver" | "admin";
+  if (isAdmin) {
+    cancelledBy = "admin";
+  } else if (driverId && driverId === currentUserId) {
+    cancelledBy = "driver";
+  } else if (riderId && riderId === currentUserId) {
+    cancelledBy = "user";
+  } else {
+    return NextResponse.json(
+      { message: "Forbidden: You are not authorized to cancel this ride" },
+      { status: 403 }
+    );
   }
 
   if (["completed", "cancelled", "rejected", "expired"].includes(booking.status)) {
