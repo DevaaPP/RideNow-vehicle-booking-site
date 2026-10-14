@@ -31,7 +31,9 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 - **Address Search & Dead Code (`DevaaPP`)**:
   - Removed dead `isDrop` parameter from `debouncedSearchAddress` and `searchAddress` (was used for old bbox-restricted search; fully superseded in Phase 0). Removed all 4 call-site remnants across pickup/drop inputs and quick-chip buttons.
   - Extracted a single module-level `VEHICLE_DISTANCE_LIMITS` constant, eliminating the two duplicated inline `defaultLimits` tables inside `checkLimit` and `getDistanceValidity`. Both functions now read from dynamic `rates` with a typed static fallback.
-  - Guarded `geocodeAddress` fallback effects in `RouteMap.tsx` to skip while `activePinMode !== null`, preventing background reverse-geocode fetches from racing against the pin state machine and overwriting in-flight coordinates.
+  - Guarded `geocodeAddress` fallback effects in `RouteMap.tsx` to skip while `activePinMode !== null` or `disableFallbackGeocode` is active, preventing background reverse-geocode fetches from racing against the pin state machine and overwriting in-flight coordinates.
+  - Connected previously unhandled `disableFallbackGeocode` prop to fallback geocoding effects in `RouteMap.tsx`.
+  - Cleared `activeSearchField` and `isEditingRoute` upon map pin confirmation in `book/page.tsx` to prevent overlapping floating overlays.
 
 ---
 

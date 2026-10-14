@@ -303,6 +303,7 @@ export default function RouteMap({
   onChange,
   onCoordinatesChange,
   vehicles,
+  disableFallbackGeocode = false,
   smartPickups,
   onSelectSmartPickup,
   stops,
@@ -431,9 +432,9 @@ export default function RouteMap({
   );
 
   // If text is set but coordinates are missing, resolve them automatically.
-  // Guard: skip while pin mode is active — the pin state machine owns coords in that state.
+  // Guard: skip while pin mode is active or when disableFallbackGeocode is true.
   useEffect(() => {
-    if (activePinMode !== null) return;
+    if (disableFallbackGeocode || activePinMode !== null) return;
     if (!p1 && pickup && pickup.trim().length >= 3) {
       geocodeAddress(pickup).then((coords) => {
         if (coords) {
@@ -442,10 +443,10 @@ export default function RouteMap({
         }
       });
     }
-  }, [pickup, p1, p2, onCoordinatesChange, activePinMode]);
+  }, [pickup, p1, p2, onCoordinatesChange, activePinMode, disableFallbackGeocode]);
 
   useEffect(() => {
-    if (activePinMode !== null) return;
+    if (disableFallbackGeocode || activePinMode !== null) return;
     if (!p2 && drop && drop.trim().length >= 3) {
       geocodeAddress(drop, p1).then((coords) => {
         if (coords) {
@@ -454,7 +455,7 @@ export default function RouteMap({
         }
       });
     }
-  }, [drop, p1, p2, onCoordinatesChange, activePinMode]);
+  }, [drop, p1, p2, onCoordinatesChange, activePinMode, disableFallbackGeocode]);
 
   /* ─── INITIALIZE MAPLIBRE ─── */
   useEffect(() => {

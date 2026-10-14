@@ -924,6 +924,8 @@ export default function BookPage() {
       setDropDetails(struct);
     }
     setMapSelectionMode("none");
+    setActiveSearchField(null);
+    setIsEditingRoute(false);
   };
 
   const handleCoordinatesChange = (c1?: [number, number] | null, c2?: [number, number] | null) => {
