@@ -4,6 +4,7 @@ import connectDb from "./lib/db"
 import User from "./models/user.model"
 import bcrypt from "bcryptjs"
 import Google from "next-auth/providers/google"
+import { rateLimiter } from "./lib/rateLimit"
  
 
 declare module "next-auth" {
@@ -54,6 +55,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const cleaned = rawPhone.replace(/\D/g, "");
           const tenDigits = cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
 
+          // Rate Limiting & Brute-Force Lockout (synced with route-level limiter)
+          const phoneLimitKey = `phone:${tenDigits}:verify-otp`;
+          const phoneCheck = rateLimiter.check(phoneLimitKey, 5, 5 * 60 * 1000);
+
+          if (!phoneCheck.allowed) {
+            rateLimiter.lockout(phoneLimitKey, 15 * 60 * 1000);
+            throw new Error("Too many failed attempts. Account temporarily locked for 15 minutes for your security.");
+          }
+
           const user = await User.findOne({ mobileNumber: tenDigits });
 
           if (!user) {
@@ -61,12 +71,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           if (!user.otp || user.otp.trim() !== String(otp).trim()) {
-            throw new Error("Invalid OTP code");
+            const remaining = phoneCheck.remaining;
+            throw new Error(
+              remaining > 0
+                ? `Invalid OTP code. ${remaining} attempt(s) remaining.`
+                : "Invalid OTP code. Too many failed attempts. Please request a new OTP."
+            );
           }
 
           if (user.otpExpiresAt && new Date() > user.otpExpiresAt) {
             throw new Error("OTP has expired. Please request a new one.");
           }
+
+          // Reset rate limiter on successful verification
+          rateLimiter.reset(phoneLimitKey);
 
           user.isMobileVerified = true;
           user.otp = undefined;
@@ -86,8 +104,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Missing email or password");
         }
 
-        const email = credentials.email as string;
+        const email = (credentials.email as string).toLowerCase().trim();
         const password = credentials.password as string;
+
+        // Rate limiting for password attempts (5 attempts per 5 minutes)
+        const emailLimitKey = `email:${email}:login`;
+        const emailCheck = rateLimiter.check(emailLimitKey, 5, 5 * 60 * 1000);
+        if (!emailCheck.allowed) {
+          rateLimiter.lockout(emailLimitKey, 15 * 60 * 1000);
+          throw new Error("Too many failed login attempts. Temporarily locked for 15 minutes.");
+        }
+
         const user = await User.findOne({ email });
 
         if (!user) {
@@ -102,6 +129,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isMatch) {
           throw new Error("Incorrect password");
         }
+
+        // Reset rate limiter on successful password login
+        rateLimiter.reset(emailLimitKey);
 
         return {
           id: user._id.toString(),
