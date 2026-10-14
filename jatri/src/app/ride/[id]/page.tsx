@@ -1433,7 +1433,11 @@ function PanelContent({
                 <p className="text-white font-bold text-base truncate">{booking.driver?.name || "Your Driver"}</p>
                 <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full flex-shrink-0">
                   <Star size={10} className="text-amber-400 fill-amber-400" />
-                  <span className="text-white text-xs font-semibold">4.9</span>
+                  <span className="text-white text-xs font-semibold">
+                    {booking.driver?.rating != null
+                      ? Number(booking.driver.rating).toFixed(1)
+                      : "New"}
+                  </span>
                 </div>
               </div>
               {booking.vehicle && (
