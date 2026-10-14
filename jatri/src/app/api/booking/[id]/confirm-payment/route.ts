@@ -2,6 +2,7 @@ import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import { auth } from "@/auth";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -42,13 +43,14 @@ export async function POST(
   booking.paymentDeadline = undefined;
 
   if (!booking.pickupOtp) {
-    booking.pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    booking.pickupOtp = generateSecureOtp(4);
     booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
   }
 
   await booking.save();
 
   try {
+    // Notify driver: confirm payment without leaking pickup OTP
     await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -59,7 +61,6 @@ export async function POST(
           bookingId: booking._id.toString(),
           status: "confirmed",
           paymentStatus: booking.paymentStatus,
-          pickupOtp: booking.pickupOtp,
         },
       }),
     });

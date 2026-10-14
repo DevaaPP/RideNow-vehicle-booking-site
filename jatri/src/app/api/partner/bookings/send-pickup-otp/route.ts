@@ -4,6 +4,7 @@ import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import { auth } from "@/auth";
 import { sendMail } from "@/lib/mailer";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 
 export async function POST(req: Request) {
   await connectDB();
@@ -44,13 +45,13 @@ export async function POST(req: Request) {
       );
     }
 
-    /* Generate or reuse valid OTP */
+    /* Generate or reuse valid OTP using CSPRNG */
     const otp =
       booking.pickupOtp &&
       booking.pickupOtpExpires &&
       new Date(booking.pickupOtpExpires) > new Date()
         ? booking.pickupOtp
-        : Math.floor(1000 + Math.random() * 9000).toString();
+        : generateSecureOtp(4);
 
     booking.pickupOtp = otp;
     booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
@@ -123,10 +124,10 @@ export async function POST(req: Request) {
       console.warn("Push notification error on driver arrival:", pushErr);
     }
 
+    // Security Hardening: Never leak secret OTP in API response
     return NextResponse.json({
       success: true,
-      message: "Pickup OTP sent",
-      pickupOtp: otp,
+      message: "Pickup OTP sent to passenger",
     });
   } catch (error) {
     console.error(error);

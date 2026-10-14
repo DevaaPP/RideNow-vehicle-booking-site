@@ -6,6 +6,7 @@ import Wallet from "@/models/wallet.model";
 import WalletTransaction from "@/models/wallet-transaction.model";
 import { getOrCreateWallet, generateTransactionId } from "@/lib/walletLedger";
 import { calculateCommissionSplit } from "@/lib/commission";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -158,7 +159,7 @@ export async function POST(req: NextRequest) {
     booking.status = "confirmed";
 
     if (!booking.pickupOtp) {
-      booking.pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      booking.pickupOtp = generateSecureOtp(4);
       booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
     }
 
@@ -179,7 +180,6 @@ export async function POST(req: NextRequest) {
               bookingId: booking._id.toString(),
               status: "confirmed",
               paymentStatus: "paid",
-              pickupOtp: booking.pickupOtp,
             },
           }),
         });

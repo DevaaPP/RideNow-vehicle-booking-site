@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import axios from "axios";
 import Booking from "@/models/booking.model";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 
 export async function POST(
   req: Request,
@@ -82,7 +83,7 @@ export async function POST(
   };
 
   if (isPaidOrCash && !existingBooking?.pickupOtp) {
-    payload.pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    payload.pickupOtp = generateSecureOtp(4);
     payload.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
   }
 
@@ -103,7 +104,7 @@ export async function POST(
 
   try {
     if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
-      const socketSecret = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
+      const socketSecret = process.env.SOCKET_INTERNAL_SECRET;
       await axios.post(
         `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
         {
@@ -115,7 +116,7 @@ export async function POST(
           },
         },
         {
-          headers: { "x-socket-secret": socketSecret },
+          headers: socketSecret ? { "x-socket-secret": socketSecret } : {},
           timeout: 3500,
         }
       );
@@ -135,5 +136,9 @@ export async function POST(
     console.warn("Push notification error on accept:", pushErr);
   }
 
-  return NextResponse.json({ success: true, booking, isDuplicate: transitionRes.isDuplicateCall });
+  const sanitizedBooking = booking.toObject ? booking.toObject() : { ...booking };
+  delete sanitizedBooking.pickupOtp;
+  delete sanitizedBooking.dropOtp;
+
+  return NextResponse.json({ success: true, booking: sanitizedBooking, isDuplicate: transitionRes.isDuplicateCall });
 }

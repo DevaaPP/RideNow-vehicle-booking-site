@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
     try {
       if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
-        // Notify driver
+        // Notify driver (without secret pickup OTP)
         await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -66,7 +66,6 @@ export async function POST(req: Request) {
               bookingId: booking._id.toString(),
               status: "confirmed",
               paymentStatus: "paid",
-              pickupOtp: booking.pickupOtp,
             },
           }),
         });

@@ -1,13 +1,26 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Booking from "@/models/booking.model";
+import User from "@/models/user.model";
+import { auth } from "@/auth";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 
 export async function POST(req: Request) {
-
   await connectDB();
 
   try {
+    // ── Authentication ───────────────────────────────────────────────────
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const caller = await User.findOne({ email: session.user.email })
+      .select("_id role")
+      .lean();
+    if (!caller) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     const { bookingId, otp } = await req.json();
 
@@ -17,6 +30,18 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { message: "Booking not found" },
         { status: 404 }
+      );
+    }
+
+    // ── Authorization: caller must be assigned driver or admin ───────────
+    const isAdmin = (caller as any).role === "admin";
+    const isAssignedDriver =
+      booking.driver?.toString() === (caller as any)._id.toString();
+
+    if (!isAdmin && !isAssignedDriver) {
+      return NextResponse.json(
+        { message: "Forbidden: only the assigned driver may verify the pickup OTP" },
+        { status: 403 }
       );
     }
 
@@ -84,13 +109,17 @@ export async function POST(req: Request) {
     /* update status via canonical State Machine */
 
     const now = new Date();
-    const duration = booking.tripDurationMinutes || (booking.fareBreakdown?.timeMinutes ? Math.round(booking.fareBreakdown.timeMinutes) : 15);
+    const duration =
+      booking.tripDurationMinutes ||
+      (booking.fareBreakdown?.timeMinutes
+        ? Math.round(booking.fareBreakdown.timeMinutes)
+        : 15);
     const estimatedDropoffTime = new Date(now.getTime() + duration * 60 * 1000);
 
-    // Generate fresh, distinct Drop-off OTP for destination completion
-    let newDropOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    // Generate fresh, distinct Drop-off OTP using CSPRNG for destination completion
+    let newDropOtp = generateSecureOtp(4);
     while (newDropOtp === String(otp).trim()) {
-      newDropOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      newDropOtp = generateSecureOtp(4);
     }
 
     const transitionRes = await transitionBookingState({
@@ -142,7 +171,10 @@ export async function POST(req: Request) {
     try {
       const { sendPushToUser } = await import("@/lib/webPush");
       const dropTimeStr = booking.estimatedDropoffTime
-        ? new Date(booking.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        ? new Date(booking.estimatedDropoffTime).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
         : "shortly";
       await sendPushToUser(booking.user.toString(), {
         title: "Trip Started 🛣️",
@@ -155,18 +187,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "OTP verified. Ride started."
+      message: "OTP verified. Ride started.",
     });
-
   } catch (error) {
-
-    console.error(error);
+    console.error("verify-pickup-otp error:", error);
 
     return NextResponse.json(
       { message: "OTP verification failed" },
       { status: 500 }
     );
-
   }
-
 }

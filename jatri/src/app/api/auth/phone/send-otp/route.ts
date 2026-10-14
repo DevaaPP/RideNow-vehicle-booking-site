@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import { otpService, OTPChannel } from "@/lib/otpService";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { rateLimiter, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
@@ -55,8 +56,8 @@ export async function POST(req: NextRequest) {
 
     const selectedChannel: OTPChannel = channel === "sms" ? "sms" : "whatsapp";
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate 6-digit cryptographically secure OTP
+    const otp = generateSecureOtp(6);
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Find or initialize user
@@ -84,8 +85,9 @@ export async function POST(req: NextRequest) {
     const sendResult = await otpService.dispatch(tenDigits, otp, selectedChannel);
 
     const devOtp =
-      sendResult.devOtp ||
-      (process.env.NODE_ENV !== "production" ? otp : undefined);
+      process.env.NODE_ENV === "development"
+        ? sendResult.devOtp || otp
+        : undefined;
 
     const channelName = selectedChannel === "sms" ? "SMS" : "WhatsApp";
 

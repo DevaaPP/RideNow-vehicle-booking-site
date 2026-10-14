@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import User from "@/models/user.model";
 import connectDb from "@/lib/db";
 import { sendMail } from "@/lib/mailer";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { rateLimiter, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 
 /* ---------------- POST: REGISTER ---------------- */
@@ -72,9 +73,9 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    /* ---------- GENERATE OTP ---------- */
+    /* ---------- GENERATE OTP (CSPRNG) ---------- */
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+    const otp = generateSecureOtp(6);
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     /* ---------- CREATE / UPDATE USER ---------- */
@@ -122,9 +123,8 @@ export async function POST(req: NextRequest) {
     }
 
     const shouldReturnDevOtp =
-      process.env.NODE_ENV !== "production" ||
-      mailResult?.isSimulated ||
-      !mailResult?.success;
+      process.env.NODE_ENV === "development" &&
+      (mailResult?.isSimulated || !mailResult?.success);
 
     return NextResponse.json(
       {

@@ -14,6 +14,7 @@ import Booking from "@/models/booking.model";
 import Payment, { IPayment } from "@/models/payment.model";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { calculateCommissionSplit } from "@/lib/commission";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { Types } from "mongoose";
 
 export interface CreateOrderParams {
@@ -201,7 +202,7 @@ export async function verifyPayment(params: VerifyPaymentParams) {
   // 4. Update Booking and generate pickup OTP if not set
   booking.paymentStatus = "paid";
   if (!booking.pickupOtp) {
-    booking.pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    booking.pickupOtp = generateSecureOtp(4);
     booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
   }
 
@@ -277,7 +278,7 @@ export async function handleRazorpayWebhook(
         if (booking && booking.paymentStatus !== "paid") {
           booking.paymentStatus = "paid";
           if (!booking.pickupOtp) {
-            booking.pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
+            booking.pickupOtp = generateSecureOtp(4);
             booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
           }
           await booking.save();
