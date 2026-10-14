@@ -4,6 +4,7 @@ import User from "@/models/user.model";
 import Wallet from "@/models/wallet.model";
 import WalletTransaction from "@/models/wallet-transaction.model";
 import { getOrCreateWallet, generateTransactionId } from "@/lib/walletLedger";
+import razorpay from "@/lib/razorpay";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,10 +21,9 @@ export async function POST(req: NextRequest) {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      amount, // in rupees
     } = await req.json();
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !amount) {
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return NextResponse.json(
         { error: "Missing required payment verification parameters" },
         { status: 400 }
@@ -52,6 +52,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ── Authoritative amount: fetch from Razorpay, never trust the client ──
+    // The order amount is the single source of truth. We look it up server-side
+    // so a tampered client cannot credit an arbitrary balance.
+    let orderAmountPaise: number;
+    try {
+      const order = await razorpay.orders.fetch(razorpay_order_id);
+      orderAmountPaise = Number(order.amount);
+    } catch (rzpErr: any) {
+      console.error("Razorpay order fetch failed:", rzpErr);
+      return NextResponse.json(
+        { error: "Could not verify order amount with payment gateway" },
+        { status: 502 }
+      );
+    }
+
+    if (!orderAmountPaise || orderAmountPaise <= 0) {
+      return NextResponse.json(
+        { error: "Invalid order amount from gateway" },
+        { status: 400 }
+      );
+    }
+
+    // Convert paise → rupees (Razorpay stores in smallest currency unit)
+    const creditAmount = Math.round(orderAmountPaise / 100);
+
     // Check if this payment was already processed (prevent duplicate credits)
     const existingTx = await WalletTransaction.findOne({
       razorpayPaymentId: razorpay_payment_id,
@@ -72,7 +97,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const creditAmount = Math.round(Number(amount));
     const wallet = await getOrCreateWallet(user._id);
     const balanceBefore = wallet.balance || 0;
     const balanceAfter = balanceBefore + creditAmount;
