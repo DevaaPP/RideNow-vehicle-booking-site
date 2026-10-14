@@ -1,18 +1,41 @@
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
+import User from "@/models/user.model";
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  context: { params:Promise< { id: string } >}
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDb();
-   const id=(await context.params).id
+  const id = (await context.params).id;
+
+  // ── Authorization ──────────────────────────────────────────────────────
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  const sessionUser = await User.findOne({ email: session.user.email })
+    .select("_id role")
+    .lean();
+  if (!sessionUser) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   const { method } = await req.json();
   const booking = await Booking.findById(id);
 
-  if (!booking || booking.status !== "awaiting_payment")
+  if (!booking || booking.status !== "awaiting_payment") {
     return NextResponse.json({ message: "Invalid" }, { status: 400 });
+  }
+
+  // Only the booking owner or an admin may confirm payment
+  const isOwner = booking.user?.toString() === (sessionUser as any)._id.toString();
+  const isAdmin = (sessionUser as any).role === "admin";
+  if (!isOwner && !isAdmin) {
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  }
 
   booking.status = "confirmed";
   booking.paymentStatus = method === "cash" ? "cash" : "paid";
