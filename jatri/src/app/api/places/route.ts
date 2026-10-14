@@ -147,6 +147,10 @@ export async function GET(req: NextRequest) {
           lat: coords[1],
           lng: coords[0],
           countrycode: (props.countrycode || "in").toLowerCase(),
+          locality: localArea || "",
+          city: cityTown || "",
+          state: props.state || "",
+          postalCode: props.postcode || "",
         };
       });
 
@@ -269,7 +273,12 @@ export async function GET(req: NextRequest) {
               const description = parts.filter(Boolean).join(", ");
               
               return {
+                name: props.name || localArea || cityTown || "Selected Location",
                 formatted_address: description,
+                locality: localArea || "",
+                city: cityTown || "",
+                state: props.state || "",
+                postalCode: props.postcode || "",
                 geometry: {
                   location: {
                     lat: coords[1],
@@ -301,22 +310,30 @@ export async function GET(req: NextRequest) {
             if (nomRes.ok) {
               const nomData = await nomRes.json();
               if (Array.isArray(nomData)) {
-                results = nomData.map((item: any) => ({
-                  formatted_address: item.display_name,
-                  geometry: {
-                    location: {
-                      lat: parseFloat(item.lat),
-                      lng: parseFloat(item.lon),
+                results = nomData.map((item: any) => {
+                  const addr = item.address || {};
+                  return {
+                    name: item.name || addr.amenity || addr.building || addr.road || "Selected Location",
+                    formatted_address: item.display_name,
+                    locality: addr.suburb || addr.neighbourhood || addr.residential || "",
+                    city: addr.city || addr.town || addr.village || addr.county || "",
+                    state: addr.state || "",
+                    postalCode: addr.postcode || "",
+                    geometry: {
+                      location: {
+                        lat: parseFloat(item.lat),
+                        lng: parseFloat(item.lon),
+                      },
                     },
-                  },
-                  address_components: [
-                    {
-                      long_name: item.address?.country || "India",
-                      short_name: String(item.address?.country_code || "in").toLowerCase(),
-                      types: ["country"],
-                    },
-                  ],
-                }));
+                    address_components: [
+                      {
+                        long_name: addr.country || "India",
+                        short_name: String(addr.country_code || "in").toLowerCase(),
+                        types: ["country"],
+                      },
+                    ],
+                  };
+                });
               }
             }
           } catch (nomErr) {
@@ -352,7 +369,12 @@ export async function GET(req: NextRequest) {
               const description = parts.filter(Boolean).join(", ");
               
               return {
+                name: props.name || localArea || cityTown || "Pin Location",
                 formatted_address: description,
+                locality: localArea || "",
+                city: cityTown || "",
+                state: props.state || "",
+                postalCode: props.postcode || "",
                 geometry: {
                   location: {
                     lat: coords[1],
@@ -381,8 +403,14 @@ export async function GET(req: NextRequest) {
             if (nomRes.ok) {
               const nomData = await nomRes.json();
               if (nomData?.display_name) {
+                const nomAddr = nomData.address || {};
                 results.push({
+                  name: nomData.name || nomAddr.amenity || nomAddr.building || nomAddr.road || "Pin Location",
                   formatted_address: nomData.display_name,
+                  locality: nomAddr.suburb || nomAddr.neighbourhood || nomAddr.residential || "",
+                  city: nomAddr.city || nomAddr.town || nomAddr.village || nomAddr.county || "",
+                  state: nomAddr.state || "",
+                  postalCode: nomAddr.postcode || "",
                   geometry: {
                     location: {
                       lat: parseFloat(nomData.lat || String(lat)),
@@ -391,8 +419,8 @@ export async function GET(req: NextRequest) {
                   },
                   address_components: [
                     {
-                      long_name: nomData.address?.country || "India",
-                      short_name: String(nomData.address?.country_code || "in").toLowerCase(),
+                      long_name: nomAddr.country || "India",
+                      short_name: String(nomAddr.country_code || "in").toLowerCase(),
                       types: ["country"],
                     },
                   ],

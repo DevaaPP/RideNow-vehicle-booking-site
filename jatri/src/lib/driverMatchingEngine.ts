@@ -78,8 +78,9 @@ export async function findEligibleCandidates(options: {
 
   // 2. Fetch active vehicles of matching type
   const normalizedType = vehicleType.toLowerCase();
+  const vehicleQueryType = normalizedType === "intercity" ? { $in: ["car", "intercity"] } : normalizedType;
   const activeVehicles = await Vehicle.find({
-    type: normalizedType,
+    type: vehicleQueryType,
     isActive: true,
     status: "approved",
   }).lean();

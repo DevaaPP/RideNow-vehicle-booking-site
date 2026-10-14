@@ -108,6 +108,19 @@ export const DEFAULT_VEHICLE_RATES: Record<string, VehicleRateConfig> = {
     minDistance: 0,
     maxDistance: 500,
   },
+  intercity: {
+    baseFare: 250,
+    pricePerKm: 14,
+    pricePerMinute: 0,
+    waitingChargePerMinute: 2.5,
+    freeWaitingMinutes: 10,
+    platformFee: 25,
+    taxRate: 0.05,
+    cancellationFee: 100,
+    multiplier: 1.15,
+    minDistance: 25,
+    maxDistance: 500,
+  },
 };
 
 /**

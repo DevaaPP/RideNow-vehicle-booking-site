@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
 import { motion, AnimatePresence } from "framer-motion";
-import { Crosshair, Plus, Minus, RotateCcw } from "lucide-react";
+import { Crosshair, Plus, Minus, RotateCcw, MapPin, Check, X, Loader2 } from "lucide-react";
 import { UBER_MINIMAL_MAP_STYLE } from "@/lib/mapConfig";
 
 type Props = {
@@ -17,7 +17,9 @@ type Props = {
     drop: string,
     p1?: [number, number] | null,
     p2?: [number, number] | null,
-    pickupCountry?: string | null
+    pickupCountry?: string | null,
+    pickupDetails?: any,
+    dropDetails?: any
   ) => void;
   onCoordinatesChange?: (
     p1: [number, number] | null,
@@ -29,9 +31,17 @@ type Props = {
   onSelectSmartPickup?: (spot: any) => void;
   stops?: Array<{ address: string; lat: number; lng: number }>;
   bottomPadding?: number;
+  selectionMode?: "none" | "pickup" | "drop";
+  onSelectionModeChange?: (mode: "none" | "pickup" | "drop") => void;
+  onConfirmPinSelection?: (
+    mode: "pickup" | "drop",
+    coords: [number, number],
+    address: string,
+    details?: any
+  ) => void;
 };
 
-/* ─── DOM MARKER GENERATORS (MODERN LIGHT RIDE-HAILING THEME) ─────── */
+/* ─── DOM MARKER GENERATORS (ELEVATED STEM ZERO-COLLISION CALLOUTS) ─────── */
 
 function createPickupEl(durationMin?: number | null): HTMLElement {
   const el = document.createElement("div");
@@ -40,20 +50,45 @@ function createPickupEl(durationMin?: number | null): HTMLElement {
   const etaBadge = durationMin && durationMin > 0 ? ` • ${durationMin} min` : "";
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.32));transform:translateY(3px);">
+      <!-- Elevated Callout Badge (hovering 28px-32px above ground) -->
       <div style="
-        background:#16a34a;color:#ffffff;
-        padding:3px 10px;border-radius:100px;
-        font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
-        white-space:nowrap;font-family:system-ui,-apple-system,sans-serif;
-        box-shadow:0 2px 6px rgba(22,163,74,0.35);margin-bottom:3px;
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        color: #ffffff;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        font-family: system-ui, -apple-system, sans-serif;
+        box-shadow: 0 4px 12px rgba(5,150,105,0.45);
+        border: 2px solid #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 4px;
       ">
+        <span style="width:5px;height:5px;border-radius:50%;background:#ffffff;display:inline-block;"></span>
         PICKUP${etaBadge}
       </div>
-      <div style="width:2px;height:6px;background:#16a34a;opacity:0.7;"></div>
+
+      <!-- Hairline Elevated Stem (passes clean over route casing) -->
       <div style="
-        width:14px;height:14px;background:#16a34a;border-radius:50%;
-        border:3px solid #ffffff;box-shadow:0 2px 8px rgba(22,163,74,0.45);
+        width: 2px;
+        height: 20px;
+        background: #064e3b;
+        box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
+      "></div>
+
+      <!-- Precision Road Contact Anchor Dot -->
+      <div style="
+        width: 8px;
+        height: 8px;
+        background: #047857;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        box-shadow: 0 0 0 2px rgba(5,150,105,0.35), 0 2px 6px rgba(0,0,0,0.5);
       "></div>
     </div>
   `;
@@ -64,20 +99,45 @@ function createDropEl(): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.32));transform:translateY(3px);">
+      <!-- Elevated Callout Badge (hovering 28px-32px above ground) -->
       <div style="
-        background:#dc2626;color:#ffffff;
-        padding:3px 10px;border-radius:100px;
-        font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
-        white-space:nowrap;font-family:system-ui,-apple-system,sans-serif;
-        box-shadow:0 2px 6px rgba(220,38,38,0.35);margin-bottom:3px;
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: #ffffff;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        font-family: system-ui, -apple-system, sans-serif;
+        box-shadow: 0 4px 12px rgba(220,38,38,0.45);
+        border: 2px solid #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 4px;
       ">
+        <span style="width:5px;height:5px;border-radius:50%;background:#ffffff;display:inline-block;"></span>
         DROP
       </div>
-      <div style="width:2px;height:6px;background:#dc2626;opacity:0.7;"></div>
+
+      <!-- Hairline Elevated Stem (passes clean over route casing) -->
       <div style="
-        width:14px;height:14px;background:#dc2626;border-radius:50%;
-        border:3px solid #ffffff;box-shadow:0 2px 8px rgba(220,38,38,0.45);
+        width: 2px;
+        height: 20px;
+        background: #7f1d1d;
+        box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
+      "></div>
+
+      <!-- Precision Road Contact Anchor Dot -->
+      <div style="
+        width: 8px;
+        height: 8px;
+        background: #b91c1c;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        box-shadow: 0 0 0 2px rgba(220,38,38,0.35), 0 2px 6px rgba(0,0,0,0.5);
       "></div>
     </div>
   `;
@@ -247,6 +307,9 @@ export default function RouteMap({
   onSelectSmartPickup,
   stops,
   bottomPadding = 340,
+  selectionMode,
+  onSelectionModeChange,
+  onConfirmPinSelection,
 }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -269,8 +332,17 @@ export default function RouteMap({
   const [p2, setP2] = useState<[number, number] | null>(dropCoords ?? null);
   const [km, setKm] = useState<number | null>(null);
   const [durationMin, setDurationMin] = useState<number | null>(null);
-  const [pinMode, setPinMode] = useState<"pickup" | "drop" | null>(null);
   const [isRouting, setIsRouting] = useState(false);
+
+  // Centralized Fixed Pin Mode state machine
+  const [activePinMode, setActivePinMode] = useState<"pickup" | "drop" | null>(
+    selectionMode && selectionMode !== "none" ? selectionMode : null
+  );
+  const [isMapMoving, setIsMapMoving] = useState(false);
+  const [pinAddress, setPinAddress] = useState<string>("");
+  const [pinDetails, setPinDetails] = useState<any>(null);
+  const [isPinGeocoding, setIsPinGeocoding] = useState(false);
+  const reverseGeocodeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sync coords from parent
   useEffect(() => {
@@ -282,6 +354,14 @@ export default function RouteMap({
     if (dropCoords) setP2(dropCoords);
     else if (!drop) setP2(null);
   }, [dropCoords, drop]);
+
+  // Synchronize selectionMode from parent prop
+  useEffect(() => {
+    if (selectionMode !== undefined) {
+      const target = selectionMode === "none" ? null : selectionMode;
+      setActivePinMode(target);
+    }
+  }, [selectionMode]);
 
   /* ─── GEOCODE ADDRESS WITH PROXIMITY BIAS ─── */
   const geocodeAddress = async (
@@ -308,19 +388,45 @@ export default function RouteMap({
     return null;
   };
 
-  /* ─── REVERSE GEOCODE ─── */
-  const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
-    try {
-      const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
-      const d = await r.json();
-      if (d?.results?.length) {
-        return d.results[0].formatted_address;
+  /* ─── REVERSE GEOCODE WITH STRUCTURED DETAILS ─── */
+  const reverseGeocodeFull = useCallback(
+    async (lat: number, lon: number): Promise<{ address: string; details: any }> => {
+      try {
+        const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
+        const d = await r.json();
+        if (d?.results?.length) {
+          const first = d.results[0];
+          const countryCode = first.address_components?.find((c: any) => c.types?.includes("country"))?.short_name || "in";
+          const addr = first.formatted_address || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+          return {
+            address: addr,
+            details: {
+              name: first.name || addr.split(",")[0],
+              formattedAddress: addr,
+              locality: first.locality || "",
+              city: first.city || "",
+              state: first.state || "",
+              postalCode: first.postalCode || "",
+              countrycode: countryCode,
+              coordinates: [lat, lon],
+            },
+          };
+        }
+      } catch (err) {
+        console.error("Reverse geocode failed:", err);
       }
-    } catch (err) {
-      console.error("Reverse geocode failed:", err);
-    }
-    return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-  };
+      const fallback = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+      return {
+        address: fallback,
+        details: {
+          name: "Pinned Location",
+          formattedAddress: fallback,
+          coordinates: [lat, lon],
+        },
+      };
+    },
+    []
+  );
 
   // If text is set but coordinates are missing, resolve them automatically
   useEffect(() => {
@@ -379,6 +485,7 @@ export default function RouteMap({
         if (svgCoreRef.current) svgCoreRef.current.setAttribute("d", "");
       }
 
+      // Explicit purge of alternative line
       const altCoords = lastAltCoordsRef.current;
       if (altCoords && altCoords.length > 0) {
         let dAlt = "";
@@ -431,11 +538,121 @@ export default function RouteMap({
     };
   }, []);
 
+  /* ─── MOVING MAP & CENTRAL PIN EVENT HANDLERS ─── */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const handleMoveStart = () => {
+      if (!activePinMode) return;
+      setIsMapMoving(true);
+      if (reverseGeocodeTimerRef.current) {
+        clearTimeout(reverseGeocodeTimerRef.current);
+        reverseGeocodeTimerRef.current = null;
+      }
+    };
+
+    const handleMoveEnd = () => {
+      if (!activePinMode) return;
+      setIsMapMoving(false);
+      setIsPinGeocoding(true);
+
+      const center = map.getCenter();
+      const lat = center.lat;
+      const lng = center.lng;
+
+      if (reverseGeocodeTimerRef.current) {
+        clearTimeout(reverseGeocodeTimerRef.current);
+      }
+
+      reverseGeocodeTimerRef.current = setTimeout(async () => {
+        const res = await reverseGeocodeFull(lat, lng);
+        setPinAddress(res.address);
+        setPinDetails(res.details);
+        setIsPinGeocoding(false);
+      }, 250);
+    };
+
+    map.on("movestart", handleMoveStart);
+    map.on("moveend", handleMoveEnd);
+
+    return () => {
+      map.off("movestart", handleMoveStart);
+      map.off("moveend", handleMoveEnd);
+    };
+  }, [activePinMode, reverseGeocodeFull]);
+
+  // Handle switching into / out of activePinMode (smooth camera ease)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (activePinMode === "pickup") {
+      const target: [number, number] = p1 ? [p1[1], p1[0]] : [91.7516, 26.1884];
+      map.easeTo({ center: target, zoom: 15.5, duration: 600 });
+      setPinAddress(pickup || "Moving map to pinpoint pickup...");
+      setIsPinGeocoding(true);
+      reverseGeocodeFull(target[1], target[0]).then((res) => {
+        setPinAddress(res.address);
+        setPinDetails(res.details);
+        setIsPinGeocoding(false);
+      });
+    } else if (activePinMode === "drop") {
+      const target: [number, number] = p2 ? [p2[1], p2[0]] : (p1 ? [p1[1], p1[0]] : [91.7516, 26.1884]);
+      map.easeTo({ center: target, zoom: 15.5, duration: 600 });
+      setPinAddress(drop || "Moving map to pinpoint drop...");
+      setIsPinGeocoding(true);
+      reverseGeocodeFull(target[1], target[0]).then((res) => {
+        setPinAddress(res.address);
+        setPinDetails(res.details);
+        setIsPinGeocoding(false);
+      });
+    }
+  }, [activePinMode, p1, p2, pickup, drop, reverseGeocodeFull]);
+
+  /* ─── CONFIRM PIN SELECTION HANDLER ─── */
+  const handleConfirmPin = async () => {
+    const map = mapRef.current;
+    if (!map || !activePinMode) return;
+
+    const center = map.getCenter();
+    const confirmedCoords: [number, number] = [center.lat, center.lng];
+    let address = pinAddress;
+    let details = pinDetails;
+
+    if (!address || address.includes("Moving map")) {
+      const res = await reverseGeocodeFull(center.lat, center.lng);
+      address = res.address;
+      details = res.details;
+    }
+
+    if (activePinMode === "pickup") {
+      setP1(confirmedCoords);
+      onCoordinatesChange?.(confirmedCoords, p2);
+      onConfirmPinSelection?.("pickup", confirmedCoords, address, details);
+      if (onChange) onChange(address, drop, confirmedCoords, p2, details?.countrycode || "in", details);
+    } else if (activePinMode === "drop") {
+      setP2(confirmedCoords);
+      onCoordinatesChange?.(p1, confirmedCoords);
+      onConfirmPinSelection?.("drop", confirmedCoords, address, details);
+      if (onChange) onChange(pickup, address, p1, confirmedCoords, details?.countrycode || "in", undefined, details);
+    }
+
+    setActivePinMode(null);
+    onSelectionModeChange?.("none");
+  };
+
+  const handleCancelPin = () => {
+    setActivePinMode(null);
+    onSelectionModeChange?.("none");
+  };
+
   /* ─── SAFE & CRASH-PROOF ROUTE RENDERING ─── */
   const applyRouteLine = useCallback(
     (coords: [number, number][], altCoords?: [number, number][]) => {
-      lastRouteCoordsRef.current = coords;
-      if (altCoords) lastAltCoordsRef.current = altCoords;
+      lastRouteCoordsRef.current = coords || [];
+      // STRICT FIX: Always clear alternative coords when none provided (prevents frozen grey line bug)
+      lastAltCoordsRef.current = altCoords && altCoords.length > 0 ? altCoords : [];
       const map = mapRef.current;
       if (!map) return;
 
@@ -448,7 +665,11 @@ export default function RouteMap({
         }
         if (svgCasingRef.current) svgCasingRef.current.setAttribute("d", d);
         if (svgCoreRef.current) svgCoreRef.current.setAttribute("d", d);
+      } else {
+        if (svgCasingRef.current) svgCasingRef.current.setAttribute("d", "");
+        if (svgCoreRef.current) svgCoreRef.current.setAttribute("d", "");
       }
+
       if (altCoords && altCoords.length > 0) {
         let dAlt = "";
         for (let i = 0; i < altCoords.length; i++) {
@@ -457,6 +678,10 @@ export default function RouteMap({
         }
         if (svgAltCasingRef.current) svgAltCasingRef.current.setAttribute("d", dAlt);
         if (svgAltCoreRef.current) svgAltCoreRef.current.setAttribute("d", dAlt);
+      } else {
+        // Clear immediately if no alternative
+        if (svgAltCasingRef.current) svgAltCasingRef.current.setAttribute("d", "");
+        if (svgAltCoreRef.current) svgAltCoreRef.current.setAttribute("d", "");
       }
       map.triggerRepaint();
 
@@ -466,13 +691,13 @@ export default function RouteMap({
           const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
           const altSource = map.getSource("route-alt-source") as maplibregl.GeoJSONSource;
 
-          if (altSource && altCoords && altCoords.length > 0) {
+          if (altSource) {
             altSource.setData({
               type: "Feature",
               properties: {},
               geometry: {
                 type: "LineString",
-                coordinates: altCoords,
+                coordinates: altCoords && altCoords.length > 0 ? altCoords : [],
               },
             });
           }
@@ -487,16 +712,18 @@ export default function RouteMap({
               },
             });
 
-            // Fit map bounds smoothly around route with bottom sheet padding
-            const bounds = new maplibregl.LngLatBounds();
-            for (const c of coords) {
-              bounds.extend(c as [number, number]);
+            // STRICT FIX: Only fitBounds when NOT in active pin selection mode
+            if (!activePinMode) {
+              const bounds = new maplibregl.LngLatBounds();
+              for (const c of coords) {
+                bounds.extend(c as [number, number]);
+              }
+              map.fitBounds(bounds, {
+                padding: { top: 90, bottom: bottomPadding, left: 60, right: 60 },
+                duration: 800,
+                maxZoom: 16,
+              });
             }
-            map.fitBounds(bounds, {
-              padding: { top: 90, bottom: bottomPadding, left: 60, right: 60 },
-              duration: 800,
-              maxZoom: 16,
-            });
             return true;
           }
         } catch (err) {
@@ -528,7 +755,7 @@ export default function RouteMap({
         }
       }, 4000);
     },
-    [bottomPadding]
+    [bottomPadding, activePinMode]
   );
 
   /* ─── ROUTE FETCHING WITH AUTOMATIC FALLBACKS ─── */
@@ -557,13 +784,13 @@ export default function RouteMap({
       setIsRouting(true);
 
       let routeData: any = null;
-      let altRouteData: any = null;
 
       // Tier 1: Fast direct Client-Side OSRM Road Router (<300ms)
+      // Note: alternatives=false during pre-booking as requested (prevents frozen grey line)
       try {
         const coordStr = waypoints.map(([lat, lon]) => `${lon},${lat}`).join(";");
         const osrmRes = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson&alternatives=true`,
+          `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson&alternatives=false`,
           { signal: AbortSignal.timeout(4500) }
         );
         if (osrmRes.ok) {
@@ -576,11 +803,6 @@ export default function RouteMap({
               geojsonCoords: r.geometry.coordinates,
               engine: "osrm",
             };
-            if (osrmJson.routes.length > 1) {
-              altRouteData = {
-                geojsonCoords: osrmJson.routes[1].geometry.coordinates,
-              };
-            }
           }
         }
       } catch (e) {
@@ -598,9 +820,6 @@ export default function RouteMap({
               const json = await res.json();
               if (json.success && json.primary?.geojsonCoords?.length > 0) {
                 routeData = json.primary;
-                if (json.alternatives && json.alternatives.length > 0) {
-                  altRouteData = json.alternatives[0];
-                }
               }
             }
           }
@@ -627,7 +846,8 @@ export default function RouteMap({
         setKm(routeData.distanceKm);
         setDurationMin(routeData.durationMinutes);
         onDistance?.(routeData.distanceKm);
-        applyRouteLine(routeData.geojsonCoords, altRouteData?.geojsonCoords);
+        // Explicitly clear alternative route
+        applyRouteLine(routeData.geojsonCoords, []);
       }
 
       setIsRouting(false);
@@ -635,45 +855,13 @@ export default function RouteMap({
     [onDistance, applyRouteLine]
   );
 
-  /* ─── MAP CLICK PIN PLACEMENT (IMMEDIATE & ZERO-LAG) ─── */
+  /* ─── SYNC MARKERS AND ROUTE (INDEPENDENT LOCK / UNLOCK) ─── */
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    const handleMapClick = (e: maplibregl.MapMouseEvent) => {
-      const { lng, lat } = e.lngLat;
-      const clickedPt: [number, number] = [lat, lng];
-
-      if (pinMode === "pickup" || (!p1 && !pinMode)) {
-        setP1(clickedPt);
-        setPinMode("drop"); // Switch to drop immediately
-        onCoordinatesChange?.(clickedPt, p2);
-        reverseGeocode(lat, lng).then((addr) => {
-          if (onChange) onChange(addr, drop, clickedPt, p2);
-        });
-      } else if (pinMode === "drop" || (p1 && !p2 && !pinMode)) {
-        setP2(clickedPt);
-        setPinMode(null); // Complete pin placement
-        onCoordinatesChange?.(p1, clickedPt);
-        reverseGeocode(lat, lng).then((addr) => {
-          if (onChange) onChange(pickup, addr, p1, clickedPt);
-        });
-      }
-    };
-
-    map.on("click", handleMapClick);
-    return () => {
-      map.off("click", handleMapClick);
-    };
-  }, [pinMode, p1, p2, pickup, drop, onChange, onCoordinatesChange]);
-
-  /* ─── SYNC MARKERS AND ROUTE ─── */
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    // 1. Pickup Marker
-    if (p1) {
+    // 1. Pickup Marker (Hidden while actively setting pickup with center pin)
+    if (p1 && activePinMode !== "pickup") {
       if (!pickupMarkerRef.current) {
         const el = createPickupEl(durationMin);
         const marker = new maplibregl.Marker({
@@ -689,8 +877,8 @@ export default function RouteMap({
           const newPt: [number, number] = [lngLat.lat, lngLat.lng];
           setP1(newPt);
           onCoordinatesChange?.(newPt, p2);
-          const addr = await reverseGeocode(newPt[0], newPt[1]);
-          if (onChange) onChange(addr, drop, newPt, p2);
+          const res = await reverseGeocodeFull(newPt[0], newPt[1]);
+          if (onChange) onChange(res.address, drop, newPt, p2, res.details?.countrycode || "in", res.details);
         });
 
         pickupMarkerRef.current = marker;
@@ -704,8 +892,8 @@ export default function RouteMap({
       pickupMarkerRef.current = null;
     }
 
-    // 2. Drop Marker
-    if (p2) {
+    // 2. Drop Marker (Hidden while actively setting drop with center pin)
+    if (p2 && activePinMode !== "drop") {
       if (!dropMarkerRef.current) {
         const el = createDropEl();
         const marker = new maplibregl.Marker({
@@ -721,8 +909,8 @@ export default function RouteMap({
           const newPt: [number, number] = [lngLat.lat, lngLat.lng];
           setP2(newPt);
           onCoordinatesChange?.(p1, newPt);
-          const addr = await reverseGeocode(newPt[0], newPt[1]);
-          if (onChange) onChange(pickup, addr, p1, newPt);
+          const res = await reverseGeocodeFull(newPt[0], newPt[1]);
+          if (onChange) onChange(pickup, res.address, p1, newPt, res.details?.countrycode || "in", undefined, res.details);
         });
 
         dropMarkerRef.current = marker;
@@ -753,7 +941,7 @@ export default function RouteMap({
     if (p1 && p2) {
       renderRoute(p1, p2, stops);
     }
-  }, [p1, p2, stops, renderRoute, drop, onChange, onCoordinatesChange, pickup]);
+  }, [p1, p2, stops, renderRoute, drop, onChange, onCoordinatesChange, pickup, activePinMode, durationMin, reverseGeocodeFull]);
 
   // 5. Vehicles (Auto-rickshaws & Cars)
   useEffect(() => {
@@ -771,7 +959,7 @@ export default function RouteMap({
         ]
       : [];
 
-    const activeList = (vehicles && vehicles.length > 0) ? vehicles : defaultNearby;
+    const activeList = vehicles && vehicles.length > 0 ? vehicles : defaultNearby;
 
     activeList.forEach((v: any) => {
       const loc = v.location?.coordinates || [v.lng, v.lat];
@@ -810,7 +998,8 @@ export default function RouteMap({
     setP2(null);
     onCoordinatesChange?.(null, null);
     if (onChange) onChange("", "");
-    setPinMode(null);
+    setActivePinMode(null);
+    onSelectionModeChange?.("none");
     setKm(null);
     lastRouteCoordsRef.current = [];
     lastAltCoordsRef.current = [];
@@ -846,7 +1035,7 @@ export default function RouteMap({
       {/* MapLibre WebGL DOM Container */}
       <div
         ref={mapContainerRef}
-        className={`w-full h-full ${pinMode ? "cursor-crosshair" : ""}`}
+        className={`w-full h-full ${activePinMode ? "cursor-grab active:cursor-grabbing" : ""}`}
       />
 
       {/* ── FAIL-SAFE SVG ROUTE POLYLINE OVERLAY ── */}
@@ -854,7 +1043,7 @@ export default function RouteMap({
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 10, pointerEvents: "none" }}
       >
-        {/* Alternative route */}
+        {/* Alternative route (purged during pre-booking) */}
         <path
           ref={svgAltCasingRef}
           d=""
@@ -899,86 +1088,203 @@ export default function RouteMap({
         />
       </svg>
 
-      {/* ── TOP RIGHT MAP CONTROLS & ROUTE ETA PILL ── */}
-      <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2 pointer-events-none">
-        {/* Route ETA & Distance Pill */}
-        <AnimatePresence>
-          {(km !== null || isRouting) && (
-            <motion.div
-              initial={{ opacity: 0, y: -8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="pointer-events-auto flex items-center gap-3 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-4 py-2 rounded-2xl shadow-xl"
-            >
-              {isRouting ? (
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" />
-                  <span className="text-zinc-800 text-xs font-bold">Finding fastest route...</span>
+      {/* ── CENTRAL FIXED PIN WITH TACTILE SPRING PHYSICS ── */}
+      <AnimatePresence>
+        {activePinMode && (
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-30">
+            <div className="relative flex flex-col items-center">
+              {/* Floating Pin Assembly */}
+              <motion.div
+                initial={{ scale: 0.8, y: -20, opacity: 0 }}
+                animate={{
+                  scale: isMapMoving ? 1.08 : 1.0,
+                  y: isMapMoving ? -14 : 0,
+                  opacity: 1,
+                }}
+                exit={{ scale: 0.8, y: -20, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                className="flex flex-col items-center pointer-events-none"
+              >
+                {/* Floating Callout Badge */}
+                <div
+                  className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white shadow-2xl flex items-center gap-1.5 border-2 border-white ${
+                    activePinMode === "pickup"
+                      ? "bg-emerald-600 shadow-emerald-950/40"
+                      : "bg-rose-600 shadow-rose-950/40"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  <span>{activePinMode === "pickup" ? "Move Map to Set Pickup" : "Move Map to Set Drop"}</span>
                 </div>
-              ) : (
-                <>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-zinc-900 text-sm font-black">
-                      {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
-                    </span>
-                    <span className="text-zinc-500 text-xs font-bold">({km} km)</span>
+
+                {/* Pin Head */}
+                <div className="mt-1 w-10 h-10 rounded-full bg-zinc-950 border-2 border-white flex items-center justify-center shadow-2xl">
+                  <MapPin
+                    size={20}
+                    className={activePinMode === "pickup" ? "text-emerald-400" : "text-rose-400"}
+                  />
+                </div>
+
+                {/* Needle Tip */}
+                <div className="w-1.5 h-3.5 bg-zinc-950 rounded-b-full shadow-sm -mt-0.5" />
+              </motion.div>
+
+              {/* Dynamic Ground Shadow underneath the needle */}
+              <div
+                className={`w-3.5 h-1.5 bg-zinc-950/40 rounded-[100%] filter blur-[1px] transition-all duration-200 ${
+                  isMapMoving ? "scale-75 opacity-25 translate-y-2" : "scale-100 opacity-60 translate-y-0"
+                }`}
+              />
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── TOP CONFIRMATION BANNER WHEN IN CENTRAL PIN MODE ── */}
+      <AnimatePresence>
+        {activePinMode && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-40 bg-white/95 backdrop-blur-md border border-zinc-200/90 rounded-2xl shadow-2xl p-4 flex flex-col gap-3"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`w-3 h-3 rounded-full ${
+                    activePinMode === "pickup" ? "bg-emerald-500 ring-4 ring-emerald-100" : "bg-rose-500 ring-4 ring-rose-100"
+                  }`}
+                />
+                <span className="text-xs font-black uppercase tracking-wider text-zinc-900">
+                  {activePinMode === "pickup" ? "Confirm Pickup Point" : "Confirm Drop-off Point"}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleCancelPin}
+                className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 transition flex items-center justify-center"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            <div className="bg-zinc-50 rounded-xl p-2.5 border border-zinc-200/80 flex items-start gap-2">
+              <MapPin size={16} className="text-zinc-500 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                {isPinGeocoding ? (
+                  <div className="flex items-center gap-2 text-zinc-500 text-xs">
+                    <Loader2 size={13} className="animate-spin text-zinc-700" />
+                    <span>Resolving address...</span>
                   </div>
-                  <span className="w-px h-3.5 bg-zinc-200" />
-                  <span className="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    Fastest Route
-                  </span>
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+                ) : (
+                  <p className="text-xs font-semibold text-zinc-800 leading-snug line-clamp-2">
+                    {pinAddress || "Move map to choose location"}
+                  </p>
+                )}
+              </div>
+            </div>
 
-        {/* Pinpoint Selector Pill */}
-        <div className="pointer-events-auto flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 p-1.5 rounded-2xl shadow-xl">
-          <button
-            type="button"
-            onClick={() => setPinMode((prev) => (prev === "pickup" ? null : "pickup"))}
-            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
-              pinMode === "pickup"
-                ? "bg-zinc-900 text-white shadow-md ring-2 ring-emerald-500"
-                : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
-            }`}
-          >
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-            <span>Pin Pickup</span>
-          </button>
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={handleConfirmPin}
+                disabled={isPinGeocoding}
+                className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-black text-white shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5 ${
+                  activePinMode === "pickup"
+                    ? "bg-zinc-900 hover:bg-black"
+                    : "bg-zinc-900 hover:bg-black"
+                }`}
+              >
+                <Check size={14} className="text-emerald-400" />
+                <span>Confirm Location</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelPin}
+                className="py-2.5 px-3.5 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <button
-            type="button"
-            onClick={() => setPinMode((prev) => (prev === "drop" ? null : "drop"))}
-            className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
-              pinMode === "drop"
-                ? "bg-zinc-900 text-white shadow-md ring-2 ring-rose-500"
-                : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
-            }`}
-          >
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
-            <span>Pin Drop</span>
-          </button>
+      {/* ── TOP RIGHT MAP CONTROLS & ROUTE ETA PILL (WHEN NOT IN PIN MODE) ── */}
+      {!activePinMode && (
+        <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2 pointer-events-none">
+          {/* Route ETA & Distance Pill */}
+          <AnimatePresence>
+            {(km !== null || isRouting) && (
+              <motion.div
+                initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="pointer-events-auto flex items-center gap-3 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-4 py-2 rounded-2xl shadow-xl"
+              >
+                {isRouting ? (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" />
+                    <span className="text-zinc-800 text-xs font-bold">Finding fastest route...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-zinc-900 text-sm font-black">
+                        {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
+                      </span>
+                      <span className="text-zinc-500 text-xs font-bold">({km} km)</span>
+                    </div>
+                    <span className="w-px h-3.5 bg-zinc-200" />
+                    <span className="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      Fastest Route
+                    </span>
+                  </>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {(p1 || p2) && (
+          {/* Pinpoint Selector Pill */}
+          <div className="pointer-events-auto flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 p-1.5 rounded-2xl shadow-xl">
             <button
               type="button"
-              onClick={handleReset}
-              title="Reset pins"
-              className="p-1.5 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all"
+              onClick={() => {
+                setActivePinMode("pickup");
+                onSelectionModeChange?.("pickup");
+              }}
+              className="px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
             >
-              <RotateCcw size={14} />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+              <span>Pin Pickup</span>
             </button>
-          )}
-        </div>
 
-        {pinMode && (
-          <span className="pointer-events-auto text-[11px] font-bold text-amber-800 px-3 py-1 rounded-xl bg-amber-50/95 border border-amber-300 shadow-md animate-pulse">
-            Click map to set {pinMode === "pickup" ? "Pickup 🟢" : "Drop 🔴"}
-          </span>
-        )}
-      </div>
+            <button
+              type="button"
+              onClick={() => {
+                setActivePinMode("drop");
+                onSelectionModeChange?.("drop");
+              }}
+              className="px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
+              <span>Pin Drop</span>
+            </button>
+
+            {(p1 || p2) && (
+              <button
+                type="button"
+                onClick={handleReset}
+                title="Reset pins"
+                className="p-1.5 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all"
+              >
+                <RotateCcw size={14} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── BOTTOM RIGHT CONTROLS (RE-CENTER CROSSHAIR & ZOOM) ── */}
       <div

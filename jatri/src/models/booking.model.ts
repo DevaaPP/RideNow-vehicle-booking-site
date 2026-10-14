@@ -46,6 +46,20 @@ export interface IIntermediateStop {
   completed?: boolean;
 }
 
+export interface IAddressDetails {
+  name: string;
+  formattedAddress: string;
+  locality?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  placeId?: string;
+  location?: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+}
+
 export interface IBooking extends Document {
   user: Types.ObjectId;
   driver: Types.ObjectId;
@@ -53,6 +67,8 @@ export interface IBooking extends Document {
 
   pickupAddress: string;
   dropAddress: string;
+  pickupDetails?: IAddressDetails;
+  dropDetails?: IAddressDetails;
   isMultiStop?: boolean;
   stops?: IIntermediateStop[];
 
@@ -176,6 +192,24 @@ const BookingSchema = new Schema<IBooking>(
 
     pickupAddress: { type: String, required: true },
     dropAddress: { type: String, required: true },
+    pickupDetails: {
+      name: { type: String },
+      formattedAddress: { type: String },
+      locality: { type: String },
+      city: { type: String },
+      state: { type: String },
+      postalCode: { type: String },
+      placeId: { type: String },
+    },
+    dropDetails: {
+      name: { type: String },
+      formattedAddress: { type: String },
+      locality: { type: String },
+      city: { type: String },
+      state: { type: String },
+      postalCode: { type: String },
+      placeId: { type: String },
+    },
 
     pickupLocation: {
       type: {

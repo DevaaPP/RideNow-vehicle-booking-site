@@ -84,6 +84,8 @@ export default function CheckoutContent() {
   const scheduledPickupDate = scheduledPickupTime ? new Date(scheduledPickupTime) : null;
   const [serviceMode, setServiceMode] = useState<"passenger" | "logistics">("passenger");
   const [cargoDetails, setCargoDetails] = useState<any | null>(null);
+  const [pickupDetails, setPickupDetails] = useState<any | null>(null);
+  const [dropDetails, setDropDetails] = useState<any | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -179,6 +181,8 @@ export default function CheckoutContent() {
           if (draft.scheduledTime) setScheduledPickupTime(draft.scheduledTime);
           if (draft.serviceMode) setServiceMode(draft.serviceMode);
           if (draft.cargoDetails) setCargoDetails(draft.cargoDetails);
+          if (draft.pickupDetails) setPickupDetails(draft.pickupDetails);
+          if (draft.dropDetails) setDropDetails(draft.dropDetails);
         }
       }
     } catch (err) {
@@ -334,6 +338,16 @@ export default function CheckoutContent() {
           scheduledPickupTime,
           serviceMode,
           cargoDetails,
+          pickupDetails: pickupDetails || (pickupLat && pickupLng ? {
+            name: pickup.split(",")[0],
+            formattedAddress: pickup,
+            coordinates: [pickupLat, pickupLng],
+          } : undefined),
+          dropDetails: dropDetails || (dropLat && dropLng ? {
+            name: drop.split(",")[0],
+            formattedAddress: drop,
+            coordinates: [dropLat, dropLng],
+          } : undefined),
         }),
       });
 

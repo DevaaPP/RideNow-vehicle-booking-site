@@ -9,7 +9,7 @@ import {
   CheckCircle2, ChevronRight, GraduationCap,
   Plus, X, Users, Clock, Calendar,
   Search, Edit2, Info, ChevronDown, ChevronUp,
-  User, UserPlus, Check, Package, Sparkles, SlidersHorizontal
+  User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -47,6 +47,10 @@ type Place = {
   lat?: number;
   lng?: number;
   countrycode?: string;
+  locality?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
 };
 
 const VEHICLE_ICONS: Record<VehicleType, any> = {
@@ -79,6 +83,12 @@ export default function BookPage() {
 
   const [pickup,   setPickup]   = useState("");
   const [drop,     setDrop]     = useState("");
+  const [pickupDetails, setPickupDetails] = useState<any | null>(null);
+  const [dropDetails, setDropDetails] = useState<any | null>(null);
+  const [mapSelectionMode, setMapSelectionMode] = useState<"none" | "pickup" | "drop">("none");
+  const [showServiceUnavailableModal, setShowServiceUnavailableModal] = useState(false);
+  const [serviceUnavailableMessage, setServiceUnavailableMessage] = useState("");
+
   const [vehicle,  setVehicle]  = useState<VehicleType>("car");
   const [serviceMode, setServiceMode] = useState<ServiceMode>("passenger");
   const [mobile,   setMobile]   = useState("");
@@ -235,14 +245,14 @@ export default function BookPage() {
     const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
       bike:    { minDistance: 0, maxDistance: 15 },
       auto:    { minDistance: 0, maxDistance: 30 },
-      car:     { minDistance: 0, maxDistance: 100 },
-      loading: { minDistance: 0, maxDistance: 150 },
+      car:     { minDistance: 0, maxDistance: 500 },
+      loading: { minDistance: 0, maxDistance: 250 },
       truck:   { minDistance: 0, maxDistance: 500 },
     };
     const source = rates || defaultLimits;
     const cfg = source[type.toLowerCase()] || defaultLimits.car;
     const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
-    const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
+    const max = type.toLowerCase() === "car" ? 500 : (cfg.maxDistance !== undefined ? cfg.maxDistance : 9999);
     return dist >= min && dist <= max;
   };
 
@@ -422,43 +432,78 @@ export default function BookPage() {
     if (pickupLat && pickupLng) {
       const pCheck = validateServiceArea(pickupLat, pickupLng);
       if (!pCheck.isSupported) {
-        return { valid: false, message: `Pickup area: ${pCheck.message || "Outside operational bounds"}` };
+        return {
+          valid: false,
+          isServiceUnavailable: true,
+          message: `Pickup area: ${pCheck.message || "Outside operational bounds"}`
+        };
       }
     }
     if (dropLat && dropLng) {
       const dCheck = validateServiceArea(dropLat, dropLng);
       if (!dCheck.isSupported) {
-        return { valid: false, message: `Drop area: ${dCheck.message || "Outside operational bounds"}` };
+        return {
+          valid: false,
+          isServiceUnavailable: true,
+          message: `Drop area: ${dCheck.message || "Outside operational bounds"}`
+        };
       }
     }
 
     if (routeDistance === -1) {
-      return { valid: false, message: "No rides available (no road connection found)" };
+      return {
+        valid: false,
+        isServiceUnavailable: true,
+        message: "No rides available (no road connection found)"
+      };
     }
     const dist = (routeDistance !== null && routeDistance >= 0)
       ? routeDistance
       : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
 
     if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle || dist === null) return { valid: true };
-    
+
+    if (dist > 500) {
+      return {
+        valid: false,
+        isServiceUnavailable: true,
+        message: "Route exceeds maximum 500 km intercity coverage area. Please adjust your destination."
+      };
+    }
+
+    // For Bike / Auto: If distance > 100 km, prompt switch to RideNow Intercity Car
+    if (dist > 100 && (vehicle === "bike" || vehicle === "auto")) {
+      return {
+        valid: false,
+        isIntercityPrompt: true,
+        message: "Distance exceeds 100 km. Please select RideNow Intercity (Car/SUV) for outstation travel."
+      };
+    }
+
     const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
       bike:    { minDistance: 0, maxDistance: 15 },
       auto:    { minDistance: 0, maxDistance: 30 },
-      car:     { minDistance: 0, maxDistance: 100 },
-      loading: { minDistance: 0, maxDistance: 150 },
+      car:     { minDistance: 0, maxDistance: 500 }, // Intercity car coverage up to 500 km
+      loading: { minDistance: 0, maxDistance: 250 },
       truck:   { minDistance: 0, maxDistance: 500 },
     };
     
     const source = rates || defaultLimits;
     const cfg = source[vehicle.toLowerCase()] || defaultLimits.car;
     const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
-    const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
+    const max = vehicle === "car" ? 500 : (cfg.maxDistance !== undefined ? cfg.maxDistance : 9999);
     
     if (dist < min) {
       return { valid: false, message: `${VEHICLE_OPTIONS[vehicle]?.label || "Vehicle"} requires min ${min} km (Current: ${dist.toFixed(1)} km)` };
     }
     if (dist > max) {
-      return { valid: false, message: `${VEHICLE_OPTIONS[vehicle]?.label || "Vehicle"} is limited to max ${max} km (Current: ${dist.toFixed(1)} km)` };
+      return {
+        valid: false,
+        isServiceUnavailable: dist > 100,
+        message: dist > 100
+          ? "Service not available for this vehicle type for long distance. Please select RideNow Intercity."
+          : `${VEHICLE_OPTIONS[vehicle]?.label || "Vehicle"} is limited to max ${max} km`
+      };
     }
     return { valid: true };
   };
@@ -548,6 +593,10 @@ export default function BookPage() {
           lat: p.lat,
           lng: p.lng,
           countrycode: p.countrycode,
+          locality: p.locality,
+          city: p.city,
+          state: p.state,
+          postalCode: p.postalCode,
         }));
         setResults(results);
       } else {
@@ -561,6 +610,18 @@ export default function BookPage() {
 
   const selectPlace = async (p: Place, isPickup: boolean) => {
     if (typeof p.lat === "number" && typeof p.lng === "number") {
+      const formattedAddress = p.subtitle ? `${p.title || p.name}, ${p.subtitle}` : (p.title || p.name);
+      const structuredDetails = {
+        name: p.title || p.name.split(",")[0],
+        formattedAddress,
+        locality: p.locality || "",
+        city: p.city || "",
+        state: p.state || "",
+        postalCode: p.postalCode || "",
+        countrycode: p.countrycode || "in",
+        coordinates: [p.lat, p.lng] as [number, number],
+      };
+
       saveRecentDestination({
         name: p.title || p.name,
         subtitle: p.subtitle,
@@ -574,11 +635,13 @@ export default function BookPage() {
         setPickupCountry(p.countrycode || "in");
         setPickupLat(p.lat);
         setPickupLng(p.lng);
+        setPickupDetails(structuredDetails);
         setPickupResults([]);
       } else {
         setDrop(p.title || p.name);
         setDropLat(p.lat);
         setDropLng(p.lng);
+        setDropDetails(structuredDetails);
         setDropResults([]);
       }
       setActiveSearchField(null);
@@ -603,6 +666,17 @@ export default function BookPage() {
           }
         }
 
+        const structuredDetails = {
+          name: result.name || p.title || formattedAddress.split(",")[0],
+          formattedAddress,
+          locality: result.locality || p.locality || "",
+          city: result.city || p.city || "",
+          state: result.state || p.state || "",
+          postalCode: result.postalCode || p.postalCode || "",
+          countrycode,
+          coordinates: [lat, lng] as [number, number],
+        };
+
         saveRecentDestination({
           name: formattedAddress,
           subtitle: p.subtitle,
@@ -616,11 +690,13 @@ export default function BookPage() {
           setPickupCountry(countrycode);
           setPickupLat(lat);
           setPickupLng(lng);
+          setPickupDetails(structuredDetails);
           setPickupResults([]);
         } else {
           setDrop(formattedAddress);
           setDropLat(lat);
           setDropLng(lng);
+          setDropDetails(structuredDetails);
           setDropResults([]);
         }
       }
@@ -653,15 +729,38 @@ export default function BookPage() {
             countryCode = String(countryComp.short_name || "in").toLowerCase();
           }
         }
+        const structuredDetails = {
+          name: first.name || addr.split(",")[0] || "Current Location",
+          formattedAddress: addr,
+          locality: first.locality || "",
+          city: first.city || "",
+          state: first.state || "",
+          postalCode: first.postalCode || "",
+          countrycode: countryCode,
+          coordinates: [lat, lng] as [number, number],
+        };
         setPickup(addr);
         setPickupCountry(countryCode);
+        setPickupDetails(structuredDetails);
       } else {
-        setPickup(`Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+        const fallbackAddr = `Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+        setPickup(fallbackAddr);
         setPickupCountry("in");
+        setPickupDetails({
+          name: "Current Location",
+          formattedAddress: fallbackAddr,
+          coordinates: [lat, lng],
+        });
       }
     } catch (err) {
       console.error("Failed to reverse geocode current location:", err);
-      setPickup(`Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+      const fallbackAddr = `Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      setPickup(fallbackAddr);
+      setPickupDetails({
+        name: "Current Location",
+        formattedAddress: fallbackAddr,
+        coordinates: [lat, lng],
+      });
     } finally {
       setLocating(false);
     }
@@ -733,6 +832,8 @@ export default function BookPage() {
       }
       if (draft.smartPickupDetails) setSelectedSmartPickup(draft.smartPickupDetails);
       if (draft.familyMemberDetails) setSelectedFamilyMember(draft.familyMemberDetails);
+      if (draft.pickupDetails) setPickupDetails(draft.pickupDetails);
+      if (draft.dropDetails) setDropDetails(draft.dropDetails);
       if (draft.isScheduled) {
         setBookingMode("schedule");
         if (draft.scheduledTime) setScheduledDateTime(draft.scheduledTime);
@@ -788,20 +889,71 @@ export default function BookPage() {
     return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
 
-  const handleMapChange = (p: string, d: string, c1?: [number, number] | null, c2?: [number, number] | null, countryCode?: string | null) => {
-    setPickup(p);
-    setDrop(d);
+  const handleMapChange = (
+    p: string,
+    d: string,
+    c1?: [number, number] | null,
+    c2?: [number, number] | null,
+    countryCode?: string | null,
+    p1Details?: any,
+    p2Details?: any
+  ) => {
+    if (p) setPickup(p);
+    if (d) setDrop(d);
     if (c1) {
       setPickupLat(c1[0]);
       setPickupLng(c1[1]);
+      if (p1Details) {
+        setPickupDetails(p1Details);
+      } else {
+        setPickupDetails({
+          name: p.split(",")[0],
+          formattedAddress: p,
+          coordinates: [c1[0], c1[1]],
+        });
+      }
     }
     if (c2) {
       setDropLat(c2[0]);
       setDropLng(c2[1]);
+      if (p2Details) {
+        setDropDetails(p2Details);
+      } else {
+        setDropDetails({
+          name: d.split(",")[0],
+          formattedAddress: d,
+          coordinates: [c2[0], c2[1]],
+        });
+      }
     }
     if (countryCode) {
       setPickupCountry(countryCode);
     }
+  };
+
+  const handleConfirmPinSelection = (
+    mode: "pickup" | "drop",
+    coords: [number, number],
+    address: string,
+    details?: any
+  ) => {
+    const struct = details || {
+      name: address.split(",")[0],
+      formattedAddress: address,
+      coordinates: coords,
+    };
+    if (mode === "pickup") {
+      setPickup(address);
+      setPickupLat(coords[0]);
+      setPickupLng(coords[1]);
+      setPickupDetails(struct);
+    } else {
+      setDrop(address);
+      setDropLat(coords[0]);
+      setDropLng(coords[1]);
+      setDropDetails(struct);
+    }
+    setMapSelectionMode("none");
   };
 
   const handleCoordinatesChange = (c1?: [number, number] | null, c2?: [number, number] | null) => {
@@ -827,16 +979,47 @@ export default function BookPage() {
 
   const handleConfirmRide = () => {
     if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return;
+
+    const validity = getDistanceValidity();
+    if (!validity.valid) {
+      if (validity.isServiceUnavailable) {
+        setServiceUnavailableMessage(
+          validity.message ||
+            "No rides available for this route or distance exceeds active coverage area. Try adjusting your pickup or destination."
+        );
+        setShowServiceUnavailableModal(true);
+        return;
+      }
+      if (validity.isIntercityPrompt) {
+        setVehicle("car");
+        return;
+      }
+      setLocationError(validity.message || "Please select a valid route");
+      return;
+    }
+
     const estFare = estimateFare(vehicle, effectiveDistance);
 
     const validStops = stops
-      .filter(s => s.address && s.lat !== null && s.lng !== null)
+      .filter((s) => s.address && s.lat !== null && s.lng !== null)
       .map((s, idx) => ({
         address: s.address,
         lat: s.lat,
         lng: s.lng,
         order: idx + 1,
       }));
+
+    const finalPickupDetails = pickupDetails || {
+      name: pickup.split(",")[0],
+      formattedAddress: pickup,
+      coordinates: [pickupLat, pickupLng],
+    };
+
+    const finalDropDetails = dropDetails || {
+      name: drop.split(",")[0],
+      formattedAddress: drop,
+      coordinates: [dropLat, dropLng],
+    };
 
     const draftData = {
       pickup,
@@ -849,20 +1032,28 @@ export default function BookPage() {
       dropLat,
       dropLng,
       distanceKm: effectiveDistance,
+      pickupDetails: finalPickupDetails,
+      dropDetails: finalDropDetails,
       isSmartPickup: Boolean(selectedSmartPickup),
       smartPickupDetails: selectedSmartPickup || null,
       stops: validStops,
       isFamilyRide: Boolean(selectedFamilyMember),
       familyMemberDetails: selectedFamilyMember || null,
       isScheduled: bookingMode === "schedule" && Boolean(scheduledDateTime),
-      scheduledTime: (bookingMode === "schedule" && scheduledDateTime) ? new Date(scheduledDateTime).toISOString() : null,
+      scheduledTime:
+        bookingMode === "schedule" && scheduledDateTime
+          ? new Date(scheduledDateTime).toISOString()
+          : null,
       serviceMode,
-      cargoDetails: serviceMode === "logistics" ? {
-        cargoType,
-        cargoWeightKg,
-        receiverContact,
-        deliveryNotes,
-      } : null,
+      cargoDetails:
+        serviceMode === "logistics"
+          ? {
+              cargoType,
+              cargoWeightKg,
+              receiverContact,
+              deliveryNotes,
+            }
+          : null,
     };
 
     try {
@@ -932,6 +1123,17 @@ export default function BookPage() {
           >
             <LocateFixed size={13} className={`text-zinc-700 ${locating ? "animate-spin" : ""}`} />
           </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              setActiveSearchField(null);
+              setMapSelectionMode("pickup");
+            }}
+            title="Choose pickup on map"
+            className="w-7 h-7 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition flex items-center justify-center flex-shrink-0"
+          >
+            <MapPin size={13} className="text-emerald-700" />
+          </motion.button>
         </div>
 
         {/* Pickup Autocomplete Results */}
@@ -943,6 +1145,28 @@ export default function BookPage() {
               exit={{ opacity: 0, y: -4 }}
               className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg max-h-56 overflow-y-auto z-50 divide-y divide-zinc-100"
             >
+              {/* Option to set location on interactive map */}
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setActiveSearchField(null);
+                  setMapSelectionMode("pickup");
+                }}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-left bg-emerald-50/70 hover:bg-emerald-100/70 text-emerald-950 transition"
+              >
+                <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                  <MapPin size={13} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-black text-emerald-900 leading-none">Set pickup point on map</p>
+                  <p className="text-[10px] text-emerald-700 font-semibold mt-0.5">Move map to pinpoint exact location</p>
+                </div>
+                <span className="text-[10px] font-black uppercase text-emerald-700 bg-white px-2 py-0.5 rounded-full border border-emerald-200 flex-shrink-0">
+                  Pinpoint
+                </span>
+              </button>
+
               {pickupResults.map((p) => (
                 <button
                   key={p.id}
@@ -1014,7 +1238,17 @@ export default function BookPage() {
               <X size={14} />
             </button>
           )}
-          <Navigation size={13} className="text-zinc-400 flex-shrink-0" />
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              setActiveSearchField(null);
+              setMapSelectionMode("drop");
+            }}
+            title="Choose destination on map"
+            className="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 transition flex items-center justify-center flex-shrink-0"
+          >
+            <MapPin size={13} className="text-rose-600" />
+          </motion.button>
         </div>
 
         {/* Drop Autocomplete Results & Recent Destinations */}
@@ -1024,33 +1258,69 @@ export default function BookPage() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50 divide-y divide-zinc-100"
+              className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg max-h-64 overflow-y-auto z-50 divide-y divide-zinc-100"
             >
-              {dropResults.map((p) => (
-                <button
-                  key={p.id}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    selectPlace(p, false);
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition"
-                >
-                  <span className="text-base flex-shrink-0">
-                    {getCategoryIcon(p.category, p.title || p.name)}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-zinc-900 truncate">
-                      {p.title || p.name}
-                    </p>
-                    {p.subtitle && (
-                      <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">
-                        {p.subtitle}
+              {/* Option to set location on interactive map */}
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setActiveSearchField(null);
+                  setMapSelectionMode("drop");
+                }}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-left bg-rose-50/70 hover:bg-rose-100/70 text-rose-950 transition"
+              >
+                <div className="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                  <MapPin size={13} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-black text-rose-900 leading-none">Set destination point on map</p>
+                  <p className="text-[10px] text-rose-700 font-semibold mt-0.5">Move map to pinpoint exact location</p>
+                </div>
+                <span className="text-[10px] font-black uppercase text-rose-700 bg-white px-2 py-0.5 rounded-full border border-rose-200 flex-shrink-0">
+                  Pinpoint
+                </span>
+              </button>
+
+              {dropResults.map((p) => {
+                const distToPoint =
+                  typeof p.lat === "number" && typeof p.lng === "number" && pickupLat && pickupLng
+                    ? getHaversineDistance(pickupLat, pickupLng, p.lat, p.lng)
+                    : null;
+
+                return (
+                  <button
+                    key={p.id}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      selectPlace(p, false);
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition"
+                  >
+                    <span className="text-base flex-shrink-0">
+                      {getCategoryIcon(p.category, p.title || p.name)}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-zinc-900 truncate">
+                        {p.title || p.name}
                       </p>
+                      {p.subtitle && (
+                        <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">
+                          {p.subtitle}
+                        </p>
+                      )}
+                    </div>
+
+                    {distToPoint !== null && (
+                      <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md flex-shrink-0">
+                        {distToPoint.toFixed(1)} km
+                      </span>
                     )}
-                  </div>
-                  <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
-                </button>
-              ))}
+
+                    <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
+                  </button>
+                );
+              })}
             </motion.div>
           )}
 
@@ -1540,11 +1810,22 @@ export default function BookPage() {
                   <p className={`font-black text-base leading-tight ${isSelected ? "text-emerald-400" : "text-zinc-900"}`}>
                     ₹{fare}
                   </p>
-                  {!isLimitOk && (
-                    <span className="text-[8px] font-black uppercase text-rose-500 bg-rose-50 px-1 py-0.5 rounded border border-rose-200">
-                      Limit
+                  {effectiveDistance > 100 && v.id === "car" ? (
+                    <span className="text-[8px] font-black uppercase text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200 tracking-wider block mt-0.5">
+                      RideNow Intercity
                     </span>
-                  )}
+                  ) : !isLimitOk ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setVehicle("car");
+                      }}
+                      className="text-[8px] font-black uppercase text-amber-700 bg-amber-50 hover:bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200 block mt-0.5"
+                    >
+                      Use Intercity
+                    </button>
+                  ) : null}
                 </div>
               </div>
             );
@@ -1680,11 +1961,16 @@ export default function BookPage() {
           onSelectSmartPickup={handleSelectSmartPickup}
           stops={validStopsForMap}
           bottomPadding={hasRoute ? (isMobile ? (mobileSheetExpanded ? 340 : 220) : 360) : 100}
+          selectionMode={mapSelectionMode}
+          onSelectionModeChange={setMapSelectionMode}
+          onConfirmPinSelection={handleConfirmPinSelection}
         />
       </div>
 
       {/* ══ 2. UNIFIED DESKTOP / TABLET PANEL (ONE SINGLE CARD - NEVER OVERLAPS) ══ */}
-      <div className="hidden md:flex fixed top-4 bottom-4 left-6 w-[420px] z-30 flex-col bg-white rounded-2xl border border-zinc-200 shadow-xl overflow-hidden">
+      <div className={`hidden md:flex fixed top-4 bottom-4 left-6 w-[420px] z-30 flex-col bg-white rounded-2xl border border-zinc-200 shadow-xl overflow-hidden transition-all duration-300 ${
+        mapSelectionMode !== "none" ? "opacity-0 pointer-events-none -translate-x-12" : "opacity-100 translate-x-0"
+      }`}>
         
         {/* Pinned Card Header */}
         <div className="flex-shrink-0 p-4 border-b border-zinc-100 bg-white space-y-3">
@@ -1771,7 +2057,7 @@ export default function BookPage() {
       </div>
 
       {/* ══ 3. MOBILE INTERFACE (< md) ══ */}
-      <div className="md:hidden">
+      <div className={`md:hidden transition-all duration-300 ${mapSelectionMode !== "none" ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
         {/* Mobile Search Card when route is NOT set */}
         {!hasRoute && (
           <div className="fixed top-3 left-3 right-3 z-30 bg-white rounded-2xl p-3.5 border border-zinc-200 shadow-lg space-y-2.5">
@@ -1920,6 +2206,39 @@ export default function BookPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* ══ 4. SERVICE UNAVAILABLE MODAL ══ */}
+      <AnimatePresence>
+        {showServiceUnavailableModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-zinc-100 text-center space-y-4"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200/60 shadow-inner">
+                <AlertTriangle size={28} />
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-lg font-black text-zinc-900 tracking-tight">Service unavailable</h3>
+                <p className="text-xs text-zinc-500 font-medium leading-relaxed">
+                  {effectiveDistance > 500
+                    ? `Selected route (${effectiveDistance} km) exceeds our maximum service radius of 500 km. Please select a closer destination.`
+                    : "We currently do not operate trips on this route or location. Please adjust your pickup or drop location."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowServiceUnavailableModal(false)}
+                className="w-full py-3 rounded-xl bg-zinc-950 hover:bg-black text-white text-xs font-black uppercase tracking-wider transition active:scale-98 shadow-md"
+              >
+                Got it!
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

@@ -47,7 +47,9 @@ export async function POST(req: Request) {
     const {
       pickup,
       drop,
-      vehicle, // requested vehicle type: bike, auto, car, loading, truck
+      pickupDetails,
+      dropDetails,
+      vehicle, // requested vehicle type: bike, auto, car, intercity, loading, truck
       fare,
       mobileNumber, // user's mobile number
       pickupLat,
@@ -86,7 +88,7 @@ export async function POST(req: Request) {
     }
 
     const vehicleKey = String(vehicle).toLowerCase();
-    const VALID_VEHICLES = ["bike", "auto", "car", "loading", "truck"];
+    const VALID_VEHICLES = ["bike", "auto", "car", "intercity", "loading", "truck"];
     if (!VALID_VEHICLES.includes(vehicleKey)) {
       return NextResponse.json(
         {
@@ -276,6 +278,18 @@ export async function POST(req: Request) {
       routeDistance = haversineDistance([pLng, pLat], [dLng, dLat]);
     }
 
+    // Validate 100km rule for city fleet vs Intercity/Logistics
+    if (["bike", "auto", "car"].includes(vehicleKey) && routeDistance > 100) {
+      return NextResponse.json(
+        {
+          success: false,
+          isServiceUnavailable: true,
+          message: `Bike, Auto, and City Cab are available for local trips up to 100 km (Current: ${routeDistance.toFixed(1)} km). Please choose Intercity Car Service or Cargo.`,
+        },
+        { status: 400 }
+      );
+    }
+
     // Validate distance limits
     const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
     const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
@@ -292,6 +306,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
+          isServiceUnavailable: true,
           message: `Selected vehicle type is limited to a maximum ride distance of ${max} km (Current: ${routeDistance.toFixed(1)} km)`,
         },
         { status: 400 }
@@ -328,8 +343,30 @@ export async function POST(req: Request) {
       user: session.user.id,
       driver: nearestVendor._id,
       vehicle: nearestVehicle?._id,
-      pickupAddress: pickup,
-      dropAddress: drop,
+      pickupAddress: pickupDetails?.formattedAddress || pickup,
+      dropAddress: dropDetails?.formattedAddress || drop,
+      pickupDetails: pickupDetails
+        ? {
+            name: pickupDetails.name || pickup,
+            formattedAddress: pickupDetails.formattedAddress || pickup,
+            locality: pickupDetails.locality || "",
+            city: pickupDetails.city || "",
+            state: pickupDetails.state || "",
+            postalCode: pickupDetails.postalCode || "",
+            placeId: pickupDetails.placeId || "",
+          }
+        : undefined,
+      dropDetails: dropDetails
+        ? {
+            name: dropDetails.name || drop,
+            formattedAddress: dropDetails.formattedAddress || drop,
+            locality: dropDetails.locality || "",
+            city: dropDetails.city || "",
+            state: dropDetails.state || "",
+            postalCode: dropDetails.postalCode || "",
+            placeId: dropDetails.placeId || "",
+          }
+        : undefined,
       pickupLocation: {
         type: "Point",
         coordinates: [pLng, pLat],
