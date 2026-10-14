@@ -23,27 +23,28 @@ try {
   process.exit(1);
 }
 
-const app=express()
+const app = express()
 app.use(express.json())
-const server=http.createServer(app)
-const port=process.env.PORT || 5000
+const server = http.createServer(app)
+const port = process.env.PORT || 5000
 
 const nextBaseUrl = process.env.NEXT_BASE_URL ? process.env.NEXT_BASE_URL.replace(/\/$/, "") : "http://localhost:3000";
-const INTERNAL_SECRET = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
+const INTERNAL_SECRET = process.env.SOCKET_INTERNAL_SECRET;
 
-const io=new Server(server,{
-    cors:{
-        origin: nextBaseUrl
-    }
+if (!INTERNAL_SECRET) {
+  console.warn("⚠️ WARNING: SOCKET_INTERNAL_SECRET is not configured in environment. /emit calls without secret will be rejected.");
+}
+
+const io = new Server(server, {
+  cors: {
+    origin: nextBaseUrl,
+  },
 })
 
+// Authoritative internal emission endpoint
 app.post("/emit", async (req, res) => {
   const secret = req.headers["x-socket-secret"];
-  if (process.env.SOCKET_INTERNAL_SECRET || process.env.NODE_ENV === "production") {
-    if (secret !== INTERNAL_SECRET) {
-      return res.status(403).json({ success: false, error: "Unauthorized socket emission secret" });
-    }
-  } else if (secret && secret !== INTERNAL_SECRET) {
+  if (!INTERNAL_SECRET || secret !== INTERNAL_SECRET) {
     return res.status(403).json({ success: false, error: "Unauthorized socket emission secret" });
   }
 
@@ -98,7 +99,7 @@ io.use(async (socket, next) => {
 });
 
 io.on("connection", (socket) => {
-
+  // Identity binding
   socket.on("identity", async (userId) => {
     if (!userId || typeof userId !== "string" || !mongoose.Types.ObjectId.isValid(userId)) {
       return;
@@ -106,7 +107,7 @@ io.on("connection", (socket) => {
 
     // If socket was pre-authenticated during handshake, prevent impersonating another user
     if (socket.userId && socket.userId !== userId) {
-      console.warn(`Socket ${socket.id} attempted to identity mismatch: ${socket.userId} vs ${userId}`);
+      console.warn(`[SocketSecurity] Socket ${socket.id} attempted identity mismatch: ${socket.userId} vs ${userId}`);
       return;
     }
 
@@ -134,45 +135,136 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("join-booking", (bookingId) => {
-    if (!bookingId || typeof bookingId !== "string") return;
-    console.log("joining room:", `booking-${bookingId}`);
-    socket.join(`booking-${bookingId}`);
+  // Strict Room Access Control: Only participants (rider, assigned driver, dispatch candidates, or admin) may join
+  socket.on("join-booking", async (bookingId) => {
+    if (!bookingId || typeof bookingId !== "string" || !mongoose.Types.ObjectId.isValid(bookingId)) {
+      return;
+    }
+
+    if (!socket.userId) {
+      console.warn(`[SocketSecurity] Unauthenticated socket ${socket.id} attempted to join booking-${bookingId}`);
+      return;
+    }
+
+    try {
+      const booking = await mongoose.connection.collection("bookings").findOne(
+        { _id: new mongoose.Types.ObjectId(bookingId) },
+        { projection: { user: 1, driver: 1, candidateDrivers: 1 } }
+      );
+
+      if (!booking) {
+        console.warn(`[SocketSecurity] Booking ${bookingId} not found`);
+        return;
+      }
+
+      const currentUserId = socket.userId.toString();
+      const isRider = booking.user && booking.user.toString() === currentUserId;
+      const isDriver = booking.driver && booking.driver.toString() === currentUserId;
+      const isCandidate =
+        Array.isArray(booking.candidateDrivers) &&
+        booking.candidateDrivers.some((c) => c && c.toString() === currentUserId);
+      const isAdmin = socket.userRole === "admin";
+
+      if (!isRider && !isDriver && !isCandidate && !isAdmin) {
+        console.warn(`[SocketSecurity] Denied unauthorized user ${currentUserId} from joining booking-${bookingId}`);
+        return;
+      }
+
+      socket.join(`booking-${bookingId}`);
+      console.log(`[SocketSecurity] Authorized user ${currentUserId} (${socket.userRole}) joined room: booking-${bookingId}`);
+    } catch (err) {
+      console.error("[SocketSecurity] join-booking authorization error:", err);
+    }
   });
 
-  socket.on("driver-location-update", (data) => {
-    if (!socket.userId || !data?.bookingId) return;
-    io.to(`booking-${data.bookingId}`)
-      .emit("driver-location", {
+  // Driver Location Updates: Verified against assigned booking driver
+  socket.on("driver-location-update", async (data) => {
+    if (!socket.userId || !data?.bookingId || !mongoose.Types.ObjectId.isValid(data.bookingId)) return;
+
+    try {
+      const booking = await mongoose.connection.collection("bookings").findOne(
+        { _id: new mongoose.Types.ObjectId(data.bookingId) },
+        { projection: { driver: 1 } }
+      );
+
+      if (!booking || booking.driver?.toString() !== socket.userId.toString()) {
+        console.warn(`[SocketSecurity] Unauthorized location update for booking ${data.bookingId} by user ${socket.userId}`);
+        return;
+      }
+
+      io.to(`booking-${data.bookingId}`).emit("driver-location", {
         latitude: data.latitude,
         longitude: data.longitude,
         status: data.status || "arriving",
       });
+    } catch (err) {
+      console.error("[SocketSecurity] driver-location-update error:", err);
+    }
   });
 
-  socket.on("chat-message", (msg) => {
+  // Chat message authorization: Only booking participants
+  socket.on("chat-message", async (msg) => {
     if (!socket.userId) return;
     const bookingId = msg?.rideId || msg?.bookingId;
-    if (!bookingId) return;
-    console.log("chat to room:", `booking-${bookingId}`);
-    io.to(`booking-${bookingId}`).emit("chat-message", msg);
+    if (!bookingId || !mongoose.Types.ObjectId.isValid(bookingId)) return;
+
+    try {
+      const booking = await mongoose.connection.collection("bookings").findOne(
+        { _id: new mongoose.Types.ObjectId(bookingId) },
+        { projection: { user: 1, driver: 1 } }
+      );
+      if (!booking) return;
+
+      const currentUserId = socket.userId.toString();
+      const isParticipant =
+        booking.user?.toString() === currentUserId ||
+        booking.driver?.toString() === currentUserId ||
+        socket.userRole === "admin";
+
+      if (!isParticipant) {
+        console.warn(`[SocketSecurity] Unauthorized chat message from user ${currentUserId} in booking ${bookingId}`);
+        return;
+      }
+
+      io.to(`booking-${bookingId}`).emit("chat-message", msg);
+    } catch (err) {
+      console.error("[SocketSecurity] chat-message error:", err);
+    }
   });
 
-  // Call Signaling (WebRTC in-ride call)
-  socket.on("call-user", (data) => {
-    console.log("call-user in room:", `booking-${data.bookingId}`);
-    socket.to(`booking-${data.bookingId}`).emit("incoming-call", data);
+  // Call Signaling: Verified booking participants
+  socket.on("call-user", async (data) => {
+    if (!socket.userId || !data?.bookingId || !mongoose.Types.ObjectId.isValid(data.bookingId)) return;
+    try {
+      const booking = await mongoose.connection.collection("bookings").findOne(
+        { _id: new mongoose.Types.ObjectId(data.bookingId) },
+        { projection: { user: 1, driver: 1 } }
+      );
+      if (!booking) return;
+      const currentUserId = socket.userId.toString();
+      const isParticipant =
+        booking.user?.toString() === currentUserId ||
+        booking.driver?.toString() === currentUserId;
+      if (!isParticipant) return;
+
+      socket.to(`booking-${data.bookingId}`).emit("incoming-call", data);
+    } catch (err) {
+      console.error("[SocketSecurity] call-user error:", err);
+    }
   });
 
-  socket.on("accept-call", (data) => {
+  socket.on("accept-call", async (data) => {
+    if (!socket.userId || !data?.bookingId) return;
     socket.to(`booking-${data.bookingId}`).emit("call-accepted", data);
   });
 
-  socket.on("reject-call", (data) => {
+  socket.on("reject-call", async (data) => {
+    if (!socket.userId || !data?.bookingId) return;
     socket.to(`booking-${data.bookingId}`).emit("call-rejected", data);
   });
 
-  socket.on("end-call", (data) => {
+  socket.on("end-call", async (data) => {
+    if (!socket.userId || !data?.bookingId) return;
     socket.to(`booking-${data.bookingId}`).emit("call-ended", data);
   });
 
@@ -205,7 +297,6 @@ io.on("connection", (socket) => {
       console.error("update-location db error:", err);
     }
   });
- 
 
   socket.on("disconnect", async () => {
     if (!socket.userId) return;
@@ -219,15 +310,9 @@ io.on("connection", (socket) => {
     } catch (err) {
       console.error("Socket disconnect error:", err);
     }
-  })
-
+  });
 })
 
-
-
-
-
-
-server.listen(port,()=>{
-    console.log("server started at",port)
+server.listen(port, () => {
+  console.log("server started at", port)
 })
