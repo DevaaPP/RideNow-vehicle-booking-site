@@ -52,9 +52,15 @@ export const proxy = auth(async (req) => {
 
   /* ---------- STATIC FILES ---------- */
   if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon.ico") ||
-    pathname.includes(".")
+    pathname.startsWith("/_next/") ||
+    pathname === "/favicon.ico" ||
+    pathname.startsWith("/.well-known/") ||
+    // Only bypass if the last path segment looks like a file (has an extension)
+    // and it is NOT under a protected route prefix.
+    (/\.[a-zA-Z0-9]+$/.test(pathname) &&
+      !pathname.startsWith("/api/") &&
+      !pathname.startsWith("/admin") &&
+      !pathname.startsWith("/partner"))
   ) {
     return NextResponse.next();
   }
