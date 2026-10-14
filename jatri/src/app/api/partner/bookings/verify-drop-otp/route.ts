@@ -1,14 +1,26 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Booking from "@/models/booking.model";
+import User from "@/models/user.model";
+import { auth } from "@/auth";
 import { settleCompletedRidePayment } from "@/lib/settlePayment";
 import { sendPushToUser } from "@/lib/webPush";
 
 export async function POST(req: Request) {
-
   await connectDB();
 
   try {
+    // ── Authentication ───────────────────────────────────────────────────
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const caller = await User.findOne({ email: session.user.email })
+      .select("_id role")
+      .lean();
+    if (!caller) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     const { bookingId, otp, emergencyFallback, bypassReason } = await req.json();
 
@@ -21,6 +33,18 @@ export async function POST(req: Request) {
       );
     }
 
+    // ── Authorization: caller must be the assigned driver or an admin ────
+    const isAdmin = (caller as any).role === "admin";
+    const isAssignedDriver =
+      booking.driver?.toString() === (caller as any)._id.toString();
+
+    if (!isAdmin && !isAssignedDriver) {
+      return NextResponse.json(
+        { message: "Forbidden: only the assigned driver may verify the drop OTP" },
+        { status: 403 }
+      );
+    }
+
     if (booking.status !== "started") {
       return NextResponse.json(
         { message: "Cannot verify drop-off OTP: Ride must be in 'started' status to complete." },
@@ -28,9 +52,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // Emergency Deadlock Fallback: Passenger phone dead / unreachable at destination
+    // Emergency Deadlock Fallback — restricted to admin only.
+    // Drivers self-certifying a bypass is a fraud vector.
     let isBypassed = false;
     if (emergencyFallback === true) {
+      if (!isAdmin) {
+        return NextResponse.json(
+          { message: "Emergency fallback completion requires admin authorization." },
+          { status: 403 }
+        );
+      }
       if (!bypassReason || String(bypassReason).trim().length < 5) {
         return NextResponse.json(
           { message: "Please provide a valid reason for emergency completion (e.g., passenger phone dead at destination)." },
@@ -97,7 +128,7 @@ export async function POST(req: Request) {
         new Date(booking.dropOtpExpires || (booking as any).dropExpires) < new Date()
       ) {
         return NextResponse.json(
-          { message: "Drop OTP expired. Please request a new code or use Emergency Fallback." },
+          { message: "Drop OTP expired. Please request a new code or contact support." },
           { status: 400 }
         );
       }
@@ -106,8 +137,7 @@ export async function POST(req: Request) {
       booking.dropOtpLockedUntil = null;
     }
 
-    /* update status */
-
+    /* Update status */
     const now = new Date();
     booking.status = "completed";
     booking.completedAt = now;
@@ -153,7 +183,7 @@ export async function POST(req: Request) {
     try {
       await sendPushToUser(booking.user.toString(), {
         title: "Trip Completed! 🎉",
-        body: `You've arrived at your destination. Total: ₹${booking.fare}. Thanks for riding with Jatri!`,
+        body: `You've arrived at your destination. Total: ₹${booking.fare}. Thanks for riding with RideNow!`,
         url: `/ride/${booking._id.toString()}`,
         tag: `booking-${booking._id.toString()}`,
       });
@@ -163,18 +193,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "OTP verified. Ride completed."
+      message: "OTP verified. Ride completed.",
     });
-
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
       { message: "OTP verification failed" },
       { status: 500 }
     );
-
   }
-
 }
