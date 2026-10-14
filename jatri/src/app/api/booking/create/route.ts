@@ -224,60 +224,20 @@ export async function POST(req: Request) {
       }));
     }
 
-    // Fallback in unseeded development environments or demo mode
+    // If no real driver was matched, inform the caller immediately.
+    // A ghost/synthetic driver must never be assigned — it misleads the rider
+    // with a fake location and cannot actually complete the trip.
     if (!nearestVendor || !nearestVehicle) {
-      let platformVendor = await User.findOne({ email: "fleet.driver@ridenow.com" });
-      if (!platformVendor) {
-        platformVendor = await User.create({
-          name: "RideNow Partner",
-          email: "fleet.driver@ridenow.com",
-          role: "vendor",
-          isOnline: true,
-          vendorStatus: "approved",
-          vendorProfileCompleted: true,
-          vendorOnboardingStep: 7,
-          mobileNumber: "9876543210",
-          location: {
-            type: "Point",
-            coordinates: [pLng, pLat],
-          },
-        });
-      } else {
-        await User.findByIdAndUpdate(platformVendor._id, {
-          isOnline: true,
-          location: {
-            type: "Point",
-            coordinates: [pLng, pLat],
-          },
-        });
-      }
-
-      let platformVehicle = await Vehicle.findOne({
-        owner: platformVendor._id,
-        type: vehicleKey,
-      });
-
-      if (!platformVehicle) {
-        const vehicleModels: Record<string, string> = {
-          bike: "Honda Activa 6G",
-          auto: "Bajaj Compact RE",
-          car: "Maruti Suzuki Swift",
-          loading: "Tata Ace Gold",
-          truck: "Tata 407",
-        };
-        platformVehicle = await Vehicle.create({
-          owner: platformVendor._id,
-          type: vehicleKey,
-          number: `RN-${vehicleKey.slice(0, 3).toUpperCase()}-101`,
-          vehicleModel: vehicleModels[vehicleKey] || "Standard Vehicle",
-          status: "approved",
-          isActive: true,
-        });
-      }
-
-      nearestVendor = platformVendor.toObject ? platformVendor.toObject() : platformVendor;
-      nearestVehicle = platformVehicle.toObject ? platformVehicle.toObject() : platformVehicle;
-      sortedCandidates = [nearestVendor];
+      return NextResponse.json(
+        {
+          success: false,
+          noDriversAvailable: true,
+          message:
+            "No drivers are available in your area right now. Please try again in a few minutes.",
+          meta: { requestId },
+        },
+        { status: 503 }
+      );
     }
 
     // Rates from FareConfig collection
