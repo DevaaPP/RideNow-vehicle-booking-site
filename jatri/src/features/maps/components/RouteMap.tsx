@@ -430,8 +430,10 @@ export default function RouteMap({
     []
   );
 
-  // If text is set but coordinates are missing, resolve them automatically
+  // If text is set but coordinates are missing, resolve them automatically.
+  // Guard: skip while pin mode is active — the pin state machine owns coords in that state.
   useEffect(() => {
+    if (activePinMode !== null) return;
     if (!p1 && pickup && pickup.trim().length >= 3) {
       geocodeAddress(pickup).then((coords) => {
         if (coords) {
@@ -440,9 +442,10 @@ export default function RouteMap({
         }
       });
     }
-  }, [pickup, p1, p2, onCoordinatesChange]);
+  }, [pickup, p1, p2, onCoordinatesChange, activePinMode]);
 
   useEffect(() => {
+    if (activePinMode !== null) return;
     if (!p2 && drop && drop.trim().length >= 3) {
       geocodeAddress(drop, p1).then((coords) => {
         if (coords) {
@@ -451,7 +454,7 @@ export default function RouteMap({
         }
       });
     }
-  }, [drop, p1, p2, onCoordinatesChange]);
+  }, [drop, p1, p2, onCoordinatesChange, activePinMode]);
 
   /* ─── INITIALIZE MAPLIBRE ─── */
   useEffect(() => {

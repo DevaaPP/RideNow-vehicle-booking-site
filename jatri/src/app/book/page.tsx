@@ -74,6 +74,15 @@ const getCategoryIcon = (category?: string, name?: string) => {
   return "📍";
 };
 
+/** Single source of truth for per-vehicle distance bounds (km). */
+const VEHICLE_DISTANCE_LIMITS: Record<string, { minDistance: number; maxDistance: number }> = {
+  bike:    { minDistance: 0, maxDistance: 15 },
+  auto:    { minDistance: 0, maxDistance: 30 },
+  car:     { minDistance: 0, maxDistance: 500 }, // intercity up to 500 km
+  loading: { minDistance: 0, maxDistance: 250 },
+  truck:   { minDistance: 0, maxDistance: 500 },
+};
+
 export default function BookPage() {
   const router = useRouter();
   const { t } = useTranslation();
@@ -242,17 +251,9 @@ export default function BookPage() {
   };
 
   const checkLimit = (type: string, dist: number) => {
-    const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
-      bike:    { minDistance: 0, maxDistance: 15 },
-      auto:    { minDistance: 0, maxDistance: 30 },
-      car:     { minDistance: 0, maxDistance: 500 },
-      loading: { minDistance: 0, maxDistance: 250 },
-      truck:   { minDistance: 0, maxDistance: 500 },
-    };
-    const source = rates || defaultLimits;
-    const cfg = source[type.toLowerCase()] || defaultLimits.car;
-    const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
-    const max = type.toLowerCase() === "car" ? 500 : (cfg.maxDistance !== undefined ? cfg.maxDistance : 9999);
+    const cfg = (rates?.[type.toLowerCase()] ?? VEHICLE_DISTANCE_LIMITS[type.toLowerCase()]) ?? VEHICLE_DISTANCE_LIMITS.car;
+    const min = cfg.minDistance ?? 0;
+    const max = type.toLowerCase() === "car" ? 500 : (cfg.maxDistance ?? 9999);
     return dist >= min && dist <= max;
   };
 
@@ -480,18 +481,9 @@ export default function BookPage() {
       };
     }
 
-    const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
-      bike:    { minDistance: 0, maxDistance: 15 },
-      auto:    { minDistance: 0, maxDistance: 30 },
-      car:     { minDistance: 0, maxDistance: 500 }, // Intercity car coverage up to 500 km
-      loading: { minDistance: 0, maxDistance: 250 },
-      truck:   { minDistance: 0, maxDistance: 500 },
-    };
-    
-    const source = rates || defaultLimits;
-    const cfg = source[vehicle.toLowerCase()] || defaultLimits.car;
-    const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
-    const max = vehicle === "car" ? 500 : (cfg.maxDistance !== undefined ? cfg.maxDistance : 9999);
+    const cfg = (rates?.[vehicle.toLowerCase()] ?? VEHICLE_DISTANCE_LIMITS[vehicle.toLowerCase()]) ?? VEHICLE_DISTANCE_LIMITS.car;
+    const min = cfg.minDistance ?? 0;
+    const max = vehicle === "car" ? 500 : (cfg.maxDistance ?? 9999);
     
     if (dist < min) {
       return { valid: false, message: `${VEHICLE_OPTIONS[vehicle]?.label || "Vehicle"} requires min ${min} km (Current: ${dist.toFixed(1)} km)` };
@@ -533,8 +525,7 @@ export default function BookPage() {
     key: string,
     q: string,
     setResults: (r: Place[]) => void,
-    restrict?: string | null,
-    isDrop?: boolean
+    restrict?: string | null
   ) => {
     if (searchDebounceRef.current[key]) {
       clearTimeout(searchDebounceRef.current[key]);
@@ -544,11 +535,11 @@ export default function BookPage() {
       return;
     }
     searchDebounceRef.current[key] = setTimeout(() => {
-      searchAddress(q, setResults, restrict, isDrop);
+      searchAddress(q, setResults, restrict);
     }, 350);
   };
 
-  const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null, isDrop?: boolean) => {
+  const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null) => {
     if (!q || q.trim().length < 2) { setResults([]); return; }
     try {
       const countryFilter = restrict || pickupCountry || "in";
@@ -1074,7 +1065,7 @@ export default function BookPage() {
               setPickup(e.target.value);
               setPickupLat(null);
               setPickupLng(null);
-              debouncedSearchAddress("pickup", e.target.value, setPickupResults, pickupCountry || "in", false);
+              debouncedSearchAddress("pickup", e.target.value, setPickupResults, pickupCountry || "in");
             }}
             placeholder={t("booking.pickup", "Pickup location")}
             className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none truncate"
@@ -1222,7 +1213,7 @@ export default function BookPage() {
               setDrop(e.target.value);
               setDropLat(null);
               setDropLng(null);
-              debouncedSearchAddress("drop", e.target.value, setDropResults, pickupCountry || "in", true);
+              debouncedSearchAddress("drop", e.target.value, setDropResults, pickupCountry || "in");
             }}
             placeholder={t("booking.whereTo", "Where to?")}
             className="flex-1 bg-transparent text-xs font-black text-zinc-900 placeholder:text-zinc-500 outline-none truncate"
@@ -1385,11 +1376,11 @@ export default function BookPage() {
               if (isTargetDrop) {
                 setDrop(chip.label);
                 setActiveSearchField("drop");
-                debouncedSearchAddress("drop", chip.label, setDropResults, pickupCountry || "in", true);
+                debouncedSearchAddress("drop", chip.label, setDropResults, pickupCountry || "in");
               } else {
                 setPickup(chip.label);
                 setActiveSearchField("pickup");
-                debouncedSearchAddress("pickup", chip.label, setPickupResults, pickupCountry || "in", false);
+                debouncedSearchAddress("pickup", chip.label, setPickupResults, pickupCountry || "in");
               }
             }}
             className="px-2.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-bold flex items-center gap-1.5 transition flex-shrink-0 border border-zinc-200/70"

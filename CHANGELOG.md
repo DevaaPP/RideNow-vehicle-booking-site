@@ -27,6 +27,12 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
   - Fixed off-road destination route termination gap by automatically snapping polyline endpoints to the destination pin ground coordinate.
   - Overhauled places autocomplete with concurrent Photon + Nominatim queries, proximity sorting, removal of restrictive bounding boxes, and universal `action=details` support for `nom_` and `photon_` place IDs.
 
+### Refactored
+- **Address Search & Dead Code (`DevaaPP`)**:
+  - Removed dead `isDrop` parameter from `debouncedSearchAddress` and `searchAddress` (was used for old bbox-restricted search; fully superseded in Phase 0). Removed all 4 call-site remnants across pickup/drop inputs and quick-chip buttons.
+  - Extracted a single module-level `VEHICLE_DISTANCE_LIMITS` constant, eliminating the two duplicated inline `defaultLimits` tables inside `checkLimit` and `getDistanceValidity`. Both functions now read from dynamic `rates` with a typed static fallback.
+  - Guarded `geocodeAddress` fallback effects in `RouteMap.tsx` to skip while `activePinMode !== null`, preventing background reverse-geocode fetches from racing against the pin state machine and overwriting in-flight coordinates.
+
 ---
 
 ## [2026-10-15]
