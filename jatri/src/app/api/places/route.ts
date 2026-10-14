@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
       const lat = searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : null;
       const lng = searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : null;
 
-      const cacheKey = `ac_v2_${input.toLowerCase()}_${country}_${lat ? lat.toFixed(2) : ""}_${lng ? lng.toFixed(2) : ""}`;
+      const cacheKey = `ac_v4_${input.toLowerCase()}_${country}_${lat ? lat.toFixed(2) : ""}_${lng ? lng.toFixed(2) : ""}`;
       const cached = await getCached(cacheKey);
       if (cached) {
         return NextResponse.json(
@@ -65,22 +65,21 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      // Build concurrent requests for maximum coverage and speed
-      let photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}&limit=8`;
-      if (country && country !== "NULL") photonUrl += `&countrycode=${country}`;
-      if (lat !== null && lng !== null) photonUrl += `&lat=${lat}&lon=${lng}`;
+      let photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}&limit=15`;
+      if (country && country !== "NULL") photonUrl += `&countrycode=${country.toLowerCase()}`;
+      if (lat !== null && lng !== null) photonUrl += `&lat=${lat}&lon=${lng}&location_bias_scale=0.8`;
 
-      let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}&limit=8&addressdetails=1`;
+      let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}&limit=12&addressdetails=1`;
       if (country && country !== "NULL") nomUrl += `&countrycodes=${country.toLowerCase()}`;
       if (lat !== null && lng !== null) {
-        // Bias Nominatim to ~50km around user coordinates
-        const d = 0.45;
+        // Soft bias Nominatim within ~70km around user coordinates
+        const d = 0.65;
         nomUrl += `&viewbox=${lng - d},${lat + d},${lng + d},${lat - d}&bounded=0`;
       }
 
       const [photonResult, nomResult] = await Promise.allSettled([
-        fetch(photonUrl, { headers, signal: AbortSignal.timeout(3200) }).then((r) => r.ok ? r.json() : null),
-        fetch(nomUrl, { headers, signal: AbortSignal.timeout(3200) }).then((r) => r.ok ? r.json() : null),
+        fetch(photonUrl, { headers, signal: AbortSignal.timeout(3500) }).then((r) => r.ok ? r.json() : null),
+        fetch(nomUrl, { headers, signal: AbortSignal.timeout(3500) }).then((r) => r.ok ? r.json() : null),
       ]);
 
       const photonData = photonResult.status === "fulfilled" ? photonResult.value : null;
@@ -88,12 +87,15 @@ export async function GET(req: NextRequest) {
 
       const classifyCategory = (rawCat: string, name: string): string => {
         const text = `${rawCat} ${name}`.toLowerCase();
-        if (text.includes("airport") || text.includes("aerodrome") || text.includes("terminal")) return "airport";
-        if (text.includes("station") || text.includes("railway") || text.includes("junction") || text.includes("metro")) return "train_station";
-        if (text.includes("hospital") || text.includes("clinic") || text.includes("medical") || text.includes("health")) return "hospital";
-        if (text.includes("college") || text.includes("university") || text.includes("school") || text.includes("institute") || text.includes("campus")) return "education";
-        if (text.includes("mall") || text.includes("market") || text.includes("bazaar") || text.includes("plaza") || text.includes("store")) return "shopping";
-        if (text.includes("post office") || text.includes("bank") || text.includes("temple") || text.includes("mosque") || text.includes("church")) return "landmark";
+        if (text.includes("airport") || text.includes("aerodrome") || text.includes("terminal") || text.includes("airfield")) return "airport";
+        if (text.includes("station") || text.includes("railway") || text.includes("junction") || text.includes("metro") || text.includes("platform")) return "train_station";
+        if (text.includes("bus") || text.includes("stand") || text.includes("isbt")) return "bus_station";
+        if (text.includes("hospital") || text.includes("clinic") || text.includes("medical") || text.includes("health") || text.includes("pharmacy")) return "hospital";
+        if (text.includes("college") || text.includes("university") || text.includes("school") || text.includes("institute") || text.includes("campus") || text.includes("academy")) return "education";
+        if (text.includes("mall") || text.includes("market") || text.includes("bazaar") || text.includes("plaza") || text.includes("store") || text.includes("supermarket")) return "shopping";
+        if (text.includes("hotel") || text.includes("resort") || text.includes("inn") || text.includes("lodge")) return "hotel";
+        if (text.includes("restaurant") || text.includes("cafe") || text.includes("food") || text.includes("dhaba")) return "restaurant";
+        if (text.includes("post office") || text.includes("bank") || text.includes("temple") || text.includes("mosque") || text.includes("church") || text.includes("mandir") || text.includes("gurudwara")) return "landmark";
         return "place";
       };
 

@@ -347,16 +347,14 @@ export default function RouteMap({
   const [isPinGeocoding, setIsPinGeocoding] = useState(false);
   const reverseGeocodeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sync coords from parent
+  // Sync coords strictly from explicit parent coordinates
   useEffect(() => {
-    if (pickupCoords) setP1(pickupCoords);
-    else if (!pickup) setP1(null);
-  }, [pickupCoords, pickup]);
+    setP1(pickupCoords ?? null);
+  }, [pickupCoords]);
 
   useEffect(() => {
-    if (dropCoords) setP2(dropCoords);
-    else if (!drop) setP2(null);
-  }, [dropCoords, drop]);
+    setP2(dropCoords ?? null);
+  }, [dropCoords]);
 
   // Synchronize selectionMode from parent prop
   useEffect(() => {
@@ -431,31 +429,9 @@ export default function RouteMap({
     []
   );
 
-  // If text is set but coordinates are missing, resolve them automatically.
-  // Guard: skip while pin mode is active or when disableFallbackGeocode is true.
-  useEffect(() => {
-    if (disableFallbackGeocode || activePinMode !== null) return;
-    if (!p1 && pickup && pickup.trim().length >= 3) {
-      geocodeAddress(pickup).then((coords) => {
-        if (coords) {
-          setP1(coords);
-          onCoordinatesChange?.(coords, p2);
-        }
-      });
-    }
-  }, [pickup, p1, p2, onCoordinatesChange, activePinMode, disableFallbackGeocode]);
-
-  useEffect(() => {
-    if (disableFallbackGeocode || activePinMode !== null) return;
-    if (!p2 && drop && drop.trim().length >= 3) {
-      geocodeAddress(drop, p1).then((coords) => {
-        if (coords) {
-          setP2(coords);
-          onCoordinatesChange?.(p1, coords);
-        }
-      });
-    }
-  }, [drop, p1, p2, onCoordinatesChange, activePinMode, disableFallbackGeocode]);
+  // Route and coordinates are strictly established upon explicit location selection
+  // (autocomplete selection, recent destinations, GPS, or map pin confirmation).
+  // Keystrokes while typing do NOT trigger background geocoding or premature routing.
 
   /* ─── INITIALIZE MAPLIBRE ─── */
   useEffect(() => {
@@ -883,6 +859,43 @@ export default function RouteMap({
     [onDistance, applyRouteLine]
   );
 
+  /* ─── CLEAR ROUTE WHEN COORDS ARE MISSING (PREVENTS PREMATURE ROUTING) ─── */
+  const clearRoute = useCallback(() => {
+    hasFittedRouteRef.current = null;
+    lastRouteCoordsRef.current = [];
+    lastAltCoordsRef.current = [];
+    lastRouteKeyRef.current = "";
+    setKm(null);
+    setDurationMin(null);
+    setIsRouting(false);
+    onDistance?.(0);
+
+    const map = mapRef.current;
+    if (map) {
+      ensureRouteLayers(map);
+      const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+      const altSource = map.getSource("route-alt-source") as maplibregl.GeoJSONSource;
+      if (source) {
+        source.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: [] },
+        });
+      }
+      if (altSource) {
+        altSource.setData({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: [] },
+        });
+      }
+    }
+    if (svgCasingRef.current) svgCasingRef.current.setAttribute("d", "");
+    if (svgCoreRef.current) svgCoreRef.current.setAttribute("d", "");
+    if (svgAltCasingRef.current) svgAltCasingRef.current.setAttribute("d", "");
+    if (svgAltCoreRef.current) svgAltCoreRef.current.setAttribute("d", "");
+  }, [onDistance]);
+
   /* ─── SYNC MARKERS AND ROUTE (INDEPENDENT LOCK / UNLOCK) ─── */
   useEffect(() => {
     const map = mapRef.current;
@@ -972,11 +985,13 @@ export default function RouteMap({
       });
     }
 
-    // 4. Trigger route calculation whenever both p1 and p2 exist
+    // 4. Trigger route calculation strictly when both p1 and p2 exist, otherwise purge line
     if (p1 && p2) {
       renderRoute(p1, p2, stops);
+    } else {
+      clearRoute();
     }
-  }, [p1, p2, stops, renderRoute, drop, onChange, onCoordinatesChange, pickup, activePinMode, durationMin, reverseGeocodeFull]);
+  }, [p1, p2, stops, renderRoute, clearRoute, drop, onChange, onCoordinatesChange, pickup, activePinMode, durationMin, reverseGeocodeFull]);
 
   // 5. Vehicles (Auto-rickshaws & Cars)
   useEffect(() => {

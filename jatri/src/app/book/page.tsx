@@ -9,7 +9,7 @@ import {
   CheckCircle2, ChevronRight, GraduationCap,
   Plus, X, Users, Clock, Calendar,
   Search, Edit2, Info, ChevronDown, ChevronUp,
-  User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle
+  User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -51,6 +51,7 @@ type Place = {
   city?: string;
   state?: string;
   postalCode?: string;
+  distanceKm?: number;
 };
 
 const VEHICLE_ICONS: Record<VehicleType, any> = {
@@ -64,14 +65,30 @@ const VEHICLE_ICONS: Record<VehicleType, any> = {
 const getCategoryIcon = (category?: string, name?: string) => {
   const c = (category || "").toLowerCase();
   const n = (name || "").toLowerCase();
-  if (c.includes("aeroway") || c.includes("airport") || n.includes("airport")) return "✈️";
+  if (c.includes("aeroway") || c.includes("airport") || n.includes("airport") || n.includes("aerodrome")) return "✈️";
   if (c.includes("station") || c.includes("railway") || n.includes("station") || n.includes("train")) return "🚆";
   if (c.includes("subway") || c.includes("metro") || n.includes("metro")) return "🚇";
-  if (c.includes("hospital") || c.includes("clinic") || c.includes("health") || n.includes("hospital")) return "🏥";
-  if (c.includes("university") || c.includes("college") || c.includes("school") || n.includes("college") || n.includes("university")) return "🎓";
-  if (c.includes("shop") || c.includes("mall") || c.includes("supermarket") || n.includes("mall")) return "🛍️";
-  if (c.includes("hotel") || n.includes("hotel")) return "🏨";
+  if (c.includes("bus") || n.includes("bus") || n.includes("isbt") || n.includes("stand")) return "🚌";
+  if (c.includes("hospital") || c.includes("clinic") || c.includes("health") || n.includes("hospital") || n.includes("pharmacy")) return "🏥";
+  if (c.includes("university") || c.includes("college") || c.includes("school") || n.includes("college") || n.includes("university") || n.includes("institute")) return "🎓";
+  if (c.includes("shop") || c.includes("mall") || c.includes("supermarket") || n.includes("mall") || n.includes("bazaar") || n.includes("market")) return "🛍️";
+  if (c.includes("hotel") || n.includes("hotel") || n.includes("resort") || n.includes("inn")) return "🏨";
+  if (c.includes("restaurant") || n.includes("restaurant") || n.includes("dhaba") || n.includes("cafe")) return "🍽️";
   return "📍";
+};
+
+const getCategoryBadgeStyle = (category?: string, name?: string) => {
+  const c = (category || "").toLowerCase();
+  const n = (name || "").toLowerCase();
+  if (c.includes("airport") || n.includes("airport")) return "bg-sky-50 text-sky-700 border-sky-200/80";
+  if (c.includes("station") || c.includes("railway") || c.includes("metro") || n.includes("station") || n.includes("train")) return "bg-indigo-50 text-indigo-700 border-indigo-200/80";
+  if (c.includes("bus") || n.includes("bus") || n.includes("isbt")) return "bg-blue-50 text-blue-700 border-blue-200/80";
+  if (c.includes("hospital") || c.includes("clinic") || n.includes("hospital")) return "bg-rose-50 text-rose-700 border-rose-200/80";
+  if (c.includes("university") || c.includes("college") || c.includes("school") || n.includes("college")) return "bg-amber-50 text-amber-700 border-amber-200/80";
+  if (c.includes("mall") || c.includes("market") || c.includes("shop") || n.includes("mall")) return "bg-purple-50 text-purple-700 border-purple-200/80";
+  if (c.includes("hotel") || n.includes("hotel")) return "bg-teal-50 text-teal-700 border-teal-200/80";
+  if (c.includes("restaurant") || n.includes("restaurant")) return "bg-orange-50 text-orange-700 border-orange-200/80";
+  return "bg-zinc-100 text-zinc-700 border-zinc-200";
 };
 
 /** Single source of truth for per-vehicle distance bounds (km). */
@@ -259,6 +276,8 @@ export default function BookPage() {
 
   const [pickupResults, setPickupResults] = useState<Place[]>([]);
   const [dropResults,   setDropResults]   = useState<Place[]>([]);
+  const [isSearchingPickup, setIsSearchingPickup] = useState(false);
+  const [isSearchingDrop,   setIsSearchingDrop]   = useState(false);
   const [pickupCountry, setPickupCountry] = useState<string | null>("in");
 
   const [pickupLat, setPickupLat] = useState<number | null>(null);
@@ -518,7 +537,7 @@ export default function BookPage() {
     isScheduleValid
   );
 
-  /* ── AUTOCOMPLETE SEARCH WITH 350ms DEBOUNCE (FROM NIYAR18 COMMIT cf5491d) ── */
+  /* ── AUTOCOMPLETE SEARCH WITH 260ms DEBOUNCE & LIVE LOADING STATE ── */
   const searchDebounceRef = useRef<Record<string, NodeJS.Timeout>>({});
 
   const debouncedSearchAddress = (
@@ -532,11 +551,21 @@ export default function BookPage() {
     }
     if (!q || q.trim().length < 2) {
       setResults([]);
+      if (key === "pickup") setIsSearchingPickup(false);
+      else setIsSearchingDrop(false);
       return;
     }
-    searchDebounceRef.current[key] = setTimeout(() => {
-      searchAddress(q, setResults, restrict);
-    }, 350);
+    if (key === "pickup") setIsSearchingPickup(true);
+    else setIsSearchingDrop(true);
+
+    searchDebounceRef.current[key] = setTimeout(async () => {
+      try {
+        await searchAddress(q, setResults, restrict);
+      } finally {
+        if (key === "pickup") setIsSearchingPickup(false);
+        else setIsSearchingDrop(false);
+      }
+    }, 260);
   };
 
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null) => {
@@ -553,7 +582,7 @@ export default function BookPage() {
       const res = await fetch(url);
       const data = await res.json();
       
-      if (data.status === "OK" && data.predictions) {
+      if (data.status === "OK" && Array.isArray(data.predictions)) {
         const results: Place[] = data.predictions.map((p: any) => ({
           id: p.place_id,
           name: p.description,
@@ -567,6 +596,7 @@ export default function BookPage() {
           city: p.city,
           state: p.state,
           postalCode: p.postalCode,
+          distanceKm: p.distanceKm,
         }));
         setResults(results);
       } else {
@@ -1041,7 +1071,7 @@ export default function BookPage() {
 
   /* ── SHARED FORM SECTIONS (REUSABLE ACROSS UNIFIED PANEL) ── */
   const renderLocationInputs = () => (
-    <div className="space-y-2.5">
+    <div className="space-y-2.5 relative z-40">
       {locationError && (
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-medium flex items-center justify-between gap-2">
           <span>⚠️ {locationError}</span>
@@ -1057,7 +1087,7 @@ export default function BookPage() {
 
       {/* Pickup Row */}
       <div className="relative">
-        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all">
+        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all shadow-2xs">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-100 flex-shrink-0" />
           <input
             aria-label="Pickup location"
@@ -1069,10 +1099,18 @@ export default function BookPage() {
               setPickupLng(null);
               debouncedSearchAddress("pickup", e.target.value, setPickupResults, pickupCountry || "in");
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && pickupResults.length > 0) {
+                e.preventDefault();
+                selectPlace(pickupResults[0], true);
+              }
+            }}
             placeholder={t("booking.pickup", "Pickup location")}
             className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none truncate"
           />
-          {pickup && (
+          {isSearchingPickup ? (
+            <Loader2 size={13} className="animate-spin text-zinc-400 flex-shrink-0" />
+          ) : pickup ? (
             <button
               type="button"
               onClick={() => {
@@ -1085,7 +1123,7 @@ export default function BookPage() {
             >
               <X size={14} />
             </button>
-          )}
+          ) : null}
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={useCurrentLocation}
@@ -1115,7 +1153,7 @@ export default function BookPage() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg max-h-56 overflow-y-auto z-50 divide-y divide-zinc-100"
+              className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200/90 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-zinc-100 ring-1 ring-black/5"
             >
               {/* Option to set location on interactive map */}
               <button
@@ -1127,8 +1165,8 @@ export default function BookPage() {
                 }}
                 className="flex items-center gap-3 w-full px-4 py-2.5 text-left bg-emerald-50/70 hover:bg-emerald-100/70 text-emerald-950 transition"
               >
-                <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-                  <MapPin size={13} />
+                <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                  <MapPin size={14} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-black text-emerald-900 leading-none">Set pickup point on map</p>
@@ -1149,8 +1187,8 @@ export default function BookPage() {
                 }}
                 className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
               >
-                <div className="w-7 h-7 rounded-lg bg-zinc-100 text-zinc-800 flex items-center justify-center flex-shrink-0 border border-zinc-200">
-                  <LocateFixed size={13} />
+                <div className="w-8 h-8 rounded-full bg-zinc-100 text-zinc-800 flex items-center justify-center flex-shrink-0 border border-zinc-200">
+                  <LocateFixed size={14} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-zinc-900 leading-none">Current Location (GPS)</p>
@@ -1158,36 +1196,76 @@ export default function BookPage() {
                 </div>
               </button>
 
-              {pickupResults.map((p) => (
-                <button
-                  key={p.id}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    selectPlace(p, true);
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition"
-                >
-                  <span className="text-base flex-shrink-0">
-                    {getCategoryIcon(p.category, p.title || p.name)}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-zinc-900 truncate">
-                      {p.title || p.name}
-                    </p>
-                    {p.subtitle && (
-                      <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">
-                        {p.subtitle}
+              {/* Live search loading feedback */}
+              {isSearchingPickup && (
+                <div className="flex items-center gap-2.5 px-4 py-3 text-zinc-500">
+                  <Loader2 size={14} className="animate-spin text-zinc-700 shrink-0" />
+                  <span className="text-xs font-semibold">Searching nearby places...</span>
+                </div>
+              )}
+
+              {/* Suggestions List */}
+              {pickupResults.map((p) => {
+                const distToPoint =
+                  typeof p.distanceKm === "number"
+                    ? p.distanceKm
+                    : (typeof p.lat === "number" && typeof p.lng === "number" && dropLat && dropLng
+                        ? getHaversineDistance(dropLat, dropLng, p.lat, p.lng)
+                        : null);
+
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      selectPlace(p, true);
+                    }}
+                    className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-zinc-50 active:bg-zinc-100 transition rounded-xl cursor-pointer"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border shadow-2xs transition-transform group-hover:scale-105 ${getCategoryBadgeStyle(p.category, p.title || p.name)}`}>
+                      {getCategoryIcon(p.category, p.title || p.name)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-zinc-900 truncate group-hover:text-black">
+                        {p.title || p.name}
                       </p>
+                      {p.subtitle && (
+                        <p className="text-[11px] text-zinc-500 font-medium truncate mt-0.5">
+                          {p.subtitle}
+                        </p>
+                      )}
+                    </div>
+
+                    {distToPoint !== null && (
+                      <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100/90 border border-zinc-200/80 px-2 py-0.5 rounded-full flex-shrink-0">
+                        {typeof distToPoint === "number" ? distToPoint.toFixed(1) : distToPoint} km
+                      </span>
                     )}
-                  </div>
-                  {typeof (p as any).distanceKm === "number" && (
-                    <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md flex-shrink-0">
-                      {(p as any).distanceKm} km
-                    </span>
-                  )}
-                  <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
-                </button>
-              ))}
+                    <ChevronRight size={13} className="text-zinc-300 group-hover:text-zinc-500 transition-colors flex-shrink-0" />
+                  </button>
+                );
+              })}
+
+              {/* No results fallback */}
+              {!isSearchingPickup && pickup.trim().length >= 2 && pickupResults.length === 0 && (
+                <div className="px-4 py-4 text-center space-y-2">
+                  <p className="text-xs font-bold text-zinc-700">No exact places found for &quot;{pickup}&quot;</p>
+                  <p className="text-[11px] text-zinc-400">Can&apos;t find your place? Move the pin to pick on the interactive map.</p>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setActiveSearchField(null);
+                      setMapSelectionMode("pickup");
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white text-xs font-bold shadow-xs hover:bg-black transition"
+                  >
+                    <MapPin size={12} />
+                    <span>Set pickup on map</span>
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -1205,7 +1283,7 @@ export default function BookPage() {
 
       {/* Destination Row */}
       <div className="relative">
-        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all">
+        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all shadow-2xs">
           <div className="w-2.5 h-2.5 rounded-sm bg-zinc-900 ring-2 ring-zinc-200 flex-shrink-0" />
           <input
             aria-label="Drop location"
@@ -1217,10 +1295,18 @@ export default function BookPage() {
               setDropLng(null);
               debouncedSearchAddress("drop", e.target.value, setDropResults, pickupCountry || "in");
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && dropResults.length > 0) {
+                e.preventDefault();
+                selectPlace(dropResults[0], false);
+              }
+            }}
             placeholder={t("booking.whereTo", "Where to?")}
             className="flex-1 bg-transparent text-xs font-black text-zinc-900 placeholder:text-zinc-500 outline-none truncate"
           />
-          {drop && (
+          {isSearchingDrop ? (
+            <Loader2 size={13} className="animate-spin text-zinc-400 flex-shrink-0" />
+          ) : drop ? (
             <button
               type="button"
               onClick={() => {
@@ -1233,7 +1319,7 @@ export default function BookPage() {
             >
               <X size={14} />
             </button>
-          )}
+          ) : null}
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => {
@@ -1254,7 +1340,7 @@ export default function BookPage() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg max-h-64 overflow-y-auto z-50 divide-y divide-zinc-100"
+              className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200/90 rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-zinc-100 ring-1 ring-black/5"
             >
               {/* Option to set location on interactive map */}
               <button
@@ -1266,8 +1352,8 @@ export default function BookPage() {
                 }}
                 className="flex items-center gap-3 w-full px-4 py-2.5 text-left bg-rose-50/70 hover:bg-rose-100/70 text-rose-950 transition"
               >
-                <div className="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-                  <MapPin size={13} />
+                <div className="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                  <MapPin size={14} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-black text-rose-900 leading-none">Set destination point on map</p>
@@ -1278,10 +1364,19 @@ export default function BookPage() {
                 </span>
               </button>
 
+              {/* Live search loading feedback */}
+              {isSearchingDrop && (
+                <div className="flex items-center gap-2.5 px-4 py-3 text-zinc-500">
+                  <Loader2 size={14} className="animate-spin text-zinc-700 shrink-0" />
+                  <span className="text-xs font-semibold">Searching nearby places...</span>
+                </div>
+              )}
+
+              {/* Suggestions List */}
               {dropResults.map((p) => {
                 const distToPoint =
-                  typeof (p as any).distanceKm === "number"
-                    ? (p as any).distanceKm
+                  typeof p.distanceKm === "number"
+                    ? p.distanceKm
                     : (typeof p.lat === "number" && typeof p.lng === "number" && pickupLat && pickupLng
                         ? getHaversineDistance(pickupLat, pickupLng, p.lat, p.lng)
                         : null);
@@ -1289,38 +1384,40 @@ export default function BookPage() {
                 return (
                   <button
                     key={p.id}
+                    type="button"
                     onMouseDown={(e) => {
                       e.preventDefault();
                       selectPlace(p, false);
                     }}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition"
+                    className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-zinc-50 active:bg-zinc-100 transition rounded-xl cursor-pointer"
                   >
-                    <span className="text-base flex-shrink-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border shadow-2xs transition-transform group-hover:scale-105 ${getCategoryBadgeStyle(p.category, p.title || p.name)}`}>
                       {getCategoryIcon(p.category, p.title || p.name)}
-                    </span>
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-zinc-900 truncate">
+                      <p className="text-xs font-bold text-zinc-900 truncate group-hover:text-black">
                         {p.title || p.name}
                       </p>
                       {p.subtitle && (
-                        <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">
+                        <p className="text-[11px] text-zinc-500 font-medium truncate mt-0.5">
                           {p.subtitle}
                         </p>
                       )}
                     </div>
 
                     {distToPoint !== null && (
-                      <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md flex-shrink-0">
+                      <span className="text-[10px] font-bold text-zinc-600 bg-zinc-100/90 border border-zinc-200/80 px-2 py-0.5 rounded-full flex-shrink-0">
                         {typeof distToPoint === "number" ? distToPoint.toFixed(1) : distToPoint} km
                       </span>
                     )}
 
-                    <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
+                    <ChevronRight size={13} className="text-zinc-300 group-hover:text-zinc-500 transition-colors flex-shrink-0" />
                   </button>
                 );
               })}
 
-              {dropResults.length === 0 && recentDestinations.length > 0 && (
+              {/* Recent Destinations fallback when no active input query */}
+              {dropResults.length === 0 && !isSearchingDrop && recentDestinations.length > 0 && (
                 <>
                   <div className="px-3.5 py-1.5 bg-zinc-50 border-b border-zinc-100 flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">🕒 Recent Destinations</span>
@@ -1328,6 +1425,7 @@ export default function BookPage() {
                   {recentDestinations.map((recent) => (
                     <button
                       key={recent.id}
+                      type="button"
                       onMouseDown={(e) => {
                         e.preventDefault();
                         selectPlace(
@@ -1342,19 +1440,41 @@ export default function BookPage() {
                           false
                         );
                       }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
+                      className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-zinc-50 active:bg-zinc-100 transition rounded-xl"
                     >
-                      <span className="text-sm flex-shrink-0 text-zinc-400">🕒</span>
+                      <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-600 flex items-center justify-center text-xs flex-shrink-0 shadow-2xs">
+                        🕒
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-zinc-900 truncate">{recent.name}</p>
+                        <p className="text-xs font-bold text-zinc-900 truncate group-hover:text-black">{recent.name}</p>
                         {recent.subtitle && (
                           <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">{recent.subtitle}</p>
                         )}
                       </div>
-                      <ChevronRight size={13} className="text-zinc-300 flex-shrink-0" />
+                      <ChevronRight size={13} className="text-zinc-300 group-hover:text-zinc-500 flex-shrink-0" />
                     </button>
                   ))}
                 </>
+              )}
+
+              {/* No results fallback */}
+              {!isSearchingDrop && drop.trim().length >= 2 && dropResults.length === 0 && (
+                <div className="px-4 py-4 text-center space-y-2">
+                  <p className="text-xs font-bold text-zinc-700">No exact places found for &quot;{drop}&quot;</p>
+                  <p className="text-[11px] text-zinc-400">Can&apos;t find your place? Move the pin to pick on the interactive map.</p>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setActiveSearchField(null);
+                      setMapSelectionMode("drop");
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white text-xs font-bold shadow-xs hover:bg-black transition"
+                  >
+                    <MapPin size={12} />
+                    <span>Set destination on map</span>
+                  </button>
+                </div>
               )}
             </motion.div>
           )}
@@ -1385,7 +1505,7 @@ export default function BookPage() {
                 debouncedSearchAddress("pickup", chip.label, setPickupResults, pickupCountry || "in");
               }
             }}
-            className="px-2.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-bold flex items-center gap-1.5 transition flex-shrink-0 border border-zinc-200/70"
+            className="px-2.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-bold flex items-center gap-1.5 transition flex-shrink-0 border border-zinc-200/70 cursor-pointer"
           >
             <span>{chip.icon}</span>
             <span>{chip.label}</span>
@@ -1966,7 +2086,7 @@ export default function BookPage() {
       }`}>
         
         {/* Pinned Card Header */}
-        <div className="flex-shrink-0 p-4 border-b border-zinc-100 bg-white space-y-3">
+        <div className="flex-shrink-0 p-4 border-b border-zinc-100 bg-white space-y-3 relative z-30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <button

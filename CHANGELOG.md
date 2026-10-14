@@ -26,6 +26,9 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
   - Replaced marker direct dragging (`draggable: false`) with pure moving map mode; tapping placed markers or toolbar buttons activates the centralized pin.
   - Fixed off-road destination route termination gap by automatically snapping polyline endpoints to the destination pin ground coordinate.
   - Overhauled places autocomplete with concurrent Photon + Nominatim queries, proximity sorting, removal of restrictive bounding boxes, and universal `action=details` support for `nom_` and `photon_` place IDs.
+  - Eliminated premature route drawing on keystrokes by removing speculative background geocoding on unfinished text inputs; route lines now render strictly when both coordinates are explicitly selected.
+  - Added automatic route polyline purge via `clearRoute()` whenever pickup or destination coordinates are unset.
+  - Upgraded location suggestions to Google Maps standard with live searching spinners, high-contrast category badges, distance indicators, empty state fallbacks, and Enter key selection.
 
 ### Refactored
 - **Address Search & Dead Code (`DevaaPP`)**:
