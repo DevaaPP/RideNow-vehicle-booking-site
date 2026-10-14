@@ -7,6 +7,7 @@ import FareConfig from "@/models/fareConfig.model";
 import { auth } from "@/auth";
 import axios from "axios";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
+import { calculateCommissionSplit } from "@/lib/commission";
 import { haversineDistance } from "@/lib/routeUtils";
 import { sendPushToUser } from "@/lib/webPush";
 import { findEligibleCandidates } from "@/lib/driverMatchingEngine";
@@ -355,8 +356,8 @@ export async function POST(req: Request) {
       fareBreakdown: breakdown,
       tripDurationMinutes: estimatedDurationMin,
       estimatedDropoffTime,
-      adminCommission: Number((calculatedFare * 0.1).toFixed(2)),
-      partnerAmount: Number((calculatedFare - calculatedFare * 0.1).toFixed(2)),
+      adminCommission: calculateCommissionSplit(calculatedFare).adminCommission,
+      partnerAmount: calculateCommissionSplit(calculatedFare).partnerAmount,
       userMobileNumber: effectiveUserMobile,
       driverMobileNumber: effectiveDriverMobile,
       candidateDrivers: sortedCandidates.map((c) => c._id),

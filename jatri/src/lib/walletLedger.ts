@@ -20,6 +20,7 @@ import WalletTransaction, {
 import Withdrawal, { IWithdrawal, WithdrawalStatus } from "@/models/withdrawal.model";
 import Booking from "@/models/booking.model";
 import PartnerBank from "@/models/partnerBank.model";
+import { calculateCommissionSplit } from "@/lib/commission";
 import { Types } from "mongoose";
 import crypto from "crypto";
 
@@ -89,10 +90,11 @@ export async function creditDriverRideEarnings(params: {
     };
   }
 
+  const defaultSplit = calculateCommissionSplit(fare);
   const commission =
     typeof params.adminCommission === "number" && params.adminCommission >= 0
       ? Math.round(params.adminCommission)
-      : Math.round(fare * 0.15);
+      : defaultSplit.adminCommission;
 
   const netEarnings =
     typeof params.partnerAmount === "number" && params.partnerAmount >= 0
@@ -253,7 +255,7 @@ export async function debitDriverCashCommission(params: {
   const commission =
     typeof params.adminCommission === "number" && params.adminCommission >= 0
       ? Math.round(params.adminCommission)
-      : Math.round(fare * 0.15);
+      : calculateCommissionSplit(fare).adminCommission;
 
   const wallet = await getOrCreateWallet(driverId);
   const balanceBefore = wallet.balance || 0;

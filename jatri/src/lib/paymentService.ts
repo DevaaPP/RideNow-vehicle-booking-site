@@ -13,6 +13,7 @@ import razorpay from "@/lib/razorpay";
 import Booking from "@/models/booking.model";
 import Payment, { IPayment } from "@/models/payment.model";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
+import { calculateCommissionSplit } from "@/lib/commission";
 import { Types } from "mongoose";
 
 export interface CreateOrderParams {
@@ -110,7 +111,7 @@ export async function createPaymentOrder(params: CreateOrderParams) {
 
   // Calculate revenue separation (Platform Revenue vs Driver Earnings)
   const platformFee = booking.fareBreakdown?.platformFee || 15;
-  const adminCommission = Math.round(booking.fare * 0.15); // 15% standard commission
+  const { adminCommission, partnerAmount } = calculateCommissionSplit(booking.fare);
   const platformRevenue = adminCommission + platformFee;
   const driverEarnings = Math.max(0, booking.fare - platformRevenue);
 

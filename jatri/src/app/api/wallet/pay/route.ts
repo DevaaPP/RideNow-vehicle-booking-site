@@ -5,6 +5,7 @@ import User from "@/models/user.model";
 import Wallet from "@/models/wallet.model";
 import WalletTransaction from "@/models/wallet-transaction.model";
 import { getOrCreateWallet, generateTransactionId } from "@/lib/walletLedger";
+import { calculateCommissionSplit } from "@/lib/commission";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -150,9 +151,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Commission split: Standard 15% platform commission
-    const adminCommission = Math.round(fare * 0.15);
-    const partnerAmount = Math.max(0, fare - adminCommission);
+    // Authoritative 15% platform commission split
+    const { adminCommission, partnerAmount } = calculateCommissionSplit(fare);
 
     booking.paymentStatus = "paid";
     booking.status = "confirmed";
