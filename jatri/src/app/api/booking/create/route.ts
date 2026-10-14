@@ -6,7 +6,7 @@ import Vehicle from "@/models/vehicle.model";
 import FareConfig from "@/models/fareConfig.model";
 import { auth } from "@/auth";
 import axios from "axios";
-import { calculateFareBreakdown } from "@/lib/fareEngine";
+import { calculateFareBreakdown, DEFAULT_VEHICLE_RATES } from "@/lib/fareEngine";
 import { calculateCommissionSplit } from "@/lib/commission";
 import { haversineDistance } from "@/lib/routeUtils";
 import { sendPushToUser } from "@/lib/webPush";
@@ -241,29 +241,26 @@ export async function POST(req: Request) {
       );
     }
 
-    // Rates from FareConfig collection
+    // Rates from FareConfig collection with complete economic parameters
     const rates = await FareConfig.find({});
     const ratesMap: Record<string, any> = {};
     rates.forEach((c) => {
       ratesMap[c.vehicleType.toLowerCase()] = {
         baseFare: c.baseFare,
         pricePerKm: c.pricePerKm,
-        pricePerMinute: 0,
-        multiplier: c.multiplier,
+        pricePerMinute: c.pricePerMinute || 0,
+        waitingChargePerMinute: c.waitingChargePerMinute || 2.5,
+        freeWaitingMinutes: c.freeWaitingMinutes || 3,
+        platformFee: c.platformFee !== undefined ? c.platformFee : 15,
+        taxRate: c.taxRate !== undefined ? c.taxRate : 0.05,
+        cancellationFee: c.cancellationFee !== undefined ? c.cancellationFee : 50,
+        multiplier: c.multiplier || 1.0,
         minDistance: c.minDistance !== undefined ? c.minDistance : 0,
         maxDistance: c.maxDistance !== undefined ? c.maxDistance : 9999,
       };
     });
 
-    const DEFAULT_RATES: Record<string, any> = {
-      bike:    { baseFare: 30,  pricePerKm: 9,   pricePerMinute: 0, multiplier: 1.0, minDistance: 0, maxDistance: 15 },
-      auto:    { baseFare: 45,  pricePerKm: 13,  pricePerMinute: 0, multiplier: 1.1, minDistance: 0, maxDistance: 30 },
-      car:     { baseFare: 75,  pricePerKm: 18,  pricePerMinute: 0, multiplier: 1.25, minDistance: 0, maxDistance: 100 },
-      loading: { baseFare: 110, pricePerKm: 22,  pricePerMinute: 0, multiplier: 1.4, minDistance: 0, maxDistance: 150 },
-      truck:   { baseFare: 160, pricePerKm: 28,  pricePerMinute: 0, multiplier: 1.6, minDistance: 0, maxDistance: 500 },
-    };
-
-    const cfg = ratesMap[vehicleKey] || DEFAULT_RATES[vehicleKey] || DEFAULT_RATES.car;
+    const cfg = ratesMap[vehicleKey] || DEFAULT_VEHICLE_RATES[vehicleKey] || DEFAULT_VEHICLE_RATES.car;
 
     let routeDistance = 0;
     if (Array.isArray(stops) && stops.length > 0) {
