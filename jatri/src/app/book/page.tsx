@@ -2395,24 +2395,10 @@ export default function BookPage() {
                 onSelectionModeChange={setMapSelectionMode}
                 onConfirmPinSelection={handleConfirmPinSelection}
               />
-
-              {/* Quick Floating Re-Expand Pill when sheet is docked down */}
-              {mobileSheetState === "down" && (
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
-                  <button
-                    type="button"
-                    onClick={() => setMobileSheetState("half")}
-                    className="px-4 py-2 bg-zinc-950 text-white text-xs font-black uppercase tracking-wider rounded-none shadow-xl flex items-center gap-2 border border-zinc-800 animate-bounce"
-                  >
-                    <span>View Rides & Fare</span>
-                    <ChevronUp size={14} />
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Bottom Tactile Swipable Booking Interface (Full Up 88vh, Half flex-1, Full Down 14vh) */}
-            <div className={`flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 transition-all duration-300 ease-in-out ${
+            <div className={`flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
               mobileSheetState === "up"
                 ? "h-[88vh]"
                 : mobileSheetState === "down"
@@ -2421,22 +2407,30 @@ export default function BookPage() {
             }`}>
               {/* Tactile Drag Handle & Route Header */}
               <div
-                className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none"
+                className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none touch-none"
                 onTouchStart={(e) => {
                   const startY = e.touches[0].clientY;
-                  const onTouchMove = (moveEvent: TouchEvent) => {
-                    const diffY = moveEvent.touches[0].clientY - startY;
-                    if (diffY < -30) {
-                      // Swipe UP
-                      setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
-                      window.removeEventListener("touchmove", onTouchMove);
-                    } else if (diffY > 30) {
-                      // Swipe DOWN
-                      setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
-                      window.removeEventListener("touchmove", onTouchMove);
-                    }
+                  let currentY = startY;
+
+                  const handleTouchMove = (moveEv: TouchEvent) => {
+                    currentY = moveEv.touches[0].clientY;
                   };
-                  window.addEventListener("touchmove", onTouchMove, { passive: true });
+
+                  const handleTouchEnd = () => {
+                    const diffY = currentY - startY;
+                    if (diffY < -25) {
+                      // Swipe UP: down -> half -> up
+                      setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
+                    } else if (diffY > 25) {
+                      // Swipe DOWN: up -> half -> down
+                      setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
+                    }
+                    window.removeEventListener("touchmove", handleTouchMove);
+                    window.removeEventListener("touchend", handleTouchEnd);
+                  };
+
+                  window.addEventListener("touchmove", handleTouchMove, { passive: true });
+                  window.addEventListener("touchend", handleTouchEnd, { once: true });
                 }}
               >
                 {/* Physical pill bar indicator */}
@@ -2456,10 +2450,10 @@ export default function BookPage() {
                     className="flex items-center gap-2 min-w-0 pr-2 cursor-pointer"
                   >
                     <span className="w-2 h-2 rounded-none bg-zinc-950 flex-shrink-0" />
-                    <span className="text-xs font-bold text-zinc-800 truncate max-w-[110px]">{pickup.split(',')[0]}</span>
+                    <span className="text-xs font-bold text-zinc-800 truncate max-w-[120px]">{pickup.split(',')[0]}</span>
                     <span className="text-zinc-400">→</span>
                     <span className="w-2 h-2 rounded-none border border-zinc-950 bg-white flex-shrink-0" />
-                    <span className="text-xs font-black text-zinc-900 truncate max-w-[110px]">{drop.split(',')[0]}</span>
+                    <span className="text-xs font-black text-zinc-900 truncate max-w-[120px]">{drop.split(',')[0]}</span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <span className="text-[10px] font-black px-2 py-0.5 rounded-none bg-zinc-950 text-white border border-zinc-950">
@@ -2487,32 +2481,6 @@ export default function BookPage() {
                     >
                       <Edit2 size={10} />
                       <span>{isEditingRoute ? "Done" : "Edit"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMobileSheetState((prev) => (prev === "up" ? "half" : "up"));
-                      }}
-                      className={`p-1 text-zinc-600 hover:text-black cursor-pointer rounded-none border border-zinc-300 ${
-                        mobileSheetState === "up" ? "bg-zinc-200" : "bg-white"
-                      }`}
-                      title={mobileSheetState === "up" ? "Collapse to half" : "Expand full screen"}
-                    >
-                      <ChevronUp size={13} className={mobileSheetState === "up" ? "rotate-180 transition-transform" : ""} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMobileSheetState((prev) => (prev === "down" ? "half" : "down"));
-                      }}
-                      className={`p-1 text-zinc-600 hover:text-black cursor-pointer rounded-none border border-zinc-300 ${
-                        mobileSheetState === "down" ? "bg-zinc-200" : "bg-white"
-                      }`}
-                      title={mobileSheetState === "down" ? "Show rides" : "View full map"}
-                    >
-                      <ChevronDown size={13} className={mobileSheetState === "down" ? "rotate-180 transition-transform" : ""} />
                     </button>
                   </div>
                 </div>
