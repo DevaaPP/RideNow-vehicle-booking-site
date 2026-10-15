@@ -157,65 +157,96 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     if (cargoWeightKg > 500) {
       return {
         vehicleId: "truck",
-        matchScore: 95,
-        reason: "Heavy cargo (>500kg) requires a heavy transport Truck",
+        matchScore: 96,
+        reason: "Heavy commercial cargo (>500kg) requires Jatri Freight 14ft payload",
       };
     }
     return {
       vehicleId: "loading",
-      matchScore: 92,
-      reason: "Optimal for boxes, home shifting, and goods under 500kg",
+      matchScore: 94,
+      reason: "Optimal for cartons, furniture & merchant stock under 500kg",
     };
   }
 
-  // 4 or more passengers: Must be RideNow Go (car)
-  if (passengers >= 4) {
+  // 1. Large group (5 or 6 passengers)
+  if (passengers >= 5) {
     return {
-      vehicleId: "car",
+      vehicleId: "priority",
       matchScore: 98,
-      reason: `RideNow Go comfortably seats ${passengers} passengers with luggage space`,
+      reason: `Jatri XL Priority comfortably seats ${passengers} passengers with 3 rows of seating & large bags`,
     };
   }
 
-  // Large or multiple bags: RideNow Go (car) has trunk space
-  if (luggage === "large") {
-    return {
-      vehicleId: "car",
-      matchScore: 95,
-      reason: "Large luggage requires a dedicated car boot space",
-    };
-  }
-
-  // 2 to 3 passengers:
-  if (passengers >= 2) {
-    if (preference === "comfort") {
+  // 2. 4 passengers
+  if (passengers === 4) {
+    if (preference === "comfort" || luggage === "large") {
       return {
         vehicleId: "car",
-        matchScore: 90,
-        reason: "RideNow Go offers AC comfort and smooth private travel",
+        matchScore: 96,
+        reason: "Jatri Premier executive sedan offers spacious boot and top AC comfort for 4 passengers",
       };
     }
     return {
-      vehicleId: "auto",
-      matchScore: 95,
-      reason: `Auto is the most budget-friendly ride for ${passengers} passengers`,
+      vehicleId: "mini",
+      matchScore: 94,
+      reason: "Jatri Mini offers affordable 4-passenger AC hatchback travel",
     };
   }
 
-  // Solo passenger (passengers === 1):
-  if (preference === "comfort") {
+  // 3. 2 to 3 passengers
+  if (passengers >= 2) {
+    if (luggage === "large") {
+      if (preference === "comfort") {
+        return {
+          vehicleId: "car",
+          matchScore: 93,
+          reason: "Jatri Premier provides a full sedan boot for large bags with chilled AC",
+        };
+      }
+      return {
+        vehicleId: "mini",
+        matchScore: 91,
+        reason: "Jatri Mini hatchback fits bags with comfortable AC at lower fare",
+      };
+    }
+
+    if (preference === "comfort") {
+      return {
+        vehicleId: "car",
+        matchScore: 92,
+        reason: "Jatri Premier executive sedan gives premium comfort & quiet cabin",
+      };
+    }
+
+    return {
+      vehicleId: "auto",
+      matchScore: 96,
+      reason: `Jatri Auto is the most budget-friendly doorstep ride for ${passengers} passengers`,
+    };
+  }
+
+  // 4. Solo passenger (passengers === 1)
+  if (luggage === "large") {
     return {
       vehicleId: "car",
-      matchScore: 88,
-      reason: "RideNow Go provides top AC comfort for solo travel",
+      matchScore: 92,
+      reason: "Large luggage requires Jatri Premier dedicated sedan boot space",
+    };
+  }
+
+  if (preference === "comfort") {
+    return {
+      vehicleId: "mini",
+      matchScore: 90,
+      reason: "Jatri Mini gives you personal AC comfort at our lowest 4-wheeler cab fare",
     };
   }
 
   if (luggage === "small") {
     return {
       vehicleId: "auto",
-      matchScore: 90,
-      reason: "Auto has ample space for your bag at an affordable fare",
+      matchScore: 92,
+      reason: "Jatri Auto has ample floor space for your bag at an economical fare",
     };
   }
 
@@ -223,6 +254,6 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
   return {
     vehicleId: "bike",
     matchScore: 99,
-    reason: "Bike is fastest and most economical for solo commuting",
+    reason: "Jatri Moto is fastest and most economical for solo commuting to bypass traffic",
   };
 }

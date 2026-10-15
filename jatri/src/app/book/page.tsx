@@ -1713,18 +1713,18 @@ export default function BookPage() {
                       How many passengers?
                     </label>
                     <div className="flex gap-1.5">
-                      {[1, 2, 3, 4].map((num) => (
+                      {[1, 2, 3, 4, 6].map((num) => (
                         <button
                           key={num}
                           type="button"
                           onClick={() => setSmartPassengers(num)}
-                          className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
+                          className={`flex-1 py-1.5 rounded-none text-xs font-bold border transition cursor-pointer ${
                             smartPassengers === num
-                              ? "bg-zinc-900 text-white border-zinc-900 shadow-xs"
-                              : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
+                              ? "bg-zinc-950 text-white border-zinc-950 shadow-xs"
+                              : "bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-100"
                           }`}
                         >
-                          {num === 4 ? "4+ Pax" : `${num} Pax`}
+                          {num === 6 ? "5–6 Pax" : `${num} Pax`}
                         </button>
                       ))}
                     </div>
