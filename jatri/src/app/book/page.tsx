@@ -9,7 +9,8 @@ import {
   CheckCircle2, ChevronRight, GraduationCap,
   Plus, X, Users, Clock, Calendar,
   Search, Edit2, Info, ChevronDown, ChevronUp,
-  User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2
+  User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2,
+  Plane, Train, Building2, HeartPulse, AlertCircle
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -290,6 +291,7 @@ export default function BookPage() {
   const [dropLat,   setDropLat]   = useState<number | null>(null);
   const [dropLng,   setDropLng]   = useState<number | null>(null);
   const [locating,  setLocating]  = useState(false);
+  const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [recentDestinations, setRecentDestinations] = useState<RecentLocation[]>([]);
   const [vehicles,  setVehicles]  = useState<any[]>([]);
@@ -614,100 +616,104 @@ export default function BookPage() {
   };
 
   const selectPlace = async (p: Place, isPickup: boolean) => {
-    if (typeof p.lat === "number" && typeof p.lng === "number") {
-      const formattedAddress = p.subtitle ? `${p.title || p.name}, ${p.subtitle}` : (p.title || p.name);
+    let lat = p.lat;
+    let lng = p.lng;
+    let formattedAddress = p.subtitle ? `${p.title || p.name}, ${p.subtitle}` : (p.title || p.name);
+    let locality = p.locality || "";
+    let city = p.city || "";
+    let state = p.state || "";
+    let postalCode = p.postalCode || "";
+    let countrycode = p.countrycode || "in";
+    let name = p.title || p.name.split(",")[0];
+
+    // 1. If place ID exists and isn't a synthetic chip, fetch authoritative details
+    if (p.id && !p.id.startsWith("recent-") && !p.id.startsWith("chip-")) {
+      try {
+        const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
+        const data = await res.json();
+        if (data.status === "OK" && data.result) {
+          const result = data.result;
+          if (result.formatted_address) formattedAddress = result.formatted_address;
+          if (result.name) name = result.name;
+          if (result.geometry?.location) {
+            lat = result.geometry.location.lat;
+            lng = result.geometry.location.lng;
+          }
+          if (result.locality) locality = result.locality;
+          if (result.city) city = result.city;
+          if (result.state) state = result.state;
+          if (result.postalCode) postalCode = result.postalCode;
+          if (result.address_components) {
+            const countryComp = result.address_components.find((c: any) => c.types.includes("country"));
+            if (countryComp) countrycode = String(countryComp.short_name || "in").toLowerCase();
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching place details:", err);
+      }
+    }
+
+    // 2. If coordinates exist but components are sparse (like from Photon autocomplete),
+    // enrich via reverse geocode just like pin location selection does!
+    if (typeof lat === "number" && typeof lng === "number" && (!city || !state || !postalCode)) {
+      try {
+        const enrichRes = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lng}`);
+        const enrichData = await enrichRes.json();
+        if (enrichData?.results?.length) {
+          const first = enrichData.results[0];
+          if (!formattedAddress || !formattedAddress.includes(",")) {
+            formattedAddress = first.formatted_address || formattedAddress;
+          }
+          if (first.locality && !locality) locality = first.locality;
+          if (first.city && !city) city = first.city;
+          if (first.state && !state) state = first.state;
+          if (first.postalCode && !postalCode) postalCode = first.postalCode;
+          if (first.address_components) {
+            const countryComp = first.address_components.find((c: any) => c.types.includes("country"));
+            if (countryComp) countrycode = String(countryComp.short_name || "in").toLowerCase();
+          }
+        }
+      } catch (e) {
+        // Fallback gracefully
+      }
+    }
+
+    if (typeof lat === "number" && typeof lng === "number") {
       const structuredDetails = {
-        name: p.title || p.name.split(",")[0],
+        name,
         formattedAddress,
-        locality: p.locality || "",
-        city: p.city || "",
-        state: p.state || "",
-        postalCode: p.postalCode || "",
-        countrycode: p.countrycode || "in",
-        coordinates: [p.lat, p.lng] as [number, number],
+        locality,
+        city,
+        state,
+        postalCode,
+        countrycode,
+        coordinates: [lat, lng] as [number, number],
       };
 
       saveRecentDestination({
-        name: p.title || p.name,
+        name: formattedAddress,
         subtitle: p.subtitle,
-        lat: p.lat,
-        lng: p.lng,
+        lat,
+        lng,
       });
       setRecentDestinations(getRecentDestinations());
 
       if (isPickup) {
-        setPickup(p.title || p.name);
-        setPickupCountry(p.countrycode || "in");
-        setPickupLat(p.lat);
-        setPickupLng(p.lng);
+        setPickup(formattedAddress);
+        setPickupCountry(countrycode);
+        setPickupLat(lat);
+        setPickupLng(lng);
         setPickupDetails(structuredDetails);
         setPickupResults([]);
       } else {
-        setDrop(p.title || p.name);
-        setDropLat(p.lat);
-        setDropLng(p.lng);
+        setDrop(formattedAddress);
+        setDropLat(lat);
+        setDropLng(lng);
         setDropDetails(structuredDetails);
         setDropResults([]);
       }
-      setActiveSearchField(null);
-      setIsEditingRoute(false);
-      return;
     }
 
-    try {
-      const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
-      const data = await res.json();
-      if (data.status === "OK" && data.result) {
-        const result = data.result;
-        const formattedAddress = result.formatted_address || p.name;
-        const lat = result.geometry.location.lat;
-        const lng = result.geometry.location.lng;
-        
-        let countrycode = "in";
-        if (result.address_components) {
-          const countryComp = result.address_components.find((c: any) => c.types.includes("country"));
-          if (countryComp) {
-            countrycode = String(countryComp.short_name || "in").toLowerCase();
-          }
-        }
-
-        const structuredDetails = {
-          name: result.name || p.title || formattedAddress.split(",")[0],
-          formattedAddress,
-          locality: result.locality || p.locality || "",
-          city: result.city || p.city || "",
-          state: result.state || p.state || "",
-          postalCode: result.postalCode || p.postalCode || "",
-          countrycode,
-          coordinates: [lat, lng] as [number, number],
-        };
-
-        saveRecentDestination({
-          name: formattedAddress,
-          subtitle: p.subtitle,
-          lat,
-          lng,
-        });
-        setRecentDestinations(getRecentDestinations());
-
-        if (isPickup) {
-          setPickup(formattedAddress);
-          setPickupCountry(countrycode);
-          setPickupLat(lat);
-          setPickupLng(lng);
-          setPickupDetails(structuredDetails);
-          setPickupResults([]);
-        } else {
-          setDrop(formattedAddress);
-          setDropLat(lat);
-          setDropLng(lng);
-          setDropDetails(structuredDetails);
-          setDropResults([]);
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching place details:", err);
-    }
     setActiveSearchField(null);
     setIsEditingRoute(false);
   };
@@ -717,6 +723,7 @@ export default function BookPage() {
     const lng = coords.longitude;
 
     setLocationError(null);
+    setUserCoords([lat, lng]);
     setPickupLat(lat);
     setPickupLng(lng);
     setPickupResults([]);
@@ -1083,15 +1090,39 @@ export default function BookPage() {
   const renderLocationInputs = () => (
     <div className="space-y-2.5 relative z-40">
       {locationError && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-medium flex items-center justify-between gap-2">
-          <span>⚠️ {locationError}</span>
-          <button
-            type="button"
-            onClick={() => setLocationError(null)}
-            className="text-amber-700 hover:text-amber-900 font-bold text-xs shrink-0"
-          >
-            Dismiss
-          </button>
+        <div className="p-3 bg-amber-50 border border-amber-300 rounded-none text-amber-950 text-xs flex items-start gap-2.5">
+          <AlertCircle size={15} className="text-amber-700 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="font-black uppercase tracking-wider text-[10px] text-amber-900">Location Permission Notice</p>
+            <p className="text-[11px] font-medium text-amber-800 leading-snug mt-0.5">{locationError}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                type="button"
+                onClick={useCurrentLocation}
+                className="px-2.5 py-1 bg-amber-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+              >
+                Allow / Retry
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLocationError(null);
+                  setActiveSearchField(null);
+                  setMapSelectionMode("pickup");
+                }}
+                className="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-400 text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+              >
+                Set on Map
+              </button>
+              <button
+                type="button"
+                onClick={() => setLocationError(null)}
+                className="text-[10px] font-bold text-amber-700 hover:text-amber-900 underline ml-auto cursor-pointer"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1491,36 +1522,41 @@ export default function BookPage() {
         </AnimatePresence>
       </div>
 
-      {/* Quick Destination Chips */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-hide">
+      {/* Quick Destination Chips with bespoke vector badges and fills */}
+      <div className="flex gap-2 overflow-x-auto pb-1 pt-1 scrollbar-hide">
         {[
-          { label: "Airport", icon: "✈️" },
-          { label: "Railway Station", icon: "🚆" },
-          { label: "City Center", icon: "🛍️" },
-          { label: "Metro", icon: "🚇" },
-          { label: "Hospital", icon: "🏥" },
-        ].map((chip) => (
-          <button
-            key={chip.label}
-            type="button"
-            onClick={() => {
-              const isTargetDrop = Boolean(pickup);
-              if (isTargetDrop) {
-                setDrop(chip.label);
-                setActiveSearchField("drop");
-                debouncedSearchAddress("drop", chip.label, setDropResults, pickupCountry || "in");
-              } else {
-                setPickup(chip.label);
-                setActiveSearchField("pickup");
-                debouncedSearchAddress("pickup", chip.label, setPickupResults, pickupCountry || "in");
-              }
-            }}
-            className="px-3 py-1.5 rounded-none bg-zinc-100 hover:bg-zinc-200 text-zinc-900 text-[11px] font-bold flex items-center gap-1.5 transition flex-shrink-0 border border-zinc-300 cursor-pointer"
-          >
-            <span>{chip.icon}</span>
-            <span>{chip.label}</span>
-          </button>
-        ))}
+          { label: "Airport", icon: Plane, style: "bg-sky-50 text-sky-950 border-sky-300 hover:bg-sky-100", iconStyle: "text-sky-600 bg-sky-200/60" },
+          { label: "Railway Station", icon: Train, style: "bg-indigo-50 text-indigo-950 border-indigo-300 hover:bg-indigo-100", iconStyle: "text-indigo-600 bg-indigo-200/60" },
+          { label: "City Center", icon: Building2, style: "bg-purple-50 text-purple-950 border-purple-300 hover:bg-purple-100", iconStyle: "text-purple-600 bg-purple-200/60" },
+          { label: "Metro", icon: Navigation, style: "bg-emerald-50 text-emerald-950 border-emerald-300 hover:bg-emerald-100", iconStyle: "text-emerald-600 bg-emerald-200/60" },
+          { label: "Hospital", icon: HeartPulse, style: "bg-rose-50 text-rose-950 border-rose-300 hover:bg-rose-100", iconStyle: "text-rose-600 bg-rose-200/60" },
+        ].map((chip) => {
+          const ChipIcon = chip.icon;
+          return (
+            <button
+              key={chip.label}
+              type="button"
+              onClick={() => {
+                const isTargetDrop = Boolean(pickup);
+                if (isTargetDrop) {
+                  setDrop(chip.label);
+                  setActiveSearchField("drop");
+                  debouncedSearchAddress("drop", chip.label, setDropResults, pickupCountry || "in");
+                } else {
+                  setPickup(chip.label);
+                  setActiveSearchField("pickup");
+                  debouncedSearchAddress("pickup", chip.label, setPickupResults, pickupCountry || "in");
+                }
+              }}
+              className={`px-2.5 py-1.5 rounded-none text-[11px] font-black flex items-center gap-1.5 transition flex-shrink-0 border cursor-pointer ${chip.style}`}
+            >
+              <span className={`w-4 h-4 rounded-none flex items-center justify-center p-0.5 ${chip.iconStyle}`}>
+                <ChipIcon size={11} />
+              </span>
+              <span>{chip.label}</span>
+            </button>
+          );
+        })}
       </div>
 
     </div>
@@ -1869,7 +1905,7 @@ export default function BookPage() {
             {serviceMode === "passenger" ? "Passenger Rides" : "Goods Transport Vehicles"}
           </p>
           <span className="text-[10px] font-bold text-zinc-400">
-            {serviceMode === "passenger" ? "3 Options" : "2 Freight Sizes"}
+            {serviceMode === "passenger" ? `${PASSENGER_VEHICLES.length} Options` : `${LOGISTICS_VEHICLES.length} Freight Sizes`}
           </span>
         </div>
 
@@ -1913,7 +1949,7 @@ export default function BookPage() {
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <p className="font-extrabold text-sm leading-tight truncate tracking-tight">{v.label}</p>
                       <span className={`text-[10px] font-black px-2 py-0.5 rounded-none border ${
-                        isSelected ? "bg-zinc-900 text-zinc-200 border-zinc-700" : "bg-zinc-100 text-zinc-700 border-zinc-300"
+                        isSelected ? "bg-amber-400/25 text-amber-300 border-amber-400/40" : "bg-amber-50 text-amber-900 border-amber-300"
                       }`}>
                         ⚡ {v.etaText}
                       </span>
@@ -2185,6 +2221,7 @@ export default function BookPage() {
           drop={drop}
           pickupCoords={memoizedPickupCoords}
           dropCoords={memoizedDropCoords}
+          userCoords={userCoords}
           onChange={handleMapChange}
           onCoordinatesChange={handleCoordinatesChange}
           onDistance={setRouteDistance}
@@ -2210,6 +2247,7 @@ export default function BookPage() {
               drop={drop}
               pickupCoords={memoizedPickupCoords}
               dropCoords={memoizedDropCoords}
+              userCoords={userCoords}
               onChange={handleMapChange}
               onCoordinatesChange={handleCoordinatesChange}
               onDistance={setRouteDistance}
@@ -2256,6 +2294,7 @@ export default function BookPage() {
                 drop={drop}
                 pickupCoords={memoizedPickupCoords}
                 dropCoords={memoizedDropCoords}
+                userCoords={userCoords}
                 onChange={handleMapChange}
                 onCoordinatesChange={handleCoordinatesChange}
                 onDistance={setRouteDistance}
@@ -2272,15 +2311,18 @@ export default function BookPage() {
             </div>
           </div>
         ) : (
-          /* Mobile Structured Split View when route IS set (Map only takes top ~36%, booking takes the rest) */
+          /* Mobile Dynamic Split View with Tactile Swipe Up / Down Sheet */
           <div className="flex flex-col w-full h-full overflow-hidden">
-            {/* Top 36% Route Map */}
-            <div className="h-[36vh] w-full relative z-0 border-b border-zinc-300 bg-zinc-100 flex-shrink-0">
+            {/* Dynamic Map: Collapses smoothly when user swipes up to view fleet */}
+            <div className={`w-full relative z-0 border-b border-zinc-300 bg-zinc-100 transition-all duration-300 ease-in-out flex-shrink-0 ${
+              mobileSheetExpanded ? "h-[22vh]" : "h-[44vh]"
+            }`}>
               <RouteMap
                 pickup={pickup}
                 drop={drop}
                 pickupCoords={memoizedPickupCoords}
                 dropCoords={memoizedDropCoords}
+                userCoords={userCoords}
                 onChange={handleMapChange}
                 onCoordinatesChange={handleCoordinatesChange}
                 onDistance={setRouteDistance}
@@ -2289,39 +2331,73 @@ export default function BookPage() {
                 smartPickups={smartPickups}
                 onSelectSmartPickup={handleSelectSmartPickup}
                 stops={validStopsForMap}
-                bottomPadding={30}
+                bottomPadding={mobileSheetExpanded ? 20 : 40}
                 selectionMode={mapSelectionMode}
                 onSelectionModeChange={setMapSelectionMode}
                 onConfirmPinSelection={handleConfirmPinSelection}
               />
             </div>
 
-            {/* Bottom 64% Booking Interface */}
-            <div className="flex-1 flex flex-col bg-white overflow-hidden">
-              {/* Compact Route Summary Header with Edit Toggle */}
-              <div className="flex-shrink-0 px-3.5 py-2 border-b border-zinc-200 flex items-center justify-between bg-zinc-50">
-                <div className="flex items-center gap-2 min-w-0 pr-2">
-                  <span className="w-2 h-2 rounded-none bg-zinc-950 flex-shrink-0" />
-                  <span className="text-xs font-bold text-zinc-800 truncate max-w-[110px]">{pickup}</span>
-                  <span className="text-zinc-400">→</span>
-                  <span className="w-2 h-2 rounded-none border border-zinc-950 bg-white flex-shrink-0" />
-                  <span className="text-xs font-black text-zinc-900 truncate max-w-[110px]">{drop}</span>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-none bg-zinc-950 text-white border border-zinc-950">
-                    {effectiveDistance} km
-                  </span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsEditingRoute(!isEditingRoute);
-                    }}
-                    className="px-2 py-0.5 rounded-none border border-zinc-300 bg-white text-zinc-800 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    <Edit2 size={10} />
-                    <span>{isEditingRoute ? "Done" : "Edit"}</span>
-                  </button>
+            {/* Bottom Tactile Swipable Booking Interface */}
+            <div className="flex-1 flex flex-col bg-white overflow-hidden shadow-2xl relative z-10">
+              {/* Tactile Drag Handle & Route Header */}
+              <div
+                className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none"
+                onTouchStart={(e) => {
+                  const startY = e.touches[0].clientY;
+                  const onTouchMove = (moveEvent: TouchEvent) => {
+                    const diffY = moveEvent.touches[0].clientY - startY;
+                    if (diffY < -35) {
+                      setMobileSheetExpanded(true);
+                      window.removeEventListener("touchmove", onTouchMove);
+                    } else if (diffY > 35) {
+                      setMobileSheetExpanded(false);
+                      window.removeEventListener("touchmove", onTouchMove);
+                    }
+                  };
+                  window.addEventListener("touchmove", onTouchMove, { passive: true });
+                }}
+              >
+                {/* Physical pill bar indicator */}
+                <div
+                  onClick={() => setMobileSheetExpanded(!mobileSheetExpanded)}
+                  className="w-12 h-1 bg-zinc-300 mx-auto rounded-full mb-2 cursor-pointer"
+                />
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0 pr-2">
+                    <span className="w-2 h-2 rounded-none bg-zinc-950 flex-shrink-0" />
+                    <span className="text-xs font-bold text-zinc-800 truncate max-w-[110px]">{pickup}</span>
+                    <span className="text-zinc-400">→</span>
+                    <span className="w-2 h-2 rounded-none border border-zinc-950 bg-white flex-shrink-0" />
+                    <span className="text-xs font-black text-zinc-900 truncate max-w-[110px]">{drop}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-none bg-zinc-950 text-white border border-zinc-950">
+                      {effectiveDistance} km
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsEditingRoute(!isEditingRoute);
+                      }}
+                      className="px-2 py-0.5 rounded-none border border-zinc-300 bg-white text-zinc-800 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Edit2 size={10} />
+                      <span>{isEditingRoute ? "Done" : "Edit"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMobileSheetExpanded(!mobileSheetExpanded);
+                      }}
+                      className="p-1 text-zinc-500 hover:text-black cursor-pointer"
+                    >
+                      {mobileSheetExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                    </button>
+                  </div>
                 </div>
               </div>
 
