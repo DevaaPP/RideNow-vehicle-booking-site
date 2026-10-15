@@ -10,7 +10,7 @@ import {
   Plus, X, Users, Clock, Calendar,
   Search, Edit2, Info, ChevronDown, ChevronUp,
   User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2,
-  Plane, Train, Building2, HeartPulse, AlertCircle
+  Plane, Train, Building2, HeartPulse, AlertCircle, RotateCcw
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -257,9 +257,9 @@ export default function BookPage() {
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const res = await fetch("/api/vehicles/pricing");
+        const res = await fetch(`/api/vehicles/pricing?t=${Date.now()}`, { cache: "no-store" });
         const data = await res.json();
-        if (data.success) {
+        if (data.success && data.rates) {
           setRates(data.rates);
         }
       } catch (err) {
@@ -817,12 +817,48 @@ export default function BookPage() {
     );
   };
 
-  /* ── RESTORE BOOKING DRAFT ON MOUNT (E.G. WHEN RETURNING FROM CHECKOUT) ── */
+  const resetAllTripData = () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("ridenow_booking_draft");
+      } catch (_) {}
+    }
+    setDrop("");
+    setDropLat(null);
+    setDropLng(null);
+    setDropDetails(null);
+    setDropResults([]);
+    setStops([]);
+    setRouteDistance(null);
+    setSelectedSmartPickup(null);
+    setSelectedFamilyMember(null);
+    useCurrentLocation();
+  };
+
+  /* ── INITIAL MOUNT: FRESH SESSION VS CHECKOUT EDIT ── */
   useEffect(() => {
     try {
       if (typeof window === "undefined") return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const isFresh = urlParams.get("fresh") === "true";
+      const isEdit = urlParams.get("edit") === "true";
+
+      // If fresh requested or NOT an explicit edit from checkout, clear stale draft and start fresh!
+      if (isFresh || !isEdit) {
+        try {
+          sessionStorage.removeItem("ridenow_booking_draft");
+        } catch (_) {}
+        useCurrentLocation();
+        return;
+      }
+
+      // Explicit edit returning from checkout -> hydrate draft
       const raw = sessionStorage.getItem("ridenow_booking_draft");
-      if (!raw) return;
+      if (!raw) {
+        useCurrentLocation();
+        return;
+      }
       const draft = JSON.parse(raw);
       if (draft.pickup) setPickup(draft.pickup);
       if (draft.drop) setDrop(draft.drop);
@@ -853,25 +889,8 @@ export default function BookPage() {
       }
     } catch (e) {
       console.warn("Failed to restore booking draft from sessionStorage:", e);
+      useCurrentLocation();
     }
-  }, []);
-
-  /* ── INITIAL LOCATION ON MOUNT ── */
-  useEffect(() => {
-    // If user already had a saved draft with pickup location, preserve it!
-    try {
-      if (typeof window !== "undefined") {
-        const raw = sessionStorage.getItem("ridenow_booking_draft");
-        if (raw) {
-          const draft = JSON.parse(raw);
-          if (draft?.pickup || typeof draft?.pickupLat === "number") {
-            return;
-          }
-        }
-      }
-    } catch (_) {}
-
-    useCurrentLocation();
   }, []);
 
   /* ── FETCH NEARBY VEHICLES ── */
@@ -987,13 +1006,21 @@ export default function BookPage() {
     getMultiStopHaversineDistance() ||
     (pickupLat && pickupLng && dropLat && dropLng
       ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng)
-      : 5);
+      : null);
   const effectiveDistance = useMemo(() => {
     if (routeDistance !== null && routeDistance > 0) {
       return Number(routeDistance.toFixed(1));
     }
-    return Number((haversineDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(1));
+    if (haversineDist !== null && haversineDist > 0) {
+      return Number((haversineDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(1));
+    }
+    return 0;
   }, [routeDistance, haversineDist]);
+
+  // Invalidate previous route road distance whenever coordinates change
+  useEffect(() => {
+    setRouteDistance(null);
+  }, [pickupLat, pickupLng, dropLat, dropLng, stops.length]);
 
   const currentBreakdown = calculateFareBreakdown(vehicle, effectiveDistance, rates, undefined, 0, isStudent);
 
@@ -2151,11 +2178,22 @@ export default function BookPage() {
               </div>
             </div>
 
-            {hasRoute && (
-              <span className="text-[10px] font-black uppercase tracking-wider bg-zinc-950 text-white border border-zinc-950 px-2.5 py-1 rounded-none">
-                {effectiveDistance} km
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={resetAllTripData}
+                title="Reset trip and refresh current location"
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-none border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-700 text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+              >
+                <RotateCcw size={11} />
+                <span>New Ride</span>
+              </button>
+              {hasRoute && (
+                <span className="text-[10px] font-black uppercase tracking-wider bg-zinc-950 text-white border border-zinc-950 px-2.5 py-1 rounded-none">
+                  {effectiveDistance} km
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Active Ride Recovery & Double Booking Protection */}
@@ -2417,6 +2455,18 @@ export default function BookPage() {
                     <span className="text-[10px] font-black px-2 py-0.5 rounded-none bg-zinc-950 text-white border border-zinc-950">
                       {effectiveDistance} km
                     </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetAllTripData();
+                      }}
+                      className="px-2 py-0.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-800 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                      title="Reset trip and refresh current location"
+                    >
+                      <RotateCcw size={10} />
+                      <span>New</span>
+                    </button>
                     <button
                       type="button"
                       onClick={(e) => {

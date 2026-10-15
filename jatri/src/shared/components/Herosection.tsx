@@ -26,8 +26,13 @@ export default function HeroSection({
       return;
     }
 
-    // ✅ LOGGED IN
-    router.push("/book");
+    // ✅ LOGGED IN - Start fresh booking session
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("ridenow_booking_draft");
+      } catch (_) {}
+    }
+    router.push("/book?fresh=true");
   };
 
   return (

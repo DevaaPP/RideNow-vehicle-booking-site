@@ -106,34 +106,43 @@ export default function CheckoutContent() {
     if (bookingBreakdown) return bookingBreakdown;
     if (!pickupLat || !pickupLng || !dropLat || !dropLng) return null;
     
+    const allPoints: [number, number][] = [
+      [pickupLat, pickupLng],
+      ...stops.filter((s) => typeof s.lat === "number" && typeof s.lng === "number").map((s) => [s.lat, s.lng] as [number, number]),
+      [dropLat, dropLng],
+    ];
+    let calculatedRoadDist = 0;
+    for (let i = 0; i < allPoints.length - 1; i++) {
+      const lat1 = allPoints[i][0];
+      const lon1 = allPoints[i][1];
+      const lat2 = allPoints[i + 1][0];
+      const lon2 = allPoints[i + 1][1];
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      calculatedRoadDist += 6371 * c;
+    }
+    const roadDistWithTortuosity = +(calculatedRoadDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(1);
+
+    // Safeguard: use distanceKm only if consistent with current waypoints, otherwise recompute
     let distKm: number;
-    if (distanceKm && distanceKm > 0) {
+    if (
+      distanceKm &&
+      distanceKm > 0 &&
+      roadDistWithTortuosity > 0 &&
+      Math.abs(distanceKm - roadDistWithTortuosity) < Math.max(2, roadDistWithTortuosity * 0.5)
+    ) {
       distKm = distanceKm;
     } else {
-      const allPoints: [number, number][] = [
-        [pickupLat, pickupLng],
-        ...stops.map((s) => [s.lat, s.lng] as [number, number]),
-        [dropLat, dropLng],
-      ];
-      let totalDist = 0;
-      for (let i = 0; i < allPoints.length - 1; i++) {
-        const lat1 = allPoints[i][0];
-        const lon1 = allPoints[i][1];
-        const lat2 = allPoints[i + 1][0];
-        const lon2 = allPoints[i + 1][1];
-        const dLat = ((lat2 - lat1) * Math.PI) / 180;
-        const dLon = ((lon2 - lon1) * Math.PI) / 180;
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos((lat1 * Math.PI) / 180) *
-            Math.cos((lat2 * Math.PI) / 180) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        totalDist += 6371 * c;
-      }
-      distKm = +(totalDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(1);
+      distKm = roadDistWithTortuosity;
     }
+
     return calculateFareBreakdown(
       vehicle,
       distKm,
@@ -232,7 +241,7 @@ export default function CheckoutContent() {
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const res = await fetch("/api/vehicles/pricing");
+        const res = await fetch(`/api/vehicles/pricing?t=${Date.now()}`, { cache: "no-store" });
         const data = await res.json();
         if (data.success) {
           setRates(data.rates);
@@ -669,7 +678,7 @@ export default function CheckoutContent() {
           </div>
 
           <Link
-            href="/book"
+            href="/book?edit=true"
             className="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition shadow-xs active:scale-95"
           >
             <ArrowLeft size={14} className="sm:w-[15px] sm:h-[15px]" />

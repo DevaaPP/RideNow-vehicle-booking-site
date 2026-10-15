@@ -271,8 +271,15 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
 
-          {/* LOGO */}
-          <Link href={currentUser?.role === "vendor" || isVendorRoute ? "/partners/dashboard" : "/"} className="flex items-center">
+          <Link
+            href={currentUser?.role === "vendor" || isVendorRoute ? "/partners/dashboard" : "/"}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                try { sessionStorage.removeItem("ridenow_booking_draft"); } catch (_) {}
+              }
+            }}
+            className="flex items-center"
+          >
             <Image
               src="/logo.jpeg"
               alt="RideNow"
