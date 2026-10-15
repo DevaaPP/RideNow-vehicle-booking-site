@@ -11,7 +11,7 @@ import {
   Search, Edit2, Info, ChevronDown, ChevronUp,
   User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2,
   Plane, Train, Building2, HeartPulse, AlertCircle, RotateCcw,
-  Zap, ArrowDownUp, Settings
+  Zap, ArrowDownUp, Settings, FileText, GripVertical
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -250,6 +250,17 @@ export default function BookPage() {
     return new Date(maxD.getTime() - tzOffset).toISOString().slice(0, 16);
   };
 
+  const formatEtaTime = (etaMinutesStr: string) => {
+    const match = etaMinutesStr.match(/\d+/);
+    const minutes = match ? parseInt(match[0], 10) : 3;
+    const d = new Date(Date.now() + minutes * 60000);
+    let hours = d.getHours();
+    const mins = d.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12 || 12;
+    return `${hours}:${mins}${ampm} · ${minutes} min`;
+  };
+
   const isScheduleValid = bookingMode === "now" || (
     Boolean(scheduledDateTime) &&
     new Date(scheduledDateTime).getTime() >= Date.now() + 25 * 60 * 1000
@@ -426,14 +437,73 @@ export default function BookPage() {
     }
   };
 
-  const handleMoveStop = (fromIdx: number, toIdx: number) => {
-    setStops((prev) => {
-      if (fromIdx < 0 || fromIdx >= prev.length || toIdx < 0 || toIdx >= prev.length) return prev;
-      const next = [...prev];
-      const [moved] = next.splice(fromIdx, 1);
-      next.splice(toIdx, 0, moved);
-      return next;
-    });
+  const handleReorderWaypoint = (fromIdx: number, toIdx: number) => {
+    const currentPoints = [
+      {
+        address: pickup,
+        lat: pickupLat,
+        lng: pickupLng,
+        country: pickupCountry,
+        details: pickupDetails,
+      },
+      ...stops.map((s) => ({
+        id: s.id,
+        address: s.address,
+        lat: s.lat,
+        lng: s.lng,
+        country: pickupCountry,
+        details: null,
+      })),
+      {
+        address: drop,
+        lat: dropLat,
+        lng: dropLng,
+        country: pickupCountry,
+        details: dropDetails,
+      },
+    ];
+
+    if (fromIdx < 0 || fromIdx >= currentPoints.length || toIdx < 0 || toIdx >= currentPoints.length || fromIdx === toIdx) return;
+
+    const nextPoints = [...currentPoints];
+    const [moved] = nextPoints.splice(fromIdx, 1);
+    nextPoints.splice(toIdx, 0, moved);
+
+    const newPickup = nextPoints[0];
+    const newDrop = nextPoints[nextPoints.length - 1];
+    const newStops = nextPoints.slice(1, nextPoints.length - 1);
+
+    setPickup(newPickup.address || "");
+    setPickupLat(newPickup.lat);
+    setPickupLng(newPickup.lng);
+    setPickupCountry(newPickup.country || "in");
+    setPickupDetails(newPickup.details || null);
+
+    setDrop(newDrop.address || "");
+    setDropLat(newDrop.lat);
+    setDropLng(newDrop.lng);
+    setDropDetails(newDrop.details || null);
+
+    setStops(
+      newStops.map((s, idx) => ({
+        id: (s as any).id || `stop-${idx}-${Date.now()}`,
+        address: s.address || "",
+        lat: s.lat,
+        lng: s.lng,
+        results: [],
+      }))
+    );
+
+    setPickupResults([]);
+    setDropResults([]);
+  };
+
+  const handleMoveStopUp = (stopIdx: number) => {
+    handleReorderWaypoint(1 + stopIdx, stopIdx);
+  };
+
+  const handleMoveStopDown = (stopIdx: number) => {
+    handleReorderWaypoint(1 + stopIdx, 2 + stopIdx);
   };
 
   const handleSwapLocations = () => {
@@ -1263,8 +1333,22 @@ export default function BookPage() {
 
       {/* Pickup Row */}
       <div className="relative">
-        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-300 rounded-none px-3.5 py-2.5 focus-within:border-zinc-950 focus-within:bg-white transition-all shadow-none">
+        <div className="flex items-center gap-2.5 bg-zinc-50 border border-zinc-300 rounded-none px-3.5 py-2 min-h-[46px] focus-within:border-zinc-950 focus-within:bg-white transition-all shadow-none">
           <div className="w-2.5 h-2.5 rounded-none bg-zinc-950 flex-shrink-0" />
+          
+          {/* Reorder controls for Pickup */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => handleReorderWaypoint(0, 1)}
+              title="Move pickup down"
+              className="w-4 h-5 flex items-center justify-center text-zinc-600 hover:text-black transition cursor-pointer"
+            >
+              <ChevronDown size={12} />
+            </button>
+            <GripVertical size={12} className="text-zinc-400 select-none flex-shrink-0" />
+          </div>
+
           <input
             aria-label="Pickup location"
             value={pickup}
@@ -1282,7 +1366,7 @@ export default function BookPage() {
               }
             }}
             placeholder={t("booking.pickup", "Pickup location")}
-            className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-500 outline-none truncate"
+            className="flex-1 min-w-0 bg-transparent text-sm sm:text-[15px] font-bold text-zinc-900 placeholder:text-zinc-400 outline-none truncate tracking-tight"
           />
           {isSearchingPickup ? (
             <Loader2 size={13} className="animate-spin text-zinc-400 flex-shrink-0" />
@@ -1469,14 +1553,29 @@ export default function BookPage() {
         onRemoveStop={handleRemoveStop}
         onStopChange={handleStopChange}
         onSelectStopPlace={selectStopPlace}
-        onMoveStop={handleMoveStop}
+        onMoveStopUp={handleMoveStopUp}
+        onMoveStopDown={handleMoveStopDown}
         maxStops={2}
       />
 
       {/* Destination Row */}
       <div className="relative">
-        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-300 rounded-none px-3.5 py-2.5 focus-within:border-zinc-950 focus-within:bg-white transition-all shadow-none">
+        <div className="flex items-center gap-2.5 bg-zinc-50 border border-zinc-300 rounded-none px-3.5 py-2 min-h-[46px] focus-within:border-zinc-950 focus-within:bg-white transition-all shadow-none">
           <div className="w-2.5 h-2.5 rounded-none border-2 border-zinc-950 bg-white flex-shrink-0" />
+
+          {/* Reorder controls for Drop */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => handleReorderWaypoint(stops.length + 1, stops.length)}
+              title="Move destination up"
+              className="w-4 h-5 flex items-center justify-center text-zinc-600 hover:text-black transition cursor-pointer"
+            >
+              <ChevronUp size={12} />
+            </button>
+            <GripVertical size={12} className="text-zinc-400 select-none flex-shrink-0" />
+          </div>
+
           <input
             aria-label="Drop location"
             value={drop}
@@ -1494,7 +1593,7 @@ export default function BookPage() {
               }
             }}
             placeholder={t("booking.whereTo", "Where to?")}
-            className="flex-1 bg-transparent text-xs font-black text-zinc-900 placeholder:text-zinc-500 outline-none truncate"
+            className="flex-1 min-w-0 bg-transparent text-sm sm:text-[15px] font-black text-zinc-900 placeholder:text-zinc-400 outline-none truncate tracking-tight"
           />
           {isSearchingDrop ? (
             <Loader2 size={13} className="animate-spin text-zinc-400 flex-shrink-0" />
@@ -2014,17 +2113,19 @@ export default function BookPage() {
 
       {/* Vehicle Cards List */}
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between mb-1">
-          <p className="text-[11px] font-black uppercase tracking-wider text-zinc-400">
-            {serviceMode === "passenger" ? "Passenger Rides" : "Goods Transport Vehicles"}
-          </p>
-          <span className="text-[10px] font-bold text-zinc-400">
-            {serviceMode === "passenger" ? `${PASSENGER_VEHICLES.length} Options` : `${LOGISTICS_VEHICLES.length} Freight Sizes`}
-          </span>
+        <div className="flex items-center justify-between mb-1.5 px-0.5">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold tracking-tight text-zinc-950 font-heading">
+              {serviceMode === "passenger" ? "Choose a trip" : "Goods Transport Vehicles"}
+            </h2>
+            <p className="text-xs text-zinc-500 font-body">
+              {serviceMode === "passenger" ? `${PASSENGER_VEHICLES.length} rides nearby` : `${LOGISTICS_VEHICLES.length} freight sizes`}
+            </p>
+          </div>
         </div>
 
         {routeDistance === -1 ? (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-center">
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-none text-center">
             <p className="text-rose-600 text-xs font-black uppercase">No Rides Available</p>
             <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
@@ -2043,71 +2144,74 @@ export default function BookPage() {
               <div
                 key={v.id}
                 onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                className={`relative flex items-center justify-between p-4 rounded-none border transition-all cursor-pointer ${
+                className={`relative flex items-center justify-between px-3.5 py-3 rounded-none border transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-zinc-950 text-white border-zinc-950 shadow-md ring-1 ring-zinc-950"
+                    ? "bg-zinc-950 text-white border-zinc-950 shadow-sm"
                     : isSmartPick
-                    ? "bg-emerald-50/60 hover:bg-emerald-100/60 text-zinc-900 border-emerald-300"
+                    ? "bg-emerald-50/50 hover:bg-emerald-100/50 text-zinc-900 border-emerald-300"
                     : "bg-white hover:bg-zinc-50 text-zinc-900 border-zinc-200"
                 } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
               >
                 {isSmartPick && (
-                  <span className="absolute -top-2 right-4 bg-emerald-700 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-none shadow-xs flex items-center gap-1">
+                  <span className="absolute -top-2 right-4 bg-emerald-700 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none shadow-xs flex items-center gap-1">
                     <Sparkles size={9} />
                     <span>Best Match</span>
                   </span>
                 )}
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className={`w-12 h-12 rounded-none flex items-center justify-center flex-shrink-0 transition-transform ${
-                    isSelected ? "bg-zinc-900 text-white border border-white/10" : "bg-zinc-100 text-zinc-900 border border-zinc-200"
-                  }`}>
-                    <Icon size={22} />
+                <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1 mr-2">
+                  <div className="w-12 h-10 flex items-center justify-center flex-shrink-0">
+                    <Icon size={26} className={isSelected ? "text-white" : "text-zinc-900"} />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
+                    {/* Line 1: Vehicle Title + Capacity */}
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="font-extrabold text-sm leading-tight truncate tracking-tight">{v.label}</p>
-                      {isFastest ? (
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-none border ${
-                          isSelected ? "bg-amber-400/25 text-amber-300 border-amber-400/40" : "bg-amber-50 text-amber-900 border-amber-300"
+                      <span className={`font-bold text-base sm:text-[17px] tracking-tight leading-tight ${
+                        isSelected ? "text-white" : "text-zinc-950"
+                      }`}>
+                        {v.label}
+                      </span>
+                      {v.passengerCapacity ? (
+                        <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
+                          isSelected ? "text-zinc-300" : "text-zinc-500"
                         }`}>
-                          <Zap size={10} className={isSelected ? "text-amber-300 fill-amber-300" : "text-amber-700 fill-amber-700"} />
-                          <span>{v.etaText}</span>
+                          <User size={12} className="inline opacity-80" />
+                          <span className="tabular-nums">{v.passengerCapacity}</span>
                         </span>
                       ) : (
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-none border ${
-                          isSelected ? "bg-zinc-800 text-zinc-300 border-zinc-700" : "bg-zinc-100 text-zinc-600 border-zinc-200"
+                        <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
+                          isSelected ? "text-zinc-300" : "text-zinc-500"
                         }`}>
-                          {v.etaText}
+                          <Package size={12} className="inline opacity-80" />
+                          <span className="tabular-nums">{v.maxWeightKg} kg</span>
                         </span>
                       )}
-                      <span className={`inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-none border ${
-                        isSelected ? "bg-emerald-950 text-emerald-300 border-emerald-600/40" : "bg-emerald-50 text-emerald-800 border-emerald-300"
-                      }`}>
-                        {v.passengerCapacity ? (
-                          <>
-                            <User size={10} className={isSelected ? "text-emerald-300" : "text-emerald-700"} />
-                            <span>{v.passengerCapacity}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Package size={10} className={isSelected ? "text-emerald-300" : "text-emerald-700"} />
-                            <span>{v.maxWeightKg} kg</span>
-                          </>
-                        )}
-                      </span>
                     </div>
-                    <p className={`text-[11px] truncate mt-1 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
+
+                    {/* Line 2: Clock ETA duration */}
+                    <div className={`text-xs mt-0.5 font-medium flex items-center gap-1 ${
+                      isSelected ? "text-zinc-300" : "text-zinc-600"
+                    }`}>
+                      {isFastest && <Zap size={11} className="text-amber-500 fill-amber-500 shrink-0" />}
+                      <span className="tabular-nums">{formatEtaTime(v.etaText)}</span>
+                    </div>
+
+                    {/* Line 3: Tagline */}
+                    <p className={`text-xs mt-0.5 leading-snug truncate ${
+                      isSelected ? "text-zinc-400" : "text-zinc-400"
+                    }`}>
                       {v.tagline}
                     </p>
                   </div>
                 </div>
 
-                <div className="text-right flex-shrink-0 pl-3">
-                  <p className={`font-black text-lg leading-tight tracking-tight ${isSelected ? "text-emerald-400" : "text-zinc-950"}`}>
+                <div className="text-right flex-shrink-0 pl-2 min-w-[76px] sm:min-w-[90px]">
+                  <p className={`font-black text-lg sm:text-xl leading-none tracking-tight tabular-nums whitespace-nowrap ${
+                    isSelected ? "text-white" : "text-zinc-950"
+                  }`}>
                     ₹{fare}
                   </p>
                   {effectiveDistance > 100 && v.id === "car" ? (
-                    <span className="text-[8px] font-black uppercase text-zinc-950 bg-zinc-100 px-2 py-0.5 rounded-none border border-zinc-300 tracking-wider block mt-1">
+                    <span className="text-[9px] font-bold uppercase text-zinc-950 bg-zinc-100 px-1.5 py-0.5 rounded-none border border-zinc-300 tracking-wider block mt-1">
                       Intercity
                     </span>
                   ) : !isLimitOk ? (
@@ -2117,7 +2221,7 @@ export default function BookPage() {
                         e.stopPropagation();
                         setVehicle("car");
                       }}
-                      className="text-[8px] font-black uppercase text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-none border border-amber-300 block mt-1"
+                      className="text-[9px] font-bold uppercase text-amber-800 bg-amber-50 hover:bg-amber-100 px-1.5 py-0.5 rounded-none border border-amber-300 block mt-1"
                     >
                       Use Intercity
                     </button>
@@ -2136,18 +2240,20 @@ export default function BookPage() {
           onClick={() => setShowFareReceipt(!showFareReceipt)}
           className="w-full flex items-center justify-between text-left cursor-pointer"
         >
-          <div className="flex items-center gap-2">
-            <span className="text-sm">🧾</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-700 flex-shrink-0">
+              <FileText size={14} />
+            </div>
             <div>
-              <span className="text-xs font-black uppercase tracking-wide text-zinc-900 block leading-tight">
+              <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-zinc-900 block leading-tight">
                 Fare Breakdown
               </span>
-              <span className="text-[10px] text-zinc-500 font-medium">Upfront pricing</span>
+              <span className="text-[11px] text-zinc-500 font-medium">Upfront guaranteed pricing</span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 text-zinc-900 text-sm font-black">
+          <div className="flex items-center gap-1.5 text-zinc-900 text-base sm:text-lg font-black tabular-nums">
             <span>₹{currentBreakdown.totalFare}</span>
-            {showFareReceipt ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+            {showFareReceipt ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </div>
         </button>
 
@@ -2198,13 +2304,13 @@ export default function BookPage() {
 
       {/* Student Pass Banner & Verification Modal */}
       <div className="p-3 bg-zinc-950 text-white rounded-none border border-zinc-950 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-none bg-zinc-900 text-amber-400 flex items-center justify-center border border-zinc-800">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-none bg-zinc-900 text-amber-400 flex items-center justify-center border border-zinc-800 flex-shrink-0">
             <GraduationCap size={15} />
           </div>
           <div>
-            <p className="text-xs font-black">Student Pass (10% OFF)</p>
-            <p className="text-[10px] text-zinc-400">
+            <p className="text-xs sm:text-sm font-extrabold tracking-tight">Student Pass (10% OFF)</p>
+            <p className="text-[11px] text-zinc-400 font-medium">
               {isStudent ? "Active & Applied" : "Save 10% with college email"}
             </p>
           </div>
@@ -2232,24 +2338,24 @@ export default function BookPage() {
       />
 
       {/* Contact Mobile Input Row (Indian Standard) */}
-      <div className="flex items-center gap-2.5 bg-white border border-zinc-300 rounded-none px-3.5 py-2.5 shadow-none focus-within:border-zinc-950 transition-all">
-        <span className="text-xs font-black text-zinc-800 bg-zinc-100 border border-zinc-300 px-2 py-1 rounded-none flex items-center gap-1 flex-shrink-0 select-none">
-          🇮🇳 +91
+      <div className="flex items-center gap-2.5 bg-white border border-zinc-300 rounded-none px-3.5 py-2 min-h-[46px] shadow-none focus-within:border-zinc-950 transition-all">
+        <span className="text-xs sm:text-sm font-extrabold text-zinc-800 bg-zinc-100 border border-zinc-300 px-2 py-1 rounded-none flex items-center gap-1 flex-shrink-0 select-none">
+          +91
         </span>
         <input
           type="tel"
           value={mobile}
           onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
           placeholder="Enter 10-digit mobile number"
-          className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none"
+          className="flex-1 bg-transparent text-xs sm:text-sm font-bold text-zinc-900 placeholder:text-zinc-400 outline-none tabular-nums min-w-[120px]"
         />
         {mobile.length === 10 ? (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-none border border-emerald-300 flex-shrink-0">
+          <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-none border border-emerald-300 flex-shrink-0">
             <CheckCircle2 size={13} className="text-emerald-700" />
             Verified
           </span>
         ) : (
-          <span className="text-[10px] font-bold text-zinc-400 flex-shrink-0">
+          <span className="text-[11px] font-bold text-zinc-400 flex-shrink-0">
             OTP on arrival
           </span>
         )}
@@ -2260,8 +2366,8 @@ export default function BookPage() {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-white font-sans select-none flex flex-col md:flex-row">
       
-      {/* ══ 1. DESKTOP / TABLET 50% SPLIT PANEL (BOOKING SIDE) ══ */}
-      <div className={`hidden md:flex w-full md:w-1/2 lg:w-1/2 h-full flex-col bg-white border-r border-zinc-200 z-10 rounded-none overflow-hidden transition-all duration-300 ${
+      {/* ══ 1. DESKTOP / TABLET UNIFIED EDITORIAL PANEL (BOOKING SIDE) ══ */}
+      <div className={`hidden md:flex w-full md:w-[460px] lg:w-[500px] xl:w-[540px] md:max-w-[50%] h-full flex-col bg-white border-r border-zinc-200 z-10 rounded-none overflow-hidden transition-all duration-300 flex-shrink-0 ${
         mapSelectionMode !== "none" ? "opacity-0 pointer-events-none -translate-x-12" : "opacity-100 translate-x-0"
       }`}>
         
@@ -2279,7 +2385,7 @@ export default function BookPage() {
               </button>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h1 className="text-base font-extrabold text-zinc-900 leading-none">RideNow</h1>
+                  <h1 className="text-base sm:text-lg font-black text-zinc-950 leading-none tracking-tight font-sans">RideNow</h1>
                   <span className="inline-flex items-center px-1.5 py-0.5 rounded-none bg-zinc-950 text-white text-[9px] font-black uppercase tracking-wider">
                     भारत
                   </span>
@@ -2289,7 +2395,7 @@ export default function BookPage() {
 
             <div className="flex items-center gap-2">
               {hasRoute && (
-                <span className="text-[10px] font-black uppercase tracking-wider bg-zinc-950 text-white border border-zinc-950 px-2.5 py-1 rounded-none">
+                <span className="text-[11px] font-black uppercase tracking-wider bg-zinc-950 text-white border border-zinc-950 px-2.5 py-1 rounded-none tabular-nums">
                   {effectiveDistance} km
                 </span>
               )}
@@ -2324,7 +2430,7 @@ export default function BookPage() {
             whileTap={{ scale: 0.99 }}
             disabled={!canContinue}
             onClick={handleConfirmRide}
-            className="w-full py-4 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
+            className="w-full py-3.5 sm:py-4 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm sm:text-base uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[48px]"
           >
             <span>
               {!hasRoute
