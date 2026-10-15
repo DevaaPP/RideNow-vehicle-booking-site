@@ -916,19 +916,11 @@ export default function CheckoutContent() {
                         </p>
                         <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
                           <div className="flex justify-between">
-                            <span>
-                              Base Fare {breakdown.baseDistanceKm ? `(First ${breakdown.baseDistanceKm} km included)` : ""}
-                            </span>
+                            <span>Base Fare</span>
                             <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
                           </div>
                           <div className="flex justify-between text-[11px]">
-                            <span>
-                              Distance Fare (
-                              {(breakdown.billableDistanceKm ?? breakdown.distanceKm) > 0
-                                ? `${breakdown.billableDistanceKm ?? breakdown.distanceKm} km × ₹${breakdown.pricePerKm}/km`
-                                : `Included in base fare`}
-                              )
-                            </span>
+                            <span>Distance Fare ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
                             <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
                           </div>
                           {breakdown.surgeAmount > 0 && (

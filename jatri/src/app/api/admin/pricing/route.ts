@@ -48,7 +48,6 @@ export async function POST(req: Request) {
     const {
       vehicleType,
       baseFare,
-      baseDistanceKm = 0,
       pricePerKm,
       pricePerMinute = 0,
       waitingChargePerMinute = 2.5,
@@ -69,7 +68,6 @@ export async function POST(req: Request) {
       { vehicleType: vehicleType.toLowerCase() },
       {
         baseFare: Number(baseFare),
-        baseDistanceKm: Number(baseDistanceKm || 0),
         pricePerKm: Number(pricePerKm),
         pricePerMinute: Number(pricePerMinute),
         waitingChargePerMinute: Number(waitingChargePerMinute),

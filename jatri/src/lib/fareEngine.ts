@@ -7,8 +7,6 @@
 export interface IFareBreakdown {
   vehicleType: string;
   baseFare: number;
-  baseDistanceKm?: number;
-  billableDistanceKm?: number;
   distanceKm: number;
   pricePerKm: number;
   distanceFare: number;
@@ -32,7 +30,6 @@ export interface IFareBreakdown {
 
 export interface VehicleRateConfig {
   baseFare: number;
-  baseDistanceKm?: number;
   pricePerKm: number;
   pricePerMinute: number;
   waitingChargePerMinute: number;
@@ -46,135 +43,126 @@ export interface VehicleRateConfig {
 }
 
 /**
- * Authoritative default fleet rates calibrated against real-world
- * Uber & Rapido empirical market data (Guwahati & Tier-2 India metro benchmarks).
- * Base fare includes initial baseDistanceKm (e.g. 1.5 - 2.0 km) to eliminate double-billing.
+ * RideNow Canonical Vehicle Rates (Phase 6 Architecture).
+ * Baseline multiplier is 1.0 (no artificial surge during normal hours).
+ * Standardized across all 8 Jatri fleets + Intercity.
  */
 export const DEFAULT_VEHICLE_RATES: Record<string, VehicleRateConfig> = {
   scooty: {
-    baseFare: 18,
-    baseDistanceKm: 1.5,
-    pricePerKm: 6.0,
+    baseFare: 25,
+    pricePerKm: 8.0,
     pricePerMinute: 0,
-    waitingChargePerMinute: 1.0,
+    waitingChargePerMinute: 1.5,
     freeWaitingMinutes: 3,
-    platformFee: 3,
+    platformFee: 12,
     taxRate: 0.05,
-    cancellationFee: 15,
+    cancellationFee: 25,
     multiplier: 1.0,
     minDistance: 0,
     maxDistance: 15,
   },
   bike: {
-    baseFare: 20,
-    baseDistanceKm: 1.5,
-    pricePerKm: 7.0,
+    baseFare: 30,
+    pricePerKm: 9.0,
     pricePerMinute: 0,
-    waitingChargePerMinute: 1.0,
+    waitingChargePerMinute: 1.5,
     freeWaitingMinutes: 3,
-    platformFee: 5,
+    platformFee: 15,
     taxRate: 0.05,
-    cancellationFee: 20,
+    cancellationFee: 30,
     multiplier: 1.0,
     minDistance: 0,
     maxDistance: 25,
   },
   auto: {
-    baseFare: 30,
-    baseDistanceKm: 1.5,
-    pricePerKm: 10.5,
+    baseFare: 45,
+    pricePerKm: 13.0,
     pricePerMinute: 0,
-    waitingChargePerMinute: 1.5,
+    waitingChargePerMinute: 2.0,
     freeWaitingMinutes: 3,
-    platformFee: 5,
+    platformFee: 15,
     taxRate: 0.05,
-    cancellationFee: 25,
+    cancellationFee: 40,
     multiplier: 1.0,
     minDistance: 0,
-    maxDistance: 40,
+    maxDistance: 35,
   },
   mini: {
-    baseFare: 50,
-    baseDistanceKm: 2.0,
-    pricePerKm: 12.5,
+    baseFare: 60,
+    pricePerKm: 15.0,
     pricePerMinute: 0,
     waitingChargePerMinute: 2.0,
     freeWaitingMinutes: 4,
-    platformFee: 10,
+    platformFee: 15,
     taxRate: 0.05,
-    cancellationFee: 35,
+    cancellationFee: 45,
     multiplier: 1.0,
     minDistance: 0,
     maxDistance: 100,
   },
   car: {
-    baseFare: 65,
-    baseDistanceKm: 2.0,
-    pricePerKm: 15.0,
+    baseFare: 75,
+    pricePerKm: 18.0,
     pricePerMinute: 0,
     waitingChargePerMinute: 2.5,
     freeWaitingMinutes: 4,
-    platformFee: 12,
-    taxRate: 0.05,
-    cancellationFee: 45,
-    multiplier: 1.0,
-    minDistance: 0,
-    maxDistance: 150,
-  },
-  priority: {
-    baseFare: 95,
-    baseDistanceKm: 2.0,
-    pricePerKm: 19.0,
-    pricePerMinute: 0,
-    waitingChargePerMinute: 3.0,
-    freeWaitingMinutes: 5,
-    platformFee: 15,
-    taxRate: 0.05,
-    cancellationFee: 60,
-    multiplier: 1.0,
-    minDistance: 0,
-    maxDistance: 200,
-  },
-  loading: {
-    baseFare: 100,
-    baseDistanceKm: 2.0,
-    pricePerKm: 16.0,
-    pricePerMinute: 0,
-    waitingChargePerMinute: 3.0,
-    freeWaitingMinutes: 10,
     platformFee: 15,
     taxRate: 0.05,
     cancellationFee: 50,
     multiplier: 1.0,
     minDistance: 0,
+    maxDistance: 150,
+  },
+  priority: {
+    baseFare: 110,
+    pricePerKm: 22.0,
+    pricePerMinute: 0,
+    waitingChargePerMinute: 3.0,
+    freeWaitingMinutes: 5,
+    platformFee: 20,
+    taxRate: 0.05,
+    cancellationFee: 75,
+    multiplier: 1.0,
+    minDistance: 0,
+    maxDistance: 200,
+  },
+  loading: {
+    baseFare: 110,
+    pricePerKm: 22.0,
+    pricePerMinute: 0,
+    waitingChargePerMinute: 3.5,
+    freeWaitingMinutes: 5,
+    platformFee: 20,
+    taxRate: 0.05,
+    cancellationFee: 75,
+    multiplier: 1.0,
+    minDistance: 0,
     maxDistance: 250,
   },
   truck: {
-    baseFare: 180,
-    baseDistanceKm: 3.0,
-    pricePerKm: 24.0,
+    baseFare: 160,
+    pricePerKm: 28.0,
     pricePerMinute: 0,
-    waitingChargePerMinute: 4.0,
-    freeWaitingMinutes: 15,
-    platformFee: 25,
+    waitingChargePerMinute: 5.0,
+    freeWaitingMinutes: 10,
+    platformFee: 30,
     taxRate: 0.05,
-    cancellationFee: 80,
+    cancellationFee: 100,
     multiplier: 1.0,
     minDistance: 0,
     maxDistance: 500,
   },
   intercity: {
     baseFare: 250,
-    baseDistanceKm: 20.0,
-    pricePerKm: 13.5,
+    pricePerKm: 14.0,
     pricePerMinute: 0,
     waitingChargePerMinute: 2.5,
-    freeWaitingMinutes: 15,
+    freeWaitingMinutes: 10,
     platformFee: 25,
     taxRate: 0.05,
     cancellationFee: 100,
     multiplier: 1.0,
-    minDistance: 20,
+    minDistance: 25,
     maxDistance: 500,
   },
 };
@@ -248,16 +236,13 @@ export function calculateFareBreakdown(
   };
 
   const baseFare = cfg.baseFare;
-  const baseDistanceKm = cfg.baseDistanceKm !== undefined ? cfg.baseDistanceKm : 0;
   const pricePerKm = cfg.pricePerKm;
   const platformFee = cfg.platformFee !== undefined ? cfg.platformFee : 15;
   const taxRate = cfg.taxRate !== undefined ? cfg.taxRate : 0.05;
   const cancellationFee = cfg.cancellationFee !== undefined ? cfg.cancellationFee : 50;
 
   const distKm = Math.max(0, Number(distanceKm.toFixed(1)));
-  // Authoritative distance pricing: distance beyond baseDistanceKm is billable (prevents double-billing)
-  const billableDistanceKm = Math.max(0, Number((distKm - baseDistanceKm).toFixed(2)));
-  const distanceFare = Math.round(billableDistanceKm * pricePerKm);
+  const distanceFare = Math.round(distKm * pricePerKm);
 
   // Time estimate: Informational ETA only, NEVER factored into fare calculation
   const timeMinutes = Math.max(3, Math.round((distKm / 25) * 60));
@@ -328,8 +313,6 @@ export function calculateFareBreakdown(
   return {
     vehicleType: vType,
     baseFare,
-    baseDistanceKm,
-    billableDistanceKm,
     distanceKm: distKm,
     pricePerKm,
     distanceFare,

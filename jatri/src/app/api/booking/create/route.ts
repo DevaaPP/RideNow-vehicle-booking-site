@@ -252,7 +252,6 @@ export async function POST(req: Request) {
       const vKey = c.vehicleType.toLowerCase();
       ratesMap[vKey] = {
         baseFare: c.baseFare,
-        baseDistanceKm: c.baseDistanceKm !== undefined ? c.baseDistanceKm : (DEFAULT_VEHICLE_RATES[vKey]?.baseDistanceKm ?? 0),
         pricePerKm: c.pricePerKm,
         pricePerMinute: c.pricePerMinute || 0,
         waitingChargePerMinute: c.waitingChargePerMinute || 2.5,
