@@ -161,7 +161,8 @@ export default function BookPage() {
   const [activeSearchField, setActiveSearchField] = useState<"pickup" | "drop" | null>(null);
   const [isEditingRoute, setIsEditingRoute] = useState(false);
   const [showFareReceipt, setShowFareReceipt] = useState(false);
-  const [mobileSheetExpanded, setMobileSheetExpanded] = useState(false);
+  const [mobileSheetState, setMobileSheetState] = useState<"down" | "half" | "up">("half");
+  const mobileSheetExpanded = mobileSheetState === "up";
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -2311,11 +2312,15 @@ export default function BookPage() {
             </div>
           </div>
         ) : (
-          /* Mobile Dynamic Split View with Tactile Swipe Up / Down Sheet */
-          <div className="flex flex-col w-full h-full overflow-hidden">
-            {/* Dynamic Map: Collapses smoothly when user swipes up to view fleet */}
+          /* Mobile Dynamic Full Split View with Tactile Swipe Up / Down Sheet */
+          <div className="flex flex-col w-full h-full overflow-hidden relative">
+            {/* Dynamic Map: Seamlessly transitions between Full Map (86vh), Half Split (42vh), and Peek (12vh) */}
             <div className={`w-full relative z-0 border-b border-zinc-300 bg-zinc-100 transition-all duration-300 ease-in-out flex-shrink-0 ${
-              mobileSheetExpanded ? "h-[22vh]" : "h-[44vh]"
+              mobileSheetState === "up"
+                ? "h-[12vh]"
+                : mobileSheetState === "down"
+                ? "h-[86vh]"
+                : "h-[42vh]"
             }`}>
               <RouteMap
                 pickup={pickup}
@@ -2331,15 +2336,35 @@ export default function BookPage() {
                 smartPickups={smartPickups}
                 onSelectSmartPickup={handleSelectSmartPickup}
                 stops={validStopsForMap}
-                bottomPadding={mobileSheetExpanded ? 20 : 40}
+                bottomPadding={mobileSheetState === "down" ? 70 : mobileSheetState === "up" ? 15 : 40}
                 selectionMode={mapSelectionMode}
                 onSelectionModeChange={setMapSelectionMode}
                 onConfirmPinSelection={handleConfirmPinSelection}
               />
+
+              {/* Quick Floating Re-Expand Pill when sheet is docked down */}
+              {mobileSheetState === "down" && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
+                  <button
+                    type="button"
+                    onClick={() => setMobileSheetState("half")}
+                    className="px-4 py-2 bg-zinc-950 text-white text-xs font-black uppercase tracking-wider rounded-none shadow-xl flex items-center gap-2 border border-zinc-800 animate-bounce"
+                  >
+                    <span>View Rides & Fare</span>
+                    <ChevronUp size={14} />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Bottom Tactile Swipable Booking Interface */}
-            <div className="flex-1 flex flex-col bg-white overflow-hidden shadow-2xl relative z-10">
+            {/* Bottom Tactile Swipable Booking Interface (Full Up 88vh, Half flex-1, Full Down 14vh) */}
+            <div className={`flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 transition-all duration-300 ease-in-out ${
+              mobileSheetState === "up"
+                ? "h-[88vh]"
+                : mobileSheetState === "down"
+                ? "h-[14vh]"
+                : "flex-1"
+            }`}>
               {/* Tactile Drag Handle & Route Header */}
               <div
                 className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none"
@@ -2347,11 +2372,13 @@ export default function BookPage() {
                   const startY = e.touches[0].clientY;
                   const onTouchMove = (moveEvent: TouchEvent) => {
                     const diffY = moveEvent.touches[0].clientY - startY;
-                    if (diffY < -35) {
-                      setMobileSheetExpanded(true);
+                    if (diffY < -30) {
+                      // Swipe UP
+                      setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
                       window.removeEventListener("touchmove", onTouchMove);
-                    } else if (diffY > 35) {
-                      setMobileSheetExpanded(false);
+                    } else if (diffY > 30) {
+                      // Swipe DOWN
+                      setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
                       window.removeEventListener("touchmove", onTouchMove);
                     }
                   };
@@ -2360,17 +2387,25 @@ export default function BookPage() {
               >
                 {/* Physical pill bar indicator */}
                 <div
-                  onClick={() => setMobileSheetExpanded(!mobileSheetExpanded)}
-                  className="w-12 h-1 bg-zinc-300 mx-auto rounded-full mb-2 cursor-pointer"
+                  onClick={() => {
+                    setMobileSheetState((prev) => (prev === "up" ? "down" : prev === "down" ? "half" : "up"));
+                  }}
+                  className="w-12 h-1.5 bg-zinc-400 mx-auto rounded-full mb-2 cursor-pointer hover:bg-zinc-600 transition"
+                  title="Swipe or click to expand / collapse full screen"
                 />
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0 pr-2">
+                  <div
+                    onClick={() => {
+                      if (mobileSheetState === "down") setMobileSheetState("half");
+                    }}
+                    className="flex items-center gap-2 min-w-0 pr-2 cursor-pointer"
+                  >
                     <span className="w-2 h-2 rounded-none bg-zinc-950 flex-shrink-0" />
-                    <span className="text-xs font-bold text-zinc-800 truncate max-w-[110px]">{pickup}</span>
+                    <span className="text-xs font-bold text-zinc-800 truncate max-w-[110px]">{pickup.split(',')[0]}</span>
                     <span className="text-zinc-400">→</span>
                     <span className="w-2 h-2 rounded-none border border-zinc-950 bg-white flex-shrink-0" />
-                    <span className="text-xs font-black text-zinc-900 truncate max-w-[110px]">{drop}</span>
+                    <span className="text-xs font-black text-zinc-900 truncate max-w-[110px]">{drop.split(',')[0]}</span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <span className="text-[10px] font-black px-2 py-0.5 rounded-none bg-zinc-950 text-white border border-zinc-950">
@@ -2391,11 +2426,27 @@ export default function BookPage() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setMobileSheetExpanded(!mobileSheetExpanded);
+                        setMobileSheetState((prev) => (prev === "up" ? "half" : "up"));
                       }}
-                      className="p-1 text-zinc-500 hover:text-black cursor-pointer"
+                      className={`p-1 text-zinc-600 hover:text-black cursor-pointer rounded-none border border-zinc-300 ${
+                        mobileSheetState === "up" ? "bg-zinc-200" : "bg-white"
+                      }`}
+                      title={mobileSheetState === "up" ? "Collapse to half" : "Expand full screen"}
                     >
-                      {mobileSheetExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                      <ChevronUp size={13} className={mobileSheetState === "up" ? "rotate-180 transition-transform" : ""} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMobileSheetState((prev) => (prev === "down" ? "half" : "down"));
+                      }}
+                      className={`p-1 text-zinc-600 hover:text-black cursor-pointer rounded-none border border-zinc-300 ${
+                        mobileSheetState === "down" ? "bg-zinc-200" : "bg-white"
+                      }`}
+                      title={mobileSheetState === "down" ? "Show rides" : "View full map"}
+                    >
+                      <ChevronDown size={13} className={mobileSheetState === "down" ? "rotate-180 transition-transform" : ""} />
                     </button>
                   </div>
                 </div>
@@ -2408,27 +2459,31 @@ export default function BookPage() {
                 </div>
               )}
 
-              {/* Scrollable Rides Body */}
-              <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5">
-                {renderRideSelection()}
-              </div>
+              {/* Scrollable Rides Body (Hidden only in peek down state to keep view clean) */}
+              {mobileSheetState !== "down" && (
+                <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5">
+                  {renderRideSelection()}
+                </div>
+              )}
 
               {/* Mobile Sticky Footer */}
-              <div className="flex-shrink-0 p-3 border-t border-zinc-200 bg-white">
-                <motion.button
-                  whileTap={{ scale: 0.99 }}
-                  disabled={!canContinue}
-                  onClick={handleConfirmRide}
-                  className="w-full py-3.5 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition cursor-pointer"
-                >
-                  <span>
-                    {bookingMode === "schedule"
-                      ? t("booking.scheduleRide", "Schedule Ride")
-                      : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride")} • ₹${currentBreakdown.totalFare}`}
-                  </span>
-                  <ArrowRight size={16} />
-                </motion.button>
-              </div>
+              {mobileSheetState !== "down" && (
+                <div className="flex-shrink-0 p-3 border-t border-zinc-200 bg-white">
+                  <motion.button
+                    whileTap={{ scale: 0.99 }}
+                    disabled={!canContinue}
+                    onClick={handleConfirmRide}
+                    className="w-full py-3.5 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    <span>
+                      {bookingMode === "schedule"
+                        ? t("booking.scheduleRide", "Schedule Ride")
+                        : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride")} • ₹${currentBreakdown.totalFare}`}
+                    </span>
+                    <ArrowRight size={16} />
+                  </motion.button>
+                </div>
+              )}
             </div>
           </div>
         )}
