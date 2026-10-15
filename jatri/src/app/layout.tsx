@@ -4,6 +4,7 @@ import StoreProvider from "@/redux/StoreProvider";
 import InitUser from "@/initUser";
 import Provider from "@/Provider";
 import PhoneLinkModal from "@/features/auth/components/PhoneLinkModal";
+import CookieConsent from "@/shared/components/CookieConsent";
 import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({
             <StoreProvider>
               <InitUser />
               <PhoneLinkModal />
+              <CookieConsent />
               {children}
             </StoreProvider>
           </LanguageProvider>
