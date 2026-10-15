@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: ridenow-web
+    env: node
+    rootDir: jatri
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ridenow-socket
+    env: node
+    rootDir: socketServer
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 5000

@@ -1,0 +1,52 @@
+name: RideNow CI & Auto-Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-verify:
+    name: Build & Verify Production App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: jatri/package-lock.json
+
+      - name: Install Next.js Dependencies
+        run: |
+          cd jatri
+          npm ci
+
+      - name: Verify Production Build
+        run: |
+          cd jatri
+          npm run build
+        env:
+          NEXTAUTH_SECRET: "github-actions-build-secret-32-chars-long"
+          NEXTAUTH_URL: "http://localhost:3000"
+          NEXT_PUBLIC_SOCKET_SERVER_URL: "https://socket.ridenow.com"
+
+      - name: Trigger Vercel Deploy Hook (Optional)
+        if: env.VERCEL_DEPLOY_HOOK != ''
+        run: |
+          echo "Pinging Vercel Deploy Hook..."
+          curl -s -X POST "$VERCEL_DEPLOY_HOOK"
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+
+      - name: Trigger Render Deploy Hook (Optional)
+        if: env.RENDER_DEPLOY_HOOK != ''
+        run: |
+          echo "Pinging Render Deploy Hook..."
+          curl -s -X POST "$RENDER_DEPLOY_HOOK"
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
