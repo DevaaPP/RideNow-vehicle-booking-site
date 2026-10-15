@@ -84,6 +84,9 @@ const VehicleSchema = new Schema<IVehicle>(
   { timestamps: true }
 );
 
+VehicleSchema.index({ owner: 1, status: 1, isActive: 1 });
+VehicleSchema.index({ type: 1, status: 1, isActive: 1 });
+
 const Vehicle =
   mongoose.models.Vehicle ||
   mongoose.model<IVehicle>("Vehicle", VehicleSchema);

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const MONGODB_URI = "mongodb+srv://ridenow:z87OklKiNsn0G61x@clusterall.9k3vix8.mongodb.net/ridenow";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/ridenow";
 
 async function main() {
   await mongoose.connect(MONGODB_URI);
