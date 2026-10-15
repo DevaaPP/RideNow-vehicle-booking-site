@@ -50,45 +50,45 @@ function createPickupEl(durationMin?: number | null): HTMLElement {
   const etaBadge = durationMin && durationMin > 0 ? ` • ${durationMin} min` : "";
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.32));transform:translateY(3px);">
-      <!-- Elevated Callout Badge (hovering 28px-32px above ground) -->
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3));transform:translateY(3px);">
+      <!-- Elevated Callout Badge -->
       <div style="
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        background: #09090b;
         color: #ffffff;
-        padding: 4px 10px;
-        border-radius: 9999px;
+        padding: 4px 8px;
+        border-radius: 2px;
         font-size: 9.5px;
-        font-weight: 800;
+        font-weight: 900;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(5,150,105,0.45);
-        border: 2px solid #ffffff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        border: 1.5px solid #ffffff;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
       ">
-        <span style="width:5px;height:5px;border-radius:50%;background:#ffffff;display:inline-block;"></span>
+        <span style="width:5px;height:5px;border-radius:1px;background:#ffffff;display:inline-block;"></span>
         PICKUP${etaBadge}
       </div>
 
-      <!-- Hairline Elevated Stem (passes clean over route casing) -->
+      <!-- Hairline Elevated Stem -->
       <div style="
         width: 2px;
-        height: 20px;
-        background: #064e3b;
+        height: 18px;
+        background: #09090b;
         box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
       "></div>
 
-      <!-- Precision Road Contact Anchor Dot -->
+      <!-- Precision Road Contact Anchor Square -->
       <div style="
         width: 8px;
         height: 8px;
-        background: #047857;
-        border-radius: 50%;
+        background: #09090b;
+        border-radius: 1px;
         border: 2px solid #ffffff;
-        box-shadow: 0 0 0 2px rgba(5,150,105,0.35), 0 2px 6px rgba(0,0,0,0.5);
+        box-shadow: 0 0 0 1.5px #09090b;
       "></div>
     </div>
   `;
@@ -99,45 +99,45 @@ function createDropEl(): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.32));transform:translateY(3px);">
-      <!-- Elevated Callout Badge (hovering 28px-32px above ground) -->
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3));transform:translateY(3px);">
+      <!-- Elevated Callout Badge -->
       <div style="
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        color: #ffffff;
-        padding: 4px 10px;
-        border-radius: 9999px;
+        background: #ffffff;
+        color: #09090b;
+        padding: 4px 8px;
+        border-radius: 2px;
         font-size: 9.5px;
-        font-weight: 800;
+        font-weight: 900;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(220,38,38,0.45);
-        border: 2px solid #ffffff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        border: 2px solid #09090b;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
       ">
-        <span style="width:5px;height:5px;border-radius:50%;background:#ffffff;display:inline-block;"></span>
+        <span style="width:5px;height:5px;border-radius:1px;border:1.5px solid #09090b;background:#ffffff;display:inline-block;"></span>
         DROP
       </div>
 
-      <!-- Hairline Elevated Stem (passes clean over route casing) -->
+      <!-- Hairline Elevated Stem -->
       <div style="
         width: 2px;
-        height: 20px;
-        background: #7f1d1d;
+        height: 18px;
+        background: #09090b;
         box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
       "></div>
 
-      <!-- Precision Road Contact Anchor Dot -->
+      <!-- Precision Road Contact Anchor Square -->
       <div style="
         width: 8px;
         height: 8px;
-        background: #b91c1c;
-        border-radius: 50%;
-        border: 2px solid #ffffff;
-        box-shadow: 0 0 0 2px rgba(220,38,38,0.35), 0 2px 6px rgba(0,0,0,0.5);
+        background: #ffffff;
+        border-radius: 1px;
+        border: 2px solid #09090b;
+        box-shadow: 0 0 0 1.5px #ffffff;
       "></div>
     </div>
   `;
@@ -149,16 +149,16 @@ function createStopEl(index: number): HTMLElement {
   el.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3));">
       <div style="
-        background:#2563eb;color:#ffffff;
-        padding:3px 8px;border-radius:100px;
+        background:#09090b;color:#ffffff;
+        padding:3px 8px;border-radius:2px;
         font-size:9px;font-weight:900;
         white-space:nowrap;
         border:1.5px solid #ffffff;
         box-shadow:0 2px 8px rgba(0,0,0,0.25);
       ">STOP ${index + 1}</div>
-      <div style="width:2px;height:6px;background:#2563eb;"></div>
+      <div style="width:2px;height:6px;background:#09090b;"></div>
       <div style="
-        width:10px;height:10px;background:#2563eb;border-radius:50%;
+        width:8px;height:8px;background:#09090b;border-radius:1px;
         border:2px solid #ffffff;
       "></div>
     </div>
@@ -1276,26 +1276,26 @@ export default function RouteMap({
           <AnimatePresence>
             {(km !== null || isRouting) && (
               <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                initial={{ opacity: 0, y: -8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="pointer-events-auto flex items-center gap-3 bg-white/95 backdrop-blur-md border border-zinc-200/90 px-4 py-2 rounded-2xl shadow-xl"
+                className="pointer-events-auto flex items-center gap-3 bg-white border border-zinc-300 px-3.5 py-1.5 shadow-sm rounded-none"
               >
                 {isRouting ? (
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" />
-                    <span className="text-zinc-800 text-xs font-bold">Finding fastest route...</span>
+                    <span className="w-2.5 h-2.5 bg-zinc-950 animate-pulse rounded-none" />
+                    <span className="text-zinc-900 text-xs font-bold">Finding fastest route...</span>
                   </div>
                 ) : (
                   <>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-zinc-900 text-sm font-black">
+                      <span className="text-zinc-950 text-xs font-black">
                         {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
                       </span>
                       <span className="text-zinc-500 text-xs font-bold">({km} km)</span>
                     </div>
-                    <span className="w-px h-3.5 bg-zinc-200" />
-                    <span className="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <span className="w-px h-3 bg-zinc-200" />
+                    <span className="text-[10px] text-zinc-950 font-black uppercase tracking-wider bg-zinc-100 px-2 py-0.5 border border-zinc-300 rounded-none">
                       Fastest Route
                     </span>
                   </>
@@ -1305,16 +1305,16 @@ export default function RouteMap({
           </AnimatePresence>
 
           {/* Pinpoint Selector Pill */}
-          <div className="pointer-events-auto flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-zinc-200/90 p-1.5 rounded-2xl shadow-xl">
+          <div className="pointer-events-auto flex items-center gap-1 bg-white border border-zinc-300 p-1 shadow-sm rounded-none">
             <button
               type="button"
               onClick={() => {
                 setActivePinMode("pickup");
                 onSelectionModeChange?.("pickup");
               }}
-              className="px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+              className="px-2.5 py-1 text-xs font-black transition-all flex items-center gap-1.5 text-zinc-800 hover:text-black hover:bg-zinc-100 rounded-none cursor-pointer"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+              <span className="w-2.5 h-2.5 bg-zinc-950 flex-shrink-0 rounded-none" />
               <span>Pin Pickup</span>
             </button>
 
@@ -1324,9 +1324,9 @@ export default function RouteMap({
                 setActivePinMode("drop");
                 onSelectionModeChange?.("drop");
               }}
-              className="px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+              className="px-2.5 py-1 text-xs font-black transition-all flex items-center gap-1.5 text-zinc-800 hover:text-black hover:bg-zinc-100 rounded-none cursor-pointer"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
+              <span className="w-2.5 h-2.5 border-2 border-zinc-950 bg-white flex-shrink-0 rounded-none" />
               <span>Pin Drop</span>
             </button>
 
@@ -1335,9 +1335,9 @@ export default function RouteMap({
                 type="button"
                 onClick={handleReset}
                 title="Reset pins"
-                className="p-1.5 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all"
+                className="p-1 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all rounded-none cursor-pointer"
               >
-                <RotateCcw size={14} />
+                <RotateCcw size={13} />
               </button>
             )}
           </div>
@@ -1346,7 +1346,7 @@ export default function RouteMap({
 
       {/* ── BOTTOM RIGHT CONTROLS (RE-CENTER CROSSHAIR & ZOOM) ── */}
       <div
-        className="absolute bottom-6 right-4 z-20 flex flex-col gap-2.5"
+        className="absolute bottom-6 right-4 z-20 flex flex-col gap-2"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Re-center / Locate Crosshair Button */}
@@ -1354,27 +1354,27 @@ export default function RouteMap({
           onClick={handleRecenter}
           aria-label="Re-center on route"
           title="Re-center view"
-          className="w-11 h-11 bg-white border border-zinc-200/90 rounded-full flex items-center justify-center text-zinc-900 shadow-xl hover:bg-zinc-50 active:scale-95 transition-all"
+          className="w-9 h-9 bg-white border border-zinc-300 rounded-none flex items-center justify-center text-zinc-900 shadow-sm hover:bg-zinc-100 transition-all cursor-pointer"
         >
-          <Crosshair size={20} className="text-zinc-900" />
+          <Crosshair size={18} className="text-zinc-900" />
         </button>
 
         {/* Zoom In & Out */}
-        <div className="flex flex-col bg-white border border-zinc-200/90 rounded-2xl overflow-hidden shadow-xl">
+        <div className="flex flex-col bg-white border border-zinc-300 rounded-none overflow-hidden shadow-sm">
           <button
             onClick={() => mapRef.current?.zoomIn()}
             aria-label="Zoom in"
-            className="w-10 h-10 flex items-center justify-center text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 transition"
+            className="w-9 h-9 flex items-center justify-center text-zinc-800 hover:text-black hover:bg-zinc-100 transition cursor-pointer"
           >
-            <Plus size={16} />
+            <Plus size={15} />
           </button>
           <div className="h-px bg-zinc-200" />
           <button
             onClick={() => mapRef.current?.zoomOut()}
             aria-label="Zoom out"
-            className="w-10 h-10 flex items-center justify-center text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 transition"
+            className="w-9 h-9 flex items-center justify-center text-zinc-800 hover:text-black hover:bg-zinc-100 transition cursor-pointer"
           >
-            <Minus size={16} />
+            <Minus size={15} />
           </button>
         </div>
       </div>

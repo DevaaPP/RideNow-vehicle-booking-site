@@ -27,10 +27,9 @@ import LanguageSelector from "./LanguageSelector";
 import NotificationToggle from "./NotificationToggle";
 import { useTranslation } from "@/context/LanguageContext";
 
-const NAV_ITEMS = ["Home", "Book Ride", "Bookings", "Fleet", "FAQ", "Contact"];
+const NAV_ITEMS = ["Home", "Bookings", "Fleet", "FAQ", "Contact"];
 const NAV_ROUTES: Record<string, string> = {
   Home: "/",
-  "Book Ride": "/book",
   Bookings: "/bookings",
   Fleet: "/fleet",
   FAQ: "/faq",
@@ -38,7 +37,6 @@ const NAV_ROUTES: Record<string, string> = {
 };
 const NAV_KEYS: Record<string, string> = {
   Home: "nav.home",
-  "Book Ride": "nav.bookRide",
   Bookings: "nav.bookings",
   Fleet: "nav.fleet",
   FAQ: "nav.faq",
@@ -550,19 +548,6 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             </>
           ) : (
             <>
-              {/* Quick Book CTA if not on book page */}
-              {pathname !== "/book" && (
-                <div className="p-3">
-                  <Link
-                    href="/book"
-                    onClick={() => setMenuOpen(false)}
-                    className="w-full py-3 px-4 rounded-xl bg-white text-zinc-950 font-black text-sm flex items-center justify-between shadow-sm active:scale-98 transition"
-                  >
-                    <span>⚡ {t("booking.confirmRide", "Book a Ride Now")}</span>
-                    <ArrowRight size={16} />
-                  </Link>
-                </div>
-              )}
 
               {NAV_ITEMS.map((item) => {
                 const href = NAV_ROUTES[item];

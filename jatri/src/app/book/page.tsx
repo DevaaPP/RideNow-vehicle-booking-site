@@ -1092,8 +1092,8 @@ export default function BookPage() {
 
       {/* Pickup Row */}
       <div className="relative">
-        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all shadow-2xs">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-100 flex-shrink-0" />
+        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-300 rounded-none px-3.5 py-2.5 focus-within:border-zinc-950 focus-within:bg-white transition-all shadow-none">
+          <div className="w-2.5 h-2.5 rounded-none bg-zinc-950 flex-shrink-0" />
           <input
             aria-label="Pickup location"
             value={pickup}
@@ -1111,7 +1111,7 @@ export default function BookPage() {
               }
             }}
             placeholder={t("booking.pickup", "Pickup location")}
-            className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none truncate"
+            className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-500 outline-none truncate"
           />
           {isSearchingPickup ? (
             <Loader2 size={13} className="animate-spin text-zinc-400 flex-shrink-0" />
@@ -1130,24 +1130,24 @@ export default function BookPage() {
             </button>
           ) : null}
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.95 }}
             onClick={useCurrentLocation}
             disabled={locating}
             title="Use current location"
-            className="w-7 h-7 rounded-lg bg-zinc-200/80 hover:bg-zinc-300 transition flex items-center justify-center flex-shrink-0"
+            className="w-7 h-7 rounded-none border border-zinc-300 bg-zinc-100 hover:bg-zinc-200 transition flex items-center justify-center flex-shrink-0"
           >
             <LocateFixed size={13} className={`text-zinc-700 ${locating ? "animate-spin" : ""}`} />
           </motion.button>
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               setActiveSearchField(null);
               setMapSelectionMode("pickup");
             }}
             title="Choose pickup on map"
-            className="w-7 h-7 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition flex items-center justify-center flex-shrink-0"
+            className="w-7 h-7 rounded-none border border-zinc-950 bg-zinc-950 text-white hover:bg-black transition flex items-center justify-center flex-shrink-0"
           >
-            <MapPin size={13} className="text-emerald-700" />
+            <MapPin size={13} className="text-white" />
           </motion.button>
         </div>
 
@@ -1288,8 +1288,8 @@ export default function BookPage() {
 
       {/* Destination Row */}
       <div className="relative">
-        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:bg-white transition-all shadow-2xs">
-          <div className="w-2.5 h-2.5 rounded-sm bg-zinc-900 ring-2 ring-zinc-200 flex-shrink-0" />
+        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-300 rounded-none px-3.5 py-2.5 focus-within:border-zinc-950 focus-within:bg-white transition-all shadow-none">
+          <div className="w-2.5 h-2.5 rounded-none border-2 border-zinc-950 bg-white flex-shrink-0" />
           <input
             aria-label="Drop location"
             value={drop}
@@ -1326,15 +1326,15 @@ export default function BookPage() {
             </button>
           ) : null}
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               setActiveSearchField(null);
               setMapSelectionMode("drop");
             }}
             title="Choose destination on map"
-            className="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 transition flex items-center justify-center flex-shrink-0"
+            className="w-7 h-7 rounded-none border border-zinc-950 bg-white hover:bg-zinc-100 transition flex items-center justify-center flex-shrink-0"
           >
-            <MapPin size={13} className="text-rose-600" />
+            <MapPin size={13} className="text-zinc-950" />
           </motion.button>
         </div>
 
@@ -1487,7 +1487,7 @@ export default function BookPage() {
       </div>
 
       {/* Quick Destination Chips */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-none">
+      <div className="flex gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-hide">
         {[
           { label: "Airport", icon: "✈️" },
           { label: "Railway Station", icon: "🚆" },
@@ -1510,7 +1510,7 @@ export default function BookPage() {
                 debouncedSearchAddress("pickup", chip.label, setPickupResults, pickupCountry || "in");
               }
             }}
-            className="px-2.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-bold flex items-center gap-1.5 transition flex-shrink-0 border border-zinc-200/70 cursor-pointer"
+            className="px-3 py-1.5 rounded-none bg-zinc-100 hover:bg-zinc-200 text-zinc-900 text-[11px] font-bold flex items-center gap-1.5 transition flex-shrink-0 border border-zinc-300 cursor-pointer"
           >
             <span>{chip.icon}</span>
             <span>{chip.label}</span>
@@ -1562,17 +1562,17 @@ export default function BookPage() {
 
       {/* Recommended Pickup Selector UI */}
       {smartPickups.length > 0 && (
-        <div className="p-3 bg-emerald-50/90 border border-emerald-200 rounded-xl shadow-xs">
+        <div className="p-3 bg-emerald-50/90 border border-emerald-300 rounded-none shadow-none">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <p className="text-[11px] font-black uppercase text-emerald-800 tracking-wider">
+              <span className="w-2 h-2 rounded-none bg-emerald-600" />
+              <p className="text-[11px] font-black uppercase text-emerald-900 tracking-wider">
                 📍 Recommended Pickups
               </p>
             </div>
-            <span className="text-[10px] text-emerald-700 font-bold">Suggested</span>
+            <span className="text-[10px] text-emerald-800 font-bold">Suggested</span>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {smartPickups.map((spot) => {
               const isSelected = selectedSmartPickup?.id === spot.id;
               return (
@@ -1580,10 +1580,10 @@ export default function BookPage() {
                   key={spot.id}
                   type="button"
                   onClick={() => handleSelectSmartPickup(spot)}
-                  className={`flex-shrink-0 text-left p-2 rounded-lg border transition-colors max-w-[200px] ${
+                  className={`flex-shrink-0 text-left p-2 rounded-none border transition-colors max-w-[200px] cursor-pointer ${
                     isSelected
-                      ? "bg-emerald-600 text-white border-emerald-600"
-                      : "bg-white text-zinc-800 border-emerald-200 hover:border-emerald-400"
+                      ? "bg-emerald-700 text-white border-emerald-700"
+                      : "bg-white text-zinc-900 border-emerald-300 hover:border-emerald-500"
                   }`}
                 >
                   <p className="font-extrabold text-[11px] leading-tight truncate">{spot.spotName}</p>
@@ -1597,18 +1597,18 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* ── SERVICE MODE TOGGLE (UBER PILL GEOMETRY • INDIAN SUPER-APP) ── */}
-      <div className="bg-zinc-100/90 p-1 rounded-full flex items-center gap-1 border border-zinc-200/80 shadow-2xs">
+      {/* ── SERVICE MODE TOGGLE (SHARP GEOMETRY • INDIAN SUPER-APP) ── */}
+      <div className="bg-zinc-100 p-1 rounded-none flex items-center gap-1 border border-zinc-300">
         <button
           type="button"
           onClick={() => {
             setServiceMode("passenger");
             if (vehicle === "loading" || vehicle === "truck") setVehicle("car");
           }}
-          className={`flex-1 py-2 px-3.5 rounded-full text-xs font-black transition-all flex items-center justify-center gap-1.5 apple-press-feedback ${
+          className={`flex-1 py-2 px-3 rounded-none text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             serviceMode === "passenger"
-              ? "bg-zinc-950 text-white shadow-md"
-              : "text-zinc-600 hover:text-zinc-950"
+              ? "bg-zinc-950 text-white shadow-xs"
+              : "text-zinc-700 hover:text-black hover:bg-zinc-200/50"
           }`}
         >
           <Car size={13} className={serviceMode === "passenger" ? "text-emerald-400" : ""} />
@@ -1620,10 +1620,10 @@ export default function BookPage() {
             setServiceMode("logistics");
             if (vehicle !== "loading" && vehicle !== "truck") setVehicle("loading");
           }}
-          className={`flex-1 py-2 px-3.5 rounded-full text-xs font-black transition-all flex items-center justify-center gap-1.5 apple-press-feedback ${
+          className={`flex-1 py-2 px-3 rounded-none text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             serviceMode === "logistics"
-              ? "bg-zinc-950 text-white shadow-md"
-              : "text-zinc-600 hover:text-zinc-950"
+              ? "bg-zinc-950 text-white shadow-xs"
+              : "text-zinc-700 hover:text-black hover:bg-zinc-200/50"
           }`}
         >
           <Package size={13} className={serviceMode === "logistics" ? "text-amber-400" : ""} />
@@ -1632,7 +1632,7 @@ export default function BookPage() {
       </div>
 
       {/* ── SMART VEHICLE MATCHING WIDGET ── */}
-      <div className="bg-gradient-to-r from-zinc-50 to-emerald-50/40 border border-emerald-200/60 rounded-2xl p-3">
+      <div className="bg-zinc-50 border border-zinc-300 rounded-none p-3">
         <div className="flex items-center justify-between">
           <button
             type="button"
@@ -1885,35 +1885,35 @@ export default function BookPage() {
               <div
                 key={v.id}
                 onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                className={`relative flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer apple-press-feedback ${
+                className={`relative flex items-center justify-between p-4 rounded-none border transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-zinc-950 text-white border-zinc-900 shadow-xl ring-1 ring-white/10"
+                    ? "bg-zinc-950 text-white border-zinc-950 shadow-md ring-1 ring-zinc-950"
                     : isSmartPick
-                    ? "bg-emerald-50/70 hover:bg-emerald-100/70 text-zinc-900 border-emerald-300 ring-1 ring-emerald-300 shadow-xs"
-                    : "bg-white/80 hover:bg-zinc-50 text-zinc-900 border-zinc-200/90 shadow-2xs"
+                    ? "bg-emerald-50/60 hover:bg-emerald-100/60 text-zinc-900 border-emerald-300"
+                    : "bg-white hover:bg-zinc-50 text-zinc-900 border-zinc-200"
                 } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
               >
                 {isSmartPick && (
-                  <span className="absolute -top-2 right-4 bg-emerald-600 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-xs">
+                  <span className="absolute -top-2 right-4 bg-emerald-700 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-none shadow-xs">
                     ⭐ Best Match
                   </span>
                 )}
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform ${
-                    isSelected ? "bg-zinc-900 text-white border border-white/10 shadow-inner" : "bg-zinc-100 text-zinc-900 border border-zinc-200/80 shadow-2xs"
+                  <div className={`w-12 h-12 rounded-none flex items-center justify-center flex-shrink-0 transition-transform ${
+                    isSelected ? "bg-zinc-900 text-white border border-white/10" : "bg-zinc-100 text-zinc-900 border border-zinc-200"
                   }`}>
                     <Icon size={22} />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <p className="font-extrabold text-sm leading-tight truncate tracking-tight">{v.label}</p>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                        isSelected ? "bg-zinc-800 text-zinc-200 border border-white/10" : "bg-zinc-100 text-zinc-700 border border-zinc-200/80"
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-none border ${
+                        isSelected ? "bg-zinc-900 text-zinc-200 border-zinc-700" : "bg-zinc-100 text-zinc-700 border-zinc-300"
                       }`}>
                         ⚡ {v.etaText}
                       </span>
-                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
-                        isSelected ? "bg-emerald-950 text-emerald-300 border border-emerald-500/30" : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-none border ${
+                        isSelected ? "bg-emerald-950 text-emerald-300 border-emerald-600/40" : "bg-emerald-50 text-emerald-800 border-emerald-300"
                       }`}>
                         {v.passengerCapacity ? `${v.passengerCapacity} seats` : `${v.maxWeightKg} kg`}
                       </span>
@@ -1924,13 +1924,13 @@ export default function BookPage() {
                   </div>
                 </div>
 
-                <div className="text-right flex-shrink-0 pl-2">
+                <div className="text-right flex-shrink-0 pl-3">
                   <p className={`font-black text-lg leading-tight tracking-tight ${isSelected ? "text-emerald-400" : "text-zinc-950"}`}>
                     ₹{fare}
                   </p>
                   {effectiveDistance > 100 && v.id === "car" ? (
-                    <span className="text-[8px] font-black uppercase text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200 tracking-wider block mt-1">
-                      🇮🇳 Intercity
+                    <span className="text-[8px] font-black uppercase text-zinc-950 bg-zinc-100 px-2 py-0.5 rounded-none border border-zinc-300 tracking-wider block mt-1">
+                      Intercity
                     </span>
                   ) : !isLimitOk ? (
                     <button
@@ -1939,15 +1939,11 @@ export default function BookPage() {
                         e.stopPropagation();
                         setVehicle("car");
                       }}
-                      className="text-[8px] font-black uppercase text-amber-700 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200 block mt-1"
+                      className="text-[8px] font-black uppercase text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-none border border-amber-300 block mt-1"
                     >
                       Use Intercity
                     </button>
-                  ) : (
-                    <span className={`text-[9px] font-semibold block mt-0.5 ${isSelected ? "text-zinc-400" : "text-zinc-400"}`}>
-                      No surge
-                    </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
             );
@@ -1955,20 +1951,20 @@ export default function BookPage() {
         )}
       </div>
 
-      {/* Itemized Fare Receipt Accordion (Uber Transparent Ledger) */}
-      <div className="bg-white/80 border border-zinc-200/90 rounded-2xl p-3.5 space-y-2 shadow-2xs">
+      {/* Itemized Fare Receipt Accordion */}
+      <div className="bg-white border border-zinc-300 rounded-none p-3.5 space-y-2 shadow-none">
         <button
           type="button"
           onClick={() => setShowFareReceipt(!showFareReceipt)}
-          className="w-full flex items-center justify-between text-left"
+          className="w-full flex items-center justify-between text-left cursor-pointer"
         >
           <div className="flex items-center gap-2">
             <span className="text-sm">🧾</span>
             <div>
-              <span className="text-xs font-extrabold uppercase tracking-wide text-zinc-900 block leading-tight">
-                Transparent Fare Breakdown
+              <span className="text-xs font-black uppercase tracking-wide text-zinc-900 block leading-tight">
+                Fare Breakdown
               </span>
-              <span className="text-[10px] text-zinc-500 font-medium">Guaranteed upfront road pricing</span>
+              <span className="text-[10px] text-zinc-500 font-medium">Upfront pricing</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 text-zinc-900 text-sm font-black">
@@ -1983,7 +1979,7 @@ export default function BookPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="pt-2.5 border-t border-zinc-100 space-y-2 text-xs text-zinc-600 font-medium"
+              className="pt-2.5 border-t border-zinc-200 space-y-2 text-xs text-zinc-600 font-medium"
             >
               <div className="flex justify-between">
                 <span>Base Fare (Pickup & Flagdown)</span>
@@ -2017,9 +2013,9 @@ export default function BookPage() {
       </div>
 
       {/* Student Pass Banner & Verification Modal */}
-      <div className="p-3 bg-zinc-900 text-white rounded-2xl flex items-center justify-between">
+      <div className="p-3 bg-zinc-950 text-white rounded-none border border-zinc-950 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-zinc-800 text-amber-400 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-none bg-zinc-900 text-amber-400 flex items-center justify-center border border-zinc-800">
             <GraduationCap size={15} />
           </div>
           <div>
@@ -2033,7 +2029,7 @@ export default function BookPage() {
           <button
             type="button"
             onClick={() => setShowStudentForm(true)}
-            className="px-2.5 py-1 bg-amber-400 text-zinc-950 font-black text-[11px] rounded-xl hover:bg-amber-300 transition"
+            className="px-2.5 py-1 bg-amber-400 text-zinc-950 font-black text-[11px] rounded-none hover:bg-amber-300 transition cursor-pointer"
           >
             Verify
           </button>
@@ -2052,8 +2048,8 @@ export default function BookPage() {
       />
 
       {/* Contact Mobile Input Row (Indian Standard) */}
-      <div className="flex items-center gap-2.5 bg-white/90 border border-zinc-200/90 rounded-2xl px-3.5 py-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-zinc-900/10 focus-within:border-zinc-900 transition-all">
-        <span className="text-xs font-black text-zinc-700 bg-zinc-100 border border-zinc-200 px-2 py-1 rounded-lg flex items-center gap-1 flex-shrink-0 select-none">
+      <div className="flex items-center gap-2.5 bg-white border border-zinc-300 rounded-none px-3.5 py-2.5 shadow-none focus-within:border-zinc-950 transition-all">
+        <span className="text-xs font-black text-zinc-800 bg-zinc-100 border border-zinc-300 px-2 py-1 rounded-none flex items-center gap-1 flex-shrink-0 select-none">
           🇮🇳 +91
         </span>
         <input
@@ -2064,8 +2060,8 @@ export default function BookPage() {
           className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none"
         />
         {mobile.length === 10 ? (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex-shrink-0">
-            <CheckCircle2 size={13} className="text-emerald-600" />
+          <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-none border border-emerald-300 flex-shrink-0">
+            <CheckCircle2 size={13} className="text-emerald-700" />
             Verified
           </span>
         ) : (
@@ -2078,67 +2074,38 @@ export default function BookPage() {
   );
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-slate-100 font-sans select-none">
+    <div className="relative w-full h-screen overflow-hidden bg-white font-sans select-none flex flex-col md:flex-row">
       
-      {/* ══ 1. FULLSCREEN MAP CANVAS ══ */}
-      <div className="absolute inset-0 z-0">
-        <RouteMap
-          pickup={pickup}
-          drop={drop}
-          pickupCoords={memoizedPickupCoords}
-          dropCoords={memoizedDropCoords}
-          onChange={handleMapChange}
-          onCoordinatesChange={handleCoordinatesChange}
-          onDistance={setRouteDistance}
-          vehicles={vehicles}
-          disableFallbackGeocode={false}
-          smartPickups={smartPickups}
-          onSelectSmartPickup={handleSelectSmartPickup}
-          stops={validStopsForMap}
-          bottomPadding={hasRoute ? (isMobile ? (mobileSheetExpanded ? 340 : 220) : 360) : 100}
-          selectionMode={mapSelectionMode}
-          onSelectionModeChange={setMapSelectionMode}
-          onConfirmPinSelection={handleConfirmPinSelection}
-        />
-      </div>
-
-      {/* ══ 2. UNIFIED DESKTOP / TABLET PANEL (ONE SINGLE CARD - NEVER OVERLAPS) ══ */}
-      <div className={`hidden md:flex fixed top-4 bottom-4 left-6 w-[420px] z-30 flex-col apple-glass-panel rounded-3xl overflow-hidden transition-all duration-300 ${
+      {/* ══ 1. DESKTOP / TABLET 50% SPLIT PANEL (BOOKING SIDE) ══ */}
+      <div className={`hidden md:flex w-full md:w-1/2 lg:w-1/2 h-full flex-col bg-white border-r border-zinc-200 z-10 rounded-none overflow-hidden transition-all duration-300 ${
         mapSelectionMode !== "none" ? "opacity-0 pointer-events-none -translate-x-12" : "opacity-100 translate-x-0"
       }`}>
         
         {/* Pinned Card Header */}
-        <div className="flex-shrink-0 p-4 border-b border-black/5 bg-white/70 backdrop-blur-md space-y-3 relative z-30">
+        <div className="flex-shrink-0 p-4 border-b border-zinc-200 bg-white space-y-3 relative z-30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="w-8 h-8 rounded-xl bg-black/5 hover:bg-black/10 apple-press-feedback flex items-center justify-center text-zinc-900"
+                className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-900 transition cursor-pointer"
                 aria-label="Go back"
               >
                 <ArrowLeft size={16} />
               </button>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h1 className="text-base font-extrabold text-zinc-900 leading-none apple-heading">RideNow</h1>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-50 border border-orange-200 text-[9px] font-black text-orange-700 uppercase tracking-widest">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> भारत
+                  <h1 className="text-base font-extrabold text-zinc-900 leading-none">RideNow</h1>
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-none bg-zinc-950 text-white text-[9px] font-black uppercase tracking-wider">
+                    भारत
                   </span>
                 </div>
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5 apple-caption">
-                  Zero Surge • Direct UPI & Cash
-                </p>
               </div>
             </div>
 
-            {hasRoute ? (
-              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full shadow-2xs">
+            {hasRoute && (
+              <span className="text-[10px] font-black uppercase tracking-wider bg-zinc-950 text-white border border-zinc-950 px-2.5 py-1 rounded-none">
                 {effectiveDistance} km
-              </span>
-            ) : (
-              <span className="text-[9px] font-bold text-zinc-600 bg-zinc-100 px-2.5 py-1 rounded-full border border-zinc-200">
-                🔒 SafeRide OTP
               </span>
             )}
           </div>
@@ -2153,10 +2120,10 @@ export default function BookPage() {
         {/* Scrollable Card Body */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {!hasRoute ? (
-            <div className="py-8 text-center space-y-2 text-zinc-400">
-              <span className="text-3xl">🗺️</span>
-              <p className="text-xs font-bold text-zinc-600">Enter your destination to explore rides</p>
-              <p className="text-[11px] text-zinc-400 max-w-[260px] mx-auto">
+            <div className="py-12 text-center space-y-3 text-zinc-400 border border-dashed border-zinc-200 p-8 rounded-none">
+              <span className="text-4xl">🗺️</span>
+              <p className="text-sm font-black text-zinc-800">Enter your destination to explore rides</p>
+              <p className="text-xs text-zinc-500 max-w-sm mx-auto">
                 Select your pickup and drop-off points to view available vehicles, live ETAs, and transparent pricing.
               </p>
             </div>
@@ -2166,12 +2133,12 @@ export default function BookPage() {
         </div>
 
         {/* Pinned Card Footer */}
-        <div className="flex-shrink-0 p-4 border-t border-black/5 bg-white/70 backdrop-blur-md">
+        <div className="flex-shrink-0 p-4 border-t border-zinc-200 bg-white">
           <motion.button
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.99 }}
             disabled={!canContinue}
             onClick={handleConfirmRide}
-            className="w-full py-3.5 rounded-2xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-bold text-sm tracking-tight flex items-center justify-center gap-2 transition apple-press-feedback shadow-lg shadow-black/10"
+            className="w-full py-4 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
           >
             <span>
               {!hasRoute
@@ -2202,82 +2169,141 @@ export default function BookPage() {
 
       </div>
 
+      {/* ══ 2. DESKTOP / TABLET MAP CANVAS (TAKES THE OTHER 50%, FULLSCREEN ONLY DURING PIN SELECTION) ══ */}
+      <div className={`hidden md:block ${
+        mapSelectionMode !== "none"
+          ? "fixed inset-0 z-40 bg-zinc-100"
+          : "flex-1 h-full relative z-0 bg-zinc-100"
+      }`}>
+        <RouteMap
+          pickup={pickup}
+          drop={drop}
+          pickupCoords={memoizedPickupCoords}
+          dropCoords={memoizedDropCoords}
+          onChange={handleMapChange}
+          onCoordinatesChange={handleCoordinatesChange}
+          onDistance={setRouteDistance}
+          vehicles={vehicles}
+          disableFallbackGeocode={false}
+          smartPickups={smartPickups}
+          onSelectSmartPickup={handleSelectSmartPickup}
+          stops={validStopsForMap}
+          bottomPadding={60}
+          selectionMode={mapSelectionMode}
+          onSelectionModeChange={setMapSelectionMode}
+          onConfirmPinSelection={handleConfirmPinSelection}
+        />
+      </div>
+
       {/* ══ 3. MOBILE INTERFACE (< md) ══ */}
-      <div className={`md:hidden transition-all duration-300 ${mapSelectionMode !== "none" ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-        {/* Mobile Search Card when route is NOT set */}
-        {!hasRoute && (
-          <div className="fixed top-3 left-3 right-3 z-30 apple-glass-panel rounded-3xl p-3.5 space-y-2.5 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="w-8 h-8 rounded-xl bg-black/5 apple-press-feedback flex items-center justify-center text-zinc-900"
-                >
-                  <ArrowLeft size={15} />
-                </button>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <h1 className="text-sm font-extrabold text-zinc-900 apple-heading">RideNow</h1>
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-orange-50 border border-orange-200 text-[8px] font-black text-orange-700 uppercase">
-                      भारत
-                    </span>
+      <div className="md:hidden flex flex-col w-full h-screen overflow-hidden bg-white">
+        {/* Fullscreen Map when user is picking location pin on mobile */}
+        {mapSelectionMode !== "none" ? (
+          <div className="fixed inset-0 z-40 bg-zinc-100">
+            <RouteMap
+              pickup={pickup}
+              drop={drop}
+              pickupCoords={memoizedPickupCoords}
+              dropCoords={memoizedDropCoords}
+              onChange={handleMapChange}
+              onCoordinatesChange={handleCoordinatesChange}
+              onDistance={setRouteDistance}
+              vehicles={vehicles}
+              disableFallbackGeocode={false}
+              smartPickups={smartPickups}
+              onSelectSmartPickup={handleSelectSmartPickup}
+              stops={validStopsForMap}
+              bottomPadding={120}
+              selectionMode={mapSelectionMode}
+              onSelectionModeChange={setMapSelectionMode}
+              onConfirmPinSelection={handleConfirmPinSelection}
+            />
+          </div>
+        ) : !hasRoute ? (
+          /* Mobile Search & Map when route is NOT set */
+          <div className="relative w-full h-full flex flex-col">
+            <div className="p-3.5 bg-white border-b border-zinc-200 z-10 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-100 flex items-center justify-center text-zinc-900"
+                  >
+                    <ArrowLeft size={15} />
+                  </button>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <h1 className="text-sm font-extrabold text-zinc-900">RideNow</h1>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-none bg-zinc-950 text-white text-[8px] font-black uppercase">
+                        भारत
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Zero Surge • Direct UPI</p>
                 </div>
               </div>
-              <span className="text-[9px] font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200">
-                🔒 SafeRide
-              </span>
+              <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
+              {renderLocationInputs()}
             </div>
-            <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
-            {renderLocationInputs()}
+            <div className="flex-1 relative z-0 bg-zinc-100">
+              <RouteMap
+                pickup={pickup}
+                drop={drop}
+                pickupCoords={memoizedPickupCoords}
+                dropCoords={memoizedDropCoords}
+                onChange={handleMapChange}
+                onCoordinatesChange={handleCoordinatesChange}
+                onDistance={setRouteDistance}
+                vehicles={vehicles}
+                disableFallbackGeocode={false}
+                smartPickups={smartPickups}
+                onSelectSmartPickup={handleSelectSmartPickup}
+                stops={validStopsForMap}
+                bottomPadding={40}
+                selectionMode={mapSelectionMode}
+                onSelectionModeChange={setMapSelectionMode}
+                onConfirmPinSelection={handleConfirmPinSelection}
+              />
+            </div>
           </div>
-        )}
+        ) : (
+          /* Mobile Structured Split View when route IS set (Map only takes top ~36%, booking takes the rest) */
+          <div className="flex flex-col w-full h-full overflow-hidden">
+            {/* Top 36% Route Map */}
+            <div className="h-[36vh] w-full relative z-0 border-b border-zinc-300 bg-zinc-100 flex-shrink-0">
+              <RouteMap
+                pickup={pickup}
+                drop={drop}
+                pickupCoords={memoizedPickupCoords}
+                dropCoords={memoizedDropCoords}
+                onChange={handleMapChange}
+                onCoordinatesChange={handleCoordinatesChange}
+                onDistance={setRouteDistance}
+                vehicles={vehicles}
+                disableFallbackGeocode={false}
+                smartPickups={smartPickups}
+                onSelectSmartPickup={handleSelectSmartPickup}
+                stops={validStopsForMap}
+                bottomPadding={30}
+                selectionMode={mapSelectionMode}
+                onSelectionModeChange={setMapSelectionMode}
+                onConfirmPinSelection={handleConfirmPinSelection}
+              />
+            </div>
 
-        {/* Mobile Bottom Sheet when route IS set */}
-        <AnimatePresence>
-          {hasRoute && (
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0, height: mobileSheetExpanded ? "82vh" : "285px" }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 280, mass: 0.8 }}
-              className="fixed bottom-0 left-0 right-0 z-30 apple-glass-panel rounded-t-[32px] flex flex-col overflow-hidden shadow-2xl"
-            >
-              {/* Interactive Drag Handle Area */}
-              <motion.div
-                drag="y"
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={0.2}
-                onDragEnd={(_, info) => {
-                  if (info.offset.y < -35 || info.velocity.y < -250) {
-                    setMobileSheetExpanded(true);
-                  } else if (info.offset.y > 35 || info.velocity.y > 250) {
-                    setMobileSheetExpanded(false);
-                  }
-                }}
-                onClick={() => setMobileSheetExpanded(prev => !prev)}
-                className="w-full pt-3 pb-1 cursor-grab active:cursor-grabbing flex flex-col items-center select-none flex-shrink-0 bg-transparent"
-              >
-                <div className="w-10 h-1 bg-zinc-300 rounded-full" />
-                <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 mt-1.5 apple-caption">
-                  <span>{mobileSheetExpanded ? "Swipe down for map" : "Swipe up for all options"}</span>
-                  {mobileSheetExpanded ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
-                </div>
-              </motion.div>
-
+            {/* Bottom 64% Booking Interface */}
+            <div className="flex-1 flex flex-col bg-white overflow-hidden">
               {/* Compact Route Summary Header with Edit Toggle */}
-              <div className="flex-shrink-0 px-4 py-2 border-b border-zinc-100 flex items-center justify-between bg-white">
+              <div className="flex-shrink-0 px-3.5 py-2 border-b border-zinc-200 flex items-center justify-between bg-zinc-50">
                 <div className="flex items-center gap-2 min-w-0 pr-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
-                  <span className="text-xs font-bold text-zinc-800 truncate max-w-[120px]">{pickup}</span>
+                  <span className="w-2 h-2 rounded-none bg-zinc-950 flex-shrink-0" />
+                  <span className="text-xs font-bold text-zinc-800 truncate max-w-[110px]">{pickup}</span>
                   <span className="text-zinc-400">→</span>
-                  <span className="w-2 h-2 rounded-sm bg-zinc-900 flex-shrink-0" />
-                  <span className="text-xs font-black text-zinc-900 truncate max-w-[120px]">{drop}</span>
+                  <span className="w-2 h-2 rounded-none border border-zinc-950 bg-white flex-shrink-0" />
+                  <span className="text-xs font-black text-zinc-900 truncate max-w-[110px]">{drop}</span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-none bg-zinc-950 text-white border border-zinc-950">
                     {effectiveDistance} km
                   </span>
                   <button
@@ -2285,11 +2311,10 @@ export default function BookPage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsEditingRoute(!isEditingRoute);
-                      if (!isEditingRoute) setMobileSheetExpanded(true);
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-zinc-100 text-zinc-700 text-[11px] font-bold flex items-center gap-1"
+                    className="px-2 py-0.5 rounded-none border border-zinc-300 bg-white text-zinc-800 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
                   >
-                    <Edit2 size={11} />
+                    <Edit2 size={10} />
                     <span>{isEditingRoute ? "Done" : "Edit"}</span>
                   </button>
                 </div>
@@ -2297,61 +2322,23 @@ export default function BookPage() {
 
               {/* If Mobile User Tapped Edit, Show Inputs Inline */}
               {isEditingRoute && (
-                <div className="p-3 bg-zinc-50 border-b border-zinc-100 flex-shrink-0">
+                <div className="p-3 bg-zinc-50 border-b border-zinc-200 flex-shrink-0">
                   {renderLocationInputs()}
                 </div>
               )}
 
-              {/* Peek Mode Selected Vehicle Preview (Visible when collapsed) */}
-              {!mobileSheetExpanded && (
-                <div className="px-4 py-2 flex items-center justify-between border-b border-zinc-100/80 bg-zinc-50/50 flex-shrink-0">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-900 text-white flex items-center justify-center shadow-xs">
-                      {(() => {
-                        const Icon = VEHICLE_ICONS[vehicle] || Car;
-                        return <Icon size={20} />;
-                      })()}
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-zinc-900">
-                        {VEHICLE_OPTIONS[vehicle]?.label || "RideNow Go"}
-                      </p>
-                      <p className="text-[10px] text-zinc-500 font-bold">
-                        {VEHICLE_OPTIONS[vehicle]?.etaText || "4 min away"} • {currentBreakdown.timeMinutes} min trip
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2.5">
-                    <div className="text-right">
-                      <p className="text-base font-black text-zinc-900">₹{currentBreakdown.totalFare}</p>
-                      <span className="text-[9px] font-bold text-emerald-600 uppercase">Guaranteed</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setMobileSheetExpanded(true)}
-                      className="px-2.5 py-1.5 rounded-lg border border-zinc-200 bg-white text-[11px] font-bold text-zinc-800 hover:bg-zinc-100"
-                    >
-                      Change
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Scrollable Rides Body (Fully scrollable when expanded) */}
-              {mobileSheetExpanded && (
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-                  {renderRideSelection()}
-                </div>
-              )}
+              {/* Scrollable Rides Body */}
+              <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5">
+                {renderRideSelection()}
+              </div>
 
               {/* Mobile Sticky Footer */}
-              <div className="flex-shrink-0 p-3.5 border-t border-zinc-100 bg-white">
+              <div className="flex-shrink-0 p-3 border-t border-zinc-200 bg-white">
                 <motion.button
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.99 }}
                   disabled={!canContinue}
                   onClick={handleConfirmRide}
-                  className="w-full py-3.5 rounded-xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 transition active:scale-98 shadow-md"
+                  className="w-full py-3.5 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition cursor-pointer"
                 >
                   <span>
                     {bookingMode === "schedule"
@@ -2361,9 +2348,9 @@ export default function BookPage() {
                   <ArrowRight size={16} />
                 </motion.button>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ══ 4. SERVICE UNAVAILABLE MODAL ══ */}
@@ -2371,17 +2358,17 @@ export default function BookPage() {
         {showServiceUnavailableModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-zinc-100 text-center space-y-4"
+              exit={{ scale: 0.98, opacity: 0 }}
+              className="bg-white rounded-none p-6 max-w-sm w-full shadow-2xl border border-zinc-300 text-center space-y-4"
             >
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200/60 shadow-inner">
-                <AlertTriangle size={28} />
+              <div className="w-12 h-12 rounded-none bg-zinc-100 text-zinc-900 border border-zinc-300 flex items-center justify-center mx-auto">
+                <AlertTriangle size={24} />
               </div>
               <div className="space-y-1.5">
-                <h3 className="text-lg font-black text-zinc-900 tracking-tight">Service unavailable</h3>
-                <p className="text-xs text-zinc-500 font-medium leading-relaxed">
+                <h3 className="text-base font-black text-zinc-900 tracking-tight uppercase">Service unavailable</h3>
+                <p className="text-xs text-zinc-600 font-medium leading-relaxed">
                   {effectiveDistance > 500
                     ? `Selected route (${effectiveDistance} km) exceeds our maximum service radius of 500 km. Please select a closer destination.`
                     : "We currently do not operate trips on this route or location. Please adjust your pickup or drop location."}
@@ -2390,9 +2377,9 @@ export default function BookPage() {
               <button
                 type="button"
                 onClick={() => setShowServiceUnavailableModal(false)}
-                className="w-full py-3 rounded-xl bg-zinc-950 hover:bg-black text-white text-xs font-black uppercase tracking-wider transition active:scale-98 shadow-md"
+                className="w-full py-3 rounded-none bg-zinc-950 hover:bg-black text-white text-xs font-black uppercase tracking-wider transition cursor-pointer"
               >
-                Got it!
+                Got it
               </button>
             </motion.div>
           </div>
