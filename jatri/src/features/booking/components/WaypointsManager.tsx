@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, X, MapPin } from "lucide-react";
+import { Plus, X, MapPin, ChevronUp, ChevronDown, ArrowUpDown } from "lucide-react";
 
 export type StopItem = {
   id: string;
@@ -16,6 +16,7 @@ interface WaypointsManagerProps {
   onRemoveStop: (id: string) => void;
   onStopChange: (id: string, value: string) => void;
   onSelectStopPlace: (stopId: string, place: any) => void;
+  onMoveStop?: (fromIndex: number, toIndex: number) => void;
   maxStops?: number;
 }
 
@@ -25,16 +26,39 @@ export default function WaypointsManager({
   onRemoveStop,
   onStopChange,
   onSelectStopPlace,
+  onMoveStop,
   maxStops = 2,
 }: WaypointsManagerProps) {
   return (
     <div className="space-y-2">
       {stops.map((stop, idx) => (
         <div key={stop.id} className="relative">
-          <div className="flex items-center gap-2 bg-blue-50/60 border border-blue-200/80 rounded-2xl px-3 py-2">
-            <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-black flex-shrink-0">
+          <div className="flex items-center gap-2 bg-blue-50/60 border border-blue-200/80 rounded-none px-3 py-2">
+            <div className="w-5 h-5 rounded-none bg-blue-600 text-white flex items-center justify-center text-[10px] font-black flex-shrink-0">
               {idx + 1}
             </div>
+            {stops.length > 1 && onMoveStop && (
+              <div className="flex flex-col gap-0.5 flex-shrink-0">
+                <button
+                  type="button"
+                  disabled={idx === 0}
+                  onClick={() => onMoveStop(idx, idx - 1)}
+                  title="Move stop up"
+                  className="w-4 h-3 flex items-center justify-center text-blue-700 hover:text-blue-950 disabled:opacity-20 disabled:hover:text-blue-700 transition"
+                >
+                  <ChevronUp size={11} />
+                </button>
+                <button
+                  type="button"
+                  disabled={idx === stops.length - 1}
+                  onClick={() => onMoveStop(idx, idx + 1)}
+                  title="Move stop down"
+                  className="w-4 h-3 flex items-center justify-center text-blue-700 hover:text-blue-950 disabled:opacity-20 disabled:hover:text-blue-700 transition"
+                >
+                  <ChevronDown size={11} />
+                </button>
+              </div>
+            )}
             <input
               type="text"
               placeholder={`Stop ${idx + 1} address...`}
@@ -45,7 +69,8 @@ export default function WaypointsManager({
             <button
               type="button"
               onClick={() => onRemoveStop(stop.id)}
-              className="w-6 h-6 rounded-full hover:bg-blue-200/60 text-blue-700 flex items-center justify-center flex-shrink-0"
+              className="w-6 h-6 rounded-none hover:bg-blue-200/60 text-blue-700 flex items-center justify-center flex-shrink-0 transition"
+              title="Remove stop"
             >
               <X size={13} />
             </button>

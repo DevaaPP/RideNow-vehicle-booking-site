@@ -80,19 +80,19 @@ function createPickupEl(locationName?: string, durationMin?: number | null): HTM
       <!-- Hairline Elevated Stem (passes clean over route casing) -->
       <div style="
         width: 2px;
-        height: 24px;
+        height: 6px;
         background: #09090b;
         box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
       "></div>
 
       <!-- Precision Road Contact Anchor Square -->
       <div style="
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         background: #09090b;
         border-radius: 1px;
-        border: 2px solid #ffffff;
-        box-shadow: 0 0 0 1.5px #09090b;
+        border: 1.5px solid #ffffff;
+        box-shadow: 0 0 0 1px #09090b;
       "></div>
     </div>
   `;
@@ -108,7 +108,7 @@ function createDropEl(locationName?: string): HTMLElement {
   const cleanTitle = rawTitle && rawTitle.length > 0 ? (rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle) : "Drop";
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.25));transform:translateY(3px);">
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));transform:translateY(2px);">
       <!-- Elevated Callout Badge (Floats clean above route line) -->
       <div style="
         background: #ffffff;
@@ -133,19 +133,19 @@ function createDropEl(locationName?: string): HTMLElement {
       <!-- Hairline Elevated Stem -->
       <div style="
         width: 2px;
-        height: 24px;
+        height: 6px;
         background: #09090b;
         box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
       "></div>
 
       <!-- Precision Road Contact Anchor Square -->
       <div style="
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         background: #ffffff;
         border-radius: 1px;
-        border: 2px solid #09090b;
-        box-shadow: 0 0 0 1.5px #ffffff;
+        border: 1.5px solid #09090b;
+        box-shadow: 0 0 0 1px #ffffff;
       "></div>
     </div>
   `;
@@ -156,7 +156,7 @@ function createStopEl(index: number): HTMLElement {
   const el = document.createElement("div");
   el.style.zIndex = "1000";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.25));">
       <div style="
         background:#09090b;color:#ffffff;
         padding:3px 8px;border-radius:2px;
@@ -165,10 +165,10 @@ function createStopEl(index: number): HTMLElement {
         border:1.5px solid #ffffff;
         box-shadow:0 2px 8px rgba(0,0,0,0.25);
       ">STOP ${index + 1}</div>
-      <div style="width:2px;height:12px;background:#09090b;"></div>
+      <div style="width:2px;height:6px;background:#09090b;"></div>
       <div style="
-        width:8px;height:8px;background:#09090b;border-radius:1px;
-        border:2px solid #ffffff;
+        width:6px;height:6px;background:#09090b;border-radius:1px;
+        border:1.5px solid #ffffff;
       "></div>
     </div>
   `;
@@ -1227,31 +1227,31 @@ export default function RouteMap({
               >
                 {/* Floating Callout Badge */}
                 <div
-                  className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white shadow-2xl flex items-center gap-1.5 border-2 border-white ${
-                    activePinMode === "pickup"
-                      ? "bg-emerald-600 shadow-emerald-950/40"
-                      : "bg-rose-600 shadow-rose-950/40"
-                  }`}
+                  className="px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-wider text-white shadow-2xl flex items-center gap-1.5 border border-zinc-800 bg-zinc-950"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  {activePinMode === "pickup" ? (
+                    <span className="w-2 h-2 rounded-none bg-white flex-shrink-0" />
+                  ) : (
+                    <span className="w-2 h-2 rounded-none border border-white bg-transparent flex-shrink-0" />
+                  )}
                   <span>{activePinMode === "pickup" ? "Move Map to Set Pickup" : "Move Map to Set Drop"}</span>
                 </div>
 
                 {/* Pin Head */}
-                <div className="mt-1 w-10 h-10 rounded-full bg-zinc-950 border-2 border-white flex items-center justify-center shadow-2xl">
+                <div className="mt-1 w-9 h-9 rounded-none bg-zinc-950 border-2 border-white flex items-center justify-center shadow-2xl">
                   <MapPin
-                    size={20}
-                    className={activePinMode === "pickup" ? "text-emerald-400" : "text-rose-400"}
+                    size={18}
+                    className="text-white"
                   />
                 </div>
 
                 {/* Needle Tip */}
-                <div className="w-1.5 h-3.5 bg-zinc-950 rounded-b-full shadow-sm -mt-0.5" />
+                <div className="w-1.5 h-3.5 bg-zinc-950 rounded-b-none shadow-sm -mt-0.5" />
               </motion.div>
 
               {/* Dynamic Ground Shadow underneath the needle */}
               <div
-                className={`w-3.5 h-1.5 bg-zinc-950/40 rounded-[100%] filter blur-[1px] transition-all duration-200 ${
+                className={`w-3.5 h-1.5 bg-zinc-950/40 rounded-none filter blur-[1px] transition-all duration-200 ${
                   isMapMoving ? "scale-75 opacity-25 translate-y-2" : "scale-100 opacity-60 translate-y-0"
                 }`}
               />
@@ -1267,16 +1267,16 @@ export default function RouteMap({
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-white border border-zinc-200 rounded-2xl shadow-2xl p-4 flex flex-col gap-3 isolate"
+            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-white border border-zinc-300 rounded-none shadow-2xl p-4 flex flex-col gap-3 isolate"
             style={{ zIndex: 2000 }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`w-3 h-3 rounded-full ${
-                    activePinMode === "pickup" ? "bg-emerald-500 ring-4 ring-emerald-100" : "bg-rose-500 ring-4 ring-rose-100"
-                  }`}
-                />
+              <div className="flex items-center gap-2.5">
+                {activePinMode === "pickup" ? (
+                  <span className="w-2.5 h-2.5 rounded-none bg-zinc-950 flex-shrink-0" />
+                ) : (
+                  <span className="w-2.5 h-2.5 rounded-none border-2 border-zinc-950 bg-white flex-shrink-0" />
+                )}
                 <span className="text-xs font-black uppercase tracking-wider text-zinc-900">
                   {activePinMode === "pickup" ? "Confirm Pickup Point" : "Confirm Drop-off Point"}
                 </span>
@@ -1284,14 +1284,15 @@ export default function RouteMap({
               <button
                 type="button"
                 onClick={handleCancelPin}
-                className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 transition flex items-center justify-center cursor-pointer"
+                className="w-6 h-6 rounded-none bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 transition flex items-center justify-center cursor-pointer"
+                title="Cancel"
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             </div>
 
-            <div className="bg-zinc-50 rounded-xl p-2.5 border border-zinc-200/80 flex items-start gap-2">
-              <MapPin size={16} className="text-zinc-500 shrink-0 mt-0.5" />
+            <div className="bg-zinc-50 rounded-none p-2.5 border border-zinc-200/80 flex items-start gap-2">
+              <MapPin size={15} className="text-zinc-600 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 {isPinGeocoding ? (
                   <div className="flex items-center gap-2 text-zinc-500 text-xs">
@@ -1322,7 +1323,7 @@ export default function RouteMap({
                     type="button"
                     onClick={handleConfirmPin}
                     disabled={isConfirmDisabled}
-                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    className={`flex-1 py-2.5 px-4 rounded-none text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer ${
                       isConfirmDisabled
                         ? "bg-zinc-200 text-zinc-400 border border-zinc-300 cursor-not-allowed shadow-none"
                         : "bg-zinc-950 hover:bg-black text-white shadow-md active:scale-95"
@@ -1334,7 +1335,7 @@ export default function RouteMap({
                   <button
                     type="button"
                     onClick={handleCancelPin}
-                    className="py-2.5 px-3.5 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition cursor-pointer"
+                    className="py-2.5 px-3.5 rounded-none border border-zinc-300 text-xs font-bold bg-white text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
                   >
                     Cancel
                   </button>

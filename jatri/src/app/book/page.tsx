@@ -10,7 +10,8 @@ import {
   Plus, X, Users, Clock, Calendar,
   Search, Edit2, Info, ChevronDown, ChevronUp,
   User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2,
-  Plane, Train, Building2, HeartPulse, AlertCircle, RotateCcw
+  Plane, Train, Building2, HeartPulse, AlertCircle, RotateCcw,
+  Zap, ArrowDownUp, Settings
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -294,6 +295,7 @@ export default function BookPage() {
   const [locating,  setLocating]  = useState(false);
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [showLocationSettingsGuide, setShowLocationSettingsGuide] = useState(false);
   const [recentDestinations, setRecentDestinations] = useState<RecentLocation[]>([]);
   const [vehicles,  setVehicles]  = useState<any[]>([]);
 
@@ -422,6 +424,60 @@ export default function BookPage() {
     } catch (err) {
       console.error("Error fetching stop place details:", err);
     }
+  };
+
+  const handleMoveStop = (fromIdx: number, toIdx: number) => {
+    setStops((prev) => {
+      if (fromIdx < 0 || fromIdx >= prev.length || toIdx < 0 || toIdx >= prev.length) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      return next;
+    });
+  };
+
+  const handleSwapLocations = () => {
+    if (stops.length > 0) {
+      const allAddresses = [pickup, ...stops.map((s) => s.address), drop].reverse();
+      const allLats = [pickupLat, ...stops.map((s) => s.lat), dropLat].reverse();
+      const allLngs = [pickupLng, ...stops.map((s) => s.lng), dropLng].reverse();
+
+      setPickup(allAddresses[0] || "");
+      setPickupLat(allLats[0] || null);
+      setPickupLng(allLngs[0] || null);
+
+      setDrop(allAddresses[allAddresses.length - 1] || "");
+      setDropLat(allLats[allAddresses.length - 1] || null);
+      setDropLng(allLngs[allAddresses.length - 1] || null);
+
+      const updatedStops = stops.map((s, idx) => ({
+        ...s,
+        address: allAddresses[idx + 1] || "",
+        lat: allLats[idx + 1] || null,
+        lng: allLngs[idx + 1] || null,
+        results: [],
+      }));
+      setStops(updatedStops);
+    } else {
+      const prevPickup = pickup;
+      const prevLat = pickupLat;
+      const prevLng = pickupLng;
+      const prevDetails = pickupDetails;
+
+      setPickup(drop);
+      setPickupLat(dropLat);
+      setPickupLng(dropLng);
+
+      setDrop(prevPickup);
+      setDropLat(prevLat);
+      setDropLng(prevLng);
+
+      if (!prevPickup && prevDetails) {
+        setPickupDetails(null);
+      }
+    }
+    setPickupResults([]);
+    setDropResults([]);
   };
 
   const getMultiStopHaversineDistance = () => {
@@ -1128,39 +1184,80 @@ export default function BookPage() {
   const renderLocationInputs = () => (
     <div className="space-y-2.5 relative z-40">
       {locationError && (
-        <div className="p-3 bg-amber-50 border border-amber-300 rounded-none text-amber-950 text-xs flex items-start gap-2.5">
-          <AlertCircle size={15} className="text-amber-700 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <p className="font-black uppercase tracking-wider text-[10px] text-amber-900">Location Permission Notice</p>
-            <p className="text-[11px] font-medium text-amber-800 leading-snug mt-0.5">{locationError}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <button
-                type="button"
-                onClick={useCurrentLocation}
-                className="px-2.5 py-1 bg-amber-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
-              >
-                Allow / Retry
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLocationError(null);
-                  setActiveSearchField(null);
-                  setMapSelectionMode("pickup");
-                }}
-                className="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-400 text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
-              >
-                Set on Map
-              </button>
-              <button
-                type="button"
-                onClick={() => setLocationError(null)}
-                className="text-[10px] font-bold text-amber-700 hover:text-amber-900 underline ml-auto cursor-pointer"
-              >
-                Dismiss
-              </button>
+        <div className="p-3.5 bg-zinc-950 border border-zinc-800 text-white rounded-none text-xs space-y-2.5 shadow-md">
+          <div className="flex items-start justify-between gap-2.5">
+            <div className="flex items-start gap-2.5 min-w-0">
+              <div className="w-6 h-6 rounded-none bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <LocateFixed size={13} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-extrabold text-[11px] uppercase tracking-wider text-white">Location Access Needed</p>
+                <p className="text-[11px] text-zinc-300 leading-snug mt-0.5">
+                  Allow location access to auto-detect your pickup point, or update your browser site settings.
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                setLocationError(null);
+                setShowLocationSettingsGuide(false);
+              }}
+              className="text-zinc-400 hover:text-white transition p-1 cursor-pointer flex-shrink-0"
+              title="Dismiss"
+            >
+              <X size={14} />
+            </button>
           </div>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-800">
+            <button
+              type="button"
+              onClick={useCurrentLocation}
+              disabled={locating}
+              className="px-3 py-1.5 bg-white text-zinc-950 hover:bg-zinc-200 text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              <LocateFixed size={11} className={locating ? "animate-spin" : ""} />
+              <span>{locating ? "Detecting..." : "Ask Permission Again"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowLocationSettingsGuide((prev) => !prev)}
+              className="px-3 py-1.5 bg-zinc-850 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <Settings size={11} className="text-zinc-400" />
+              <span>{showLocationSettingsGuide ? "Hide Settings Guide" : "Change Site Settings"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setLocationError(null);
+                setActiveSearchField(null);
+                setMapSelectionMode("pickup");
+              }}
+              className="px-3 py-1.5 bg-transparent hover:bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <MapPin size={11} />
+              <span>Set on Map</span>
+            </button>
+          </div>
+
+          {showLocationSettingsGuide && (
+            <div className="mt-2.5 p-3 bg-zinc-900 border border-zinc-850 text-zinc-300 rounded-none text-[11px] space-y-2">
+              <p className="font-bold text-white text-[11px] flex items-center gap-1.5">
+                <Settings size={12} className="text-amber-400" />
+                <span>How to enable location in your browser:</span>
+              </p>
+              <ol className="list-decimal list-inside space-y-1 text-zinc-400 pl-1 text-[10px] leading-relaxed">
+                <li>Look for the <strong className="text-zinc-200">Padlock 🔒</strong> or <strong className="text-zinc-200">Tune/Sliders ⚙️</strong> icon in your browser address bar next to the website URL.</li>
+                <li>Click <strong className="text-zinc-200">&quot;Permissions&quot;</strong> or <strong className="text-zinc-200">&quot;Site settings&quot;</strong>.</li>
+                <li>Find <strong className="text-zinc-200">&quot;Location&quot;</strong> and switch from &quot;Block&quot; to <strong className="text-emerald-400">&quot;Allow&quot;</strong>.</li>
+                <li>Return here and click <strong className="text-white">&quot;Ask Permission Again&quot;</strong>.</li>
+              </ol>
+            </div>
+          )}
         </div>
       )}
 
@@ -1350,6 +1447,21 @@ export default function BookPage() {
         </AnimatePresence>
       </div>
 
+      {/* Swap Locations Button */}
+      <div className="flex items-center justify-between px-1 -my-1 relative z-20">
+        <div className="h-[1px] bg-zinc-200 flex-1 mr-2" />
+        <button
+          type="button"
+          onClick={handleSwapLocations}
+          title="Swap pickup and destination"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-900 text-[10px] font-extrabold uppercase tracking-wider shadow-2xs transition active:scale-95 cursor-pointer"
+        >
+          <ArrowDownUp size={11} className="text-zinc-800" />
+          <span>Swap</span>
+        </button>
+        <div className="h-[1px] bg-zinc-200 flex-1 ml-2" />
+      </div>
+
       {/* Intermediate Stops */}
       <WaypointsManager
         stops={stops}
@@ -1357,6 +1469,7 @@ export default function BookPage() {
         onRemoveStop={handleRemoveStop}
         onStopChange={handleStopChange}
         onSelectStopPlace={selectStopPlace}
+        onMoveStop={handleMoveStop}
         maxStops={2}
       />
 
@@ -1558,43 +1671,6 @@ export default function BookPage() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      {/* Quick Destination Chips with bespoke vector badges and fills */}
-      <div className="flex gap-2 overflow-x-auto pb-1 pt-1 scrollbar-hide">
-        {[
-          { label: "Airport", icon: Plane, style: "bg-sky-50 text-sky-950 border-sky-300 hover:bg-sky-100", iconStyle: "text-sky-600 bg-sky-200/60" },
-          { label: "Railway Station", icon: Train, style: "bg-indigo-50 text-indigo-950 border-indigo-300 hover:bg-indigo-100", iconStyle: "text-indigo-600 bg-indigo-200/60" },
-          { label: "City Center", icon: Building2, style: "bg-purple-50 text-purple-950 border-purple-300 hover:bg-purple-100", iconStyle: "text-purple-600 bg-purple-200/60" },
-          { label: "Metro", icon: Navigation, style: "bg-emerald-50 text-emerald-950 border-emerald-300 hover:bg-emerald-100", iconStyle: "text-emerald-600 bg-emerald-200/60" },
-          { label: "Hospital", icon: HeartPulse, style: "bg-rose-50 text-rose-950 border-rose-300 hover:bg-rose-100", iconStyle: "text-rose-600 bg-rose-200/60" },
-        ].map((chip) => {
-          const ChipIcon = chip.icon;
-          return (
-            <button
-              key={chip.label}
-              type="button"
-              onClick={() => {
-                const isTargetDrop = Boolean(pickup);
-                if (isTargetDrop) {
-                  setDrop(chip.label);
-                  setActiveSearchField("drop");
-                  debouncedSearchAddress("drop", chip.label, setDropResults, pickupCountry || "in");
-                } else {
-                  setPickup(chip.label);
-                  setActiveSearchField("pickup");
-                  debouncedSearchAddress("pickup", chip.label, setPickupResults, pickupCountry || "in");
-                }
-              }}
-              className={`px-2.5 py-1.5 rounded-none text-[11px] font-black flex items-center gap-1.5 transition flex-shrink-0 border cursor-pointer ${chip.style}`}
-            >
-              <span className={`w-4 h-4 rounded-none flex items-center justify-center p-0.5 ${chip.iconStyle}`}>
-                <ChipIcon size={11} />
-              </span>
-              <span>{chip.label}</span>
-            </button>
-          );
-        })}
       </div>
 
     </div>
@@ -1959,6 +2035,9 @@ export default function BookPage() {
             const fare = estimateFare(v.id, effectiveDistance);
             const isSmartPick = smartMatchResult?.vehicleId === v.id;
             const Icon = VEHICLE_ICONS[v.id] || Car;
+            const isFastest =
+              (serviceMode === "passenger" && (v.id === "bike" || v.id === "scooty")) ||
+              (serviceMode === "logistics" && v.id === "loading");
 
             return (
               <div
@@ -1973,8 +2052,9 @@ export default function BookPage() {
                 } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
               >
                 {isSmartPick && (
-                  <span className="absolute -top-2 right-4 bg-emerald-700 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-none shadow-xs">
-                    ⭐ Best Match
+                  <span className="absolute -top-2 right-4 bg-emerald-700 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-none shadow-xs flex items-center gap-1">
+                    <Sparkles size={9} />
+                    <span>Best Match</span>
                   </span>
                 )}
                 <div className="flex items-center gap-3.5 min-w-0">
@@ -1986,15 +2066,34 @@ export default function BookPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <p className="font-extrabold text-sm leading-tight truncate tracking-tight">{v.label}</p>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-none border ${
-                        isSelected ? "bg-amber-400/25 text-amber-300 border-amber-400/40" : "bg-amber-50 text-amber-900 border-amber-300"
-                      }`}>
-                        ⚡ {v.etaText}
-                      </span>
-                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-none border ${
+                      {isFastest ? (
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-none border ${
+                          isSelected ? "bg-amber-400/25 text-amber-300 border-amber-400/40" : "bg-amber-50 text-amber-900 border-amber-300"
+                        }`}>
+                          <Zap size={10} className={isSelected ? "text-amber-300 fill-amber-300" : "text-amber-700 fill-amber-700"} />
+                          <span>{v.etaText}</span>
+                        </span>
+                      ) : (
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-none border ${
+                          isSelected ? "bg-zinc-800 text-zinc-300 border-zinc-700" : "bg-zinc-100 text-zinc-600 border-zinc-200"
+                        }`}>
+                          {v.etaText}
+                        </span>
+                      )}
+                      <span className={`inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-none border ${
                         isSelected ? "bg-emerald-950 text-emerald-300 border-emerald-600/40" : "bg-emerald-50 text-emerald-800 border-emerald-300"
                       }`}>
-                        {v.passengerCapacity ? `${v.passengerCapacity} seats` : `${v.maxWeightKg} kg`}
+                        {v.passengerCapacity ? (
+                          <>
+                            <User size={10} className={isSelected ? "text-emerald-300" : "text-emerald-700"} />
+                            <span>{v.passengerCapacity}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Package size={10} className={isSelected ? "text-emerald-300" : "text-emerald-700"} />
+                            <span>{v.maxWeightKg} kg</span>
+                          </>
+                        )}
                       </span>
                     </div>
                     <p className={`text-[11px] truncate mt-1 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
@@ -2189,15 +2288,6 @@ export default function BookPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={resetAllTripData}
-                title="Reset trip and refresh current location"
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-none border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-700 text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
-              >
-                <RotateCcw size={11} />
-                <span>New Ride</span>
-              </button>
               {hasRoute && (
                 <span className="text-[10px] font-black uppercase tracking-wider bg-zinc-950 text-white border border-zinc-950 px-2.5 py-1 rounded-none">
                   {effectiveDistance} km
@@ -2459,18 +2549,6 @@ export default function BookPage() {
                     <span className="text-[10px] font-black px-2 py-0.5 rounded-none bg-zinc-950 text-white border border-zinc-950">
                       {effectiveDistance} km
                     </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        resetAllTripData();
-                      }}
-                      className="px-2 py-0.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-800 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
-                      title="Reset trip and refresh current location"
-                    >
-                      <RotateCcw size={10} />
-                      <span>New</span>
-                    </button>
                     <button
                       type="button"
                       onClick={(e) => {
