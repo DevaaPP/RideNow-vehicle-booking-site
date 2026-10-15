@@ -19,6 +19,7 @@ interface WaypointsManagerProps {
   onMoveStopUp?: (stopIndex: number) => void;
   onMoveStopDown?: (stopIndex: number) => void;
   maxStops?: number;
+  hideAddButton?: boolean;
 }
 
 export default function WaypointsManager({
@@ -30,6 +31,7 @@ export default function WaypointsManager({
   onMoveStopUp,
   onMoveStopDown,
   maxStops = 2,
+  hideAddButton = false,
 }: WaypointsManagerProps) {
   return (
     <div className="space-y-2">
@@ -103,7 +105,7 @@ export default function WaypointsManager({
         </div>
       ))}
 
-      {stops.length < maxStops && (
+      {!hideAddButton && stops.length < maxStops && (
         <button
           type="button"
           onClick={onAddStop}

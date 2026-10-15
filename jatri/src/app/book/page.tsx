@@ -1531,9 +1531,38 @@ export default function BookPage() {
         </AnimatePresence>
       </div>
 
-      {/* Swap Locations Button */}
-      <div className="flex items-center justify-between px-1 -my-1 relative z-20">
-        <div className="h-[1px] bg-zinc-200 flex-1 mr-2" />
+      {/* Intermediate Stops */}
+      {stops.length > 0 && (
+        <WaypointsManager
+          stops={stops}
+          onAddStop={handleAddStop}
+          onRemoveStop={handleRemoveStop}
+          onStopChange={handleStopChange}
+          onSelectStopPlace={selectStopPlace}
+          onMoveStopUp={handleMoveStopUp}
+          onMoveStopDown={handleMoveStopDown}
+          maxStops={2}
+          hideAddButton={true}
+        />
+      )}
+
+      {/* Unified Route Actions Row: Add Stop + Swap */}
+      <div className="flex items-center justify-between px-0.5 py-1 relative z-20">
+        {stops.length < 2 ? (
+          <button
+            type="button"
+            onClick={handleAddStop}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none border border-dashed border-zinc-300 hover:border-zinc-500 bg-white hover:bg-zinc-50 text-zinc-800 text-[10px] font-bold tracking-tight transition cursor-pointer"
+          >
+            <Plus size={12} className="text-zinc-700" />
+            <span>Add stop (max 2)</span>
+          </button>
+        ) : (
+          <span className="text-[10px] font-semibold text-zinc-400">Max 2 stops</span>
+        )}
+
+        <div className="h-[1px] bg-zinc-200 flex-1 mx-3" />
+
         <button
           type="button"
           onClick={handleSwapLocations}
@@ -1543,20 +1572,7 @@ export default function BookPage() {
           <ArrowDownUp size={11} className="text-zinc-800" />
           <span>Swap</span>
         </button>
-        <div className="h-[1px] bg-zinc-200 flex-1 ml-2" />
       </div>
-
-      {/* Intermediate Stops */}
-      <WaypointsManager
-        stops={stops}
-        onAddStop={handleAddStop}
-        onRemoveStop={handleRemoveStop}
-        onStopChange={handleStopChange}
-        onSelectStopPlace={selectStopPlace}
-        onMoveStopUp={handleMoveStopUp}
-        onMoveStopDown={handleMoveStopDown}
-        maxStops={2}
-      />
 
       {/* Destination Row */}
       <div className="relative">
@@ -2367,7 +2383,7 @@ export default function BookPage() {
     <div className="relative w-full h-screen overflow-hidden bg-white font-sans select-none flex flex-col md:flex-row">
       
       {/* ══ 1. DESKTOP / TABLET UNIFIED EDITORIAL PANEL (BOOKING SIDE) ══ */}
-      <div className={`hidden md:flex w-full md:w-[460px] lg:w-[500px] xl:w-[540px] md:max-w-[50%] h-full flex-col bg-white border-r border-zinc-200 z-10 rounded-none overflow-hidden transition-all duration-300 flex-shrink-0 ${
+      <div className={`hidden md:flex w-full md:w-1/2 lg:w-1/2 xl:w-1/2 md:max-w-[50%] h-full flex-col bg-white border-r border-zinc-200 z-10 rounded-none overflow-hidden transition-all duration-300 flex-shrink-0 ${
         mapSelectionMode !== "none" ? "opacity-0 pointer-events-none -translate-x-12" : "opacity-100 translate-x-0"
       }`}>
         
@@ -2465,7 +2481,7 @@ export default function BookPage() {
       <div className={`hidden md:block ${
         mapSelectionMode !== "none"
           ? "fixed inset-0 z-40 bg-zinc-100"
-          : "flex-1 h-full relative z-0 bg-zinc-100"
+          : "w-full md:w-1/2 flex-1 h-full relative z-0 bg-zinc-100"
       }`}>
         <RouteMap
           pickup={pickup}

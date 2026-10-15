@@ -201,8 +201,11 @@ function createCurrentLocationEl(): HTMLElement {
 function createVehicleMapMarkerEl(type?: string): HTMLElement {
   const el = document.createElement("div");
   el.className = "select-none pointer-events-none";
-  const isAuto = type === "auto";
-  const isBike = type === "bike" || type === "scooty";
+  const normalized = (type || "").toLowerCase();
+  const isAuto = normalized === "auto";
+  const isBike = normalized === "bike" || normalized === "scooty";
+  const isTruck = normalized === "loading" || normalized === "truck" || normalized === "pickup_truck" || normalized === "tata_ace";
+  const isSuv = normalized === "suv" || normalized === "xl";
 
   if (isBike) {
     el.innerHTML = `
@@ -220,6 +223,30 @@ function createVehicleMapMarkerEl(type?: string): HTMLElement {
           <rect x="6" y="5" width="16" height="5" rx="1.5" fill="#fbbf24"/>
           <circle cx="7" cy="21" r="2.5" fill="#09090b" stroke="#ffffff" stroke-width="1"/>
           <circle cx="21" cy="21" r="2.5" fill="#09090b" stroke="#ffffff" stroke-width="1"/>
+        </svg>
+      </div>
+    `;
+  } else if (isTruck) {
+    el.innerHTML = `
+      <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.38));width:26px;height:34px;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="32" viewBox="0 0 24 36" fill="none">
+          <rect x="2" y="2" width="20" height="20" rx="2" fill="#18181b" stroke="#ffffff" stroke-width="1.5"/>
+          <rect x="4" y="22" width="16" height="11" rx="3" fill="#09090b" stroke="#ffffff" stroke-width="1.5"/>
+          <rect x="6" y="24" width="12" height="4" rx="1" fill="#f59e0b" fill-opacity="0.9"/>
+          <circle cx="5" cy="5" r="1.5" fill="#ffffff"/>
+          <circle cx="19" cy="5" r="1.5" fill="#ffffff"/>
+        </svg>
+      </div>
+    `;
+  } else if (isSuv) {
+    el.innerHTML = `
+      <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.38));width:26px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="30" viewBox="0 0 26 38" fill="none">
+          <rect x="2.5" y="3" width="21" height="32" rx="5" fill="#09090b" stroke="#ffffff" stroke-width="1.6"/>
+          <rect x="4.5" y="7" width="17" height="7" rx="2" fill="#6366f1" fill-opacity="0.85"/>
+          <rect x="4.5" y="24" width="17" height="6" rx="2" fill="#6366f1" fill-opacity="0.85"/>
+          <circle cx="6" cy="4.5" r="1.5" fill="#fef08a"/>
+          <circle cx="20" cy="4.5" r="1.5" fill="#fef08a"/>
         </svg>
       </div>
     `;
@@ -1035,7 +1062,7 @@ export default function RouteMap({
     }
   }, [p1, p2, stops, renderRoute, clearRoute, drop, onChange, onCoordinatesChange, pickup, activePinMode, durationMin, reverseGeocodeFull]);
 
-  // 5. Vehicles (Auto-rickshaws & Cars)
+  // 5. Vehicles (Strictly Actual Live Dispatched Fleet - NO mock/dummy markers)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -1043,17 +1070,12 @@ export default function RouteMap({
     vehicleMarkersRef.current.forEach((m) => m.remove());
     vehicleMarkersRef.current = [];
 
-    const defaultNearby = p1
-      ? [
-          { lat: p1[0] + 0.003, lng: p1[1] + 0.002, type: "auto" },
-          { lat: p1[0] - 0.002, lng: p1[1] + 0.004, type: "auto" },
-          { lat: p1[0] + 0.004, lng: p1[1] - 0.003, type: "car" },
-        ]
-      : [];
+    // Strictly show ONLY actual nearby vehicles from database when riders/drivers are present
+    if (!vehicles || !Array.isArray(vehicles) || vehicles.length === 0) {
+      return;
+    }
 
-    const activeList = vehicles && vehicles.length > 0 ? vehicles : defaultNearby;
-
-    activeList.forEach((v: any) => {
+    vehicles.forEach((v: any) => {
       const loc = v.location?.coordinates || [v.lng, v.lat];
       if (!loc || loc.length < 2) return;
       const [lng, lat] = loc;
@@ -1063,7 +1085,7 @@ export default function RouteMap({
         .addTo(map);
       vehicleMarkersRef.current.push(marker);
     });
-  }, [vehicles, p1]);
+  }, [vehicles]);
 
   // 6. User GPS Location Beacon (Google Maps pulsating blue halo + dot)
   useEffect(() => {
