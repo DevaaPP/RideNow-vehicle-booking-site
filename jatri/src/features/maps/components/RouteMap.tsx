@@ -1267,7 +1267,8 @@ export default function RouteMap({
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-40 bg-white/95 backdrop-blur-md border border-zinc-200/90 rounded-2xl shadow-2xl p-4 flex flex-col gap-3"
+            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-white border border-zinc-200 rounded-2xl shadow-2xl p-4 flex flex-col gap-3 isolate"
+            style={{ zIndex: 2000 }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -1283,7 +1284,7 @@ export default function RouteMap({
               <button
                 type="button"
                 onClick={handleCancelPin}
-                className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 transition flex items-center justify-center"
+                className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 transition flex items-center justify-center cursor-pointer"
               >
                 <X size={14} />
               </button>
@@ -1305,28 +1306,41 @@ export default function RouteMap({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={handleConfirmPin}
-                disabled={isPinGeocoding}
-                className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-black text-white shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5 ${
-                  activePinMode === "pickup"
-                    ? "bg-zinc-900 hover:bg-black"
-                    : "bg-zinc-900 hover:bg-black"
-                }`}
-              >
-                <Check size={14} className="text-emerald-400" />
-                <span>Confirm Location</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleCancelPin}
-                className="py-2.5 px-3.5 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition"
-              >
-                Cancel
-              </button>
-            </div>
+            {(() => {
+              const isConfirmDisabled =
+                isPinGeocoding ||
+                isMapMoving ||
+                !pinAddress ||
+                pinAddress.trim() === "" ||
+                pinAddress === "Move map to choose location" ||
+                pinAddress.includes("Moving map") ||
+                pinAddress.includes("Resolving address");
+
+              return (
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleConfirmPin}
+                    disabled={isConfirmDisabled}
+                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                      isConfirmDisabled
+                        ? "bg-zinc-200 text-zinc-400 border border-zinc-300 cursor-not-allowed shadow-none"
+                        : "bg-zinc-950 hover:bg-black text-white shadow-md active:scale-95"
+                    }`}
+                  >
+                    <Check size={14} className={isConfirmDisabled ? "text-zinc-400" : "text-emerald-400"} />
+                    <span>Confirm Location</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelPin}
+                    className="py-2.5 px-3.5 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              );
+            })()}
           </motion.div>
         )}
       </AnimatePresence>

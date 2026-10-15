@@ -7,10 +7,10 @@ import {
   Bike, Car, Truck, Loader2, CheckCircle2,
   XCircle, Clock, CreditCard, Banknote,
   ArrowRight, ArrowLeft, RotateCcw, AlertCircle, Wallet,
-  Users, UserPlus, Share2, IndianRupee, Package
+  Users, UserPlus, Share2, IndianRupee, Package, Edit2
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import useGetMe from "@/shared/hooks/useGetMe";
@@ -33,17 +33,18 @@ type Status =
   | "payment" | "confirmed" | "auto_rematching";
 
 export default function CheckoutContent() {
+  const router = useRouter();
   const { userData } = useSelector((state: RootState) => state.user);
   useGetMe(true);
 
   const params = useSearchParams();
 
   // Query parameter fallbacks (backwards-compatible)
-  const pickupParam    = params.get("pickup")    || "Pickup Location";
-  const dropParam      = params.get("drop")      || "Drop Location";
-  const vehicleParam   = params.get("vehicle")   || "car";
+  const pickupParam    = params.get("pickup")    || "";
+  const dropParam      = params.get("drop")      || "";
+  const vehicleParam   = params.get("vehicle")   || "";
   const vehicleIdParam = params.get("vehicleId") || undefined;
-  const fareParam      = Number(params.get("fare")) || 249;
+  const fareParam      = params.get("fare") ? Number(params.get("fare")) : 0;
   const mobileParam    = params.get("mobileNumber") || "";
   const driverIdParam  = params.get("driverId")  || undefined;
   const pickupLatParam = params.get("pickupLat") ? Number(params.get("pickupLat")) : null;
@@ -58,9 +59,9 @@ export default function CheckoutContent() {
   const isScheduledParam = params.get("isScheduled") === "true";
   const scheduledTimeParam = params.get("scheduledTime");
 
-  const [pickup,       setPickup]       = useState(pickupParam);
-  const [drop,         setDrop]         = useState(dropParam);
-  const [vehicle,      setVehicle]      = useState(vehicleParam);
+  const [pickup,       setPickup]       = useState(pickupParam || "Pickup Location");
+  const [drop,         setDrop]         = useState(dropParam || "Drop Location");
+  const [vehicle,      setVehicle]      = useState(vehicleParam || "car");
   const [vehicleId,    setVehicleId]    = useState<string | undefined>(vehicleIdParam);
   const [fare,         setFare]         = useState(fareParam);
   const [mobileNumber, setMobileNumber] = useState(mobileParam);
@@ -103,7 +104,9 @@ export default function CheckoutContent() {
   const [distanceKm,    setDistanceKm]    = useState<number | null>(null);
 
   const computedBreakdown = useMemo(() => {
-    if (bookingBreakdown) return bookingBreakdown;
+    if (bookingBreakdown && (!vehicle || bookingBreakdown.vehicleType?.toLowerCase() === vehicle?.toLowerCase())) {
+      return bookingBreakdown;
+    }
     if (!pickupLat || !pickupLng || !dropLat || !dropLng) return null;
     
     const allPoints: [number, number][] = [
@@ -184,6 +187,7 @@ export default function CheckoutContent() {
           if (draft.vehicle) setVehicle(draft.vehicle);
           if (draft.vehicleId) setVehicleId(draft.vehicleId);
           if (draft.fare) setFare(Number(draft.fare));
+          if (draft.fareBreakdown) setBookingBreakdown(draft.fareBreakdown);
           if (draft.mobileNumber) setMobileNumber(draft.mobileNumber);
           if (draft.driverId) setDriverId(draft.driverId);
           if (typeof draft.pickupLat === "number") setPickupLat(draft.pickupLat);
@@ -668,22 +672,43 @@ export default function CheckoutContent() {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="mb-6 sm:mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
         >
-          <div>
-            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
-              <div className="h-px w-8 bg-zinc-900" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Booking</span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="w-10 h-10 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 flex items-center justify-center text-zinc-900 transition shadow-xs active:scale-95 cursor-pointer shrink-0"
+              aria-label="Go back"
+              title="Go back"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
+                <div className="h-px w-8 bg-zinc-900" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Booking</span>
+              </div>
+              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-zinc-900">Checkout</h1>
+              <p className="text-zinc-500 text-xs sm:text-sm mt-0.5 font-medium">Review your ride and confirm</p>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-zinc-900">Checkout</h1>
-            <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-medium">Review your ride and confirm</p>
           </div>
 
-          <Link
-            href="/book?edit=true"
-            className="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition shadow-xs active:scale-95"
-          >
-            <ArrowLeft size={14} className="sm:w-[15px] sm:h-[15px]" />
-            <span>Edit Ride Details</span>
-          </Link>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="inline-flex sm:hidden items-center gap-1.5 px-3.5 py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition shadow-xs active:scale-95 cursor-pointer"
+            >
+              <ArrowLeft size={14} />
+              <span>Back</span>
+            </button>
+            <Link
+              href="/book?edit=true"
+              className="inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition shadow-xs active:scale-95"
+            >
+              <Edit2 size={14} className="sm:w-[15px] sm:h-[15px]" />
+              <span>Edit Ride Details</span>
+            </Link>
+          </div>
         </motion.div>
 
         {/* Missing locations warning banner */}

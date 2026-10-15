@@ -1073,6 +1073,7 @@ export default function BookPage() {
       drop,
       vehicle,
       fare: estFare,
+      fareBreakdown: currentBreakdown,
       mobileNumber: mobile,
       pickupLat,
       pickupLng,
@@ -1111,7 +1112,16 @@ export default function BookPage() {
       console.warn("sessionStorage save error:", e);
     }
 
-    router.push("/checkout");
+    const queryParams = new URLSearchParams({
+      vehicle: String(vehicle),
+      fare: String(estFare),
+      ...(pickupLat ? { pickupLat: String(pickupLat) } : {}),
+      ...(pickupLng ? { pickupLng: String(pickupLng) } : {}),
+      ...(dropLat ? { dropLat: String(dropLat) } : {}),
+      ...(dropLng ? { dropLng: String(dropLng) } : {}),
+    });
+
+    router.push(`/checkout?${queryParams.toString()}`);
   };
 
   /* ── SHARED FORM SECTIONS (REUSABLE ACROSS UNIFIED PANEL) ── */

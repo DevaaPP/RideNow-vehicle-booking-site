@@ -17,8 +17,9 @@ export async function GET(req: Request) {
     try {
       await connectDb();
 
-      if (forceSync) {
-        // Upsert all canonical DEFAULT_VEHICLE_RATES into FareConfig collection
+      // Always synchronize canonical rates into database if empty, mismatched or on forceSync
+      const configs = await FareConfig.find({});
+      if (!configs || configs.length < Object.keys(DEFAULT_VEHICLE_RATES).length || forceSync) {
         for (const [vType, rate] of Object.entries(DEFAULT_VEHICLE_RATES)) {
           await FareConfig.findOneAndUpdate(
             { vehicleType: vType.toLowerCase() },
@@ -28,27 +29,9 @@ export async function GET(req: Request) {
         }
       }
 
-      const configs = await FareConfig.find({});
-      if (configs && configs.length > 0) {
-        configs.forEach((c) => {
-          const key = c.vehicleType.toLowerCase();
-          if (DEFAULT_VEHICLE_RATES[key]) {
-            ratesMap[key] = {
-              ...DEFAULT_VEHICLE_RATES[key],
-              baseFare: typeof c.baseFare === "number" ? c.baseFare : DEFAULT_VEHICLE_RATES[key].baseFare,
-              pricePerKm: typeof c.pricePerKm === "number" ? c.pricePerKm : DEFAULT_VEHICLE_RATES[key].pricePerKm,
-              pricePerMinute: typeof c.pricePerMinute === "number" ? c.pricePerMinute : 0,
-              waitingChargePerMinute: typeof c.waitingChargePerMinute === "number" ? c.waitingChargePerMinute : DEFAULT_VEHICLE_RATES[key].waitingChargePerMinute,
-              freeWaitingMinutes: typeof c.freeWaitingMinutes === "number" ? c.freeWaitingMinutes : DEFAULT_VEHICLE_RATES[key].freeWaitingMinutes,
-              platformFee: typeof c.platformFee === "number" ? c.platformFee : DEFAULT_VEHICLE_RATES[key].platformFee,
-              taxRate: typeof c.taxRate === "number" ? c.taxRate : DEFAULT_VEHICLE_RATES[key].taxRate,
-              cancellationFee: typeof c.cancellationFee === "number" ? c.cancellationFee : DEFAULT_VEHICLE_RATES[key].cancellationFee,
-              multiplier: typeof c.multiplier === "number" ? c.multiplier : 1.0,
-              minDistance: typeof c.minDistance === "number" ? c.minDistance : DEFAULT_VEHICLE_RATES[key].minDistance,
-              maxDistance: typeof c.maxDistance === "number" ? c.maxDistance : DEFAULT_VEHICLE_RATES[key].maxDistance,
-            };
-          }
-        });
+      // Re-read or return authoritative ratesMap directly from DEFAULT_VEHICLE_RATES
+      for (const [key, def] of Object.entries(DEFAULT_VEHICLE_RATES)) {
+        ratesMap[key] = { ...def };
       }
     } catch (dbErr) {
       console.warn("Pricing DB connection fallback to defaults:", dbErr);
