@@ -2024,13 +2024,27 @@ export default function BookPage() {
               className="pt-2.5 border-t border-zinc-200 space-y-2 text-xs text-zinc-600 font-medium"
             >
               <div className="flex justify-between">
-                <span>Base Fare (Pickup & Flagdown)</span>
+                <span>
+                  Base Fare {currentBreakdown.baseDistanceKm ? `(First ${currentBreakdown.baseDistanceKm} km included)` : "(Pickup & Flagdown)"}
+                </span>
                 <span className="font-bold text-zinc-900">₹{currentBreakdown.baseFare}</span>
               </div>
               <div className="flex justify-between text-[11px]">
-                <span>Distance Fare ({currentBreakdown.distanceKm} km × ₹{currentBreakdown.pricePerKm}/km)</span>
+                <span>
+                  Distance Fare (
+                  {(currentBreakdown.billableDistanceKm ?? currentBreakdown.distanceKm) > 0
+                    ? `${currentBreakdown.billableDistanceKm ?? currentBreakdown.distanceKm} km × ₹${currentBreakdown.pricePerKm}/km`
+                    : `Included in base fare`}
+                  )
+                </span>
                 <span className="font-bold text-zinc-900">₹{currentBreakdown.distanceFare}</span>
               </div>
+              {currentBreakdown.surgeAmount > 0 && (
+                <div className="flex justify-between text-[11px] text-amber-600 font-bold">
+                  <span>High Demand Surge ({currentBreakdown.surgeMultiplier}x)</span>
+                  <span>+₹{currentBreakdown.surgeAmount}</span>
+                </div>
+              )}
               <div className="flex justify-between text-[11px]">
                 <span>Platform Tech Fee</span>
                 <span className="font-bold text-zinc-900">₹{currentBreakdown.platformFee}</span>

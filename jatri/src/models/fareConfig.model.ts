@@ -1,8 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IFareConfig extends Document {
-  vehicleType: string; // e.g. bike, auto, car, loading, truck
+  vehicleType: string; // e.g. scooty, bike, auto, mini, car, priority, loading, truck
   baseFare: number;
+  baseDistanceKm?: number;
   pricePerKm: number;
   pricePerMinute: number;
   waitingChargePerMinute: number;
@@ -21,6 +22,7 @@ const FareConfigSchema = new Schema<IFareConfig>(
   {
     vehicleType: { type: String, required: true, unique: true, lowercase: true, trim: true },
     baseFare: { type: Number, required: true, default: 0 },
+    baseDistanceKm: { type: Number, required: false, default: 0 },
     pricePerKm: { type: Number, required: true, default: 0 },
     pricePerMinute: { type: Number, required: true, default: 0 },
     waitingChargePerMinute: { type: Number, required: true, default: 2 },
