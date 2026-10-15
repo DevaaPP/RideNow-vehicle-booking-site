@@ -11,6 +11,7 @@ type Props = {
   drop: string;
   pickupCoords?: [number, number] | null;
   dropCoords?: [number, number] | null;
+  userCoords?: [number, number] | null;
   onDistance?: (km: number) => void;
   onChange?: (
     pickup: string,
@@ -43,40 +44,43 @@ type Props = {
 
 /* ─── DOM MARKER GENERATORS (ELEVATED STEM ZERO-COLLISION CALLOUTS) ─────── */
 
-function createPickupEl(durationMin?: number | null): HTMLElement {
+function createPickupEl(locationName?: string, durationMin?: number | null): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
+  el.style.zIndex = "1000";
 
+  const rawTitle = (locationName || "").split(",")[0].trim();
+  const cleanTitle = rawTitle && rawTitle.length > 0 ? (rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle) : "Pickup";
   const etaBadge = durationMin && durationMin > 0 ? ` • ${durationMin} min` : "";
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3));transform:translateY(3px);">
-      <!-- Elevated Callout Badge -->
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.35));transform:translateY(3px);">
+      <!-- Elevated Callout Badge (Floats clean above route line) -->
       <div style="
         background: #09090b;
         color: #ffffff;
-        padding: 4px 8px;
+        padding: 5px 10px;
         border-radius: 2px;
-        font-size: 9.5px;
-        font-weight: 900;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         border: 1.5px solid #ffffff;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
       ">
-        <span style="width:5px;height:5px;border-radius:1px;background:#ffffff;display:inline-block;"></span>
-        PICKUP${etaBadge}
+        <span style="width:6px;height:6px;border-radius:1px;background:#ffffff;display:inline-block;flex-shrink:0;"></span>
+        <span>${cleanTitle}</span>
+        ${etaBadge ? `<span style="opacity:0.8;font-size:9px;font-weight:600;">${etaBadge}</span>` : ""}
       </div>
 
-      <!-- Hairline Elevated Stem -->
+      <!-- Hairline Elevated Stem (passes clean over route casing) -->
       <div style="
         width: 2px;
-        height: 18px;
+        height: 24px;
         background: #09090b;
         box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
       "></div>
@@ -95,37 +99,41 @@ function createPickupEl(durationMin?: number | null): HTMLElement {
   return el;
 }
 
-function createDropEl(): HTMLElement {
+function createDropEl(locationName?: string): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
+  el.style.zIndex = "1000";
+
+  const rawTitle = (locationName || "").split(",")[0].trim();
+  const cleanTitle = rawTitle && rawTitle.length > 0 ? (rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle) : "Drop";
+
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3));transform:translateY(3px);">
-      <!-- Elevated Callout Badge -->
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.25));transform:translateY(3px);">
+      <!-- Elevated Callout Badge (Floats clean above route line) -->
       <div style="
         background: #ffffff;
         color: #09090b;
-        padding: 4px 8px;
+        padding: 5px 10px;
         border-radius: 2px;
-        font-size: 9.5px;
-        font-weight: 900;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-        border: 2px solid #09090b;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        border: 1.5px solid #09090b;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
       ">
-        <span style="width:5px;height:5px;border-radius:1px;border:1.5px solid #09090b;background:#ffffff;display:inline-block;"></span>
-        DROP
+        <span style="width:6px;height:6px;border-radius:1px;border:1.5px solid #09090b;background:#ffffff;display:inline-block;flex-shrink:0;"></span>
+        <span>${cleanTitle}</span>
       </div>
 
       <!-- Hairline Elevated Stem -->
       <div style="
         width: 2px;
-        height: 18px;
+        height: 24px;
         background: #09090b;
         box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
       "></div>
@@ -146,6 +154,7 @@ function createDropEl(): HTMLElement {
 
 function createStopEl(index: number): HTMLElement {
   const el = document.createElement("div");
+  el.style.zIndex = "1000";
   el.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3));">
       <div style="
@@ -156,7 +165,7 @@ function createStopEl(index: number): HTMLElement {
         border:1.5px solid #ffffff;
         box-shadow:0 2px 8px rgba(0,0,0,0.25);
       ">STOP ${index + 1}</div>
-      <div style="width:2px;height:6px;background:#09090b;"></div>
+      <div style="width:2px;height:12px;background:#09090b;"></div>
       <div style="
         width:8px;height:8px;background:#09090b;border-radius:1px;
         border:2px solid #ffffff;
@@ -166,40 +175,68 @@ function createStopEl(index: number): HTMLElement {
   return el;
 }
 
-function createAutoRickshawEl(): HTMLElement {
+/**
+ * Google Maps Style Pulsing Current Location GPS Beacon
+ */
+function createCurrentLocationEl(): HTMLElement {
   const el = document.createElement("div");
   el.className = "select-none pointer-events-none";
   el.innerHTML = `
-    <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.35));display:flex;align-items:center;justify-content:center;">
-      <svg width="34" height="28" viewBox="0 0 34 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="28" height="13" rx="6" fill="#fbbf24" stroke="#09090b" stroke-width="1.8"/>
-        <rect x="3" y="14" width="28" height="9" rx="2" fill="#15803d" stroke="#09090b" stroke-width="1.8"/>
-        <rect x="8" y="5" width="18" height="7" rx="1.5" fill="#1e293b"/>
-        <circle cx="9" cy="23" r="2.8" fill="#09090b"/>
-        <circle cx="25" cy="23" r="2.8" fill="#09090b"/>
-      </svg>
+    <div style="display:flex;align-items:center;justify-content:center;position:relative;width:34px;height:34px;">
+      <!-- Google Maps Pulsing Accuracy Halo -->
+      <div style="position:absolute;width:30px;height:30px;border-radius:50%;background:rgba(37,99,235,0.22);animation:pulse 2s infinite ease-in-out;"></div>
+      <!-- Crisp White Outer Ring -->
+      <div style="position:relative;width:16px;height:16px;border-radius:50%;background:#ffffff;box-shadow:0 1px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;">
+        <!-- Vibrant Google Blue Core -->
+        <div style="width:10px;height:10px;border-radius:50%;background:#1d4ed8;"></div>
+      </div>
     </div>
   `;
   return el;
 }
 
-function createCarEl(): HTMLElement {
+/**
+ * Sleek Top-Down / Isometric Dispatch Vehicle Silhouette
+ */
+function createVehicleMapMarkerEl(type?: string): HTMLElement {
   const el = document.createElement("div");
   el.className = "select-none pointer-events-none";
-  el.innerHTML = `
-    <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3));display:flex;align-items:center;justify-content:center;">
-      <div style="
-        background:#ffffff;
-        width:28px;height:28px;border-radius:50%;
-        border:2px solid #09090b;
-        display:flex;align-items:center;justify-content:center;
-      ">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#09090b" stroke-width="2.2" stroke-linecap="round">
-          <path d="M5 11L6.5 6.5H17.5L19 11"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/>
+  const isAuto = type === "auto";
+  const isBike = type === "bike" || type === "scooty";
+
+  if (isBike) {
+    el.innerHTML = `
+      <div style="filter:drop-shadow(0 2px 5px rgba(0,0,0,0.3));width:22px;height:22px;display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#09090b" stroke-width="2.4" stroke-linecap="round">
+          <circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 18l4-7h4l4 7"/><path d="M12 11V7h3"/>
         </svg>
       </div>
-    </div>
-  `;
+    `;
+  } else if (isAuto) {
+    el.innerHTML = `
+      <div style="filter:drop-shadow(0 3px 6px rgba(0,0,0,0.32));width:26px;height:26px;display:flex;align-items:center;justify-content:center;">
+        <svg width="26" height="24" viewBox="0 0 28 26" fill="none">
+          <rect x="4" y="3" width="20" height="15" rx="3" fill="#09090b" stroke="#ffffff" stroke-width="1.5"/>
+          <rect x="6" y="5" width="16" height="5" rx="1.5" fill="#fbbf24"/>
+          <circle cx="7" cy="21" r="2.5" fill="#09090b" stroke="#ffffff" stroke-width="1"/>
+          <circle cx="21" cy="21" r="2.5" fill="#09090b" stroke="#ffffff" stroke-width="1"/>
+        </svg>
+      </div>
+    `;
+  } else {
+    // Sleek Dispatch Sedan/Car
+    el.innerHTML = `
+      <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.35));width:24px;height:30px;display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="28" viewBox="0 0 24 36" fill="none">
+          <rect x="3" y="4" width="18" height="28" rx="4.5" fill="#09090b" stroke="#ffffff" stroke-width="1.5"/>
+          <rect x="5" y="8" width="14" height="6" rx="2" fill="#38bdf8" fill-opacity="0.85"/>
+          <rect x="5" y="22" width="14" height="5" rx="1.5" fill="#38bdf8" fill-opacity="0.85"/>
+          <circle cx="6" cy="5.5" r="1.5" fill="#fef08a"/>
+          <circle cx="18" cy="5.5" r="1.5" fill="#fef08a"/>
+        </svg>
+      </div>
+    `;
+  }
   return el;
 }
 
@@ -282,7 +319,7 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
         source: "route-source",
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": "#2563eb",
+          "line-color": "#09090b",
           "line-width": 5.5,
           "line-opacity": 1.0,
         },
@@ -299,6 +336,7 @@ export default function RouteMap({
   drop,
   pickupCoords,
   dropCoords,
+  userCoords,
   onDistance,
   onChange,
   onCoordinatesChange,
@@ -315,6 +353,7 @@ export default function RouteMap({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
 
+  const userLocationMarkerRef = useRef<maplibregl.Marker | null>(null);
   const pickupMarkerRef = useRef<maplibregl.Marker | null>(null);
   const dropMarkerRef = useRef<maplibregl.Marker | null>(null);
   const stopMarkersRef = useRef<maplibregl.Marker[]>([]);
@@ -707,7 +746,7 @@ export default function RouteMap({
               }
               const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
               const responsivePadding = isDesktop
-                ? { top: 80, bottom: 80, left: 470, right: 80 }
+                ? { top: 80, bottom: 80, left: 60, right: 60 }
                 : { top: 70, bottom: Math.max(160, bottomPadding), left: 35, right: 35 };
 
               map.fitBounds(bounds, {
@@ -914,7 +953,7 @@ export default function RouteMap({
       };
 
       if (!pickupMarkerRef.current) {
-        const el = createPickupEl(durationMin);
+        const el = createPickupEl(pickup, durationMin);
         attachPickupClickHandler(el);
         const marker = new maplibregl.Marker({
           element: el,
@@ -927,7 +966,7 @@ export default function RouteMap({
         pickupMarkerRef.current = marker;
       } else {
         pickupMarkerRef.current.setLngLat([p1[1], p1[0]]);
-        const el = createPickupEl(durationMin);
+        const el = createPickupEl(pickup, durationMin);
         attachPickupClickHandler(el);
         pickupMarkerRef.current.getElement().innerHTML = el.innerHTML;
         attachPickupClickHandler(pickupMarkerRef.current.getElement());
@@ -950,7 +989,7 @@ export default function RouteMap({
       };
 
       if (!dropMarkerRef.current) {
-        const el = createDropEl();
+        const el = createDropEl(drop);
         attachDropClickHandler(el);
         const marker = new maplibregl.Marker({
           element: el,
@@ -963,6 +1002,9 @@ export default function RouteMap({
         dropMarkerRef.current = marker;
       } else {
         dropMarkerRef.current.setLngLat([p2[1], p2[0]]);
+        const el = createDropEl(drop);
+        attachDropClickHandler(el);
+        dropMarkerRef.current.getElement().innerHTML = el.innerHTML;
         attachDropClickHandler(dropMarkerRef.current.getElement());
       }
     } else if (dropMarkerRef.current) {
@@ -1015,14 +1057,34 @@ export default function RouteMap({
       const loc = v.location?.coordinates || [v.lng, v.lat];
       if (!loc || loc.length < 2) return;
       const [lng, lat] = loc;
-      const isAuto = v.type === "auto" || !v.type;
-      const el = isAuto ? createAutoRickshawEl() : createCarEl();
+      const el = createVehicleMapMarkerEl(v.type);
       const marker = new maplibregl.Marker({ element: el, anchor: "center" })
         .setLngLat([lng, lat])
         .addTo(map);
       vehicleMarkersRef.current.push(marker);
     });
   }, [vehicles, p1]);
+
+  // 6. User GPS Location Beacon (Google Maps pulsating blue halo + dot)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (userCoords) {
+      if (!userLocationMarkerRef.current) {
+        const el = createCurrentLocationEl();
+        const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+          .setLngLat([userCoords[1], userCoords[0]])
+          .addTo(map);
+        userLocationMarkerRef.current = marker;
+      } else {
+        userLocationMarkerRef.current.setLngLat([userCoords[1], userCoords[0]]);
+      }
+    } else if (userLocationMarkerRef.current) {
+      userLocationMarkerRef.current.remove();
+      userLocationMarkerRef.current = null;
+    }
+  }, [userCoords]);
 
   /* ── RE-CENTER ON ROUTE OR CURRENT LOCATION ── */
   const handleRecenter = () => {
@@ -1035,7 +1097,7 @@ export default function RouteMap({
       bounds.extend([p2[1], p2[0]]);
       const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
       const responsivePadding = isDesktop
-        ? { top: 80, bottom: 80, left: 470, right: 80 }
+        ? { top: 80, bottom: 80, left: 60, right: 60 }
         : { top: 70, bottom: Math.max(160, bottomPadding), left: 35, right: 35 };
 
       map.fitBounds(bounds, {
@@ -1096,10 +1158,10 @@ export default function RouteMap({
         className={`w-full h-full ${activePinMode ? "cursor-grab active:cursor-grabbing" : ""}`}
       />
 
-      {/* ── FAIL-SAFE SVG ROUTE POLYLINE OVERLAY ── */}
+      {/* ── FAIL-SAFE SVG ROUTE POLYLINE OVERLAY (STACKED UNDER DOM MARKERS) ── */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 10, pointerEvents: "none" }}
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }}
       >
         {/* Alternative route (purged during pre-booking) */}
         <path
@@ -1133,11 +1195,11 @@ export default function RouteMap({
           fill="none"
           opacity="1.0"
         />
-        {/* Primary route core (vivid Google Maps blue) */}
+        {/* Primary route core (luxury obsidian / midnight carbon) */}
         <path
           ref={svgCoreRef}
           d=""
-          stroke="#2563eb"
+          stroke="#09090b"
           strokeWidth="5.5"
           strokeLinecap="round"
           strokeLinejoin="round"
