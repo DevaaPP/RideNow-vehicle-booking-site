@@ -43,6 +43,19 @@ export interface VehicleRateConfig {
 }
 
 export const DEFAULT_VEHICLE_RATES: Record<string, VehicleRateConfig> = {
+  scooty: {
+    baseFare: 25,
+    pricePerKm: 8,
+    pricePerMinute: 0,
+    waitingChargePerMinute: 1.5,
+    freeWaitingMinutes: 3,
+    platformFee: 12,
+    taxRate: 0.05,
+    cancellationFee: 25,
+    multiplier: 0.95,
+    minDistance: 0,
+    maxDistance: 15,
+  },
   bike: {
     baseFare: 30,
     pricePerKm: 9,
@@ -69,6 +82,19 @@ export const DEFAULT_VEHICLE_RATES: Record<string, VehicleRateConfig> = {
     minDistance: 0,
     maxDistance: 30,
   },
+  mini: {
+    baseFare: 60,
+    pricePerKm: 15,
+    pricePerMinute: 0,
+    waitingChargePerMinute: 2.0,
+    freeWaitingMinutes: 4,
+    platformFee: 15,
+    taxRate: 0.05,
+    cancellationFee: 45,
+    multiplier: 1.15,
+    minDistance: 0,
+    maxDistance: 80,
+  },
   car: {
     baseFare: 75,
     pricePerKm: 18,
@@ -81,6 +107,19 @@ export const DEFAULT_VEHICLE_RATES: Record<string, VehicleRateConfig> = {
     multiplier: 1.25,
     minDistance: 0,
     maxDistance: 100,
+  },
+  priority: {
+    baseFare: 110,
+    pricePerKm: 22,
+    pricePerMinute: 0,
+    waitingChargePerMinute: 3.0,
+    freeWaitingMinutes: 5,
+    platformFee: 20,
+    taxRate: 0.05,
+    cancellationFee: 75,
+    multiplier: 1.45,
+    minDistance: 0,
+    maxDistance: 150,
   },
   loading: {
     baseFare: 110,

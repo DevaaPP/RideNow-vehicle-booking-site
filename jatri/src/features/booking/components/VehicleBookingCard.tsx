@@ -25,12 +25,17 @@ interface VehicleProps {
   onBook?: () => void;
 }
 
+import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
+
 const TYPE_ICONS: Record<VehicleType, any> = {
-  bike: Bike,
-  auto: Car,
-  car: Car,
-  loading: Truck,
-  truck: Truck,
+  scooty: VEHICLE_SVG_ICONS.scooty,
+  bike: VEHICLE_SVG_ICONS.bike,
+  auto: VEHICLE_SVG_ICONS.auto,
+  mini: VEHICLE_SVG_ICONS.mini,
+  car: VEHICLE_SVG_ICONS.car,
+  priority: VEHICLE_SVG_ICONS.priority,
+  loading: VEHICLE_SVG_ICONS.loading,
+  truck: VEHICLE_SVG_ICONS.truck,
 };
 
 export default function VehicleBookingCard({

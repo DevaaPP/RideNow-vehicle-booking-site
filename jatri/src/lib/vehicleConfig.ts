@@ -1,9 +1,9 @@
-export type VehicleType = "bike" | "auto" | "car" | "loading" | "truck";
+export type VehicleType = "scooty" | "bike" | "auto" | "mini" | "car" | "priority" | "loading" | "truck";
 export type ServiceMode = "passenger" | "logistics";
 
 export interface VehicleOption {
   id: VehicleType;
-  label: string; // Customer-facing label (e.g., "RideNow Go" instead of generic "Car")
+  label: string;
   categoryTitle: string;
   serviceMode: ServiceMode;
   tagline: string;
@@ -16,52 +16,85 @@ export interface VehicleOption {
 }
 
 /**
- * Authoritative vehicle options catalog.
- * Decouples consumer-facing identity from underlying technical vehicle keys:
- * - "car" is presented to riders as "RideNow Go"
- * - Passenger rides ("bike", "auto", "car") are cleanly separated from Goods Transport ("loading", "truck")
+ * Authoritative vehicle options catalog with distinctive Jatri naming.
  */
 export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
+  scooty: {
+    id: "scooty",
+    label: "Jatri Scooty",
+    categoryTitle: "Jatri Scooty — Quick Light Commute",
+    serviceMode: "passenger",
+    tagline: "Solo commute · Quick & light",
+    description: "Affordable solo scooty ride for quick nearby commutes.",
+    passengerCapacity: 1,
+    etaText: "2–3 min",
+    features: ["Helmet provided", "Easy hop-on", "Economical"],
+    recommendedFor: "Solo passengers with light luggage",
+  },
   bike: {
     id: "bike",
-    label: "RideNow Moto",
-    categoryTitle: "RideNow Moto",
+    label: "Jatri Moto",
+    categoryTitle: "Jatri Moto — Solo Ride",
     serviceMode: "passenger",
-    tagline: "Quick solo commute · Helmet provided",
-    description: "Quick commuting for solo riders to bypass traffic.",
+    tagline: "Quick solo ride · Helmet provided",
+    description: "Fast motorcycle commuting for solo riders to bypass traffic.",
     passengerCapacity: 1,
     etaText: "2–3 min",
     features: ["Helmet provided", "Traffic bypass", "Affordable"],
-    recommendedFor: "Solo passengers with light or no luggage",
+    recommendedFor: "Solo commuters to beat traffic",
   },
   auto: {
     id: "auto",
-    label: "RideNow Auto",
-    categoryTitle: "RideNow Auto",
+    label: "Jatri Auto",
+    categoryTitle: "Jatri Auto — 3-Wheeler",
     serviceMode: "passenger",
     tagline: "Everyday doorstep auto rides",
-    description: "Affordable travel for daily errands, station trips, and small groups.",
+    description: "Iconic 3-wheeler ride for daily errands and small groups.",
     passengerCapacity: 3,
     etaText: "3–4 min",
     features: ["Doorstep pickup", "Comfortable 3-seater", "Meter rates"],
     recommendedFor: "2 to 3 passengers traveling short-to-medium distances",
   },
+  mini: {
+    id: "mini",
+    label: "Jatri Mini",
+    categoryTitle: "Jatri Mini — Economy Hatchback",
+    serviceMode: "passenger",
+    tagline: "Economy AC hatchback",
+    description: "Pocket-friendly compact 4-wheeler (WagonR, Tiago) with AC.",
+    passengerCapacity: 4,
+    etaText: "3–5 min",
+    features: ["AC comfort", "Compact & fast", "Affordable cab"],
+    recommendedFor: "Up to 4 passengers looking for affordable AC rides",
+  },
   car: {
     id: "car",
-    label: "RideNow Premier",
-    categoryTitle: "RideNow Premier",
+    label: "Jatri Premier",
+    categoryTitle: "Jatri Premier — AC Sedan",
     serviceMode: "passenger",
     tagline: "Comfortable AC sedan",
-    description: "4-wheel ride for daily commuting, families, airport drops, and luggage.",
+    description: "Spacious executive sedan (Dzire, Amaze) with verified drivers.",
     passengerCapacity: 4,
     etaText: "4–5 min",
-    features: ["AC comfort", "Verified Drivers", "Spacious boot"],
-    recommendedFor: "Comfort seekers, families, or riders with heavy bags",
+    features: ["Chilled AC", "Top verified drivers", "Spacious boot"],
+    recommendedFor: "Comfort seekers, families, or airport drops",
+  },
+  priority: {
+    id: "priority",
+    label: "Jatri XL Priority",
+    categoryTitle: "Jatri XL Priority — Spacious SUV",
+    serviceMode: "passenger",
+    tagline: "Spacious 6-seater SUV · Priority pickup",
+    description: "Extra legroom & 6 passenger capacity (Ertiga, Innova) with priority dispatch.",
+    passengerCapacity: 6,
+    etaText: "3–5 min",
+    features: ["6 seats + bags", "Priority dispatch", "Extra spacious"],
+    recommendedFor: "Large families, group trips, and excessive luggage",
   },
   loading: {
     id: "loading",
-    label: "RideNow Express Mini",
-    categoryTitle: "RideNow Express — Tata Ace & Dost",
+    label: "Jatri Express Mini",
+    categoryTitle: "Jatri Express — Tata Ace & Dost",
     serviceMode: "logistics",
     tagline: "House shifting, furniture & merchant stock",
     description: "Dedicated transport for cargo, house moves, and merchant deliveries.",
@@ -72,8 +105,8 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   },
   truck: {
     id: "truck",
-    label: "RideNow Freight",
-    categoryTitle: "RideNow Freight — Commercial Logistics",
+    label: "Jatri Freight",
+    categoryTitle: "Jatri Freight — Commercial Logistics",
     serviceMode: "logistics",
     tagline: "Heavy cargo, wholesale stock & industrial freight",
     description: "Heavy logistics vehicle for industrial, agricultural, and wholesale cargo.",
@@ -85,9 +118,12 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
 };
 
 export const PASSENGER_VEHICLES: VehicleOption[] = [
+  VEHICLE_OPTIONS.scooty,
   VEHICLE_OPTIONS.bike,
   VEHICLE_OPTIONS.auto,
+  VEHICLE_OPTIONS.mini,
   VEHICLE_OPTIONS.car,
+  VEHICLE_OPTIONS.priority,
 ];
 
 export const LOGISTICS_VEHICLES: VehicleOption[] = [
