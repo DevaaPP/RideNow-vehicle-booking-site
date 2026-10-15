@@ -1597,22 +1597,22 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* ── SERVICE MODE TOGGLE (PASSENGER VS GOODS TRANSPORT) ── */}
-      <div className="bg-zinc-100 p-1 rounded-2xl flex items-center gap-1 border border-zinc-200">
+      {/* ── SERVICE MODE TOGGLE (UBER PILL GEOMETRY • INDIAN SUPER-APP) ── */}
+      <div className="bg-zinc-100/90 p-1 rounded-full flex items-center gap-1 border border-zinc-200/80 shadow-2xs">
         <button
           type="button"
           onClick={() => {
             setServiceMode("passenger");
             if (vehicle === "loading" || vehicle === "truck") setVehicle("car");
           }}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-3.5 rounded-full text-xs font-black transition-all flex items-center justify-center gap-1.5 apple-press-feedback ${
             serviceMode === "passenger"
-              ? "bg-white text-zinc-950 shadow-xs"
-              : "text-zinc-600 hover:text-zinc-900"
+              ? "bg-zinc-950 text-white shadow-md"
+              : "text-zinc-600 hover:text-zinc-950"
           }`}
         >
-          <Car size={14} />
-          <span>Daily Rides</span>
+          <Car size={13} className={serviceMode === "passenger" ? "text-emerald-400" : ""} />
+          <span className="tracking-tight">Daily Rides & Taxi</span>
         </button>
         <button
           type="button"
@@ -1620,14 +1620,14 @@ export default function BookPage() {
             setServiceMode("logistics");
             if (vehicle !== "loading" && vehicle !== "truck") setVehicle("loading");
           }}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-3.5 rounded-full text-xs font-black transition-all flex items-center justify-center gap-1.5 apple-press-feedback ${
             serviceMode === "logistics"
-              ? "bg-white text-zinc-950 shadow-xs"
-              : "text-zinc-600 hover:text-zinc-900"
+              ? "bg-zinc-950 text-white shadow-md"
+              : "text-zinc-600 hover:text-zinc-950"
           }`}
         >
-          <Package size={14} />
-          <span>Goods Transport</span>
+          <Package size={13} className={serviceMode === "logistics" ? "text-amber-400" : ""} />
+          <span className="tracking-tight">Express Cargo & Mini Truck</span>
         </button>
       </div>
 
@@ -1885,52 +1885,52 @@ export default function BookPage() {
               <div
                 key={v.id}
                 onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                className={`relative flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                className={`relative flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer apple-press-feedback ${
                   isSelected
-                    ? "bg-zinc-950 text-white border-zinc-950 shadow-md"
+                    ? "bg-zinc-950 text-white border-zinc-900 shadow-xl ring-1 ring-white/10"
                     : isSmartPick
-                    ? "bg-emerald-50/60 hover:bg-emerald-100/60 text-zinc-900 border-emerald-300 ring-1 ring-emerald-300"
-                    : "bg-zinc-50/80 hover:bg-zinc-100 text-zinc-900 border-zinc-200"
+                    ? "bg-emerald-50/70 hover:bg-emerald-100/70 text-zinc-900 border-emerald-300 ring-1 ring-emerald-300 shadow-xs"
+                    : "bg-white/80 hover:bg-zinc-50 text-zinc-900 border-zinc-200/90 shadow-2xs"
                 } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
               >
                 {isSmartPick && (
-                  <span className="absolute -top-2 right-4 bg-emerald-600 text-white text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shadow-xs">
-                    Best Match
+                  <span className="absolute -top-2 right-4 bg-emerald-600 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-xs">
+                    ⭐ Best Match
                   </span>
                 )}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    isSelected ? "bg-zinc-800 text-white" : "bg-white text-zinc-900 shadow-xs border border-zinc-200"
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform ${
+                    isSelected ? "bg-zinc-900 text-white border border-white/10 shadow-inner" : "bg-zinc-100 text-zinc-900 border border-zinc-200/80 shadow-2xs"
                   }`}>
-                    <Icon size={20} />
+                    <Icon size={22} />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="font-extrabold text-sm leading-tight truncate">{v.label}</p>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
-                        isSelected ? "bg-zinc-800 text-zinc-300" : "bg-zinc-200 text-zinc-600"
+                      <p className="font-extrabold text-sm leading-tight truncate tracking-tight">{v.label}</p>
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                        isSelected ? "bg-zinc-800 text-zinc-200 border border-white/10" : "bg-zinc-100 text-zinc-700 border border-zinc-200/80"
                       }`}>
-                        {v.etaText}
+                        ⚡ {v.etaText}
                       </span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md ${
-                        isSelected ? "bg-zinc-800 text-emerald-300" : "bg-emerald-100 text-emerald-800"
+                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
+                        isSelected ? "bg-emerald-950 text-emerald-300 border border-emerald-500/30" : "bg-emerald-50 text-emerald-800 border border-emerald-200"
                       }`}>
                         {v.passengerCapacity ? `${v.passengerCapacity} seats` : `${v.maxWeightKg} kg`}
                       </span>
                     </div>
-                    <p className={`text-[11px] truncate mt-0.5 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
+                    <p className={`text-[11px] truncate mt-1 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
                       {v.tagline}
                     </p>
                   </div>
                 </div>
 
                 <div className="text-right flex-shrink-0 pl-2">
-                  <p className={`font-black text-base leading-tight ${isSelected ? "text-emerald-400" : "text-zinc-900"}`}>
+                  <p className={`font-black text-lg leading-tight tracking-tight ${isSelected ? "text-emerald-400" : "text-zinc-950"}`}>
                     ₹{fare}
                   </p>
                   {effectiveDistance > 100 && v.id === "car" ? (
-                    <span className="text-[8px] font-black uppercase text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200 tracking-wider block mt-0.5">
-                      RideNow Intercity
+                    <span className="text-[8px] font-black uppercase text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200 tracking-wider block mt-1">
+                      🇮🇳 Intercity
                     </span>
                   ) : !isLimitOk ? (
                     <button
@@ -1939,11 +1939,15 @@ export default function BookPage() {
                         e.stopPropagation();
                         setVehicle("car");
                       }}
-                      className="text-[8px] font-black uppercase text-amber-700 bg-amber-50 hover:bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200 block mt-0.5"
+                      className="text-[8px] font-black uppercase text-amber-700 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200 block mt-1"
                     >
                       Use Intercity
                     </button>
-                  ) : null}
+                  ) : (
+                    <span className={`text-[9px] font-semibold block mt-0.5 ${isSelected ? "text-zinc-400" : "text-zinc-400"}`}>
+                      No surge
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -1951,22 +1955,25 @@ export default function BookPage() {
         )}
       </div>
 
-      {/* Itemized Fare Receipt Accordion */}
-      <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3.5 space-y-2">
+      {/* Itemized Fare Receipt Accordion (Uber Transparent Ledger) */}
+      <div className="bg-white/80 border border-zinc-200/90 rounded-2xl p-3.5 space-y-2 shadow-2xs">
         <button
           type="button"
           onClick={() => setShowFareReceipt(!showFareReceipt)}
           className="w-full flex items-center justify-between text-left"
         >
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs">💰</span>
-            <span className="text-[11px] font-black uppercase tracking-wider text-zinc-900">
-              Transparent Fare Breakdown
-            </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm">🧾</span>
+            <div>
+              <span className="text-xs font-extrabold uppercase tracking-wide text-zinc-900 block leading-tight">
+                Transparent Fare Breakdown
+              </span>
+              <span className="text-[10px] text-zinc-500 font-medium">Guaranteed upfront road pricing</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1 text-zinc-500 text-xs font-bold">
+          <div className="flex items-center gap-1.5 text-zinc-900 text-sm font-black">
             <span>₹{currentBreakdown.totalFare}</span>
-            {showFareReceipt ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {showFareReceipt ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
           </div>
         </button>
 
@@ -1976,10 +1983,10 @@ export default function BookPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="pt-2 border-t border-zinc-200 space-y-1.5 text-xs text-zinc-600 font-medium"
+              className="pt-2.5 border-t border-zinc-100 space-y-2 text-xs text-zinc-600 font-medium"
             >
               <div className="flex justify-between">
-                <span>Base Fare</span>
+                <span>Base Fare (Pickup & Flagdown)</span>
                 <span className="font-bold text-zinc-900">₹{currentBreakdown.baseFare}</span>
               </div>
               <div className="flex justify-between text-[11px]">
@@ -1987,7 +1994,7 @@ export default function BookPage() {
                 <span className="font-bold text-zinc-900">₹{currentBreakdown.distanceFare}</span>
               </div>
               <div className="flex justify-between text-[11px]">
-                <span>Platform Service Fee</span>
+                <span>Platform Tech Fee</span>
                 <span className="font-bold text-zinc-900">₹{currentBreakdown.platformFee}</span>
               </div>
               <div className="flex justify-between text-[11px]">
@@ -1995,14 +2002,15 @@ export default function BookPage() {
                 <span className="font-bold text-zinc-900">₹{currentBreakdown.taxes}</span>
               </div>
               {currentBreakdown.isStudentDiscountApplied && (
-                <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
+                <div className="flex justify-between text-[11px] text-emerald-700 font-black pt-1 border-t border-emerald-100">
                   <span>🎓 Student Pass Discount (-10%)</span>
                   <span>-₹{currentBreakdown.studentDiscount}</span>
                 </div>
               )}
-              <p className="text-[10px] text-zinc-400 font-semibold pt-1 italic">
-                Strictly distance-based. Duration ({currentBreakdown.timeMinutes} min) is informational only.
-              </p>
+              <div className="pt-2 border-t border-dashed border-zinc-200 flex items-center justify-between text-[10px] text-zinc-500">
+                <span>Payment Accepted:</span>
+                <span className="font-bold text-zinc-800">⚡ UPI (GPay/PhonePe) • Cash • Card</span>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -2043,9 +2051,11 @@ export default function BookPage() {
         }}
       />
 
-      {/* Contact Mobile Input Row */}
-      <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5">
-        <Phone size={14} className="text-zinc-500 flex-shrink-0" />
+      {/* Contact Mobile Input Row (Indian Standard) */}
+      <div className="flex items-center gap-2.5 bg-white/90 border border-zinc-200/90 rounded-2xl px-3.5 py-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-zinc-900/10 focus-within:border-zinc-900 transition-all">
+        <span className="text-xs font-black text-zinc-700 bg-zinc-100 border border-zinc-200 px-2 py-1 rounded-lg flex items-center gap-1 flex-shrink-0 select-none">
+          🇮🇳 +91
+        </span>
         <input
           type="tel"
           value={mobile}
@@ -2053,8 +2063,15 @@ export default function BookPage() {
           placeholder="Enter 10-digit mobile number"
           className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none"
         />
-        {mobile.length === 10 && (
-          <CheckCircle2 size={15} className="text-emerald-500 flex-shrink-0" />
+        {mobile.length === 10 ? (
+          <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex-shrink-0">
+            <CheckCircle2 size={13} className="text-emerald-600" />
+            Verified
+          </span>
+        ) : (
+          <span className="text-[10px] font-bold text-zinc-400 flex-shrink-0">
+            OTP on arrival
+          </span>
         )}
       </div>
     </div>
@@ -2086,31 +2103,42 @@ export default function BookPage() {
       </div>
 
       {/* ══ 2. UNIFIED DESKTOP / TABLET PANEL (ONE SINGLE CARD - NEVER OVERLAPS) ══ */}
-      <div className={`hidden md:flex fixed top-4 bottom-4 left-6 w-[420px] z-30 flex-col bg-white rounded-2xl border border-zinc-200 shadow-xl overflow-hidden transition-all duration-300 ${
+      <div className={`hidden md:flex fixed top-4 bottom-4 left-6 w-[420px] z-30 flex-col apple-glass-panel rounded-3xl overflow-hidden transition-all duration-300 ${
         mapSelectionMode !== "none" ? "opacity-0 pointer-events-none -translate-x-12" : "opacity-100 translate-x-0"
       }`}>
         
         {/* Pinned Card Header */}
-        <div className="flex-shrink-0 p-4 border-b border-zinc-100 bg-white space-y-3 relative z-30">
+        <div className="flex-shrink-0 p-4 border-b border-black/5 bg-white/70 backdrop-blur-md space-y-3 relative z-30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 transition flex items-center justify-center text-zinc-900"
+                className="w-8 h-8 rounded-xl bg-black/5 hover:bg-black/10 apple-press-feedback flex items-center justify-center text-zinc-900"
                 aria-label="Go back"
               >
                 <ArrowLeft size={16} />
               </button>
               <div>
-                <h1 className="text-base font-black text-zinc-900 leading-none">Book a Ride</h1>
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">RideNow Fleet</p>
+                <div className="flex items-center gap-1.5">
+                  <h1 className="text-base font-extrabold text-zinc-900 leading-none apple-heading">RideNow</h1>
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-50 border border-orange-200 text-[9px] font-black text-orange-700 uppercase tracking-widest">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> भारत
+                  </span>
+                </div>
+                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5 apple-caption">
+                  Zero Surge • Direct UPI & Cash
+                </p>
               </div>
             </div>
 
-            {hasRoute && (
-              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+            {hasRoute ? (
+              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full shadow-2xs">
                 {effectiveDistance} km
+              </span>
+            ) : (
+              <span className="text-[9px] font-bold text-zinc-600 bg-zinc-100 px-2.5 py-1 rounded-full border border-zinc-200">
+                🔒 SafeRide OTP
               </span>
             )}
           </div>
@@ -2138,12 +2166,12 @@ export default function BookPage() {
         </div>
 
         {/* Pinned Card Footer */}
-        <div className="flex-shrink-0 p-4 border-t border-zinc-100 bg-white">
+        <div className="flex-shrink-0 p-4 border-t border-black/5 bg-white/70 backdrop-blur-md">
           <motion.button
             whileTap={{ scale: 0.98 }}
             disabled={!canContinue}
             onClick={handleConfirmRide}
-            className="w-full py-3.5 rounded-xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 transition active:scale-98"
+            className="w-full py-3.5 rounded-2xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-bold text-sm tracking-tight flex items-center justify-center gap-2 transition apple-press-feedback shadow-lg shadow-black/10"
           >
             <span>
               {!hasRoute
@@ -2178,16 +2206,29 @@ export default function BookPage() {
       <div className={`md:hidden transition-all duration-300 ${mapSelectionMode !== "none" ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
         {/* Mobile Search Card when route is NOT set */}
         {!hasRoute && (
-          <div className="fixed top-3 left-3 right-3 z-30 bg-white rounded-2xl p-3.5 border border-zinc-200 shadow-lg space-y-2.5">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-900"
-              >
-                <ArrowLeft size={15} />
-              </button>
-              <h1 className="text-sm font-black text-zinc-900">Book a Ride</h1>
+          <div className="fixed top-3 left-3 right-3 z-30 apple-glass-panel rounded-3xl p-3.5 space-y-2.5 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="w-8 h-8 rounded-xl bg-black/5 apple-press-feedback flex items-center justify-center text-zinc-900"
+                >
+                  <ArrowLeft size={15} />
+                </button>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="text-sm font-extrabold text-zinc-900 apple-heading">RideNow</h1>
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-orange-50 border border-orange-200 text-[8px] font-black text-orange-700 uppercase">
+                      भारत
+                    </span>
+                  </div>
+                  <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Zero Surge • Direct UPI</p>
+                </div>
+              </div>
+              <span className="text-[9px] font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200">
+                🔒 SafeRide
+              </span>
             </div>
             <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
             {renderLocationInputs()}
@@ -2201,14 +2242,14 @@ export default function BookPage() {
               initial={{ y: "100%" }}
               animate={{ y: 0, height: mobileSheetExpanded ? "82vh" : "285px" }}
               exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 32, stiffness: 320 }}
-              className="fixed bottom-0 left-0 right-0 z-30 bg-white rounded-t-3xl border-t border-zinc-200 shadow-2xl flex flex-col overflow-hidden"
+              transition={{ type: "spring", damping: 28, stiffness: 280, mass: 0.8 }}
+              className="fixed bottom-0 left-0 right-0 z-30 apple-glass-panel rounded-t-[32px] flex flex-col overflow-hidden shadow-2xl"
             >
               {/* Interactive Drag Handle Area */}
               <motion.div
                 drag="y"
                 dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={0.25}
+                dragElastic={0.2}
                 onDragEnd={(_, info) => {
                   if (info.offset.y < -35 || info.velocity.y < -250) {
                     setMobileSheetExpanded(true);
@@ -2217,10 +2258,10 @@ export default function BookPage() {
                   }
                 }}
                 onClick={() => setMobileSheetExpanded(prev => !prev)}
-                className="w-full pt-3 pb-1 cursor-grab active:cursor-grabbing flex flex-col items-center select-none flex-shrink-0 bg-white"
+                className="w-full pt-3 pb-1 cursor-grab active:cursor-grabbing flex flex-col items-center select-none flex-shrink-0 bg-transparent"
               >
-                <div className="w-12 h-1.5 bg-zinc-300 rounded-full" />
-                <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 mt-1.5">
+                <div className="w-10 h-1 bg-zinc-300 rounded-full" />
+                <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 mt-1.5 apple-caption">
                   <span>{mobileSheetExpanded ? "Swipe down for map" : "Swipe up for all options"}</span>
                   {mobileSheetExpanded ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
                 </div>

@@ -25,3 +25,7 @@ Thumbs.db
 *.swp
 *.swo
 *.tsbuildinfo
+
+# Agent skills & local tooling
+.agents/
+skills-lock.json
