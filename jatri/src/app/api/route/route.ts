@@ -2,15 +2,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextRequest, NextResponse } from "next/server";
-import { getValhallaRoute, MultiRouteResult } from "@/lib/valhalla";
-
-interface RouteCacheEntry {
-  data: MultiRouteResult;
-  expiresAt: number;
-}
-const routeCache = new Map<string, RouteCacheEntry>();
-const ROUTE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-const MAX_ROUTE_CACHE_SIZE = 250;
+import { getCachedBestRoute } from "@/lib/valhalla";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -43,38 +35,10 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Round waypoints to 4 decimal places (~11m resolution) for instantaneous cache hits
-  const cacheKey = waypoints.map((w) => `${w[0].toFixed(4)},${w[1].toFixed(4)}`).join(";");
-  const cached = routeCache.get(cacheKey);
-  if (cached && Date.now() < cached.expiresAt) {
-    return NextResponse.json(
-      {
-        success: true,
-        primary: cached.data.primary,
-        alternatives: cached.data.alternatives,
-      },
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
-          "X-Cache": "HIT",
-        },
-      }
-    );
-  }
-
   try {
-    const routeData: MultiRouteResult = await getValhallaRoute(waypoints, {
+    const { result: routeData, isCacheHit } = await getCachedBestRoute(waypoints, {
       alternates: 1,
       timeoutMs: 5000,
-    });
-
-    if (routeCache.size >= MAX_ROUTE_CACHE_SIZE) {
-      const firstKey = routeCache.keys().next().value;
-      if (firstKey) routeCache.delete(firstKey);
-    }
-    routeCache.set(cacheKey, {
-      data: routeData,
-      expiresAt: Date.now() + ROUTE_CACHE_TTL_MS,
     });
 
     return NextResponse.json(
@@ -86,7 +50,7 @@ export async function GET(req: NextRequest) {
       {
         headers: {
           "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
-          "X-Cache": "MISS",
+          "X-Cache": isCacheHit ? "HIT" : "MISS",
         },
       }
     );

@@ -18,7 +18,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import useGetMe from "@/shared/hooks/useGetMe";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
-import { haversineKm as getHaversineDistance } from "@/lib/routeUtils";
+import { haversineKm as getHaversineDistance, DEFAULT_ROAD_TORTUOSITY_FACTOR } from "@/lib/routeUtils";
 import { validateServiceArea, getRecentDestinations, saveRecentDestination, RecentLocation } from "@/lib/serviceArea";
 import { useTranslation } from "@/context/LanguageContext";
 import FamilyRiderSelector from "@/features/booking/components/FamilyRiderSelector";
@@ -975,7 +975,12 @@ export default function BookPage() {
     (pickupLat && pickupLng && dropLat && dropLng
       ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng)
       : 5);
-  const effectiveDistance = Number(haversineDist.toFixed(1));
+  const effectiveDistance = useMemo(() => {
+    if (routeDistance !== null && routeDistance > 0) {
+      return Number(routeDistance.toFixed(1));
+    }
+    return Number((haversineDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(1));
+  }, [routeDistance, haversineDist]);
 
   const currentBreakdown = calculateFareBreakdown(vehicle, effectiveDistance, rates, undefined, 0, isStudent);
 

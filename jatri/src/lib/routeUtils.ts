@@ -18,6 +18,12 @@ export function haversineMeters(
 }
 
 /**
+ * Standard road tortuosity factor for Indian road networks (urban + hilly terrain).
+ * Straight-line distance under-measures actual road travel by ~25% in plains and up to ~40% in hills.
+ */
+export const DEFAULT_ROAD_TORTUOSITY_FACTOR = 1.25;
+
+/**
  * Calculates distance in kilometers between two lat/lon coordinates.
  */
 export function haversineKm(
@@ -30,6 +36,19 @@ export function haversineKm(
 }
 
 /**
+ * Calculates estimated road distance in kilometers using Haversine with a winding/tortuosity factor.
+ */
+export function estimateRoadDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+  tortuosity: number = DEFAULT_ROAD_TORTUOSITY_FACTOR
+): number {
+  return Number((haversineKm(lat1, lon1, lat2, lon2) * tortuosity).toFixed(2));
+}
+
+/**
  * Calculates distance in kilometers between two [lon, lat] GeoJSON coordinates.
  */
 export function haversineDistance(
@@ -39,6 +58,34 @@ export function haversineDistance(
   const [lon1, lat1] = coords1;
   const [lon2, lat2] = coords2;
   return haversineKm(lat1, lon1, lat2, lon2);
+}
+
+/**
+ * Calculates estimated road distance in kilometers between two [lon, lat] GeoJSON coordinates.
+ */
+export function haversineRoadDistance(
+  coords1: [number, number],
+  coords2: [number, number],
+  tortuosity: number = DEFAULT_ROAD_TORTUOSITY_FACTOR
+): number {
+  return Number((haversineDistance(coords1, coords2) * tortuosity).toFixed(2));
+}
+
+/**
+ * Calculates estimated multi-stop road distance in kilometers from an array of [lat, lon] waypoints.
+ */
+export function estimateMultiStopRoadDistanceKm(
+  waypoints: [number, number][],
+  tortuosity: number = DEFAULT_ROAD_TORTUOSITY_FACTOR
+): number {
+  if (!waypoints || waypoints.length < 2) return 0;
+  let totalKm = 0;
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const [lat1, lon1] = waypoints[i];
+    const [lat2, lon2] = waypoints[i + 1];
+    totalKm += haversineKm(lat1, lon1, lat2, lon2);
+  }
+  return Number((totalKm * tortuosity).toFixed(2));
 }
 
 /**

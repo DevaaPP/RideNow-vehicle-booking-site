@@ -8,7 +8,8 @@ import { auth } from "@/auth";
 import axios from "axios";
 import { calculateFareBreakdown, DEFAULT_VEHICLE_RATES } from "@/lib/fareEngine";
 import { calculateCommissionSplit } from "@/lib/commission";
-import { haversineDistance } from "@/lib/routeUtils";
+import { haversineDistance, estimateMultiStopRoadDistanceKm } from "@/lib/routeUtils";
+import { getAuthoritativeRoadDistance } from "@/lib/valhalla";
 import { sendPushToUser } from "@/lib/webPush";
 import { findEligibleCandidates } from "@/lib/driverMatchingEngine";
 import { idempotency } from "@/lib/idempotency";
@@ -65,6 +66,7 @@ export async function POST(req: Request) {
       scheduledPickupTime,
       serviceMode,
       cargoDetails,
+      distanceKm: clientDistanceKm,
     } = body;
 
     const pLat = Number(pickupLat);
@@ -264,18 +266,30 @@ export async function POST(req: Request) {
 
     const cfg = ratesMap[vehicleKey] || DEFAULT_VEHICLE_RATES[vehicleKey] || DEFAULT_VEHICLE_RATES.car;
 
+    // Authoritative road distance & duration resolution
+    const waypoints: [number, number][] = [
+      [pLat, pLng],
+      ...(Array.isArray(stops) && stops.length > 0
+        ? stops
+            .filter((s: any) => !isNaN(Number(s.lat)) && !isNaN(Number(s.lng)))
+            .map((s: any) => [Number(s.lat), Number(s.lng)] as [number, number])
+        : []),
+      [dLat, dLng],
+    ];
+
     let routeDistance = 0;
-    if (Array.isArray(stops) && stops.length > 0) {
-      const allCoords: [number, number][] = [
-        [pLng, pLat],
-        ...stops.map((s: any) => [Number(s.lng), Number(s.lat)] as [number, number]),
-        [dLng, dLat],
-      ];
-      for (let i = 0; i < allCoords.length - 1; i++) {
-        routeDistance += haversineDistance(allCoords[i], allCoords[i + 1]);
-      }
-    } else {
-      routeDistance = haversineDistance([pLng, pLat], [dLng, dLat]);
+    let routingDurationMin = 0;
+    try {
+      const roadRoute = await getAuthoritativeRoadDistance(waypoints, { timeoutMs: 2500 });
+      routeDistance = roadRoute.distanceKm;
+      routingDurationMin = roadRoute.durationMinutes;
+    } catch (routeErr) {
+      console.warn("Authoritative road distance calculation failed, using winding fallback:", routeErr);
+      routeDistance = estimateMultiStopRoadDistanceKm(waypoints);
+    }
+
+    if (!routeDistance || isNaN(routeDistance) || routeDistance <= 0) {
+      routeDistance = estimateMultiStopRoadDistanceKm(waypoints);
     }
 
     // Validate 100km rule for city fleet vs Intercity/Logistics
@@ -319,7 +333,7 @@ export async function POST(req: Request) {
 
     const estimatedDurationMin = Math.max(
       5,
-      breakdown.timeMinutes || Math.round((routeDistance / 25) * 60) || 15
+      routingDurationMin || breakdown.timeMinutes || Math.round((routeDistance / 25) * 60) || 15
     );
     const baseStartTime = parsedScheduledTime ? parsedScheduledTime.getTime() : Date.now();
     const estimatedDropoffTime = new Date(baseStartTime + estimatedDurationMin * 60 * 1000);

@@ -17,6 +17,7 @@ import useGetMe from "@/shared/hooks/useGetMe";
 import AuthModal from "@/features/auth/components/AuthModal";
 import { getSocket } from "@/lib/socket";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
+import { DEFAULT_ROAD_TORTUOSITY_FACTOR } from "@/lib/routeUtils";
 import GroupRideCard from "@/features/booking/components/GroupRideCard";
 import DriverSearchRadar from "@/features/booking/components/DriverSearchRadar";
 import PaymentMethodSelector from "@/features/booking/components/PaymentMethodSelector";
@@ -99,33 +100,40 @@ export default function CheckoutContent() {
   const [countdown,     setCountdown]     = useState(60);
   const [rates,         setRates]         = useState<any>(null);
   const [bookingBreakdown, setBookingBreakdown] = useState<any>(null);
+  const [distanceKm,    setDistanceKm]    = useState<number | null>(null);
 
   const computedBreakdown = useMemo(() => {
     if (bookingBreakdown) return bookingBreakdown;
     if (!pickupLat || !pickupLng || !dropLat || !dropLng) return null;
-    const allPoints: [number, number][] = [
-      [pickupLat, pickupLng],
-      ...stops.map((s) => [s.lat, s.lng] as [number, number]),
-      [dropLat, dropLng],
-    ];
-    let totalDist = 0;
-    for (let i = 0; i < allPoints.length - 1; i++) {
-      const lat1 = allPoints[i][0];
-      const lon1 = allPoints[i][1];
-      const lat2 = allPoints[i + 1][0];
-      const lon2 = allPoints[i + 1][1];
-      const dLat = ((lat2 - lat1) * Math.PI) / 180;
-      const dLon = ((lon2 - lon1) * Math.PI) / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-          Math.cos((lat2 * Math.PI) / 180) *
-          Math.sin(dLon / 2) *
-          Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      totalDist += 6371 * c;
+    
+    let distKm: number;
+    if (distanceKm && distanceKm > 0) {
+      distKm = distanceKm;
+    } else {
+      const allPoints: [number, number][] = [
+        [pickupLat, pickupLng],
+        ...stops.map((s) => [s.lat, s.lng] as [number, number]),
+        [dropLat, dropLng],
+      ];
+      let totalDist = 0;
+      for (let i = 0; i < allPoints.length - 1; i++) {
+        const lat1 = allPoints[i][0];
+        const lon1 = allPoints[i][1];
+        const lat2 = allPoints[i + 1][0];
+        const lon2 = allPoints[i + 1][1];
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        totalDist += 6371 * c;
+      }
+      distKm = +(totalDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(1);
     }
-    const distKm = +totalDist.toFixed(1);
     return calculateFareBreakdown(
       vehicle,
       distKm,
@@ -136,6 +144,7 @@ export default function CheckoutContent() {
     );
   }, [
     bookingBreakdown,
+    distanceKm,
     pickupLat,
     pickupLng,
     dropLat,
@@ -172,6 +181,7 @@ export default function CheckoutContent() {
           if (typeof draft.pickupLng === "number") setPickupLng(draft.pickupLng);
           if (typeof draft.dropLat === "number") setDropLat(draft.dropLat);
           if (typeof draft.dropLng === "number") setDropLng(draft.dropLng);
+          if (typeof draft.distanceKm === "number") setDistanceKm(draft.distanceKm);
           if (draft.isSmartPickup !== undefined) setIsSmartPickup(Boolean(draft.isSmartPickup));
           if (draft.smartPickupDetails) setSmartPickupDetails(draft.smartPickupDetails);
           if (Array.isArray(draft.stops)) setStops(draft.stops);
@@ -348,6 +358,7 @@ export default function CheckoutContent() {
             formattedAddress: drop,
             coordinates: [dropLat, dropLng],
           } : undefined),
+          distanceKm: computedBreakdown?.distanceKm || distanceKm || undefined,
         }),
       });
 

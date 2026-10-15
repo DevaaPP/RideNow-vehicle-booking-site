@@ -347,3 +347,71 @@ export async function getBestRoute(
 
 // Backward compatible export alias
 export const getValhallaRoute = getBestRoute;
+
+interface RouteCacheEntry {
+  data: MultiRouteResult;
+  expiresAt: number;
+}
+
+const sharedRouteCache = new Map<string, RouteCacheEntry>();
+const ROUTE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_ROUTE_CACHE_SIZE = 500;
+
+export function getRouteCacheKey(waypoints: [number, number][]): string {
+  return waypoints.map((w) => `${w[0].toFixed(4)},${w[1].toFixed(4)}`).join(";");
+}
+
+/**
+ * Cached route retriever for fast zero-latency server hits when the client has already mapped the route.
+ */
+export async function getCachedBestRoute(
+  waypoints: [number, number][],
+  options: { alternates?: number; timeoutMs?: number } = {}
+): Promise<{ result: MultiRouteResult; isCacheHit: boolean }> {
+  if (waypoints.length < 2) {
+    throw new Error("At least 2 points (pickup and destination) required.");
+  }
+  const cacheKey = getRouteCacheKey(waypoints);
+  const cached = sharedRouteCache.get(cacheKey);
+  if (cached && Date.now() < cached.expiresAt) {
+    return { result: cached.data, isCacheHit: true };
+  }
+
+  const result = await getBestRoute(waypoints, options);
+
+  if (sharedRouteCache.size >= MAX_ROUTE_CACHE_SIZE) {
+    const firstKey = sharedRouteCache.keys().next().value;
+    if (firstKey) sharedRouteCache.delete(firstKey);
+  }
+  sharedRouteCache.set(cacheKey, {
+    data: result,
+    expiresAt: Date.now() + ROUTE_CACHE_TTL_MS,
+  });
+
+  return { result, isCacheHit: false };
+}
+
+/**
+ * Authoritative road route calculation with shared in-memory caching and winding-factor fallback.
+ */
+export async function getAuthoritativeRoadDistance(
+  waypoints: [number, number][],
+  options: { timeoutMs?: number } = {}
+): Promise<{ distanceKm: number; durationMinutes: number; engine: string }> {
+  try {
+    const { result } = await getCachedBestRoute(waypoints, { timeoutMs: options.timeoutMs ?? 2500, alternates: 0 });
+    return {
+      distanceKm: result.primary.distanceKm,
+      durationMinutes: result.primary.durationMinutes,
+      engine: result.primary.engine,
+    };
+  } catch (err) {
+    console.warn("Authoritative road distance calculation failed, using synthetic fallback:", err);
+    const fallback = getSyntheticFallbackRoute(waypoints);
+    return {
+      distanceKm: fallback.primary.distanceKm,
+      durationMinutes: fallback.primary.durationMinutes,
+      engine: fallback.primary.engine,
+    };
+  }
+}
