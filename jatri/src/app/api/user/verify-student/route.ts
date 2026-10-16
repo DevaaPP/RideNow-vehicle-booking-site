@@ -46,7 +46,7 @@ export async function GET() {
     };
 
     let status = user.studentVerification?.status || (user.isStudent ? "verified" : "not_verified");
-    let expiresAt = user.studentVerification?.expiresAt || user.studentDetails?.expiresAt;
+    const expiresAt = user.studentVerification?.expiresAt || user.studentDetails?.expiresAt;
     const now = new Date();
 
     // Lifecycle audit: check if 12-month period has expired

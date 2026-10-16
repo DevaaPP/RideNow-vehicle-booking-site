@@ -116,7 +116,7 @@ export async function findEligibleCandidates(options: {
 
   logs.push(`Found ${onlineVendors.length} online vendors currently active in system.`);
 
-  let activeVehicles = await Vehicle.find({
+  const activeVehicles = await Vehicle.find({
     ...typeFilter,
     status: { $ne: "rejected" },
   }).lean();

@@ -264,7 +264,9 @@ export default function DriverRidePage() {
 
   /* Keep latest booking in a ref so GPS callback never has stale closure */
   const bookingRef = useRef<IBooking | null>(null);
-  bookingRef.current = booking;
+  useEffect(() => {
+    bookingRef.current = booking;
+  }, [booking]);
 
   /* ── FETCH ── */
   const fetchBookingDetails = () => {

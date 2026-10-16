@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     if (!booking.groupMembers) booking.groupMembers = [];
 
     // Find existing member entry or add new
-    let memberIndex = booking.groupMembers.findIndex(
+    const memberIndex = booking.groupMembers.findIndex(
       (m: any) => (userId && m.user?.toString() === userId) || (m.email.toLowerCase() === userEmail.toLowerCase())
     );
 

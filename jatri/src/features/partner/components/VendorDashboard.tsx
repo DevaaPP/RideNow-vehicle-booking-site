@@ -1274,7 +1274,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     try {
       setLoading(true);
       const nextOnline = !isOnline;
-      let updatePayload: any = { isOnline: nextOnline };
+      const updatePayload: any = { isOnline: nextOnline };
 
       if (nextOnline) {
         if (!navigator.geolocation) {
