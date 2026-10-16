@@ -284,7 +284,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             className="flex items-center"
           >
             <Image
-              src="/logo.jpeg"
+              src="/logo.webp"
               alt="RideNow"
               width={140}
               height={44}

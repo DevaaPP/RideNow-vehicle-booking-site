@@ -62,8 +62,8 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
       body: payload.body || "",
       url: payload.url || "/",
       tag: payload.tag || "ridenow-notification",
-      icon: payload.icon || "/logo.jpeg",
-      badge: payload.badge || "/logo.jpeg",
+      icon: payload.icon || "/logo.webp",
+      badge: payload.badge || "/logo.webp",
       actions: payload.actions,
     });
 

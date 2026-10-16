@@ -46,3 +46,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local SVG asset sources (never push to GitHub)
+.svg/
+.svgs/
+

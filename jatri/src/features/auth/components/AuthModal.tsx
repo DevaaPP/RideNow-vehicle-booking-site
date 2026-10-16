@@ -451,7 +451,7 @@ export default function AuthModal({ open, onClose }: Props) {
                       onClick={handleGoogleLogin}
                       className="w-full h-11 rounded-xl border border-zinc-300 hover:border-zinc-900 flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 transition active:scale-98"
                     >
-                      <Image src="/google.png" alt="Google" width={18} height={18} />
+                      <Image src="/google.webp" alt="Google" width={18} height={18} />
                       <span>{t("auth.continueWithGoogle", "Continue with Google")}</span>
                     </button>
 

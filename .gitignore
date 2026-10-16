@@ -29,3 +29,8 @@ Thumbs.db
 # Agent skills & local tooling
 .agents/
 skills-lock.json
+
+# Local SVG asset sources (never push to GitHub)
+.svg/
+.svgs/
+
