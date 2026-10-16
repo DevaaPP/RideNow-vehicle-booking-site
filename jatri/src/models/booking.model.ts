@@ -164,10 +164,15 @@ export interface IBooking extends Document {
   scheduledReminderSent?: boolean;
   acceptedAt?: Date;
   startedAt?: Date;
+  actualPickupTime?: Date;
   completedAt?: Date;
   estimatedDropoffTime?: Date;
   actualDropoffTime?: Date;
+  routeCoordinates?: [number, number][];
+  routeDistanceKm?: number;
+  routePolyline?: string;
   tripDurationMinutes?: number;
+  tipAmount?: number;
   cancelledBy?: "user" | "driver" | "admin" | "system";
   cancellationReason?: string;
   cancellationFee?: number;
@@ -460,10 +465,15 @@ partnerAmount: {
     },
     acceptedAt: { type: Date },
     startedAt: { type: Date },
+    actualPickupTime: { type: Date },
     completedAt: { type: Date },
     estimatedDropoffTime: { type: Date },
     actualDropoffTime: { type: Date },
+    routeCoordinates: { type: [[Number]], default: [] },
+    routeDistanceKm: { type: Number },
+    routePolyline: { type: String },
     tripDurationMinutes: { type: Number },
+    tipAmount: { type: Number, default: 0 },
     cancelledBy: {
       type: String,
       enum: ["user", "driver", "admin", "system"],

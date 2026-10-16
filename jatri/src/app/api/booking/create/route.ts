@@ -280,10 +280,14 @@ export async function POST(req: Request) {
 
     let routeDistance = 0;
     let routingDurationMin = 0;
+    let routeCoordinates: [number, number][] = waypoints.map((w) => [w[1], w[0]]); // default [lng, lat][]
     try {
       const roadRoute = await getAuthoritativeRoadDistance(waypoints, { timeoutMs: 2500 });
       routeDistance = roadRoute.distanceKm;
       routingDurationMin = roadRoute.durationMinutes;
+      if (Array.isArray(roadRoute.geojsonCoords) && roadRoute.geojsonCoords.length > 0) {
+        routeCoordinates = roadRoute.geojsonCoords;
+      }
     } catch (routeErr) {
       console.warn("Authoritative road distance calculation failed, using winding fallback:", routeErr);
       routeDistance = estimateMultiStopRoadDistanceKm(waypoints);
@@ -403,6 +407,8 @@ export async function POST(req: Request) {
           : undefined,
       fare: calculatedFare,
       fareBreakdown: breakdown,
+      routeCoordinates,
+      routeDistanceKm: routeDistance,
       tripDurationMinutes: estimatedDurationMin,
       estimatedDropoffTime,
       adminCommission: calculateCommissionSplit(calculatedFare).adminCommission,

@@ -397,13 +397,14 @@ export async function getCachedBestRoute(
 export async function getAuthoritativeRoadDistance(
   waypoints: [number, number][],
   options: { timeoutMs?: number } = {}
-): Promise<{ distanceKm: number; durationMinutes: number; engine: string }> {
+): Promise<{ distanceKm: number; durationMinutes: number; engine: string; geojsonCoords: [number, number][] }> {
   try {
     const { result } = await getCachedBestRoute(waypoints, { timeoutMs: options.timeoutMs ?? 2500, alternates: 0 });
     return {
       distanceKm: result.primary.distanceKm,
       durationMinutes: result.primary.durationMinutes,
       engine: result.primary.engine,
+      geojsonCoords: result.primary.geojsonCoords || [],
     };
   } catch (err) {
     console.warn("Authoritative road distance calculation failed, using synthetic fallback:", err);
@@ -412,6 +413,7 @@ export async function getAuthoritativeRoadDistance(
       distanceKm: fallback.primary.distanceKm,
       durationMinutes: fallback.primary.durationMinutes,
       engine: fallback.primary.engine,
+      geojsonCoords: fallback.primary.geojsonCoords || [],
     };
   }
 }

@@ -46,6 +46,7 @@ export async function POST(
       actorRole,
       payload: {
         startedAt: new Date(),
+        actualPickupTime: new Date(),
         pickupOtp: "", // Clear used OTP
         pickupOtpExpires: null,
       },
