@@ -2628,7 +2628,7 @@ export default function BookPage() {
                     ? "86dvh"
                     : mobileSheetState === "down"
                     ? 130
-                    : "52dvh",
+                    : "64dvh",
               }}
               transition={{ type: "spring", stiffness: 340, damping: 34 }}
               className="flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 border-t border-zinc-200"

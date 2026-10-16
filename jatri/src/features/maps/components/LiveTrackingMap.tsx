@@ -10,6 +10,8 @@ type Props = {
   driverLocation?: [number, number] | null;
   pickupLocation?: [number, number] | null;
   dropLocation?: [number, number] | null;
+  pickupAddress?: string;
+  dropAddress?: string;
   status: "arriving" | "ongoing" | "completed" | string;
   vehicleType?: VehicleType;
   etaMinutes?: number;
@@ -136,34 +138,110 @@ function createDriverMarkerEl(vehicleType: VehicleType = "car", etaMinutes?: num
   return { container, vehicleEl, etaBadge };
 }
 
-/* ─── PICKUP PIN ────────────────────────────────────────────────────── */
-function createPickupPinEl(): HTMLElement {
+/* ─── PICKUP PIN (MATCHES /BOOK BRUTALIST CALLOUT) ───────────────────── */
+function createPickupPinEl(locationName?: string): HTMLElement {
   const el = document.createElement("div");
-  el.style.cssText = "display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));";
+  el.className = "cursor-default select-none flex flex-col items-center pointer-events-auto";
+  el.style.zIndex = "1000";
+
+  const rawTitle = (locationName || "").split(",")[0].trim() || "Pickup";
+  const cleanTitle = rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle;
+
   el.innerHTML = `
-    <div style="background:#16a34a;color:#fff;padding:3px 10px;border-radius:100px;
-      font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
-      white-space:nowrap;font-family:system-ui,-apple-system,sans-serif;
-      box-shadow:0 2px 6px rgba(22,163,74,0.35);margin-bottom:3px;">PICKUP</div>
-    <div style="width:2px;height:6px;background:#16a34a;opacity:0.7;"></div>
-    <div style="width:14px;height:14px;background:#16a34a;border-radius:50%;
-      border:3px solid #fff;box-shadow:0 2px 8px rgba(22,163,74,0.45);"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.35));transform:translateY(3px);">
+      <!-- Elevated Callout Badge (Floats clean above route line) -->
+      <div style="
+        background: #09090b;
+        color: #ffffff;
+        padding: 5px 10px;
+        border-radius: 2px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        font-family: system-ui, -apple-system, sans-serif;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        border: 1.5px solid #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      ">
+        <span style="width:6px;height:6px;border-radius:1px;background:#ffffff;display:inline-block;flex-shrink:0;"></span>
+        <span>${cleanTitle}</span>
+      </div>
+
+      <!-- Hairline Elevated Stem -->
+      <div style="
+        width: 2px;
+        height: 6px;
+        background: #09090b;
+        box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
+      "></div>
+
+      <!-- Precision Road Contact Anchor Square -->
+      <div style="
+        width: 6px;
+        height: 6px;
+        background: #09090b;
+        border-radius: 1px;
+        border: 1.5px solid #ffffff;
+        box-shadow: 0 0 0 1px #09090b;
+      "></div>
+    </div>
   `;
   return el;
 }
 
-/* ─── DROP PIN ──────────────────────────────────────────────────────── */
-function createDropPinEl(): HTMLElement {
+/* ─── DROP PIN (MATCHES /BOOK BRUTALIST CALLOUT) ─────────────────────── */
+function createDropPinEl(locationName?: string): HTMLElement {
   const el = document.createElement("div");
-  el.style.cssText = "display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));";
+  el.className = "cursor-default select-none flex flex-col items-center pointer-events-auto";
+  el.style.zIndex = "1000";
+
+  const rawTitle = (locationName || "").split(",")[0].trim() || "Drop";
+  const cleanTitle = rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle;
+
   el.innerHTML = `
-    <div style="background:#dc2626;color:#fff;padding:3px 10px;border-radius:100px;
-      font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
-      white-space:nowrap;font-family:system-ui,-apple-system,sans-serif;
-      box-shadow:0 2px 6px rgba(220,38,38,0.35);margin-bottom:3px;">DROP</div>
-    <div style="width:2px;height:6px;background:#dc2626;opacity:0.7;"></div>
-    <div style="width:14px;height:14px;background:#dc2626;border-radius:50%;
-      border:3px solid #fff;box-shadow:0 2px 8px rgba(220,38,38,0.45);"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));transform:translateY(2px);">
+      <!-- Elevated Callout Badge (Floats clean above route line) -->
+      <div style="
+        background: #ffffff;
+        color: #09090b;
+        padding: 5px 10px;
+        border-radius: 2px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        font-family: system-ui, -apple-system, sans-serif;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        border: 1.5px solid #09090b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      ">
+        <span style="width:6px;height:6px;border-radius:1px;border:1.5px solid #09090b;background:#ffffff;display:inline-block;flex-shrink:0;"></span>
+        <span>${cleanTitle}</span>
+      </div>
+
+      <!-- Hairline Elevated Stem -->
+      <div style="
+        width: 2px;
+        height: 6px;
+        background: #09090b;
+        box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
+      "></div>
+
+      <!-- Precision Road Contact Anchor Square -->
+      <div style="
+        width: 6px;
+        height: 6px;
+        background: #ffffff;
+        border-radius: 1px;
+        border: 1.5px solid #09090b;
+        box-shadow: 0 0 0 1px #ffffff;
+      "></div>
+    </div>
   `;
   return el;
 }
@@ -173,7 +251,7 @@ function setupRouteLayers(map: maplibregl.Map): boolean {
   if (!map) return false;
 
   try {
-    // 1. Trip route (active or preview road route)
+    // 1. Trip route (active or preview road route) - Matching /book styling
     if (!map.getSource("trip-route")) {
       map.addSource("trip-route", {
         type: "geojson",
@@ -195,7 +273,7 @@ function setupRouteLayers(map: maplibregl.Map): boolean {
         type: "line",
         source: "trip-route",
         layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": "#2563eb", "line-width": 5.5, "line-opacity": 1.0 },
+        paint: { "line-color": "#09090b", "line-width": 5.5, "line-opacity": 1.0 },
       });
     }
 
@@ -212,7 +290,7 @@ function setupRouteLayers(map: maplibregl.Map): boolean {
         type: "line",
         source: "driver-route",
         layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": "#ffffff", "line-width": 8.5, "line-opacity": 0.9 },
+        paint: { "line-color": "#ffffff", "line-width": 7.5, "line-opacity": 0.95 },
       });
     }
     if (!map.getLayer("driver-core")) {
@@ -222,10 +300,10 @@ function setupRouteLayers(map: maplibregl.Map): boolean {
         source: "driver-route",
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": "#0284c7",
+          "line-color": "#71717a",
           "line-width": 4.5,
-          "line-opacity": 0.9,
-          "line-dasharray": [1, 2],
+          "line-opacity": 1.0,
+          "line-dasharray": [1.5, 2],
         },
       });
     }
@@ -322,6 +400,8 @@ export default function LiveTrackingMap({
   driverLocation,
   pickupLocation,
   dropLocation,
+  pickupAddress,
+  dropAddress,
   status,
   vehicleType = "car",
   etaMinutes,
@@ -441,7 +521,7 @@ export default function LiveTrackingMap({
 
     if (pickupLocation && typeof pickupLocation[0] === "number" && typeof pickupLocation[1] === "number") {
       if (!pickupMarkerRef.current) {
-        pickupMarkerRef.current = new maplibregl.Marker({ element: createPickupPinEl(), anchor: "bottom" })
+        pickupMarkerRef.current = new maplibregl.Marker({ element: createPickupPinEl(pickupAddress), anchor: "bottom" })
           .setLngLat([pickupLocation[1], pickupLocation[0]])
           .addTo(map);
       } else {
@@ -454,7 +534,7 @@ export default function LiveTrackingMap({
 
     if (dropLocation && typeof dropLocation[0] === "number" && typeof dropLocation[1] === "number") {
       if (!dropMarkerRef.current) {
-        dropMarkerRef.current = new maplibregl.Marker({ element: createDropPinEl(), anchor: "bottom" })
+        dropMarkerRef.current = new maplibregl.Marker({ element: createDropPinEl(dropAddress), anchor: "bottom" })
           .setLngLat([dropLocation[1], dropLocation[0]])
           .addTo(map);
       } else {
@@ -464,7 +544,7 @@ export default function LiveTrackingMap({
       dropMarkerRef.current.remove();
       dropMarkerRef.current = null;
     }
-  }, [pickupLocation, dropLocation]);
+  }, [pickupLocation, dropLocation, pickupAddress, dropAddress]);
 
   /* ─── UPDATE ETA BADGE REACTIVELY ─── */
   useEffect(() => {
@@ -739,7 +819,7 @@ export default function LiveTrackingMap({
         <path
           ref={svgTripCoreRef}
           d=""
-          stroke="#2563eb"
+          stroke="#09090b"
           strokeWidth="5.5"
           strokeLinecap="round"
           strokeLinejoin="round"

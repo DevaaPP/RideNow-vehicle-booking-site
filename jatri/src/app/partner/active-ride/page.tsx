@@ -493,6 +493,47 @@ export default function DriverRidePage() {
     }
   };
 
+  const [actionPending, setActionPending] = useState(false);
+
+  const handleAcceptRide = async () => {
+    if (!booking?._id || actionPending) return;
+    try {
+      setActionPending(true);
+      const res = await fetch(`/api/booking/${booking._id}/accept`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBooking(data.booking);
+        fetchBookingDetails();
+      } else {
+        alert(data.message || "Failed to accept ride");
+      }
+    } catch (err) {
+      console.error("Accept ride error:", err);
+      alert("Failed to accept ride");
+    } finally {
+      setActionPending(false);
+    }
+  };
+
+  const handleDeclineRide = async () => {
+    if (!booking?._id || actionPending) return;
+    try {
+      setActionPending(true);
+      await fetch("/api/partner/bookings/dispatch-next", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: booking._id }),
+      });
+      setBooking(null);
+      window.location.href = "/partners/dashboard";
+    } catch (err) {
+      console.error("Decline ride error:", err);
+      window.location.href = "/partners/dashboard";
+    } finally {
+      setActionPending(false);
+    }
+  };
+
   /* ══════════════════════════════════════════════════════════════════
      RENDER LOGIC — all hooks above, early returns below
   ══════════════════════════════════════════════════════════════════ */
@@ -589,6 +630,9 @@ export default function DriverRidePage() {
     chatOpen, onChatToggle: () => canChat && setChatOpen(v => !v),
     onCancel: handleCancel,
     onCallClick: startVoipCall,
+    onAcceptRide: handleAcceptRide,
+    onDeclineRide: handleDeclineRide,
+    actionPending,
   };
 
   return (
@@ -600,6 +644,8 @@ export default function DriverRidePage() {
           driverLocation={driverPos}
           pickupLocation={pickupPos}
           dropLocation={dropPos}
+          pickupAddress={booking?.pickupAddress}
+          dropAddress={booking?.dropAddress}
           status={mapStatus}
           onStats={({ distanceToPickup, durationToPickup, distanceToDrop, durationToDrop }: any) => {
             setDistanceToPickup(distanceToPickup); setEtaToPickup(durationToPickup);
@@ -1018,7 +1064,32 @@ function ActionBar({
   setOtpMode, setOtp, setOtpError, handleVerifyOtp, sendPickupOtp,
   dropOtpMode, dropOtp, loadingDropOtp, dropOtpError,
   setDropOtpMode, setDropOtp, setDropOtpError, handleVerifyDropOtp, sendDropOtp,
+  onAcceptRide, onDeclineRide, actionPending,
 }: any) {
+  if (status === "requested") {
+    return (
+      <div className="flex-shrink-0 border-t border-zinc-200 bg-white px-4 py-3 flex gap-2">
+        <button
+          type="button"
+          onClick={onDeclineRide}
+          disabled={actionPending}
+          className="flex-1 bg-white hover:bg-zinc-100 text-zinc-900 border border-zinc-300 py-3.5 rounded-none text-xs font-black uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50"
+        >
+          Decline
+        </button>
+        <button
+          type="button"
+          onClick={onAcceptRide}
+          disabled={actionPending}
+          className="flex-1 bg-zinc-950 hover:bg-black text-white py-3.5 rounded-none text-xs font-black uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-md"
+        >
+          <CheckCircle2 size={15} />
+          <span>{actionPending ? "Accepting..." : "Accept Ride"}</span>
+        </button>
+      </div>
+    );
+  }
+
   if (!["confirmed", "started"].includes(status)) return null;
 
   const targetCoords = status === "started" ? dropPos : pickupPos;
@@ -1155,9 +1226,49 @@ function ActionBar({
 /* ══════════════════════════════════════════════════════════════════════
    PANEL CONTENT
 ══════════════════════════════════════════════════════════════════════ */
-function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen, onChatToggle, onCancel, onCallClick }: any) {
+function PanelContent({
+  booking, status, isActive, canChat, displayEta, chatOpen, onChatToggle, onCancel, onCallClick,
+  onAcceptRide, onDeclineRide, actionPending,
+}: any) {
   return (
     <div className="flex flex-col pt-4 pb-4 gap-3">
+
+      {/* ── NEW INCOMING TRIP REQUEST BANNER & ACCEPT/DECLINE CONTROLS ── */}
+      {status === "requested" && (
+        <div className="mx-4 lg:mx-6 p-4 bg-zinc-950 border-2 border-zinc-900 text-white rounded-none shadow-xl space-y-3">
+          <div className="flex items-center justify-between border-b border-zinc-800 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-amber-400 rounded-none animate-ping" />
+              <p className="text-xs font-black uppercase tracking-widest text-amber-400">Incoming Ride Request</p>
+            </div>
+            <span className="text-lg font-black text-white font-mono">₹{booking?.fare}</span>
+          </div>
+
+          <p className="text-xs text-zinc-300 font-medium leading-relaxed">
+            A passenger nearby has requested a ride. Accept to confirm booking and start navigating.
+          </p>
+
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onDeclineRide}
+              disabled={actionPending}
+              className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 py-3 rounded-none text-xs font-black uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50"
+            >
+              Decline
+            </button>
+            <button
+              type="button"
+              onClick={onAcceptRide}
+              disabled={actionPending}
+              className="flex-1 bg-white hover:bg-zinc-100 text-zinc-950 py-3 rounded-none text-xs font-black uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5"
+            >
+              <CheckCircle2 size={15} className="text-zinc-950" />
+              <span>{actionPending ? "Accepting..." : "Accept Ride"}</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* DRIVER PANIC ALERT BANNER */}
       {booking?.isPanicActive && (

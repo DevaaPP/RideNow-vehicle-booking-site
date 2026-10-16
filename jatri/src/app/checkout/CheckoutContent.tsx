@@ -572,7 +572,9 @@ export default function CheckoutContent() {
         setStatus((prev) => (prev === "payment" ? "payment" : "awaiting_payment"));
       }
       if (data.status === "rejected")         setStatus("rejected");
-      if (data.status === "confirmed")        setStatus("confirmed");
+      if (["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "started", "ride_started", "ride_in_progress"].includes(data.status)) {
+        setStatus("confirmed");
+      }
       if (data.status === "auto_rematching")  setStatus("auto_rematching");
       if (data.status === "requested") {
         setStatus("requested");
@@ -631,7 +633,11 @@ export default function CheckoutContent() {
           if (data.booking.status === "awaiting_payment" && status === "payment") {
             return;
           }
-          setStatus(data.booking.status);
+          if (["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "started", "ride_started", "ride_in_progress"].includes(data.booking.status)) {
+            setStatus("confirmed");
+          } else {
+            setStatus(data.booking.status);
+          }
         }
       } catch (err) {
         console.error("Failed to check active booking:", err);
@@ -640,12 +646,12 @@ export default function CheckoutContent() {
 
     checkActiveBooking();
 
-    // Fallback poll every 8 seconds while booking is requested or awaiting payment (Socket.IO handles real-time updates)
+    // Fallback poll every 2.5 seconds while booking is requested or awaiting payment
     const interval = setInterval(() => {
       if (status === "requested" || status === "awaiting_payment") {
         checkActiveBooking();
       }
-    }, 8000);
+    }, 2500);
 
     return () => clearInterval(interval);
   }, [status]);

@@ -109,6 +109,7 @@ export async function POST(
         `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
         {
           userId: booking.user.toString(),
+          roomId: booking._id.toString(),
           event: "booking-updated",
           data: {
             bookingId: booking._id.toString(),

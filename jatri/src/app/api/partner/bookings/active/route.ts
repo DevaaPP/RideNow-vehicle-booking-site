@@ -53,8 +53,6 @@ export async function GET() {
     driver: { $in: driverIds },
     status: {
       $in: [
-        "requested",
-        "searching_driver",
         "driver_assigned",
         "awaiting_payment",
         "confirmed",
