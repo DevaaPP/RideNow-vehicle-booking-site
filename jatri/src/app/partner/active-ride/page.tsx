@@ -49,6 +49,8 @@ export interface IBooking {
   pickupLocation?: { type: "Point"; coordinates: [number, number] };
   dropLocation?:   { type: "Point"; coordinates: [number, number] };
   fare: number;
+  adminCommission?: number;
+  partnerAmount?: number;
   status: BookingStatus;
   paymentStatus: PaymentStatus;
   paymentDeadline?: Date;
@@ -1241,7 +1243,10 @@ function PanelContent({
               <span className="w-2.5 h-2.5 bg-amber-400 rounded-none animate-ping" />
               <p className="text-xs font-black uppercase tracking-widest text-amber-400">Incoming Ride Request</p>
             </div>
-            <span className="text-lg font-black text-white font-mono">₹{booking?.fare}</span>
+            <div className="text-right">
+              <span className="text-xl font-black text-emerald-400 font-mono">₹{booking?.partnerAmount || Math.round((booking?.fare || 0) * 0.9)}</span>
+              <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">Net Payout</p>
+            </div>
           </div>
 
           <p className="text-xs text-zinc-300 font-medium leading-relaxed">
@@ -1509,14 +1514,31 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
           <p className="text-zinc-400 text-xs text-center mb-6">You have successfully dropped the customer.</p>
 
           <div className="bg-zinc-900 border border-zinc-800 rounded-none p-5 mb-3">
-            <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1 text-center">Fare Collected</p>
-            <p className="text-white text-4xl font-black flex items-center justify-center gap-1 mb-4 font-mono">
-              <IndianRupee size={28} strokeWidth={2.5} /> {booking.fare}
+            <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1 text-center">Net Earnings Credited</p>
+            <p className="text-emerald-400 text-4xl font-black flex items-center justify-center gap-1 mb-4 font-mono">
+              <IndianRupee size={28} strokeWidth={2.5} /> {booking.partnerAmount || Math.round(booking.fare * 0.9)}
             </p>
+
+            {/* Itemized Price Confirmation */}
+            <div className="space-y-1.5 border-t border-zinc-800 pt-3 pb-3 text-xs">
+              <div className="flex justify-between text-zinc-400 font-medium">
+                <span>Customer Gross Fare:</span>
+                <span className="font-mono text-white">₹{booking.fare}</span>
+              </div>
+              <div className="flex justify-between text-zinc-400 font-medium">
+                <span>Platform Commission (10%):</span>
+                <span className="font-mono text-rose-400">-₹{booking.adminCommission || Math.round(booking.fare * 0.1)}</span>
+              </div>
+              <div className="flex justify-between text-white font-bold border-t border-zinc-800/80 pt-1.5">
+                <span className="text-emerald-400">Net Driver Payout:</span>
+                <span className="font-mono text-emerald-400">₹{booking.partnerAmount || Math.round(booking.fare * 0.9)}</span>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between text-xs border-t border-zinc-800 pt-3">
-              <span className="text-zinc-400 font-bold uppercase text-[10px] tracking-wider">Payment Status</span>
+              <span className="text-zinc-400 font-bold uppercase text-[10px] tracking-wider">Payment Mode</span>
               <span className={`px-2 py-0.5 rounded-none font-mono font-black text-[10px] uppercase tracking-wider ${PAYMENT_BADGE[booking.paymentStatus]?.cls ?? "bg-zinc-700 text-zinc-300"}`}>
-                {PAYMENT_BADGE[booking.paymentStatus]?.label ?? booking.paymentStatus}
+                {booking.paymentStatus === "cash" ? "Cash (Keep Full Fare)" : "Online Wallet Credited"}
               </span>
             </div>
           </div>

@@ -1979,14 +1979,14 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     </div>
                   </div>
 
-                  {/* Earnings Display */}
+                  {/* Earnings Display: Upfront Net Payout (Commission already deducted) */}
                   <div className="bg-zinc-950 rounded-2xl p-5 text-center border border-zinc-800 flex flex-col items-center justify-center">
-                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1">{t("driver.netFare", "Your Net Fare")}</p>
+                    <p className="text-emerald-400 text-[10px] uppercase tracking-widest font-black mb-1">{t("driver.netFare", "Your Net Payout (Take-Home)")}</p>
                     <div className="flex items-center gap-1.5 text-white text-4xl font-black tracking-tight leading-none">
-                      <IndianRupee size={24} className="text-amber-400" />
-                      <span>{pendingRequest.fare}</span>
+                      <IndianRupee size={24} className="text-emerald-400" />
+                      <span>{pendingRequest.partnerAmount || Math.round((pendingRequest.fare || 0) * 0.9)}</span>
                     </div>
-                    <p className="text-[9px] text-zinc-500 mt-2 font-medium">90% partner amount. Cash or Digital payment.</p>
+                    <p className="text-[9px] text-zinc-400 mt-2 font-medium">Guaranteed driver earnings. Platform commission already deducted.</p>
                   </div>
 
                 </div>

@@ -54,7 +54,7 @@ export async function GET() {
       status: "requested",
     })
       .sort({ createdAt: -1 })
-      .select("_id pickupAddress dropAddress fare createdAt pickupLocation")
+      .select("_id pickupAddress dropAddress fare partnerAmount adminCommission createdAt pickupLocation")
       .lean();
 
     // Filter to strictly incoming requests within 10km limit
