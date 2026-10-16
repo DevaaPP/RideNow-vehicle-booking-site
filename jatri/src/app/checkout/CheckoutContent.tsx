@@ -183,15 +183,17 @@ export default function CheckoutContent() {
     }
   }, [computedBreakdown?.totalFare, bookingId]);
 
-  // 1️⃣ Client-side Draft Hydration from sessionStorage (Option 1)
+  // 1️⃣ Client-side Draft Hydration from sessionStorage / localStorage
+  const [isHydrated, setIsHydrated] = useState(false);
+
   useEffect(() => {
     try {
       if (typeof window !== "undefined") {
-        const raw = sessionStorage.getItem("ridenow_booking_draft");
+        const raw = sessionStorage.getItem("ridenow_booking_draft") || localStorage.getItem("ridenow_booking_draft");
         if (raw) {
           const draft = JSON.parse(raw);
-          if (draft.pickup) setPickup(draft.pickup);
-          if (draft.drop) setDrop(draft.drop);
+          if (draft.pickup && draft.pickup !== "Pickup Location") setPickup(draft.pickup);
+          if (draft.drop && draft.drop !== "Drop Location") setDrop(draft.drop);
           if (draft.vehicle) setVehicle(draft.vehicle);
           if (draft.vehicleId) setVehicleId(draft.vehicleId);
           if (draft.fare) setFare(Number(draft.fare));
@@ -220,7 +222,9 @@ export default function CheckoutContent() {
         window.history.replaceState({}, "", "/checkout");
       }
     } catch (err) {
-      console.warn("Failed to load booking draft from sessionStorage:", err);
+      console.warn("Failed to load booking draft from storage:", err);
+    } finally {
+      setIsHydrated(true);
     }
   }, []);
 
@@ -408,6 +412,7 @@ export default function CheckoutContent() {
       // Success: clear draft
       try {
         sessionStorage.removeItem("ridenow_booking_draft");
+        localStorage.removeItem("ridenow_booking_draft");
       } catch (e) {}
 
       setBookingId(data.booking._id);
@@ -666,29 +671,42 @@ export default function CheckoutContent() {
   const opt = VEHICLE_OPTIONS[vehicle.toLowerCase() as keyof typeof VEHICLE_OPTIONS];
   const vehicleLabel = opt?.label || (vehicle.charAt(0).toUpperCase() + vehicle.slice(1));
 
-  const editBookUrl = useMemo(() => {
-    if (typeof window !== "undefined") {
+  const editBookUrl = "/book?edit=true";
+
+  const handleReturnToBook = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (typeof window !== "undefined" && pickupLat && dropLat && pickup !== "Pickup Location") {
       try {
         const draft = {
           pickup,
           drop,
           vehicle,
+          vehicleId,
+          fare: effectiveFare,
+          fareBreakdown: computedBreakdown || bookingBreakdown,
           pickupLat,
           pickupLng,
           dropLat,
           dropLng,
+          distanceKm,
           mobileNumber,
           isScheduled,
           scheduledTime: scheduledPickupTime,
           stops,
           smartPickupDetails: isSmartPickup ? smartPickupDetails : null,
           familyMemberDetails: isFamilyRide ? familyMemberDetails : null,
+          pickupDetails,
+          dropDetails,
+          serviceMode,
+          cargoDetails,
         };
-        sessionStorage.setItem("ridenow_booking_draft", JSON.stringify(draft));
+        const serialized = JSON.stringify(draft);
+        sessionStorage.setItem("ridenow_booking_draft", serialized);
+        localStorage.setItem("ridenow_booking_draft", serialized);
       } catch (_) {}
     }
-    return "/book?edit=true";
-  }, [pickup, drop, vehicle, pickupLat, pickupLng, dropLat, dropLng, mobileNumber, isScheduled, scheduledPickupTime, stops, isSmartPickup, smartPickupDetails, isFamilyRide, familyMemberDetails]);
+    router.push("/book?edit=true");
+  };
 
   return (
     <div className="min-h-screen bg-zinc-100 px-3 sm:px-4 py-5 sm:py-10">
@@ -710,6 +728,7 @@ export default function CheckoutContent() {
           <div className="flex items-center gap-2.5">
             <Link
               href={editBookUrl}
+              onClick={handleReturnToBook}
               className="w-9 h-9 rounded-none border border-zinc-300 bg-white hover:bg-zinc-100 flex items-center justify-center text-zinc-900 transition shadow-none cursor-pointer shrink-0"
               aria-label="Back to Map"
               title="Back to Map"
@@ -728,6 +747,7 @@ export default function CheckoutContent() {
 
           <Link
             href={editBookUrl}
+            onClick={handleReturnToBook}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-900 text-xs font-bold transition shadow-none cursor-pointer"
           >
             <Edit2 size={12} />
@@ -736,7 +756,7 @@ export default function CheckoutContent() {
         </motion.div>
 
         {/* Missing locations warning banner */}
-        {!pickupLat && !dropLat && (
+        {isHydrated && (!pickupLat || !dropLat || pickup === "Pickup Location" || drop === "Drop Location") && (
           <div className="p-3.5 sm:p-4 bg-amber-50 border border-amber-300 rounded-none flex items-center justify-between shadow-none gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <AlertCircle size={18} className="text-amber-700 flex-shrink-0" />
@@ -747,6 +767,7 @@ export default function CheckoutContent() {
             </div>
             <Link
               href={editBookUrl}
+              onClick={handleReturnToBook}
               className="px-3.5 py-1.5 bg-zinc-950 hover:bg-black text-white text-xs font-black uppercase tracking-wider rounded-none transition shrink-0"
             >
               Choose on Map
@@ -800,6 +821,7 @@ export default function CheckoutContent() {
                 <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">Route Overview</span>
                 <Link
                   href={editBookUrl}
+                  onClick={handleReturnToBook}
                   className="text-[11px] font-bold text-zinc-900 hover:underline flex items-center gap-1"
                 >
                   <MapPin size={11} />

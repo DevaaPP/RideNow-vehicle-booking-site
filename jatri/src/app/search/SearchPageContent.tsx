@@ -260,7 +260,9 @@ export default function SearchPageContent() {
                     };
                     try {
                       if (typeof window !== "undefined") {
-                        sessionStorage.setItem("ridenow_booking_draft", JSON.stringify(draft));
+                        const serialized = JSON.stringify(draft);
+                        sessionStorage.setItem("ridenow_booking_draft", serialized);
+                        localStorage.setItem("ridenow_booking_draft", serialized);
                       }
                     } catch (e) {
                       console.warn("sessionStorage save error:", e);

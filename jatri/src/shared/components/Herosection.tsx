@@ -30,6 +30,7 @@ export default function HeroSection({
     if (typeof window !== "undefined") {
       try {
         sessionStorage.removeItem("ridenow_booking_draft");
+        localStorage.removeItem("ridenow_booking_draft");
       } catch (_) {}
     }
     router.push("/book?fresh=true");

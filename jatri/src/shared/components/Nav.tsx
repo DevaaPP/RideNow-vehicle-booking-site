@@ -275,7 +275,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href={currentUser?.role === "vendor" || isVendorRoute ? "/partners/dashboard" : "/"}
             onClick={() => {
               if (typeof window !== "undefined") {
-                try { sessionStorage.removeItem("ridenow_booking_draft"); } catch (_) {}
+                try {
+                  sessionStorage.removeItem("ridenow_booking_draft");
+                  localStorage.removeItem("ridenow_booking_draft");
+                } catch (_) {}
               }
             }}
             className="flex items-center"

@@ -947,6 +947,7 @@ export default function BookPage() {
     if (typeof window !== "undefined") {
       try {
         sessionStorage.removeItem("ridenow_booking_draft");
+        localStorage.removeItem("ridenow_booking_draft");
       } catch (_) {}
     }
     setDrop("");
@@ -970,17 +971,21 @@ export default function BookPage() {
       const isFresh = urlParams.get("fresh") === "true";
       const isEdit = urlParams.get("edit") === "true";
 
-      // If fresh requested or NOT an explicit edit from checkout, clear stale draft and start fresh!
-      if (isFresh || !isEdit) {
+      // If fresh requested explicitly, clear stale draft and start fresh!
+      if (isFresh) {
         try {
           sessionStorage.removeItem("ridenow_booking_draft");
+          localStorage.removeItem("ridenow_booking_draft");
         } catch (_) {}
         useCurrentLocation();
+        if (window.location.search) {
+          window.history.replaceState({}, "", "/book");
+        }
         return;
       }
 
-      // Explicit edit returning from checkout -> hydrate draft or URL query params
-      const raw = sessionStorage.getItem("ridenow_booking_draft");
+      // Explicit edit returning from checkout or active session fallback
+      const raw = sessionStorage.getItem("ridenow_booking_draft") || localStorage.getItem("ridenow_booking_draft");
       let draft: any = null;
       if (raw) {
         try {
@@ -988,14 +993,21 @@ export default function BookPage() {
         } catch (_) {}
       }
 
-      const p = draft?.pickup || urlParams.get("pickup");
-      const d = draft?.drop || urlParams.get("drop");
+      const p = (draft?.pickup && draft.pickup !== "Pickup Location") ? draft.pickup : urlParams.get("pickup");
+      const d = (draft?.drop && draft.drop !== "Drop Location") ? draft.drop : urlParams.get("drop");
       const v = draft?.vehicle || urlParams.get("vehicle");
       const m = draft?.mobileNumber || draft?.mobile || urlParams.get("mobileNumber");
       const pLat = typeof draft?.pickupLat === "number" ? draft.pickupLat : urlParams.get("pickupLat") ? Number(urlParams.get("pickupLat")) : null;
       const pLng = typeof draft?.pickupLng === "number" ? draft.pickupLng : urlParams.get("pickupLng") ? Number(urlParams.get("pickupLng")) : null;
       const dLat = typeof draft?.dropLat === "number" ? draft.dropLat : urlParams.get("dropLat") ? Number(urlParams.get("dropLat")) : null;
       const dLng = typeof draft?.dropLng === "number" ? draft.dropLng : urlParams.get("dropLng") ? Number(urlParams.get("dropLng")) : null;
+
+      const hasValidDraftOrParams = Boolean((p && d) || (pLat && dLat) || isEdit);
+
+      if (!hasValidDraftOrParams) {
+        useCurrentLocation();
+        return;
+      }
 
       if (p) setPickup(p);
       if (d) setDrop(d);
@@ -1031,7 +1043,7 @@ export default function BookPage() {
         window.history.replaceState({}, "", "/book");
       }
     } catch (e) {
-      console.warn("Failed to restore booking draft from sessionStorage:", e);
+      console.warn("Failed to restore booking draft from storage:", e);
       useCurrentLocation();
     }
   }, []);
@@ -1249,10 +1261,12 @@ export default function BookPage() {
 
     try {
       if (typeof window !== "undefined") {
-        sessionStorage.setItem("ridenow_booking_draft", JSON.stringify(draftData));
+        const serialized = JSON.stringify(draftData);
+        sessionStorage.setItem("ridenow_booking_draft", serialized);
+        localStorage.setItem("ridenow_booking_draft", serialized);
       }
     } catch (e) {
-      console.warn("sessionStorage save error:", e);
+      console.warn("booking draft save error:", e);
     }
 
     router.push("/checkout");
