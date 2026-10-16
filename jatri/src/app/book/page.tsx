@@ -2152,7 +2152,7 @@ export default function BookPage() {
             <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
         ) : (
-          <div className="border border-zinc-200 bg-white divide-y divide-zinc-200 overflow-hidden">
+          <div className="bg-transparent divide-y divide-zinc-100">
             {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v) => {
               const isSelected = vehicle === v.id;
               const isLimitOk = checkLimit(v.id, effectiveDistance);
@@ -2167,12 +2167,12 @@ export default function BookPage() {
                 <div
                   key={v.id}
                   onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                  className={`relative flex items-center justify-between px-3.5 py-3 transition-colors cursor-pointer select-none ${
+                  className={`relative flex items-center justify-between px-3.5 py-3.5 transition-colors cursor-pointer select-none ${
                     isSelected
                       ? "bg-zinc-950 text-white"
                       : isSmartPick
-                      ? "bg-emerald-50/40 hover:bg-emerald-50 text-zinc-900"
-                      : "bg-white hover:bg-zinc-50 text-zinc-900"
+                      ? "bg-emerald-50/50 hover:bg-emerald-100/50 text-zinc-900"
+                      : "hover:bg-zinc-100/80 text-zinc-900"
                   } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
                 >
                   {isSmartPick && !isSelected && (

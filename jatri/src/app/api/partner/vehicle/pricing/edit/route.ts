@@ -55,6 +55,12 @@ export async function PATCH(req: NextRequest) {
       updated = true;
     }
 
+    const type = formData.get("type");
+    if (type && typeof type === "string" && type.trim()) {
+      vehicle.type = type.trim().toLowerCase() as any;
+      updated = true;
+    }
+
     if (!updated) {
       return NextResponse.json(
         { message: "Nothing to update" },

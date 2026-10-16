@@ -605,11 +605,24 @@ export default function VendorDashboard({
 function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string>(pricing?.type || "car");
   const [loading, setLoading] = useState(false);
+
+  const FLEET_CATEGORIES = [
+    { id: "car", label: "Jatri Premier (Sedan / Cab)" },
+    { id: "mini", label: "Jatri Mini (Hatchback)" },
+    { id: "priority", label: "Jatri XL Priority (SUV)" },
+    { id: "auto", label: "Jatri Auto (3-Wheeler)" },
+    { id: "bike", label: "Jatri Moto (Motorcycle)" },
+    { id: "scooty", label: "Jatri Scooty (Scooter)" },
+    { id: "loading", label: "Jatri Express Mini (Cargo)" },
+    { id: "truck", label: "Jatri City Truck (Freight)" },
+  ];
 
   const submitPricing = async () => {
     const formData = new FormData();
     if (image) formData.append("image", image);
+    if (selectedType) formData.append("type", selectedType);
 
     setLoading(true);
     try {
@@ -627,15 +640,16 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
         onSaved(pricingRes?.data?.pricing, meRes?.data);
       }
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to submit vehicle photo");
+      alert(err?.response?.data?.message || "Failed to update vehicle fleet details");
     } finally {
       setLoading(false);
     }
   };
 
-   useEffect(() => {
+  useEffect(() => {
     if (pricing) {
       setPreview(pricing.imageUrl || null);
+      if (pricing.type) setSelectedType(pricing.type);
     }
   }, [pricing, open]);
 
@@ -655,47 +669,69 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
           >
             <div className="border-b border-zinc-200 pb-4 mb-4">
               <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-bold">
-                Vehicle Compliance
+                Vehicle Compliance & Fleet
               </span>
               <h2 className="text-lg font-bold text-zinc-950 tracking-tight mt-0.5">
-                Vehicle Exterior Inspection Photo
+                Fleet Category & Exterior Inspection
               </h2>
             </div>
 
             <div className="space-y-4">
-              <p className="text-xs text-zinc-500 font-mono leading-relaxed">
-                Upload a clear exterior photo showing vehicle body and license plate for rider identification.
-              </p>
+              {/* Fleet Category Selector */}
+              <div>
+                <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">
+                  Select Fleet Specification
+                </label>
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full text-xs font-bold p-2.5 bg-zinc-50 border border-zinc-300 rounded-none text-zinc-900 focus:outline-none focus:border-zinc-950"
+                >
+                  {FLEET_CATEGORIES.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-zinc-500 mt-1">
+                  Ensure your vehicle matches the customer ride requests in your area.
+                </p>
+              </div>
 
-              <label className="relative h-44 border border-zinc-300 rounded-none bg-zinc-50 flex items-center justify-center cursor-pointer hover:border-zinc-950 transition-colors">
-                {!preview ? (
-                  <div className="flex flex-col items-center gap-1.5 text-zinc-400">
-                    <ImagePlus size={26} />
-                    <span className="text-[10px] font-mono uppercase tracking-wider">Select Vehicle Photo</span>
-                  </div>
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={preview}
-                    alt="Vehicle preview"
-                    className="absolute inset-0 w-full h-full object-cover"
+              <div>
+                <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">
+                  Vehicle Exterior Photo
+                </label>
+                <label className="relative h-40 border border-zinc-300 rounded-none bg-zinc-50 flex items-center justify-center cursor-pointer hover:border-zinc-950 transition-colors">
+                  {!preview ? (
+                    <div className="flex flex-col items-center gap-1.5 text-zinc-400">
+                      <ImagePlus size={26} />
+                      <span className="text-[10px] font-mono uppercase tracking-wider">Select Vehicle Photo</span>
+                    </div>
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={preview}
+                      alt="Vehicle preview"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
+
+                  <input
+                    hidden
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        setImage(e.target.files[0]);
+                        setPreview(
+                          URL.createObjectURL(e.target.files[0])
+                        );
+                      }
+                    }}
                   />
-                )}
-
-                <input
-                  hidden
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                      setImage(e.target.files[0]);
-                      setPreview(
-                        URL.createObjectURL(e.target.files[0])
-                      );
-                    }
-                  }}
-                />
-              </label>
+                </label>
+              </div>
             </div>
 
             <div className="pt-5 mt-5 border-t border-zinc-200 flex gap-3">
@@ -707,10 +743,10 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
               </button>
               <button
                 onClick={submitPricing}
-                disabled={loading || !image}
+                disabled={loading}
                 className="flex-1 py-2.5 bg-zinc-950 text-white font-mono text-xs uppercase tracking-wider font-bold rounded-none hover:bg-black transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Photo"}
+                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Fleet Details"}
               </button>
             </div>
           </motion.div>

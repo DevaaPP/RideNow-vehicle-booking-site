@@ -18,14 +18,25 @@ import { useSession } from "next-auth/react";
 
 /* ================= CONFIG ================= */
 
-type VehicleId = "bike" | "auto" | "car" | "loading" | "truck";
+type VehicleId =
+  | "scooty"
+  | "bike"
+  | "auto"
+  | "mini"
+  | "car"
+  | "priority"
+  | "loading"
+  | "truck";
 
 const VEHICLES = [
-  { id: "bike", label: "Bike", icon: Bike, desc: "2-Wheeler Commute" },
-  { id: "auto", label: "Auto", icon: Car, desc: "3-Wheeler Transit" },
-  { id: "car", label: "Cab / Sedan", icon: Car, desc: "4-Wheeler Passenger" },
-  { id: "loading", label: "Loading", icon: Package, desc: "Commercial Light Goods" },
-  { id: "truck", label: "Truck", icon: Truck, desc: "Heavy Transport Fleet" },
+  { id: "scooty", label: "Scooty", icon: Bike, desc: "2-Wheeler Lightweight Commute" },
+  { id: "bike", label: "Bike / Moto", icon: Bike, desc: "2-Wheeler Solo Motorcycle" },
+  { id: "auto", label: "Auto", icon: Car, desc: "3-Wheeler Doorstep Transit" },
+  { id: "mini", label: "Mini (Hatchback)", icon: Car, desc: "4-Wheeler Compact AC (WagonR, Tiago)" },
+  { id: "car", label: "Premier (Sedan / Cab)", icon: Car, desc: "4-Wheeler Executive AC (Dzire, Amaze)" },
+  { id: "priority", label: "XL Priority (SUV)", icon: Car, desc: "6-Seater Spacious SUV (Ertiga, Innova)" },
+  { id: "loading", label: "Loading (Cargo Mini)", icon: Package, desc: "Commercial Light Goods (Tata Ace)" },
+  { id: "truck", label: "Truck (Heavy Transport)", icon: Truck, desc: "Heavy Commercial Transport Fleet" },
 ];
 
 const VEHICLE_REGEX =

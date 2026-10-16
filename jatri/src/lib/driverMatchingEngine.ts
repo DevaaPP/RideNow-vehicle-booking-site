@@ -81,29 +81,42 @@ export async function findEligibleCandidates(options: {
   const normalizedType = vehicleType.toLowerCase();
   let candidateTypes: string[] = [normalizedType];
   if (normalizedType === "intercity") {
-    candidateTypes = ["car", "priority", "intercity", "mini"];
+    candidateTypes = ["car", "priority", "intercity", "mini", "premier", "cab", "sedan"];
   } else if (normalizedType === "mini") {
-    candidateTypes = ["mini", "car", "priority"];
+    candidateTypes = ["mini", "car", "priority", "intercity", "premier", "cab", "sedan"];
   } else if (normalizedType === "priority") {
-    candidateTypes = ["priority", "car"];
+    candidateTypes = ["priority", "car", "mini", "intercity", "premier", "suv", "cab"];
   } else if (normalizedType === "car") {
-    candidateTypes = ["car", "mini", "priority", "intercity"];
+    candidateTypes = ["car", "mini", "priority", "intercity", "premier", "cab", "sedan"];
   } else if (normalizedType === "scooty") {
-    candidateTypes = ["scooty", "bike"];
+    candidateTypes = ["scooty", "bike", "two-wheeler", "scooter"];
   } else if (normalizedType === "bike") {
-    candidateTypes = ["bike", "scooty"];
+    candidateTypes = ["bike", "scooty", "two-wheeler", "motorcycle"];
   } else if (normalizedType === "auto") {
-    candidateTypes = ["auto"];
+    candidateTypes = ["auto", "three-wheeler", "rickshaw"];
   } else if (normalizedType === "loading") {
-    candidateTypes = ["loading", "truck"];
+    candidateTypes = ["loading", "truck", "commercial", "express"];
   } else if (normalizedType === "truck") {
-    candidateTypes = ["truck", "loading"];
+    candidateTypes = ["truck", "loading", "commercial", "heavy"];
   }
 
   const typeRegexes = candidateTypes.map((t) => new RegExp(`^${t}$`, "i"));
+  const isCarCategory = ["car", "mini", "priority", "intercity", "premier"].includes(normalizedType);
+
+  const typeFilter = isCarCategory
+    ? {
+        $or: [
+          { type: { $in: typeRegexes } },
+          { type: { $in: ["car", "mini", "priority", "intercity", "premier", "cab", "sedan"].map((t) => new RegExp(`^${t}$`, "i")) } },
+          { type: { $exists: false } },
+          { type: null },
+          { type: "" },
+        ],
+      }
+    : { type: { $in: typeRegexes } };
 
   let activeVehicles = await Vehicle.find({
-    type: { $in: typeRegexes },
+    ...typeFilter,
     isActive: { $ne: false },
     status: { $ne: "rejected" },
   }).lean();
@@ -111,8 +124,7 @@ export async function findEligibleCandidates(options: {
   // If no vehicles matched by strict category, check if online drivers exist with any registered vehicle
   if (!activeVehicles.length) {
     const onlineVendors = await User.find({
-      role: { $in: ["vendor", "driver"] },
-      isOnline: true,
+      isOnline: { $in: [true, "true"] },
       isVendorBlocked: { $ne: true },
       location: { $exists: true },
     }).select("_id").lean();
@@ -153,7 +165,15 @@ export async function findEligibleCandidates(options: {
     };
   }
 
-  const eligibleOwnerIds = activeVehicles.map((v) => v.owner.toString());
+  const eligibleOwnerObjectIds: any[] = [];
+  for (const v of activeVehicles) {
+    if (!v.owner) continue;
+    const str = v.owner.toString();
+    eligibleOwnerObjectIds.push(str);
+    try {
+      eligibleOwnerObjectIds.push(new Types.ObjectId(str));
+    } catch (e) {}
+  }
 
   // 3. Duplicate Assignment Prevention: Find drivers currently busy with an active trip
   // or reserved with an active 25-second pending dispatch countdown
@@ -188,11 +208,10 @@ export async function findEligibleCandidates(options: {
     `Filtered out ${busyDriverIds.length} busy drivers, ${pendingOfferDriverIds.length} pending-offer drivers, and ${excludeDriverIds.length} explicitly excluded drivers.`
   );
 
-  // 4. Query online vendors/drivers who own these vehicles
+  // 4. Query online vendors/drivers who own these vehicles (supports both ObjectId & string)
   const candidateDrivers = await User.find({
-    _id: { $in: eligibleOwnerIds },
-    role: { $in: ["vendor", "driver"] },
-    isOnline: true,
+    _id: { $in: eligibleOwnerObjectIds },
+    isOnline: { $in: [true, "true"] },
     isVendorBlocked: { $ne: true },
     location: { $exists: true },
   }).lean();
