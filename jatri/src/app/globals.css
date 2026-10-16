@@ -197,3 +197,21 @@ body {
   }
 }
 
+/* Official Tax Invoice Print Rules */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  nav, footer, .print\:hidden {
+    display: none !important;
+  }
+  .printable-invoice {
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
