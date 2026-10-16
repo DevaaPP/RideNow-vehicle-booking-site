@@ -38,11 +38,11 @@ export async function GET(req: NextRequest) {
       Booking.find(query)
         .populate({
           path: "vehicle",
-          select: "vehicleModel imageUrl type",
+          select: "vehicleModel imageUrl type number",
         })
         .populate({
           path: "driver",
-          select: "name mobileNumber",
+          select: "name mobileNumber profilePicture",
         })
         .sort({ createdAt: -1 })
         .skip(skip)

@@ -15,21 +15,36 @@ import {
   MapPin,
   User,
   Phone,
+  FileText,
 } from "lucide-react";
 import { RideCardSkeleton } from "@/shared/components/skeletons/RideCardSkeleton";
+import TripDetailsModal from "@/features/booking/components/TripDetailsModal";
+import TripInvoiceModal from "@/features/booking/components/TripInvoiceModal";
 
 interface Booking {
   _id: string;
   pickupAddress: string;
   dropAddress: string;
+  pickupLocation?: { coordinates: [number, number] };
+  dropLocation?: { coordinates: [number, number] };
+  routeCoordinates?: [number, number][];
+  routeDistanceKm?: number;
   fare: number;
   status: string;
   paymentStatus: string;
   paymentMethod?: string;
   createdAt: string;
+  startedAt?: string;
+  actualPickupTime?: string;
+  completedAt?: string;
+  tipAmount?: number;
+  rating?: number;
   user?: {
     name: string;
     phone?: string;
+  };
+  driver?: {
+    name: string;
   };
   vehicle?: {
     vehicleModel: string;
@@ -46,6 +61,10 @@ export default function PartnerBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedBookingForDetails, setSelectedBookingForDetails] = useState<any | null>(null);
+  const [selectedBookingForInvoice, setSelectedBookingForInvoice] = useState<any | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -299,18 +318,44 @@ export default function PartnerBookingsPage() {
                         )}
                       </div>
 
-                      {booking.status!=="completed" &&  <div className="flex items-center gap-2">
-                        {/* STATUS UPDATE BUTTONS - PARTNER SPECIFIC */}
-                        
-                        <button
-                          onClick={() => window.location.href = `/partner/active-ride`}
-                          className="flex items-center gap-1 text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 sm:px-4 py-1.5 rounded-lg transition-colors"
-                        >
-                          <span>Details</span>
-                          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        </button>
-                      </div>}
-                     
+                      <div className="flex items-center gap-2">
+                        {booking.status === "completed" ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedBookingForInvoice(booking);
+                                setShowInvoiceModal(true);
+                              }}
+                              className="flex items-center gap-1 text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-2.5 sm:px-3 py-1.5 transition-colors border border-zinc-300 rounded-none cursor-pointer"
+                              title="Download Official GST Tax Invoice"
+                            >
+                              <FileText size={13} />
+                              <span>Invoice</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedBookingForDetails(booking);
+                                setShowDetailsModal(true);
+                              }}
+                              className="flex items-center gap-1 text-xs sm:text-sm font-bold text-white bg-zinc-900 hover:bg-black px-3 sm:px-4 py-1.5 transition-colors cursor-pointer rounded-none"
+                            >
+                              <span>Details</span>
+                              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => window.location.href = `/partner/active-ride`}
+                            className="flex items-center gap-1 text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 sm:px-4 py-1.5 rounded-none transition-colors"
+                          >
+                            <span>Live Ride</span>
+                            <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -319,6 +364,24 @@ export default function PartnerBookingsPage() {
           )}
         </div>
       </div>
+
+      {/* ══ TRIP DETAILS MODAL (UBER STYLE ROUTE & RECEIPT) ══ */}
+      <TripDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        booking={selectedBookingForDetails}
+        onOpenInvoice={(b) => {
+          setSelectedBookingForInvoice(b);
+          setShowInvoiceModal(true);
+        }}
+      />
+
+      {/* ══ GST TAX INVOICE MODAL & PRINT VIEW ══ */}
+      <TripInvoiceModal
+        isOpen={showInvoiceModal}
+        onClose={() => setShowInvoiceModal(false)}
+        booking={selectedBookingForInvoice}
+      />
     </div>
   );
 }
