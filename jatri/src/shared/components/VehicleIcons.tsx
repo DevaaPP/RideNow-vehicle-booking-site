@@ -5,7 +5,7 @@ export interface VehicleIconProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-export function ScootyIcon({ size = 32, className = "", ...props }: VehicleIconProps) {
+export function ScootyIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
     <svg
       width={size}
@@ -19,7 +19,7 @@ export function ScootyIcon({ size = 32, className = "", ...props }: VehicleIconP
   );
 }
 
-export function BikeIcon({ size = 32, className = "", ...props }: VehicleIconProps) {
+export function BikeIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
     <svg
       width={size}
@@ -33,7 +33,7 @@ export function BikeIcon({ size = 32, className = "", ...props }: VehicleIconPro
   );
 }
 
-export function AutoRickshawIcon({ size = 32, className = "", ...props }: VehicleIconProps) {
+export function AutoRickshawIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
     <svg
       width={size}
@@ -47,21 +47,20 @@ export function AutoRickshawIcon({ size = 32, className = "", ...props }: Vehicl
   );
 }
 
-export function CarMiniIcon({ size = 32, className = "", ...props }: VehicleIconProps) {
+export function CarMiniIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
-    <svg
+    <img
+      src="/fleet/car-mini.webp"
+      alt="Car Mini"
       width={size}
       height={size}
-      viewBox="0 0 48 48"
-      className={className}
-      {...props}
-    >
-      <path fill="#6fabe6" d="M47,26v9H43a4,4,0,0,0-8,0H31V15h9Z"/><path fill="#82bcf4" d="M47,26v7H42.46a4,4,0,0,0-6.92,0H31V15h9Z"/><polygon fill="#9fdbf3" points="47 26 35 26 35 19 42.55 19 47 26"/><polygon fill="#9fdbf3" points="47 26 35 26 35 19 42.55 19 47 26"/><polygon fill="#b2e5fb" points="47 26 35 26 35 19 42.55 19 47 26"/><circle cx="39" cy="35" r="4" fill="#374f68"/><path fill="#425b72" d="M39,31a4,4,0,0,0-3.28,1.72,4,4,0,0,1,5.56,5.56A4,4,0,0,0,39,31Z"/><circle cx="11" cy="35" r="4" fill="#374f68"/><path fill="#425b72" d="M11,31a4,4,0,0,0-3.28,1.72,4,4,0,0,1,5.56,5.56A4,4,0,0,0,11,31Z"/><rect width="30" height="18" x="1" y="9" fill="#fc6"/><path fill="#ffba55" d="M31,27v8H15a4,4,0,0,0-8,0H1V27Z"/><rect width="26" height="18" x="5" y="9" fill="#ffde76"/><path fill="#fc6" d="M31,27v6H14.46a4,4,0,0,0-6.92,0A2.54,2.54,0,0,1,5,30.46V27Z"/><path d="M48,26c0-.4.46.42-7-11.35-.56-.87-.06-.63-9-.63V9a1,1,0,0,0-1-1H1A1,1,0,0,0,0,9V35a1,1,0,0,0,1,1H6.1a5,5,0,0,0,9.8,0H34.1a5,5,0,0,0,9.8,0H47a1,1,0,0,0,1-1Zm-2.82-1H36V20h6ZM2,10H30V26H2ZM2,28H30v6H15.9a5,5,0,0,0-9.8,0H2Zm9,10a3,3,0,1,1,3-3A3,3,0,0,1,11,38Zm28,0a3,3,0,1,1,3-3A3,3,0,0,1,39,38Zm4.9-4a5,5,0,0,0-9.8,0H32V16h7.45l1.27,2H35a1,1,0,0,0-1,1v7a1,1,0,0,0,1,1H46v3H45a1,1,0,0,0,0,2h1v2Z"/>
-    </svg>
+      className={`object-contain ${className}`}
+      {...(props as any)}
+    />
   );
 }
 
-export function CarPremierIcon({ size = 32, className = "", ...props }: VehicleIconProps) {
+export function CarPremierIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
     <svg
       width={size}
@@ -75,7 +74,7 @@ export function CarPremierIcon({ size = 32, className = "", ...props }: VehicleI
   );
 }
 
-export function CarPriorityIcon({ size = 32, className = "", ...props }: VehicleIconProps) {
+export function CarPriorityIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
     <svg
       width={size}
@@ -89,7 +88,7 @@ export function CarPriorityIcon({ size = 32, className = "", ...props }: Vehicle
   );
 }
 
-export function SuvIcon({ size = 32, className = "", ...props }: VehicleIconProps) {
+export function SuvIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
     <svg
       width={size}
@@ -103,7 +102,7 @@ export function SuvIcon({ size = 32, className = "", ...props }: VehicleIconProp
   );
 }
 
-export function FreightTruckIcon({ size = 32, className = "", ...props }: VehicleIconProps) {
+export function FreightTruckIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
     <svg
       width={size}
@@ -117,7 +116,18 @@ export function FreightTruckIcon({ size = 32, className = "", ...props }: Vehicl
   );
 }
 
-export const MiniTruckIcon = FreightTruckIcon;
+export function MiniTruckIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
+  return (
+    <img
+      src="/fleet/goods-express-mini.webp"
+      alt="Goods Express Mini"
+      width={size}
+      height={size}
+      className={`object-contain ${className}`}
+      {...(props as any)}
+    />
+  );
+}
 
 export const VEHICLE_SVG_ICONS: Record<string, React.ComponentType<VehicleIconProps>> = {
   scooty: ScootyIcon,

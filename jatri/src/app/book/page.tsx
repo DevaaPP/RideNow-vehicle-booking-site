@@ -2183,8 +2183,8 @@ export default function BookPage() {
                     </span>
                   )}
                   <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1 mr-2">
-                    <div className="w-12 h-10 flex items-center justify-center flex-shrink-0">
-                      <Icon size={26} className={isSelected ? "text-white" : "text-zinc-900"} />
+                    <div className="w-16 h-14 sm:w-20 sm:h-16 flex items-center justify-center flex-shrink-0 p-0.5">
+                      <Icon size={56} className="w-full h-full object-contain" />
                     </div>
                     <div className="min-w-0 flex-1">
                       {/* Line 1: Vehicle Title + Capacity */}
