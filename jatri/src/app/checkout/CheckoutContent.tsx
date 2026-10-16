@@ -24,7 +24,15 @@ import PaymentMethodSelector from "@/features/booking/components/PaymentMethodSe
 import { VEHICLE_OPTIONS } from "@/lib/vehicleConfig";
 
 const VEHICLE_ICONS: Record<string, any> = {
-  bike: Bike, auto: Car, car: Car, loading: Truck, truck: Truck,
+  scooty: Bike,
+  bike: Bike,
+  auto: Car,
+  mini: Car,
+  car: Car,
+  priority: Car,
+  intercity: Car,
+  loading: Truck,
+  truck: Truck,
 };
 
 type Status =
@@ -651,405 +659,359 @@ export default function CheckoutContent() {
     }
   }, [status, bookingId]);
 
-  /* ── label ── */
-  const opt = VEHICLE_OPTIONS[vehicle as keyof typeof VEHICLE_OPTIONS];
+  /* ── label & link ── */
+  const opt = VEHICLE_OPTIONS[vehicle.toLowerCase() as keyof typeof VEHICLE_OPTIONS];
   const vehicleLabel = opt?.label || (vehicle.charAt(0).toUpperCase() + vehicle.slice(1));
 
+  const editBookUrl = useMemo(() => {
+    const q = new URLSearchParams();
+    q.set("edit", "true");
+    if (pickup && pickup !== "Pickup Location") q.set("pickup", pickup);
+    if (drop && drop !== "Drop Location") q.set("drop", drop);
+    if (vehicle) q.set("vehicle", vehicle);
+    if (pickupLat) q.set("pickupLat", String(pickupLat));
+    if (pickupLng) q.set("pickupLng", String(pickupLng));
+    if (dropLat) q.set("dropLat", String(dropLat));
+    if (dropLng) q.set("dropLng", String(dropLng));
+    if (mobileNumber) q.set("mobileNumber", mobileNumber);
+    if (isScheduled && scheduledPickupTime) {
+      q.set("isScheduled", "true");
+      q.set("scheduledTime", scheduledPickupTime);
+    }
+    return `/book?${q.toString()}`;
+  }, [pickup, drop, vehicle, pickupLat, pickupLng, dropLat, dropLng, mobileNumber, isScheduled, scheduledPickupTime]);
+
   return (
-    <div className="min-h-screen bg-zinc-100 px-3 sm:px-4 py-6 sm:py-12">
+    <div className="min-h-screen bg-zinc-100 px-3 sm:px-4 py-5 sm:py-10">
 
       {/* subtle dot grid */}
       <div className="fixed inset-0 pointer-events-none"
         style={{ backgroundImage: "radial-gradient(circle, #d4d4d8 1px, transparent 1px)", backgroundSize: "28px 28px", opacity: 0.45 }}
       />
 
-      <div className="relative max-w-6xl mx-auto z-10">
+      <div className="relative max-w-2xl mx-auto z-10 space-y-4 sm:space-y-6">
 
-        {/* ── PAGE HEADER ── */}
+        {/* ── PAGE HEADER & NAVIGATION ── */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6 sm:mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-3"
         >
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="w-10 h-10 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 flex items-center justify-center text-zinc-900 transition shadow-xs active:scale-95 cursor-pointer shrink-0"
-              aria-label="Go back"
-              title="Go back"
+          <div className="flex items-center gap-2.5">
+            <Link
+              href={editBookUrl}
+              className="w-9 h-9 rounded-none border border-zinc-300 bg-white hover:bg-zinc-100 flex items-center justify-center text-zinc-900 transition shadow-none cursor-pointer shrink-0"
+              aria-label="Back to Map"
+              title="Back to Map"
             >
-              <ArrowLeft size={18} />
-            </button>
+              <ArrowLeft size={16} />
+            </Link>
             <div>
-              <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
-                <div className="h-px w-8 bg-zinc-900" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Booking</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Step 2 of 2</span>
               </div>
-              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-zinc-900">Checkout</h1>
-              <p className="text-zinc-500 text-xs sm:text-sm mt-0.5 font-medium">Review your ride and confirm</p>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-zinc-950 font-heading">
+                Review & Confirm Ride
+              </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="inline-flex sm:hidden items-center gap-1.5 px-3.5 py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition shadow-xs active:scale-95 cursor-pointer"
-            >
-              <ArrowLeft size={14} />
-              <span>Back</span>
-            </button>
-            <Link
-              href="/book?edit=true"
-              className="inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition shadow-xs active:scale-95"
-            >
-              <Edit2 size={14} className="sm:w-[15px] sm:h-[15px]" />
-              <span>Edit Ride Details</span>
-            </Link>
-          </div>
+          <Link
+            href={editBookUrl}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-900 text-xs font-bold transition shadow-none cursor-pointer"
+          >
+            <Edit2 size={12} />
+            <span>Edit Route</span>
+          </Link>
         </motion.div>
 
         {/* Missing locations warning banner */}
         {!pickupLat && !dropLat && (
-          <div className="mb-5 sm:mb-6 p-3.5 sm:p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between shadow-sm gap-2">
-            <div className="flex items-center gap-2.5">
+          <div className="p-3.5 sm:p-4 bg-amber-50 border border-amber-300 rounded-none flex items-center justify-between shadow-none gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
               <AlertCircle size={18} className="text-amber-700 flex-shrink-0" />
               <div>
-                <p className="text-xs font-bold text-amber-900">No active ride selected</p>
-                <p className="text-[11px] text-amber-700">Please choose your pickup and drop locations to book a ride.</p>
+                <p className="text-xs font-black text-amber-950 uppercase tracking-wide">No active route selected</p>
+                <p className="text-[11px] text-amber-800 font-medium">Please choose your pickup and drop locations on the map.</p>
               </div>
             </div>
             <Link
-              href="/book"
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-xl transition shadow shrink-0"
+              href={editBookUrl}
+              className="px-3.5 py-1.5 bg-zinc-950 hover:bg-black text-white text-xs font-black uppercase tracking-wider rounded-none transition shrink-0"
             >
-              Go to Booking
+              Choose on Map
             </Link>
           </div>
         )}
 
-        {/* ── GRID ── */}
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* ── UNIFIED BOOKING FLOW (ALL IN ONE TYPE) ── */}
+        <div className="bg-white rounded-none border border-zinc-300 overflow-hidden shadow-sm">
+          {/* Top accent bar */}
+          <div className="h-1 bg-zinc-950" />
 
-          {/* ══ LEFT — RIDE DETAILS ══ */}
-          <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs">
-            {/* Top bar */}
-            <div className="h-1 bg-zinc-900" />
-
-            <div className="p-4 sm:p-8">
-              {/* Vehicle row */}
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-1">Selected Vehicle</p>
-                  <h2 className="text-xl sm:text-2xl font-black tracking-tight text-zinc-900">{vehicleLabel}</h2>
-                </div>
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-zinc-900 rounded-xl flex items-center justify-center shadow-sm">
-                  <VehicleIcon size={22} className="sm:w-6 sm:h-6 text-white" />
-                </div>
+          {/* ══ 1. VEHICLE & TOTAL FARE SUMMARY ROW ══ */}
+          <div className="p-4 sm:p-6 border-b border-zinc-200 bg-zinc-50/70 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-12 h-12 bg-zinc-950 text-white rounded-none flex items-center justify-center flex-shrink-0 shadow-xs">
+                <VehicleIcon size={24} className="text-white" />
               </div>
-
-              {/* Route */}
-              <div className="bg-zinc-50 border border-zinc-200 rounded-xl overflow-hidden mb-6">
-                <div className="flex gap-4 px-5 py-4 border-b border-zinc-100">
-                  <div className="flex flex-col items-center flex-shrink-0 pt-0.5">
-                    <div className="w-3 h-3 rounded-full bg-zinc-900 border-2 border-white ring-1 ring-zinc-300" />
-                    <div className="w-px flex-1 bg-zinc-300 my-1" style={{ minHeight: 12 }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-0.5">Pickup</p>
-                    <p className="text-sm font-semibold text-zinc-900 leading-snug truncate">{pickup}</p>
-                  </div>
-                  <MapPin size={14} className="text-zinc-400 flex-shrink-0 mt-1" />
-                </div>
-
-                {/* Intermediate Stops */}
-                {stops && stops.length > 0 && stops.map((stop, idx) => (
-                  <div key={idx} className="flex gap-4 px-5 py-3.5 border-b border-zinc-100 bg-blue-50/40">
-                    <div className="flex flex-col items-center flex-shrink-0 pt-0.5">
-                      <div className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-black shadow-sm">
-                        {idx + 1}
-                      </div>
-                      <div className="w-px flex-1 bg-blue-200 my-1" style={{ minHeight: 10 }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-blue-600 mb-0.5">Stop {idx + 1}</p>
-                      <p className="text-sm font-semibold text-zinc-900 leading-snug truncate">{stop.address}</p>
-                    </div>
-                    <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full flex-shrink-0 self-center">
-                      Waypoint
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">
+                    {opt?.categoryTitle || "Jatri Fleet"}
+                  </span>
+                  {opt?.etaText && (
+                    <span className="text-[10px] font-mono text-zinc-600 bg-zinc-200/80 px-1.5 py-0.2 rounded-none">
+                      {opt.etaText}
                     </span>
-                  </div>
-                ))}
-
-                <div className="flex gap-4 px-5 py-4">
-                  <div className="flex-shrink-0 pt-0.5">
-                    <div className="w-3 h-3 rounded-sm bg-zinc-900 border-2 border-white ring-1 ring-zinc-300" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-0.5">Drop</p>
-                    <p className="text-sm font-semibold text-zinc-900 leading-snug truncate">{drop}</p>
-                  </div>
-                  <Navigation size={14} className="text-zinc-400 flex-shrink-0 mt-1" />
+                  )}
                 </div>
+                <h2 className="text-lg sm:text-xl font-black text-zinc-950 tracking-tight font-heading truncate">
+                  {vehicleLabel}
+                </h2>
+                <p className="text-[11px] text-zinc-600 font-medium truncate mt-0.5">
+                  {opt?.tagline || opt?.description || "Verified drivers with upfront guaranteed pricing"}
+                </p>
               </div>
+            </div>
 
-              {/* 📍 SMART PICKUP ZONE BADGE & DETAILS */}
-              {isSmartPickup && smartPickupDetails && (
-                <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
-                    📍
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[9px] font-black uppercase bg-emerald-700 text-white px-2 py-0.5 rounded-full tracking-wider">
-                        Designated Smart Pickup
-                      </span>
-                      <span className="text-[10px] text-emerald-800 font-bold">
-                        🚶 {smartPickupDetails.walkingTimeText || "Short Walk"}
-                      </span>
-                    </div>
-                    <p className="text-sm font-extrabold text-zinc-900 leading-snug">
-                      {smartPickupDetails.spotName}
-                    </p>
-                    <p className="text-xs font-semibold text-emerald-800">
-                      {smartPickupDetails.venueName}
-                    </p>
-                    {smartPickupDetails.instructions && (
-                      <p className="text-[11px] text-zinc-600 mt-1 font-medium italic bg-white/70 p-2 rounded-lg border border-emerald-100">
-                        "{smartPickupDetails.instructions}"
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* 👨👩👧 FAMILY RIDE BADGE */}
-              {isFamilyRide && familyMemberDetails && (
-                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
-                    👨👩👧
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[9px] font-black uppercase bg-amber-600 text-white px-2 py-0.5 rounded-full tracking-wider">
-                        Family Account Ride
-                      </span>
-                      <span className="text-[10px] text-amber-800 font-bold">
-                        Central Billing
-                      </span>
-                    </div>
-                    <p className="text-sm font-extrabold text-zinc-900 leading-snug">
-                      Booked for: {familyMemberDetails.name} ({familyMemberDetails.relation})
-                    </p>
-                    {familyMemberDetails.phone && (
-                      <p className="text-xs font-semibold text-zinc-600 mt-0.5">
-                        Passenger Phone: {familyMemberDetails.phone}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* ⏰ SCHEDULED RIDE BADGE */}
-              {isScheduled && scheduledPickupDate && (
-                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-xs mt-0.5">
-                    ⏰
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[9px] font-black uppercase bg-amber-600 text-white px-2 py-0.5 rounded-md tracking-wider">
-                        Scheduled Ride
-                      </span>
-                      <span className="text-[10px] text-amber-800 font-bold">
-                        Advance Booking
-                      </span>
-                    </div>
-                    <p className="text-sm font-black text-zinc-900 leading-snug">
-                      Pickup: {scheduledPickupDate.toLocaleDateString("en-US", {
-                        weekday: "short",
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                    <p className="text-[11px] text-amber-800 mt-1 font-medium">
-                      Driver assigned 15–30 mins before pickup. Free cancellation up to 60 mins before.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* 📦 GOODS TRANSPORT CARGO DETAILS BADGE */}
-              {serviceMode === "logistics" && cargoDetails && (
-                <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-orange-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-xs mt-0.5">
-                    <Package size={16} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[9px] font-black uppercase bg-orange-600 text-white px-2 py-0.5 rounded-md tracking-wider">
-                        Goods Transport
-                      </span>
-                      {cargoDetails.cargoWeightKg && (
-                        <span className="text-[10px] text-orange-800 font-bold">
-                          Weight: ~{cargoDetails.cargoWeightKg} kg
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm font-black text-zinc-900 leading-snug">
-                      Cargo: {cargoDetails.cargoType || "General Cargo"}
-                    </p>
-                    {cargoDetails.receiverContact && (
-                      <p className="text-xs text-orange-900 mt-0.5 font-medium">
-                        Receiver Contact: {cargoDetails.receiverContact}
-                      </p>
-                    )}
-                    {cargoDetails.deliveryNotes && (
-                      <p className="text-[11px] text-zinc-600 mt-1 italic bg-white/70 p-2 rounded-lg border border-orange-100">
-                        "{cargoDetails.deliveryNotes}"
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Fare */}
-              <div className="flex items-end justify-between pt-6 border-t border-zinc-100">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-1">Total Fare</p>
-                  <p className="text-zinc-400 text-xs font-medium">Includes base + distance charges</p>
-                </div>
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                  className="flex items-baseline gap-1"
-                >
-                  <span className="text-zinc-400 text-base sm:text-lg font-black">₹</span>
-                  <span className="text-zinc-900 text-3xl sm:text-5xl font-black tracking-tight leading-none">{effectiveFare}</span>
-                </motion.div>
+            <div className="text-right flex-shrink-0">
+              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Total Upfront</p>
+              <div className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950 font-heading">
+                ₹{effectiveFare}
               </div>
-
-              {/* 💰 ITEMIZED FARE BREAKDOWN RECEIPT CARD */}
-              {computedBreakdown && (
-                <div className="mt-4 p-3.5 sm:p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
-                  {(() => {
-                    const breakdown = computedBreakdown;
-                    return (
-                      <>
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-900 mb-2.5 pb-1.5 border-b border-zinc-200 flex items-center justify-between">
-                          <span>Itemized Cost Receipt</span>
-                          <span className="text-emerald-600 font-bold">
-                            Verified Fare {breakdown.surgeMultiplier && breakdown.surgeMultiplier > 1 ? `(${breakdown.surgeMultiplier}x Surge)` : ""}
-                          </span>
-                        </p>
-                        <div className="space-y-1.5 text-xs text-zinc-600 font-medium">
-                          <div className="flex justify-between">
-                            <span>Base Fare</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.baseFare}</span>
-                          </div>
-                          <div className="flex justify-between text-[11px]">
-                            <span>Distance Fare ({breakdown.distanceKm} km × ₹{breakdown.pricePerKm}/km)</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.distanceFare}</span>
-                          </div>
-                          {breakdown.surgeAmount > 0 && (
-                            <div className="flex justify-between text-[11px] text-amber-600 font-bold">
-                              <span>High Demand Surge ({breakdown.surgeMultiplier}x)</span>
-                              <span>+₹{breakdown.surgeAmount}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between text-[11px]">
-                            <span>Platform Service Fee</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.platformFee}</span>
-                          </div>
-                          <div className="flex justify-between text-[11px]">
-                            <span>Govt GST / Taxes (5%)</span>
-                            <span className="font-bold text-zinc-900">₹{breakdown.taxes}</span>
-                          </div>
-                          {breakdown.isStudentDiscountApplied && (
-                            <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
-                              <span>🎓 Student Pass Discount (10% capped at ₹50)</span>
-                              <span>-₹{breakdown.studentDiscount}</span>
-                            </div>
-                          )}
-                          {Number((userData as any)?.outstandingAmount || 0) > 0 && (
-                            <div className="flex justify-between text-[11px] text-rose-600 font-bold pt-1 border-t border-rose-100">
-                              <span>Previous Outstanding Dues (Recovered)</span>
-                              <span>+₹{Number((userData as any)?.outstandingAmount)}</span>
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
-
-              {/* 🧑🤝🧑 GROUP RIDE & SPLIT FARE CARD */}
-              <GroupRideCard
-                isGroupRide={isGroupRide}
-                effectiveFare={effectiveFare}
-                fare={fare}
-                groupInviteCode={groupInviteCode}
-                groupMembers={groupMembers}
-                splitFarePerPerson={splitFarePerPerson}
-                inviteName={inviteName}
-                inviteEmail={inviteEmail}
-                inviting={inviting}
-                onToggle={() => handleToggleGroupRide()}
-                onNameChange={setInviteName}
-                onEmailChange={setInviteEmail}
-                onSendInvite={handleSendInvite}
-              />
             </div>
           </div>
 
-          {/* ══ RIGHT — STATUS PANEL ══ */}
-          <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs flex flex-col">
-            <div className="h-1 bg-zinc-900" />
+          <div className="p-4 sm:p-6 space-y-5">
+            {/* ══ 2. ROUTE TIMELINE (CLEAN MINIMALIST VERTICAL FLOW) ══ */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-none p-3.5 sm:p-4 space-y-3">
+              <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">Route Overview</span>
+                <Link
+                  href={editBookUrl}
+                  className="text-[11px] font-bold text-zinc-900 hover:underline flex items-center gap-1"
+                >
+                  <MapPin size={11} />
+                  <span>Change</span>
+                </Link>
+              </div>
 
-            <div className="flex-1 p-4 sm:p-8 flex flex-col">
+              {/* Pickup Point */}
+              <div className="flex items-start gap-3">
+                <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                  <span className="w-2.5 h-2.5 bg-zinc-950 rounded-none" />
+                  <span className="w-px h-6 bg-zinc-300 my-1" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Pickup</p>
+                  <p className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug truncate">
+                    {pickup}
+                  </p>
+                </div>
+              </div>
+
+              {/* Intermediate Stops */}
+              {stops && stops.length > 0 && stops.map((stop, idx) => (
+                <div key={idx} className="flex items-start gap-3 pl-0.5">
+                  <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                    <span className="w-2 h-2 border border-zinc-800 bg-zinc-300 rounded-none" />
+                    <span className="w-px h-6 bg-zinc-300 my-1" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-black uppercase tracking-wider text-zinc-500">Stop {idx + 1}</p>
+                    <p className="text-xs font-semibold text-zinc-800 leading-snug truncate">{stop.address}</p>
+                  </div>
+                </div>
+              ))}
+
+              {/* Drop Point */}
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 pt-1">
+                  <span className="w-2.5 h-2.5 border-2 border-zinc-950 bg-white rounded-none" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Destination</p>
+                  <p className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug truncate">
+                    {drop}
+                  </p>
+                </div>
+              </div>
+
+              {/* Distance and Estimated Travel Time Stats */}
+              <div className="pt-2 border-t border-zinc-200 flex items-center justify-between text-[11px] font-mono text-zinc-600">
+                <span>Distance: <strong className="text-zinc-950">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
+                <span>Est. Time: <strong className="text-zinc-950">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
+              </div>
+            </div>
+
+            {/* ══ CONTEXTUAL BADGES ══ */}
+            {/* Smart Pickup Zone */}
+            {isSmartPickup && smartPickupDetails && (
+              <div className="p-3 bg-zinc-50 border border-zinc-300 rounded-none flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 bg-zinc-950 text-white rounded-none flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                  📍
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950">
+                    Designated Smart Pickup · {smartPickupDetails.walkingTimeText || "Short Walk"}
+                  </p>
+                  <p className="font-extrabold text-zinc-900 mt-0.5">{smartPickupDetails.spotName} — {smartPickupDetails.venueName}</p>
+                  {smartPickupDetails.instructions && (
+                    <p className="text-[11px] text-zinc-600 italic mt-1">&quot;{smartPickupDetails.instructions}&quot;</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Family Ride Badge */}
+            {isFamilyRide && familyMemberDetails && (
+              <div className="p-3 bg-zinc-50 border border-zinc-300 rounded-none flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 bg-zinc-950 text-white rounded-none flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                  👨‍👩‍👧
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950">Family Account Ride</p>
+                  <p className="font-extrabold text-zinc-900 mt-0.5">
+                    Booked for: {familyMemberDetails.name} ({familyMemberDetails.relation}) · {familyMemberDetails.phone || ""}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Scheduled Ride Badge */}
+            {isScheduled && scheduledPickupDate && (
+              <div className="p-3 bg-zinc-50 border border-zinc-300 rounded-none flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 bg-zinc-950 text-white rounded-none flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                  ⏰
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950">Scheduled Advance Trip</p>
+                  <p className="font-extrabold text-zinc-900 mt-0.5">
+                    Pickup: {scheduledPickupDate.toLocaleDateString("en-US", {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">Driver assigned 15-30 mins prior to pickup time.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Logistics Cargo Details */}
+            {serviceMode === "logistics" && cargoDetails && (
+              <div className="p-3 bg-zinc-50 border border-zinc-300 rounded-none flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 bg-zinc-950 text-white rounded-none flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                  <Package size={14} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950">Goods Transport Details</p>
+                  <p className="font-extrabold text-zinc-900 mt-0.5">
+                    {cargoDetails.cargoType || "General Cargo"} {cargoDetails.cargoWeightKg ? `· ~${cargoDetails.cargoWeightKg} kg` : ""}
+                  </p>
+                  {cargoDetails.receiverContact && (
+                    <p className="text-[11px] text-zinc-600">Receiver: {cargoDetails.receiverContact}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ══ 3. ITEMIZED FARE RECEIPT ══ */}
+            {computedBreakdown && (
+              <div className="border border-zinc-200 rounded-none bg-zinc-50/60 p-3.5 sm:p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950 pb-2 border-b border-zinc-200 flex items-center justify-between">
+                  <span>Guaranteed Upfront Pricing</span>
+                  <span className="font-mono text-zinc-500">No Hidden Costs</span>
+                </p>
+                <div className="space-y-1.5 text-xs text-zinc-600 font-medium pt-2">
+                  <div className="flex justify-between">
+                    <span>Base Flagdown Fare</span>
+                    <span className="font-bold text-zinc-950">₹{computedBreakdown.baseFare}</span>
+                  </div>
+                  <div className="flex justify-between text-[11px]">
+                    <span>Distance Charge ({computedBreakdown.distanceKm} km × ₹{computedBreakdown.pricePerKm}/km)</span>
+                    <span className="font-bold text-zinc-950">₹{computedBreakdown.distanceFare}</span>
+                  </div>
+                  {computedBreakdown.surgeAmount > 0 && (
+                    <div className="flex justify-between text-[11px] text-amber-800 font-bold">
+                      <span>High Demand Surge ({computedBreakdown.surgeMultiplier}x)</span>
+                      <span>+₹{computedBreakdown.surgeAmount}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-[11px]">
+                    <span>Platform Service Fee</span>
+                    <span className="font-bold text-zinc-950">₹{computedBreakdown.platformFee}</span>
+                  </div>
+                  <div className="flex justify-between text-[11px]">
+                    <span>Govt GST / Taxes (5%)</span>
+                    <span className="font-bold text-zinc-950">₹{computedBreakdown.taxes}</span>
+                  </div>
+                  {computedBreakdown.isStudentDiscountApplied && (
+                    <div className="flex justify-between text-[11px] text-emerald-800 font-extrabold pt-1 border-t border-zinc-200">
+                      <span>🎓 Student Pass Discount (10% OFF)</span>
+                      <span>-₹{computedBreakdown.studentDiscount}</span>
+                    </div>
+                  )}
+                  {Number((userData as any)?.outstandingAmount || 0) > 0 && (
+                    <div className="flex justify-between text-[11px] text-rose-700 font-bold pt-1 border-t border-zinc-200">
+                      <span>Unsettled Cancellation Dues</span>
+                      <span>+₹{Number((userData as any)?.outstandingAmount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm font-black text-zinc-950 pt-2 border-t border-zinc-200">
+                    <span>Final Fare</span>
+                    <span className="font-mono">₹{effectiveFare}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ══ 4. GROUP RIDE & SPLIT FARE ══ */}
+            <GroupRideCard
+              isGroupRide={isGroupRide}
+              effectiveFare={effectiveFare}
+              fare={fare}
+              groupInviteCode={groupInviteCode}
+              groupMembers={groupMembers}
+              splitFarePerPerson={splitFarePerPerson}
+              inviteName={inviteName}
+              inviteEmail={inviteEmail}
+              inviting={inviting}
+              onToggle={() => handleToggleGroupRide()}
+              onNameChange={setInviteName}
+              onEmailChange={setInviteEmail}
+              onSendInvite={handleSendInvite}
+            />
+
+            {/* ══ 5. DYNAMIC STATUS & ACTIONS (RADAR, PAYMENT, OR SUBMISSION) ══ */}
+            <div className="pt-2">
               <AnimatePresence mode="wait">
 
-                {/* ── IDLE ── */}
+                {/* ── IDLE / INITIAL SUBMISSION ── */}
                 {status === "idle" && (
-                  <motion.div key="idle"
-                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.2 }}
-                    className="flex flex-col flex-1 justify-between"
+                    className="space-y-4"
                   >
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400 mb-1">Ready to go?</p>
-                      <h3 className="text-2xl font-black text-zinc-900 mb-6">Confirm Your Ride</h3>
-                      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-3">
-                        {[
-                          { icon: <Clock size={14} />, text: "Driver will respond within 2 minutes" },
-                          { icon: <ShieldCheck size={14} />, text: "Verified & insured drivers only" },
-                          { icon: <CreditCard size={14} />, text: "Pay after driver accepts" },
-                        ].map((item, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <div className="w-7 h-7 rounded-lg bg-zinc-200 flex items-center justify-center text-zinc-600 flex-shrink-0">{item.icon}</div>
-                            <p className="text-zinc-600 text-xs font-medium">{item.text}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
+                    {/* Error Banner */}
                     {bookingError && (
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-left mt-6">
-                        <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                      <div className="p-3.5 bg-red-50 border border-red-300 rounded-none flex items-start gap-3 text-left">
+                        <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
                           <p className="text-xs font-bold text-red-900">{bookingError}</p>
                           {bookingError.toLowerCase().includes("sign in") && (
                             <button
                               type="button"
                               onClick={() => setShowAuthModal(true)}
-                              className="mt-2 text-xs font-black text-white bg-zinc-900 hover:bg-black px-3.5 py-1.5 rounded-lg transition inline-block"
+                              className="mt-2 text-xs font-black text-white bg-zinc-950 hover:bg-black px-3.5 py-1.5 rounded-none transition cursor-pointer"
                             >
                               Sign In Now
                             </button>
@@ -1058,29 +1020,43 @@ export default function CheckoutContent() {
                       </div>
                     )}
 
+                    {/* Booking Confirmation CTA Button */}
                     <button
+                      type="button"
                       onClick={handleCreateBooking}
                       disabled={loading || !pickupLat || !dropLat}
-                      className="w-full h-12 mt-6 bg-zinc-950 hover:bg-black disabled:opacity-40 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-98"
+                      className="w-full h-13 py-3.5 bg-zinc-950 hover:bg-black disabled:opacity-40 text-white font-black text-sm uppercase tracking-wider rounded-none flex items-center justify-center gap-2 transition cursor-pointer shadow-md min-h-[50px] active:scale-[0.99]"
                     >
                       {loading ? (
-                        <><Loader2 size={17} className="animate-spin" /> Requesting…</>
+                        <>
+                          <Loader2 size={18} className="animate-spin" />
+                          <span>Assigning Nearest Driver...</span>
+                        </>
                       ) : (
-                        <><span>Request Ride</span><ArrowRight size={17} /></>
+                        <>
+                          <span>Request {vehicleLabel} • ₹{effectiveFare}</span>
+                          <ArrowRight size={18} />
+                        </>
                       )}
                     </button>
+
+                    <div className="flex items-center justify-center gap-4 text-[10px] text-zinc-500 font-bold uppercase tracking-wider pt-1">
+                      <span>• Driver answers in &lt; 2 min</span>
+                      <span>• Pay after trip begins</span>
+                      <span>• 100% verified fleet</span>
+                    </div>
                   </motion.div>
                 )}
 
-                {/* ── REQUESTED (RADAR) ── */}
+                {/* ── RADAR SEARCH (REQUESTED) ── */}
                 {status === "requested" && (
                   <motion.div
                     key="requested"
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35 }}
-                    className="flex flex-col flex-1 items-center justify-center"
+                    transition={{ duration: 0.3 }}
+                    className="py-6 flex flex-col items-center justify-center"
                   >
                     <DriverSearchRadar
                       countdown={countdown}
@@ -1095,75 +1071,76 @@ export default function CheckoutContent() {
 
                 {/* ── AUTO REMATCHING ── */}
                 {status === "auto_rematching" && (
-                  <motion.div key="auto_rematching"
-                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                  <motion.div
+                    key="auto_rematching"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.35 }}
-                    className="flex flex-col flex-1 items-center justify-center gap-6 text-center"
+                    className="py-8 flex flex-col items-center justify-center gap-5 text-center"
                   >
-                    <div className="relative">
-                      <motion.div
-                        animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
-                        transition={{ duration: 1.8, repeat: Infinity }}
-                        className="absolute inset-0 rounded-full bg-emerald-500"
-                      />
-                      <div className="relative w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center">
-                        <RotateCcw size={30} className="text-emerald-600 animate-spin" />
-                      </div>
+                    <div className="relative w-16 h-16 rounded-full bg-zinc-100 border-2 border-zinc-300 flex items-center justify-center">
+                      <RotateCcw size={26} className="text-zinc-950 animate-spin" />
                     </div>
                     <div>
-                      <div className="inline-flex items-center gap-1.5 bg-emerald-100 px-3 py-1 rounded-full text-emerald-800 text-[10px] font-black uppercase tracking-wider mb-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                        Driver Cancelled — Auto Re-dispatch
+                      <div className="inline-flex items-center gap-1.5 bg-zinc-100 px-3 py-1 rounded-none text-zinc-900 text-[10px] font-black uppercase tracking-wider mb-2 border border-zinc-300">
+                        Auto Re-dispatch Active
                       </div>
-                      <h3 className="text-xl font-black text-zinc-900 mb-1">Re-matching New Driver</h3>
-                      <p className="text-zinc-500 text-xs font-medium max-w-xs mx-auto">
-                        Searching nearby online drivers within 15km to take over your trip automatically.
+                      <h3 className="text-lg font-black text-zinc-950 font-heading">Re-matching New Driver</h3>
+                      <p className="text-zinc-500 text-xs font-medium max-w-xs mx-auto mt-1">
+                        Scanning active drivers within 15 km to take over your ride request automatically.
                       </p>
                     </div>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
+                    <button
+                      type="button"
                       onClick={handleCancelBooking}
-                      className="flex items-center gap-2 text-xs font-bold text-zinc-400 hover:text-zinc-900 transition-colors border border-zinc-200 hover:border-zinc-400 px-4 py-2.5 rounded-xl"
+                      className="flex items-center gap-2 text-xs font-bold text-zinc-500 hover:text-black transition border border-zinc-300 px-4 py-2 rounded-none cursor-pointer"
                     >
-                      <XCircle size={13} /> Cancel Ride
-                    </motion.button>
+                      <XCircle size={13} />
+                      <span>Cancel Ride</span>
+                    </button>
                   </motion.div>
                 )}
 
-                {/* ── AWAITING PAYMENT ── */}
+                {/* ── AWAITING PAYMENT / DRIVER ACCEPTED ── */}
                 {status === "awaiting_payment" && (
-                  <motion.div key="awaiting_payment"
-                    initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                  <motion.div
+                    key="awaiting_payment"
+                    initial={{ opacity: 0, scale: 0.94 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.35 }}
-                    className="flex flex-col flex-1 items-center justify-center gap-5 text-center"
+                    className="py-8 flex flex-col items-center justify-center gap-5 text-center"
                   >
-                    <motion.div
-                      initial={{ scale: 0 }} animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 260, damping: 16 }}
-                      className="w-20 h-20 rounded-full bg-zinc-100 border-2 border-zinc-200 flex items-center justify-center"
-                    >
-                      <CheckCircle2 size={36} className="text-zinc-900" />
-                    </motion.div>
-                    <div>
-                      <h3 className="text-xl font-black text-zinc-900 mb-1">Driver Accepted!</h3>
-                      <p className="text-zinc-400 text-sm font-medium">Preparing payment options…</p>
+                    <div className="w-16 h-16 rounded-none bg-zinc-950 text-white flex items-center justify-center">
+                      <CheckCircle2 size={32} />
                     </div>
-                    <div className="w-48 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                    <div>
+                      <h3 className="text-xl font-black text-zinc-950 font-heading">Driver Accepted!</h3>
+                      <p className="text-zinc-500 text-xs font-medium mt-1">
+                        Trip confirmed. Loading payment options…
+                      </p>
+                    </div>
+                    <div className="w-48 h-1.5 bg-zinc-200 rounded-none overflow-hidden">
                       <motion.div
-                        initial={{ width: 0 }} animate={{ width: "100%" }}
+                        initial={{ width: 0 }}
+                        animate={{ width: "100%" }}
                         transition={{ duration: 2 }}
-                        className="h-full bg-zinc-900 rounded-full"
+                        className="h-full bg-zinc-950"
                       />
                     </div>
                   </motion.div>
                 )}
 
-                {/* ── PAYMENT ── */}
+                {/* ── PAYMENT METHOD SELECTION ── */}
                 {status === "payment" && (
-                  <motion.div key="payment"
-                    initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  <motion.div
+                    key="payment"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="flex flex-col flex-1 gap-6"
+                    className="space-y-4"
                   >
                     <PaymentMethodSelector
                       selectedMethod={paymentMethod}
@@ -1176,132 +1153,147 @@ export default function CheckoutContent() {
                       type="button"
                       disabled={!paymentMethod || loading}
                       onClick={handlePaymentConfirm}
-                      className="w-full h-12 bg-zinc-950 hover:bg-black disabled:opacity-30 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-98 mt-auto"
+                      className="w-full h-12 bg-zinc-950 hover:bg-black disabled:opacity-30 text-white font-black text-xs uppercase tracking-wider rounded-none flex items-center justify-center gap-2 transition cursor-pointer"
                     >
-                      {loading
-                        ? <><Loader2 size={17} className="animate-spin" /><span>Processing…</span></>
-                        : paymentMethod === "wallet"
-                        ? <><Wallet size={16} /><span>Pay ₹{fare} from Wallet (1-Tap)</span></>
-                        : paymentMethod === "cash"
-                        ? <><Banknote size={16} /><span>Confirm Cash Ride</span></>
-                        : paymentMethod === "online"
-                        ? <><span>Proceed to Payment</span><ArrowRight size={16} /></>
-                        : <span>Select a Method</span>
-                      }
+                      {loading ? (
+                        <><Loader2 size={16} className="animate-spin" /><span>Processing…</span></>
+                      ) : paymentMethod === "wallet" ? (
+                        <><Wallet size={15} /><span>Pay ₹{fare} from Wallet (1-Tap)</span></>
+                      ) : paymentMethod === "cash" ? (
+                        <><Banknote size={15} /><span>Confirm Cash Ride</span></>
+                      ) : paymentMethod === "online" ? (
+                        <><span>Proceed to Online Payment</span><ArrowRight size={15} /></>
+                      ) : (
+                        <span>Select a Payment Method</span>
+                      )}
                     </button>
                   </motion.div>
                 )}
 
                 {/* ── CONFIRMED ── */}
                 {status === "confirmed" && (
-                  <motion.div key="confirmed"
-                    initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                  <motion.div
+                    key="confirmed"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.25 }}
-                    className="flex flex-col flex-1 items-center justify-center gap-5 text-center"
+                    className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-zinc-900 text-white flex items-center justify-center">
-                      <CheckCircle2 size={32} />
+                    <div className="w-14 h-14 rounded-none bg-zinc-950 text-white flex items-center justify-center">
+                      <CheckCircle2 size={30} />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-black text-zinc-900 mb-1">
-                        Ride Confirmed!
-                      </h3>
-                      <motion.p
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-                        className="text-zinc-400 text-sm font-medium max-w-xs"
-                      >Your driver is on the way. Track live from the ride screen.</motion.p>
+                      <h3 className="text-xl font-black text-zinc-950 font-heading">Ride Confirmed!</h3>
+                      <p className="text-zinc-500 text-xs font-medium mt-1 max-w-xs">
+                        Your driver is en route to pickup point. Live telemetry active.
+                      </p>
                     </div>
-                    <motion.button
-                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                      whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.03 }}
+                    <button
+                      type="button"
                       onClick={() => { window.location.href = `/ride/${bookingId}`; }}
-                      className="flex items-center gap-2.5 bg-zinc-900 hover:bg-black text-white font-black text-sm px-8 py-4 rounded-2xl transition-colors shadow-md"
+                      className="mt-2 flex items-center gap-2 bg-zinc-950 hover:bg-black text-white font-black text-xs uppercase tracking-wider px-6 py-3.5 rounded-none transition cursor-pointer"
                     >
-                      Track Your Ride <ArrowRight size={16} />
-                    </motion.button>
+                      <span>Track Your Ride</span>
+                      <ArrowRight size={15} />
+                    </button>
                   </motion.div>
                 )}
 
                 {/* ── CANCELLED ── */}
                 {status === "cancelled" && (
-                  <motion.div key="cancelled"
-                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex flex-col flex-1 items-center justify-center gap-5 text-center"
+                  <motion.div
+                    key="cancelled"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-20 h-20 rounded-full bg-zinc-100 border-2 border-zinc-200 flex items-center justify-center">
-                      <XCircle size={34} className="text-zinc-900" />
+                    <div className="w-14 h-14 rounded-none bg-zinc-100 border border-zinc-300 flex items-center justify-center text-zinc-900">
+                      <XCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-zinc-900 mb-1">Booking Cancelled</h3>
-                      <p className="text-zinc-400 text-sm font-medium">Your request has been cancelled successfully.</p>
+                      <h3 className="text-lg font-black text-zinc-950 font-heading">Booking Cancelled</h3>
+                      <p className="text-zinc-500 text-xs font-medium mt-1">Your ride request has been cancelled.</p>
                     </div>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.02 }}
+                    <button
+                      type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-zinc-900 text-white font-black text-sm px-6 py-3.5 rounded-2xl hover:bg-black transition-colors"
+                      className="flex items-center gap-2 bg-zinc-950 text-white font-black text-xs uppercase tracking-wider px-5 py-3 rounded-none hover:bg-black transition cursor-pointer"
                     >
-                      <RotateCcw size={14} /> Book Again
-                    </motion.button>
+                      <RotateCcw size={13} />
+                      <span>Book Again</span>
+                    </button>
                   </motion.div>
                 )}
 
                 {/* ── REJECTED ── */}
                 {status === "rejected" && (
-                  <motion.div key="rejected"
-                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex flex-col flex-1 items-center justify-center gap-5 text-center"
+                  <motion.div
+                    key="rejected"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-20 h-20 rounded-full bg-zinc-100 border-2 border-zinc-200 flex items-center justify-center">
-                      <XCircle size={34} className="text-red-500" />
+                    <div className="w-14 h-14 rounded-none bg-zinc-100 border border-zinc-300 flex items-center justify-center text-zinc-900">
+                      <XCircle size={28} className="text-red-600" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-zinc-900 mb-1">Request Rejected</h3>
-                      <p className="text-zinc-400 text-sm font-medium">Driver declined this booking. Try another driver.</p>
+                      <h3 className="text-lg font-black text-zinc-950 font-heading">Request Declined</h3>
+                      <p className="text-zinc-500 text-xs font-medium mt-1">Nearby driver was unavailable. Try requesting again.</p>
                     </div>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.02 }}
+                    <button
+                      type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-zinc-900 text-white font-black text-sm px-6 py-3.5 rounded-2xl hover:bg-black transition-colors"
+                      className="flex items-center gap-2 bg-zinc-950 text-white font-black text-xs uppercase tracking-wider px-5 py-3 rounded-none hover:bg-black transition cursor-pointer"
                     >
-                      <RotateCcw size={14} /> Try Again
-                    </motion.button>
+                      <RotateCcw size={13} />
+                      <span>Try Again</span>
+                    </button>
                   </motion.div>
                 )}
 
                 {/* ── EXPIRED ── */}
                 {status === "expired" && (
-                  <motion.div key="expired"
-                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex flex-col flex-1 items-center justify-center gap-5 text-center"
+                  <motion.div
+                    key="expired"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-20 h-20 rounded-full bg-zinc-100 border-2 border-zinc-200 flex items-center justify-center">
-                      <AlertCircle size={34} className="text-amber-500" />
+                    <div className="w-14 h-14 rounded-none bg-zinc-100 border border-zinc-300 flex items-center justify-center text-zinc-900">
+                      <AlertCircle size={28} className="text-amber-600" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-zinc-900 mb-1">Request Timed Out</h3>
-                      <p className="text-zinc-400 text-sm font-medium">No response from driver. Please try again.</p>
+                      <h3 className="text-lg font-black text-zinc-950 font-heading">Request Timed Out</h3>
+                      <p className="text-zinc-500 text-xs font-medium mt-1">No driver accepted within 2 minutes. Please try again.</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-zinc-900 text-white font-bold text-sm px-5 py-3 rounded-xl hover:bg-black transition-colors"
+                      className="flex items-center gap-2 bg-zinc-950 text-white font-black text-xs uppercase tracking-wider px-5 py-3 rounded-none hover:bg-black transition cursor-pointer"
                     >
-                      <RotateCcw size={14} /> Try Again
+                      <RotateCcw size={13} />
+                      <span>Try Again</span>
                     </button>
                   </motion.div>
                 )}
 
               </AnimatePresence>
-
-              {/* Footer trust badge */}
-              <div className="flex items-center justify-center gap-2 pt-6 mt-auto border-t border-zinc-100">
-                <ShieldCheck size={13} className="text-zinc-400" />
-                <span className="text-zinc-400 text-[10px] font-semibold tracking-wide uppercase">Secure & Verified Booking</span>
-              </div>
             </div>
+          </div>
+
+          {/* Footer trust badge */}
+          <div className="flex items-center justify-center gap-2 py-3 bg-zinc-50 border-t border-zinc-200">
+            <ShieldCheck size={13} className="text-zinc-500" />
+            <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
+              Secure & Verified Booking · GPS Tracked
+            </span>
           </div>
         </div>
       </div>

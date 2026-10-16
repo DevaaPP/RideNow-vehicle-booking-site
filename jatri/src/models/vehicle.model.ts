@@ -1,9 +1,13 @@
 import mongoose, { Schema, Types } from "mongoose";
 
 export type VehicleType =
+  | "scooty"
   | "bike"
   | "auto"
+  | "mini"
   | "car"
+  | "priority"
+  | "intercity"
   | "loading"
   | "truck";
 

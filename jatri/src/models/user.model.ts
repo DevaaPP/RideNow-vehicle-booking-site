@@ -11,9 +11,13 @@ export type VideoKycStatus =
   | "rejected";
 
 export type VehicleType =
+  | "scooty"
   | "bike"
   | "auto"
+  | "mini"
   | "car"
+  | "priority"
+  | "intercity"
   | "loading"
   | "truck";
 

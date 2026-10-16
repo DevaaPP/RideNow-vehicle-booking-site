@@ -1588,41 +1588,27 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
 
             <div className="bg-zinc-50 rounded-none p-4 border border-zinc-200 flex items-center justify-between my-4">
-              <div className="flex items-center gap-3">
-                <span className="relative flex h-3.5 w-3.5 flex-shrink-0">
-                  {isOnline && (
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  )}
-                  <span
-                    className={`relative inline-flex rounded-full h-3.5 w-3.5 ${
-                      isOnline ? "bg-emerald-500" : "bg-zinc-300"
-                    }`}
-                  ></span>
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-zinc-950 tracking-tight">
-                    {isOnline ? "Duty: Online" : "Duty: Offline"}
-                  </p>
-                  <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
-                    {isOnline ? "Broadcasting live coordinates" : "Unavailable for dispatch"}
-                  </p>
-                </div>
+              <div>
+                <p className="text-sm font-bold text-zinc-950 tracking-tight">
+                  {isOnline ? "Duty: Online" : "Duty: Offline"}
+                </p>
+                <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
+                  {isOnline ? "Broadcasting live coordinates" : "Unavailable for dispatch"}
+                </p>
               </div>
 
               <button
                 type="button"
                 onClick={handleToggleOnline}
                 disabled={loading}
-                className={`relative inline-flex h-8 w-14 items-center rounded-none border transition-all cursor-pointer focus:outline-none ${
-                  isOnline
-                    ? "bg-zinc-950 border-zinc-950 justify-end"
-                    : "bg-zinc-200 border-zinc-300 justify-start"
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors cursor-pointer focus:outline-none ${
+                  isOnline ? "bg-emerald-500" : "bg-zinc-300"
                 }`}
                 title={isOnline ? "Switch to Offline" : "Switch to Online"}
               >
                 <span
-                  className={`inline-block h-6 w-6 rounded-none transition-transform ${
-                    isOnline ? "bg-emerald-500 shadow-sm" : "bg-white border border-zinc-300"
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${
+                    isOnline ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
               </button>
@@ -1661,8 +1647,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   Location Radar
                 </h2>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-emerald-50 border border-emerald-300 text-emerald-900 text-[10px] font-black uppercase tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-zinc-100 border border-zinc-300 text-zinc-900 text-[10px] font-black uppercase tracking-wider">
                 <span>Live GPS</span>
               </span>
             </div>
@@ -1677,7 +1662,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   ? `Synced ${lastSyncedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
                   : "Continuous device tracking active"}
               </span>
-              <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-50 px-1.5 py-0.5 border border-emerald-300 shrink-0 ml-2">
+              <span className="text-[10px] font-black uppercase text-zinc-800 bg-zinc-100 px-1.5 py-0.5 border border-zinc-300 shrink-0 ml-2">
                 Active Radar
               </span>
             </div>

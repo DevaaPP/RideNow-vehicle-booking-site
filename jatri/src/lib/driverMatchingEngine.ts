@@ -78,7 +78,20 @@ export async function findEligibleCandidates(options: {
 
   // 2. Fetch active vehicles of matching type
   const normalizedType = vehicleType.toLowerCase();
-  const vehicleQueryType = normalizedType === "intercity" ? { $in: ["car", "intercity"] } : normalizedType;
+  let vehicleQueryType: any = normalizedType;
+  if (normalizedType === "intercity") {
+    vehicleQueryType = { $in: ["car", "priority", "intercity"] };
+  } else if (normalizedType === "mini") {
+    vehicleQueryType = { $in: ["mini", "car"] };
+  } else if (normalizedType === "priority") {
+    vehicleQueryType = { $in: ["priority", "car"] };
+  } else if (normalizedType === "car") {
+    vehicleQueryType = { $in: ["car", "mini", "priority"] };
+  } else if (normalizedType === "scooty") {
+    vehicleQueryType = { $in: ["scooty", "bike"] };
+  } else if (normalizedType === "bike") {
+    vehicleQueryType = { $in: ["bike", "scooty"] };
+  }
   const activeVehicles = await Vehicle.find({
     type: vehicleQueryType,
     isActive: true,

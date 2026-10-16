@@ -979,22 +979,34 @@ export default function BookPage() {
         return;
       }
 
-      // Explicit edit returning from checkout -> hydrate draft
+      // Explicit edit returning from checkout -> hydrate draft or URL query params
       const raw = sessionStorage.getItem("ridenow_booking_draft");
-      if (!raw) {
-        useCurrentLocation();
-        return;
+      let draft: any = null;
+      if (raw) {
+        try {
+          draft = JSON.parse(raw);
+        } catch (_) {}
       }
-      const draft = JSON.parse(raw);
-      if (draft.pickup) setPickup(draft.pickup);
-      if (draft.drop) setDrop(draft.drop);
-      if (draft.vehicle) setVehicle(draft.vehicle);
-      if (draft.mobile) setMobile(draft.mobile);
-      if (typeof draft.pickupLat === "number") setPickupLat(draft.pickupLat);
-      if (typeof draft.pickupLng === "number") setPickupLng(draft.pickupLng);
-      if (typeof draft.dropLat === "number") setDropLat(draft.dropLat);
-      if (typeof draft.dropLng === "number") setDropLng(draft.dropLng);
-      if (Array.isArray(draft.stops) && draft.stops.length > 0) {
+
+      const p = draft?.pickup || urlParams.get("pickup");
+      const d = draft?.drop || urlParams.get("drop");
+      const v = draft?.vehicle || urlParams.get("vehicle");
+      const m = draft?.mobileNumber || draft?.mobile || urlParams.get("mobileNumber");
+      const pLat = typeof draft?.pickupLat === "number" ? draft.pickupLat : urlParams.get("pickupLat") ? Number(urlParams.get("pickupLat")) : null;
+      const pLng = typeof draft?.pickupLng === "number" ? draft.pickupLng : urlParams.get("pickupLng") ? Number(urlParams.get("pickupLng")) : null;
+      const dLat = typeof draft?.dropLat === "number" ? draft.dropLat : urlParams.get("dropLat") ? Number(urlParams.get("dropLat")) : null;
+      const dLng = typeof draft?.dropLng === "number" ? draft.dropLng : urlParams.get("dropLng") ? Number(urlParams.get("dropLng")) : null;
+
+      if (p) setPickup(p);
+      if (d) setDrop(d);
+      if (v) setVehicle(v);
+      if (m) setMobile(m);
+      if (typeof pLat === "number" && !isNaN(pLat)) setPickupLat(pLat);
+      if (typeof pLng === "number" && !isNaN(pLng)) setPickupLng(pLng);
+      if (typeof dLat === "number" && !isNaN(dLat)) setDropLat(dLat);
+      if (typeof dLng === "number" && !isNaN(dLng)) setDropLng(dLng);
+
+      if (Array.isArray(draft?.stops) && draft.stops.length > 0) {
         setStops(
           draft.stops.map((s: any, idx: number) => ({
             id: s.id || `stop-${idx}`,
@@ -1005,13 +1017,14 @@ export default function BookPage() {
           }))
         );
       }
-      if (draft.smartPickupDetails) setSelectedSmartPickup(draft.smartPickupDetails);
-      if (draft.familyMemberDetails) setSelectedFamilyMember(draft.familyMemberDetails);
-      if (draft.pickupDetails) setPickupDetails(draft.pickupDetails);
-      if (draft.dropDetails) setDropDetails(draft.dropDetails);
-      if (draft.isScheduled) {
+      if (draft?.smartPickupDetails) setSelectedSmartPickup(draft.smartPickupDetails);
+      if (draft?.familyMemberDetails) setSelectedFamilyMember(draft.familyMemberDetails);
+      if (draft?.pickupDetails) setPickupDetails(draft.pickupDetails);
+      if (draft?.dropDetails) setDropDetails(draft.dropDetails);
+      if (draft?.isScheduled || urlParams.get("isScheduled") === "true") {
         setBookingMode("schedule");
-        if (draft.scheduledTime) setScheduledDateTime(draft.scheduledTime);
+        const sched = draft?.scheduledTime || urlParams.get("scheduledTime");
+        if (sched) setScheduledDateTime(sched);
       }
     } catch (e) {
       console.warn("Failed to restore booking draft from sessionStorage:", e);
@@ -1239,12 +1252,20 @@ export default function BookPage() {
     }
 
     const queryParams = new URLSearchParams({
+      pickup: String(pickup),
+      drop: String(drop),
       vehicle: String(vehicle),
       fare: String(estFare),
+      mobileNumber: String(mobile || ""),
       ...(pickupLat ? { pickupLat: String(pickupLat) } : {}),
       ...(pickupLng ? { pickupLng: String(pickupLng) } : {}),
       ...(dropLat ? { dropLat: String(dropLat) } : {}),
       ...(dropLng ? { dropLng: String(dropLng) } : {}),
+      ...(effectiveDistance ? { distanceKm: String(effectiveDistance) } : {}),
+      ...(bookingMode === "schedule" && scheduledDateTime ? { isScheduled: "true", scheduledTime: new Date(scheduledDateTime).toISOString() } : {}),
+      ...(selectedSmartPickup ? { isSmartPickup: "true", smartPickupDetails: JSON.stringify(selectedSmartPickup) } : {}),
+      ...(selectedFamilyMember ? { isFamilyRide: "true", familyMember: JSON.stringify(selectedFamilyMember) } : {}),
+      ...(validStops.length > 0 ? { stops: JSON.stringify(validStops) } : {}),
     });
 
     router.push(`/checkout?${queryParams.toString()}`);
@@ -1293,11 +1314,11 @@ export default function BookPage() {
 
             <button
               type="button"
-              onClick={() => setShowLocationSettingsGuide((prev) => !prev)}
+              onClick={() => setShowLocationSettingsGuide(true)}
               className="px-3 py-1.5 bg-zinc-850 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer"
             >
               <Settings size={11} className="text-zinc-400" />
-              <span>{showLocationSettingsGuide ? "Hide Settings Guide" : "Change Site Settings"}</span>
+              <span>Site Settings Guide</span>
             </button>
 
             <button
@@ -1313,21 +1334,6 @@ export default function BookPage() {
               <span>Set on Map</span>
             </button>
           </div>
-
-          {showLocationSettingsGuide && (
-            <div className="mt-2.5 p-3 bg-zinc-900 border border-zinc-850 text-zinc-300 rounded-none text-[11px] space-y-2">
-              <p className="font-bold text-white text-[11px] flex items-center gap-1.5">
-                <Settings size={12} className="text-amber-400" />
-                <span>How to enable location in your browser:</span>
-              </p>
-              <ol className="list-decimal list-inside space-y-1 text-zinc-400 pl-1 text-[10px] leading-relaxed">
-                <li>Look for the <strong className="text-zinc-200">Padlock 🔒</strong> or <strong className="text-zinc-200">Tune/Sliders ⚙️</strong> icon in your browser address bar next to the website URL.</li>
-                <li>Click <strong className="text-zinc-200">&quot;Permissions&quot;</strong> or <strong className="text-zinc-200">&quot;Site settings&quot;</strong>.</li>
-                <li>Find <strong className="text-zinc-200">&quot;Location&quot;</strong> and switch from &quot;Block&quot; to <strong className="text-emerald-400">&quot;Allow&quot;</strong>.</li>
-                <li>Return here and click <strong className="text-white">&quot;Ask Permission Again&quot;</strong>.</li>
-              </ol>
-            </div>
-          )}
         </div>
       )}
 
@@ -2505,7 +2511,7 @@ export default function BookPage() {
       </div>
 
       {/* ══ 3. MOBILE INTERFACE (< md) ══ */}
-      <div className="md:hidden flex flex-col w-full h-screen overflow-hidden bg-white">
+      <div className="md:hidden flex flex-col w-full h-[100dvh] max-h-[100dvh] overflow-hidden bg-white">
         {/* Fullscreen Map when user is picking location pin on mobile */}
         {mapSelectionMode !== "none" ? (
           <div className="fixed inset-0 z-40 bg-zinc-100">
@@ -2578,15 +2584,15 @@ export default function BookPage() {
             </div>
           </div>
         ) : (
-          /* Mobile Dynamic Full Split View with Tactile Swipe Up / Down Sheet */
+          /* Mobile Dynamic Full Split View with Tactile Sliding Sheet */
           <div className="flex flex-col w-full h-full overflow-hidden relative">
-            {/* Dynamic Map: Seamlessly transitions between Full Map (86vh), Half Split (42vh), and Peek (12vh) */}
+            {/* Dynamic Map: Seamlessly transitions between Full Map, Half Split (36dvh), and Peek (14dvh) */}
             <div className={`w-full relative z-0 border-b border-zinc-300 bg-zinc-100 transition-all duration-300 ease-in-out flex-shrink-0 ${
               mobileSheetState === "up"
-                ? "h-[12vh]"
+                ? "h-[14dvh]"
                 : mobileSheetState === "down"
-                ? "h-[86vh]"
-                : "h-[42vh]"
+                ? "h-[calc(100dvh-130px)]"
+                : "h-[36dvh]"
             }`}>
               <RouteMap
                 pickup={pickup}
@@ -2609,17 +2615,17 @@ export default function BookPage() {
               />
             </div>
 
-            {/* Bottom Tactile Swipable Booking Interface (Full Up 88vh, Half flex-1, Full Down 14vh) */}
+            {/* Bottom Tactile Sliding Booking Interface (Full Up 86dvh, Half flex-1 min-h-0, Down 130px) */}
             <div className={`flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
               mobileSheetState === "up"
-                ? "h-[88vh]"
+                ? "h-[86dvh]"
                 : mobileSheetState === "down"
-                ? "h-[14vh]"
-                : "flex-1"
+                ? "h-[130px]"
+                : "flex-1 min-h-0"
             }`}>
-              {/* Tactile Drag Handle & Route Header */}
+              {/* Tactile Sliding Drag Handle & Route Header */}
               <div
-                className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none touch-none"
+                className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none"
                 onTouchStart={(e) => {
                   const startY = e.touches[0].clientY;
                   let currentY = startY;
@@ -2630,11 +2636,11 @@ export default function BookPage() {
 
                   const handleTouchEnd = () => {
                     const diffY = currentY - startY;
-                    if (diffY < -25) {
-                      // Swipe UP: down -> half -> up
+                    if (diffY < -20) {
+                      // Slide UP: down -> half -> up
                       setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
-                    } else if (diffY > 25) {
-                      // Swipe DOWN: up -> half -> down
+                    } else if (diffY > 20) {
+                      // Slide DOWN: up -> half -> down
                       setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
                     }
                     window.removeEventListener("touchmove", handleTouchMove);
@@ -2645,19 +2651,21 @@ export default function BookPage() {
                   window.addEventListener("touchend", handleTouchEnd, { once: true });
                 }}
               >
-                {/* Physical pill bar indicator */}
+                {/* Physical slide pill bar indicator */}
                 <div
                   onClick={() => {
                     setMobileSheetState((prev) => (prev === "up" ? "down" : prev === "down" ? "half" : "up"));
                   }}
                   className="w-12 h-1.5 bg-zinc-400 mx-auto rounded-full mb-2 cursor-pointer hover:bg-zinc-600 transition"
-                  title="Swipe or click to expand / collapse full screen"
+                  title="Slide or click to adjust view"
                 />
 
                 <div className="flex items-center justify-between">
                   <div
                     onClick={() => {
                       if (mobileSheetState === "down") setMobileSheetState("half");
+                      else if (mobileSheetState === "half") setMobileSheetState("up");
+                      else setMobileSheetState("half");
                     }}
                     className="flex items-center gap-2 min-w-0 pr-2 cursor-pointer"
                   >
@@ -2682,6 +2690,17 @@ export default function BookPage() {
                       <Edit2 size={10} />
                       <span>{isEditingRoute ? "Done" : "Edit"}</span>
                     </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMobileSheetState((prev) => (prev === "up" ? "half" : "up"));
+                      }}
+                      className="px-1.5 py-0.5 rounded-none border border-zinc-300 bg-zinc-100 text-zinc-800 text-[10px] font-bold cursor-pointer"
+                      title={mobileSheetState === "up" ? "Collapse to half" : "Expand full"}
+                    >
+                      {mobileSheetState === "up" ? "▼" : "▲"}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -2693,21 +2712,51 @@ export default function BookPage() {
                 </div>
               )}
 
-              {/* Scrollable Rides Body (Hidden only in peek down state to keep view clean) */}
-              {mobileSheetState !== "down" && (
-                <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5">
+              {/* Scrollable Rides Body (Hidden only in peek down state) */}
+              {mobileSheetState !== "down" ? (
+                <div className="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 overscroll-contain">
                   {renderRideSelection()}
+                </div>
+              ) : (
+                /* Compact Action Bar when bottom sheet is slid down */
+                <div className="flex-1 px-3.5 py-2 flex items-center justify-between gap-3 bg-white">
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-zinc-950 truncate">
+                      {VEHICLE_OPTIONS[vehicle]?.label || "Ride"}
+                    </p>
+                    <p className="text-xs font-bold text-zinc-600">
+                      ₹{currentBreakdown.totalFare} · Upfront fare
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMobileSheetState("half")}
+                      className="px-3 py-2 border border-zinc-300 text-zinc-900 text-xs font-bold rounded-none bg-zinc-100 hover:bg-zinc-200 transition"
+                    >
+                      Rides
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!canContinue}
+                      onClick={handleConfirmRide}
+                      className="px-4 py-2 bg-zinc-950 text-white text-xs font-black uppercase tracking-wider rounded-none hover:bg-black transition flex items-center gap-1.5"
+                    >
+                      <span>Confirm</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
                 </div>
               )}
 
-              {/* Mobile Sticky Footer */}
+              {/* Mobile Pinned Bottom Action Footer: ALWAYS visible in half & up states */}
               {mobileSheetState !== "down" && (
-                <div className="flex-shrink-0 p-3 border-t border-zinc-200 bg-white">
+                <div className="flex-shrink-0 p-3 pb-[max(14px,env(safe-area-inset-bottom))] border-t border-zinc-200 bg-white z-20 shadow-lg">
                   <motion.button
                     whileTap={{ scale: 0.99 }}
                     disabled={!canContinue}
                     onClick={handleConfirmRide}
-                    className="w-full py-3.5 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition cursor-pointer"
+                    className="w-full py-3.5 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition cursor-pointer min-h-[48px]"
                   >
                     <span>
                       {bookingMode === "schedule"
@@ -2751,6 +2800,90 @@ export default function BookPage() {
               >
                 Got it
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ══ 5. BROWSER LOCATION SETTINGS GUIDE POPUP MODAL ══ */}
+      <AnimatePresence>
+        {showLocationSettingsGuide && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-none p-5 sm:p-6 max-w-md w-full shadow-2xl border border-zinc-300 relative space-y-4"
+            >
+              <div className="flex items-start justify-between border-b border-zinc-200 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-none bg-zinc-950 text-white flex items-center justify-center flex-shrink-0">
+                    <Settings size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-zinc-950 uppercase tracking-tight font-heading">
+                      Enable Location Access
+                    </h3>
+                    <p className="text-[11px] text-zinc-500 font-medium">Browser permission steps</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowLocationSettingsGuide(false)}
+                  className="text-zinc-400 hover:text-black transition p-1 cursor-pointer"
+                  title="Close"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="space-y-2 text-xs text-zinc-700">
+                <div className="p-3 bg-zinc-50 border border-zinc-200 flex items-start gap-3">
+                  <span className="w-5 h-5 bg-zinc-950 text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">1</span>
+                  <p className="text-[11px] leading-relaxed">
+                    Look for the <strong>Padlock 🔒</strong> or <strong>Tune/Sliders ⚙️</strong> icon in your browser address bar next to the website URL.
+                  </p>
+                </div>
+                <div className="p-3 bg-zinc-50 border border-zinc-200 flex items-start gap-3">
+                  <span className="w-5 h-5 bg-zinc-950 text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">2</span>
+                  <p className="text-[11px] leading-relaxed">
+                    Click <strong>&quot;Permissions&quot;</strong> or <strong>&quot;Site settings&quot;</strong>.
+                  </p>
+                </div>
+                <div className="p-3 bg-zinc-50 border border-zinc-200 flex items-start gap-3">
+                  <span className="w-5 h-5 bg-zinc-950 text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">3</span>
+                  <p className="text-[11px] leading-relaxed">
+                    Find <strong>&quot;Location&quot;</strong> and switch from &quot;Block&quot; to <strong className="text-emerald-700">&quot;Allow&quot;</strong>.
+                  </p>
+                </div>
+                <div className="p-3 bg-zinc-50 border border-zinc-200 flex items-start gap-3">
+                  <span className="w-5 h-5 bg-zinc-950 text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">4</span>
+                  <p className="text-[11px] leading-relaxed">
+                    Return here and click <strong>&quot;Ask Permission Again&quot;</strong>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-zinc-200 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowLocationSettingsGuide(false)}
+                  className="px-4 py-2 border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-bold transition cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLocationSettingsGuide(false);
+                    useCurrentLocation();
+                  }}
+                  className="px-4 py-2 bg-zinc-950 hover:bg-black text-white text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5"
+                >
+                  <LocateFixed size={12} />
+                  <span>Ask Permission Again</span>
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

@@ -1370,7 +1370,7 @@ export default function RouteMap({
 
       {/* ── TOP RIGHT MAP CONTROLS & ROUTE ETA PILL (WHEN NOT IN PIN MODE) ── */}
       {!activePinMode && (
-        <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2 pointer-events-none">
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col items-end gap-1.5 md:gap-2 pointer-events-none">
           {/* Route ETA & Distance Pill */}
           <AnimatePresence>
             {(km !== null || isRouting) && (
@@ -1378,23 +1378,23 @@ export default function RouteMap({
                 initial={{ opacity: 0, y: -8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="pointer-events-auto flex items-center gap-3 bg-white border border-zinc-300 px-3.5 py-1.5 shadow-sm rounded-none"
+                className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-white/95 backdrop-blur-xs border border-zinc-300 px-2.5 py-1 md:px-3.5 md:py-1.5 shadow-sm rounded-none"
               >
                 {isRouting ? (
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 bg-zinc-950 animate-pulse rounded-none" />
-                    <span className="text-zinc-900 text-xs font-bold">Finding fastest route...</span>
+                    <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-zinc-950 animate-pulse rounded-none" />
+                    <span className="text-zinc-900 text-[11px] md:text-xs font-bold">Finding fastest route...</span>
                   </div>
                 ) : (
                   <>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-zinc-950 text-xs font-black">
+                      <span className="text-zinc-950 text-[11px] md:text-xs font-black">
                         {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
                       </span>
-                      <span className="text-zinc-500 text-xs font-bold">({km} km)</span>
+                      <span className="text-zinc-500 text-[10px] md:text-xs font-bold">({km} km)</span>
                     </div>
                     <span className="w-px h-3 bg-zinc-200" />
-                    <span className="text-[10px] text-zinc-950 font-black uppercase tracking-wider bg-zinc-100 px-2 py-0.5 border border-zinc-300 rounded-none">
+                    <span className="text-[9px] md:text-[10px] text-zinc-950 font-black uppercase tracking-wider bg-zinc-100 px-1.5 md:px-2 py-0.5 border border-zinc-300 rounded-none">
                       Fastest Route
                     </span>
                   </>
@@ -1403,8 +1403,10 @@ export default function RouteMap({
             )}
           </AnimatePresence>
 
-          {/* Pinpoint Selector Pill */}
-          <div className="pointer-events-auto flex items-center gap-1 bg-white border border-zinc-300 p-1 shadow-sm rounded-none">
+          {/* Pinpoint Selector Pill (Hidden on mobile when route is already active to prevent map overlaps) */}
+          <div className={`pointer-events-auto items-center gap-1 bg-white border border-zinc-300 p-1 shadow-sm rounded-none ${
+            p1 && p2 ? "hidden md:flex" : "flex"
+          }`}>
             <button
               type="button"
               onClick={() => {

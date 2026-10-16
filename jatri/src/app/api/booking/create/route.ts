@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     }
 
     const vehicleKey = String(vehicle).toLowerCase();
-    const VALID_VEHICLES = ["bike", "auto", "car", "intercity", "loading", "truck"];
+    const VALID_VEHICLES = ["scooty", "bike", "auto", "mini", "car", "priority", "intercity", "loading", "truck"];
     if (!VALID_VEHICLES.includes(vehicleKey)) {
       return NextResponse.json(
         {
@@ -294,7 +294,7 @@ export async function POST(req: Request) {
     }
 
     // Validate 100km rule for city fleet vs Intercity/Logistics
-    if (["bike", "auto", "car"].includes(vehicleKey) && routeDistance > 100) {
+    if (["bike", "auto", "car", "mini", "priority", "scooty"].includes(vehicleKey) && routeDistance > 100) {
       return NextResponse.json(
         {
           success: false,
