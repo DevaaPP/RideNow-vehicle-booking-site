@@ -160,9 +160,9 @@ export default function Footer() {
 
       {/* BOTTOM BAR */}
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-6 flex flex-col lg:flex-row justify-between items-center text-xs text-gray-500 gap-3 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-6 flex flex-col lg:flex-row justify-between items-center text-xs text-zinc-400 gap-3 sm:gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center sm:text-left">
-            <p>© {new Date().getFullYear()} RideNow Mobility Technologies Pvt. Ltd. All rights reserved.</p>
+            <p className="text-zinc-400">© {new Date().getFullYear()} RideNow Mobility Technologies Pvt. Ltd. All rights reserved.</p>
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
             <LanguageSelector variant="footer" />
           </div>

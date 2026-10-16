@@ -2470,7 +2470,7 @@ export default function BookPage() {
           </motion.button>
 
           {!canContinue && (
-            <p className="text-center text-[10px] font-bold mt-2 text-zinc-400 uppercase tracking-wider truncate">
+            <p className="text-center text-[10px] font-bold mt-2 text-zinc-600 uppercase tracking-wider truncate">
               {activeExistingRide
                 ? "Active ride already in progress. Complete or cancel it first."
                 : !drop

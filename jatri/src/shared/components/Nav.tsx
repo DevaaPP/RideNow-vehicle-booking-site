@@ -373,8 +373,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
             {/* BURGER */}
             <button
+              type="button"
               onClick={() => setMenuOpen((p) => !p)}
-              className="md:hidden text-white"
+              className="md:hidden text-white cursor-pointer p-1"
+              aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
               {menuOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
