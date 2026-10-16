@@ -15,23 +15,28 @@ export async function GET(
     await connectDb();
 
     const session = await auth();
-    if (!session?.user?.email) {
+    const user = session?.user;
+    if (!user || (!user.id && !user.email && !(user as any).mobileNumber)) {
       return NextResponse.json(
         { message: "Unauthorized: Authentication required" },
         { status: 401 }
       );
     }
 
-    const sessionUser = await User.findOne({ email: session.user.email })
-      .select("_id role")
-      .lean();
-
-    if (!sessionUser) {
-      return NextResponse.json(
-        { message: "User account not found" },
-        { status: 404 }
-      );
+    const userFilters: any[] = [];
+    if (user.id) {
+      userFilters.push({ _id: user.id });
     }
+    if (user.email) {
+      userFilters.push({ email: user.email });
+    }
+    if ((user as any).mobileNumber) {
+      userFilters.push({ mobileNumber: (user as any).mobileNumber });
+    }
+
+    const sessionUser = await User.findOne({ $or: userFilters })
+      .select("_id role email mobileNumber")
+      .lean();
 
     const id = (await context.params).id;
     const booking: any = await Booking.findById(id).populate("user driver vehicle");
@@ -45,13 +50,13 @@ export async function GET(
 
     // Strict Cross-Tenant Resource Isolation:
     // Only the passenger who created the booking, the assigned driver, or an admin can access
-    const riderId = booking.user?._id?.toString() || booking.user?.toString();
-    const driverId = booking.driver?._id?.toString() || booking.driver?.toString();
-    const currentUserId = sessionUser._id.toString();
+    const riderId = (booking.user?._id || booking.user)?.toString();
+    const driverId = (booking.driver?._id || booking.driver)?.toString();
+    const currentUserId = sessionUser?._id?.toString() || session?.user?.id?.toString();
 
-    const isRider = riderId === currentUserId;
-    const isDriver = driverId === currentUserId;
-    const isAdmin = sessionUser.role === "admin";
+    const isRider = Boolean(currentUserId && riderId && riderId === currentUserId);
+    const isDriver = Boolean(currentUserId && driverId && driverId === currentUserId);
+    const isAdmin = sessionUser?.role === "admin";
 
     if (!isRider && !isDriver && !isAdmin) {
       return NextResponse.json(

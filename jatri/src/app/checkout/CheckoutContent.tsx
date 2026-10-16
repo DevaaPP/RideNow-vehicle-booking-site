@@ -216,6 +216,9 @@ export default function CheckoutContent() {
           if (draft.dropDetails) setDropDetails(draft.dropDetails);
         }
       }
+      if (typeof window !== "undefined" && window.location.search) {
+        window.history.replaceState({}, "", "/checkout");
+      }
     } catch (err) {
       console.warn("Failed to load booking draft from sessionStorage:", err);
     }
@@ -664,22 +667,28 @@ export default function CheckoutContent() {
   const vehicleLabel = opt?.label || (vehicle.charAt(0).toUpperCase() + vehicle.slice(1));
 
   const editBookUrl = useMemo(() => {
-    const q = new URLSearchParams();
-    q.set("edit", "true");
-    if (pickup && pickup !== "Pickup Location") q.set("pickup", pickup);
-    if (drop && drop !== "Drop Location") q.set("drop", drop);
-    if (vehicle) q.set("vehicle", vehicle);
-    if (pickupLat) q.set("pickupLat", String(pickupLat));
-    if (pickupLng) q.set("pickupLng", String(pickupLng));
-    if (dropLat) q.set("dropLat", String(dropLat));
-    if (dropLng) q.set("dropLng", String(dropLng));
-    if (mobileNumber) q.set("mobileNumber", mobileNumber);
-    if (isScheduled && scheduledPickupTime) {
-      q.set("isScheduled", "true");
-      q.set("scheduledTime", scheduledPickupTime);
+    if (typeof window !== "undefined") {
+      try {
+        const draft = {
+          pickup,
+          drop,
+          vehicle,
+          pickupLat,
+          pickupLng,
+          dropLat,
+          dropLng,
+          mobileNumber,
+          isScheduled,
+          scheduledTime: scheduledPickupTime,
+          stops,
+          smartPickupDetails: isSmartPickup ? smartPickupDetails : null,
+          familyMemberDetails: isFamilyRide ? familyMemberDetails : null,
+        };
+        sessionStorage.setItem("ridenow_booking_draft", JSON.stringify(draft));
+      } catch (_) {}
     }
-    return `/book?${q.toString()}`;
-  }, [pickup, drop, vehicle, pickupLat, pickupLng, dropLat, dropLng, mobileNumber, isScheduled, scheduledPickupTime]);
+    return "/book?edit=true";
+  }, [pickup, drop, vehicle, pickupLat, pickupLng, dropLat, dropLng, mobileNumber, isScheduled, scheduledPickupTime, stops, isSmartPickup, smartPickupDetails, isFamilyRide, familyMemberDetails]);
 
   return (
     <div className="min-h-screen bg-zinc-100 px-3 sm:px-4 py-5 sm:py-10">

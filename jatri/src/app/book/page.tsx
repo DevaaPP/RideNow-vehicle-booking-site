@@ -1026,6 +1026,10 @@ export default function BookPage() {
         const sched = draft?.scheduledTime || urlParams.get("scheduledTime");
         if (sched) setScheduledDateTime(sched);
       }
+
+      if (typeof window !== "undefined" && window.location.search) {
+        window.history.replaceState({}, "", "/book");
+      }
     } catch (e) {
       console.warn("Failed to restore booking draft from sessionStorage:", e);
       useCurrentLocation();
@@ -1251,24 +1255,7 @@ export default function BookPage() {
       console.warn("sessionStorage save error:", e);
     }
 
-    const queryParams = new URLSearchParams({
-      pickup: String(pickup),
-      drop: String(drop),
-      vehicle: String(vehicle),
-      fare: String(estFare),
-      mobileNumber: String(mobile || ""),
-      ...(pickupLat ? { pickupLat: String(pickupLat) } : {}),
-      ...(pickupLng ? { pickupLng: String(pickupLng) } : {}),
-      ...(dropLat ? { dropLat: String(dropLat) } : {}),
-      ...(dropLng ? { dropLng: String(dropLng) } : {}),
-      ...(effectiveDistance ? { distanceKm: String(effectiveDistance) } : {}),
-      ...(bookingMode === "schedule" && scheduledDateTime ? { isScheduled: "true", scheduledTime: new Date(scheduledDateTime).toISOString() } : {}),
-      ...(selectedSmartPickup ? { isSmartPickup: "true", smartPickupDetails: JSON.stringify(selectedSmartPickup) } : {}),
-      ...(selectedFamilyMember ? { isFamilyRide: "true", familyMember: JSON.stringify(selectedFamilyMember) } : {}),
-      ...(validStops.length > 0 ? { stops: JSON.stringify(validStops) } : {}),
-    });
-
-    router.push(`/checkout?${queryParams.toString()}`);
+    router.push("/checkout");
   };
 
   /* ── SHARED FORM SECTIONS (REUSABLE ACROSS UNIFIED PANEL) ── */
@@ -2619,46 +2606,32 @@ export default function BookPage() {
               />
             </div>
 
-            {/* Bottom Tactile Sliding Booking Interface (Full Up 86dvh, Half flex-1 min-h-0, Down 130px) */}
-            <div className={`flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-              mobileSheetState === "up"
-                ? "h-[86dvh]"
-                : mobileSheetState === "down"
-                ? "h-[130px]"
-                : "flex-1 min-h-0"
-            }`}>
-              {/* Tactile Sliding Drag Handle & Route Header */}
-              <div
-                className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none"
-                onTouchStart={(e) => {
-                  const startY = e.touches[0].clientY;
-                  const startTime = Date.now();
-                  let currentY = startY;
-
-                  const handleTouchMove = (moveEv: TouchEvent) => {
-                    currentY = moveEv.touches[0].clientY;
-                  };
-
-                  const handleTouchEnd = () => {
-                    const diffY = currentY - startY;
-                    const elapsed = Math.max(1, Date.now() - startTime);
-                    const velocity = Math.abs(diffY) / elapsed;
-
-                    // Fluid velocity-aware sliding physics
-                    if (diffY < -20 || (diffY < -10 && velocity > 0.35)) {
-                      // Slide UP: down -> half -> up
-                      setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
-                    } else if (diffY > 20 || (diffY > 10 && velocity > 0.35)) {
-                      // Slide DOWN: up -> half -> down
-                      setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
-                    }
-                    window.removeEventListener("touchmove", handleTouchMove);
-                    window.removeEventListener("touchend", handleTouchEnd);
-                  };
-
-                  window.addEventListener("touchmove", handleTouchMove, { passive: true });
-                  window.addEventListener("touchend", handleTouchEnd, { once: true });
+            {/* Bottom Tactile Sliding Booking Interface (Integrated Framer Motion physics from /active-ride) */}
+            <motion.div
+              animate={{
+                height:
+                  mobileSheetState === "up"
+                    ? "86dvh"
+                    : mobileSheetState === "down"
+                    ? 130
+                    : "52dvh",
+              }}
+              transition={{ type: "spring", stiffness: 340, damping: 34 }}
+              className="flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 border-t border-zinc-200"
+            >
+              {/* Interactive Drag Handle Header */}
+              <motion.div
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={0.25}
+                onDragEnd={(_, info) => {
+                  if (info.offset.y < -35 || info.velocity.y < -250) {
+                    setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
+                  } else if (info.offset.y > 35 || info.velocity.y > 250) {
+                    setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
+                  }
                 }}
+                className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none"
               >
                 {/* Physical slide pill bar indicator */}
                 <div
@@ -2701,7 +2674,7 @@ export default function BookPage() {
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* If Mobile User Tapped Edit, Show Inputs Inline */}
               {isEditingRoute && (
@@ -2765,7 +2738,7 @@ export default function BookPage() {
                   </motion.button>
                 </div>
               )}
-            </div>
+            </motion.div>
           </div>
         )}
       </div>

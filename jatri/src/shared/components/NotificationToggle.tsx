@@ -33,13 +33,13 @@ export default function NotificationToggle({
     if (isSubscribed || permission === "denied") return null;
 
     return (
-      <div className={`bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-white flex items-center justify-between gap-4 ${className}`}>
+      <div className={`bg-zinc-950 border border-zinc-800 rounded-none p-3.5 text-white flex items-center justify-between gap-3 ${className}`}>
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 text-amber-400">
-            <BellRing size={20} />
+          <div className="w-9 h-9 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0 text-amber-400">
+            <BellRing size={18} />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-black uppercase tracking-wider text-amber-400">Live Trip Alerts</p>
+            <p className="text-[11px] font-black uppercase tracking-wider text-amber-400">Live Trip Alerts</p>
             <p className="text-xs text-zinc-300 font-medium truncate">
               Get notified when driver arrives or starts your trip
             </p>
@@ -50,7 +50,7 @@ export default function NotificationToggle({
           type="button"
           onClick={handleClick}
           disabled={loading}
-          className="bg-white hover:bg-zinc-100 text-zinc-950 px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex-shrink-0 flex items-center gap-1.5"
+          className="bg-white hover:bg-zinc-100 text-zinc-950 px-3.5 py-2 rounded-none text-xs font-black uppercase tracking-wider transition-all active:scale-95 flex-shrink-0 flex items-center gap-1.5 cursor-pointer"
         >
           {loading ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />

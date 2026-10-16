@@ -285,10 +285,10 @@ export default function DriverRidePage() {
           if (data.status === "started")   { setOtpVerified(true); setOtpMode(false); }
           if (data.status === "completed") { setOtpVerified(true); }
         } else {
+          // Safeguard: Never mark booking as cancelled just because an API roundtrip returned null
+          // or was interrupted by a page refresh/network lag. Only clear if no booking was ever loaded.
           if (!bookingId) {
             setBooking(null);
-          } else {
-            setBooking(prev => prev ? { ...prev, status: "cancelled" } : null);
           }
         }
       })
@@ -611,9 +611,9 @@ export default function DriverRidePage() {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] pointer-events-none"
         >
-          <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-zinc-100">
-            <span className={`w-2 h-2 rounded-full ${cfg.dot} animate-pulse`} />
-            <span className="text-xs font-semibold tracking-wide text-zinc-900">{cfg.label}</span>
+          <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-none shadow-md border border-zinc-300">
+            <span className={`w-2 h-2 rounded-none ${cfg.dot}`} />
+            <span className="text-xs font-black uppercase tracking-wider text-zinc-900">{cfg.label}</span>
           </div>
         </motion.div>
       </div>
@@ -622,16 +622,16 @@ export default function DriverRidePage() {
       <motion.div
         initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden lg:flex w-[420px] xl:w-[460px] bg-white border-l border-zinc-100 flex-col overflow-hidden"
+        className="hidden lg:flex w-[420px] xl:w-[460px] bg-white border-l border-zinc-200 flex-col overflow-hidden"
       >
         <div className="bg-zinc-950 px-6 py-5 flex-shrink-0">
-          <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-semibold mb-1">Driver Panel</p>
+          <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold mb-1">Driver Panel</p>
           <div className="flex items-center justify-between">
-            <h1 className="text-white text-xl font-bold">Active Ride</h1>
+            <h1 className="text-white text-xl font-black uppercase tracking-tight">Active Ride</h1>
             {isActive && (
-              <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
+              <div className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-none">
                 <Zap size={12} className="text-amber-400" />
-                <span className="text-white text-xs font-semibold">{Math.round(displayEta)} min</span>
+                <span className="text-white text-xs font-mono font-bold">{Math.round(displayEta)} MIN</span>
               </div>
             )}
           </div>
@@ -647,7 +647,7 @@ export default function DriverRidePage() {
       {/* MOBILE BOTTOM SHEET */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
-          className="bg-white rounded-t-3xl shadow-2xl pointer-events-auto overflow-hidden flex flex-col"
+          className="bg-white rounded-none shadow-2xl pointer-events-auto overflow-hidden border-t-2 border-zinc-950 flex flex-col"
           animate={{ height: expanded ? "82vh" : PEEK_H }}
           transition={{ type: "spring", stiffness: 340, damping: 34 }}
         >
@@ -661,39 +661,38 @@ export default function DriverRidePage() {
               else if (info.offset.y > 35 || info.velocity.y > 250) setExpanded(false);
             }}
             onClick={() => setExpanded(v => !v)}
-            className="flex-shrink-0 cursor-grab active:cursor-grabbing select-none bg-white"
+            className="flex-shrink-0 cursor-grab active:cursor-grabbing select-none bg-white border-b border-zinc-200"
           >
-            <div className="pt-2.5 pb-1 flex flex-col items-center">
-              <div className="w-12 h-1.5 bg-zinc-300 rounded-full" />
-              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-1">
+            <div className="pt-2 pb-1 flex flex-col items-center">
+              <div className="w-12 h-1 bg-zinc-300 rounded-none mb-1 cursor-pointer hover:bg-zinc-500 transition-colors" />
+              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">
                 {expanded ? "Swipe down for map" : "Swipe up for ride details"}
               </span>
             </div>
-            <div className="px-5 py-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                <div>
-                  <p className="text-sm font-bold text-zinc-900 leading-tight">{cfg.label}</p>
-                  <p className="text-xs text-zinc-400 leading-tight">{cfg.sublabel}</p>
+            <div className="px-4 py-2.5 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className={`w-2 h-2 rounded-none flex-shrink-0 ${cfg.dot}`} />
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-wider text-zinc-950 leading-tight truncate">{cfg.label}</p>
+                  <p className="text-[11px] text-zinc-500 font-medium leading-tight truncate">{cfg.sublabel}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 flex-shrink-0">
                 {isActive && (
                   <div className="text-right">
-                    <p className="text-2xl font-black text-zinc-900 leading-none">{Math.round(displayEta)}</p>
-                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider">min</p>
+                    <p className="text-xl font-black text-zinc-950 leading-none">{Math.round(displayEta)}</p>
+                    <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">min</p>
                   </div>
                 )}
                 <motion.div
                   animate={{ rotate: expanded ? 180 : 0 }}
                   transition={{ duration: 0.25 }}
-                  className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-700"
+                  className="w-7 h-7 rounded-none border border-zinc-300 bg-zinc-100 flex items-center justify-center text-zinc-700"
                 >
-                  <ChevronUp size={16} />
+                  <ChevronUp size={14} />
                 </motion.div>
               </div>
             </div>
-            <div className="h-px bg-zinc-100 mx-5" />
           </motion.div>
           <div className="flex-1 overflow-y-auto min-h-0">
             <PanelContent {...panelProps} />
@@ -701,6 +700,7 @@ export default function DriverRidePage() {
           <ActionBar {...panelProps} />
         </motion.div>
       </div>
+
       {/* ── DRIVER CANCELLATION & PENALTY WARNING MODAL ── */}
       <AnimatePresence>
         {showCancelConfirm && (
@@ -708,35 +708,35 @@ export default function DriverRidePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-[9999] px-4"
           >
             <motion.div
-              initial={{ scale: 0.95, y: 15 }}
+              initial={{ scale: 0.98, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 15 }}
-              className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 flex flex-col max-h-[90vh]"
+              exit={{ scale: 0.98, y: 15 }}
+              className="bg-white w-full max-w-md rounded-none shadow-2xl overflow-hidden border border-zinc-300 flex flex-col max-h-[90vh]"
             >
               {/* Header */}
-              <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+              <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-none bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
                     <AlertTriangle size={16} />
                   </div>
                   <div>
-                    <h3 className="text-base font-black text-zinc-900">Cancel Accepted Ride</h3>
-                    <p className="text-[11px] text-zinc-400 font-semibold">Review reasons and penalty policy</p>
+                    <h3 className="text-sm font-black uppercase tracking-tight text-zinc-950">Cancel Accepted Ride</h3>
+                    <p className="text-[11px] text-zinc-500 font-medium">Review reasons and reliability impact</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowCancelConfirm(false)}
-                  className="w-8 h-8 rounded-full hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-700 transition"
+                  className="w-7 h-7 rounded-none border border-zinc-300 hover:bg-zinc-200 flex items-center justify-center text-zinc-600 transition cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
               {/* Scrollable Body */}
-              <div className="p-5 space-y-4 overflow-y-auto">
+              <div className="p-4 space-y-4 overflow-y-auto">
                 {/* Time & Location Indicators */}
                 {(() => {
                   const elapsedSec = getElapsedAcceptanceSeconds();
@@ -745,17 +745,17 @@ export default function DriverRidePage() {
                   return (
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold">
-                        <div className="bg-zinc-100 border border-zinc-200 rounded-xl p-2.5 flex items-center gap-2 text-zinc-700">
+                        <div className="bg-zinc-100 border border-zinc-300 rounded-none p-2.5 flex items-center gap-2 text-zinc-700">
                           <Clock size={14} className="text-zinc-500 flex-shrink-0" />
                           <div className="min-w-0">
-                            <p className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold">Accepted</p>
+                            <p className="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">Accepted</p>
                             <p className="truncate font-black text-zinc-900">{Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago</p>
                           </div>
                         </div>
-                        <div className="bg-zinc-100 border border-zinc-200 rounded-xl p-2.5 flex items-center gap-2 text-zinc-700">
+                        <div className="bg-zinc-100 border border-zinc-300 rounded-none p-2.5 flex items-center gap-2 text-zinc-700">
                           <Navigation size={14} className="text-zinc-500 flex-shrink-0" />
                           <div className="min-w-0">
-                            <p className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold">Pickup Distance</p>
+                            <p className="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">Pickup Distance</p>
                             <p className="truncate font-black text-zinc-900">
                               {distanceToPickup > 0 ? `${distanceToPickup.toFixed(1)} km (${etaToPickup}m)` : "Arrived"}
                             </p>
@@ -765,22 +765,22 @@ export default function DriverRidePage() {
 
                       {/* Penalty Impact Warning */}
                       {isNearPickup || elapsedSec > 120 ? (
-                        <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 text-left">
+                        <div className="bg-red-50 border border-red-200 rounded-none p-3.5 text-left">
                           <div className="flex items-center gap-1.5 text-red-950 text-xs font-black mb-1">
                             <AlertTriangle size={15} className="text-red-600 flex-shrink-0" />
                             <span>Driver Penalty & Reliability Impact</span>
                           </div>
-                          <p className="text-[11px] text-red-900 leading-relaxed">
+                          <p className="text-[11px] text-red-900 leading-relaxed font-medium">
                             You accepted this ride <strong>{Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago</strong> and are <strong>{distanceToPickup > 0 ? `${distanceToPickup.toFixed(1)} km from pickup` : "at pickup"}</strong>. Cancelling after approaching the passenger lowers your Reliability Score and may temporarily pause new booking requests.
                           </p>
                         </div>
                       ) : (
-                        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-left">
-                          <div className="flex items-center gap-1.5 text-amber-950 text-xs font-black mb-1">
+                        <div className="bg-zinc-50 border border-zinc-300 rounded-none p-3.5 text-left">
+                          <div className="flex items-center gap-1.5 text-zinc-900 text-xs font-black mb-1">
                             <AlertCircle size={15} className="text-amber-600 flex-shrink-0" />
                             <span>Early Cancellation Notice</span>
                           </div>
-                          <p className="text-[11px] text-amber-900 leading-relaxed">
+                          <p className="text-[11px] text-zinc-600 leading-relaxed font-medium">
                             Please cancel only when unavoidable. Another nearby driver will be auto-dispatched to assist the passenger.
                           </p>
                         </div>
@@ -791,7 +791,7 @@ export default function DriverRidePage() {
 
                 {/* Driver Reasons */}
                 <div>
-                  <p className="text-xs font-bold text-zinc-800 mb-2">Select cancellation reason:</p>
+                  <p className="text-xs font-black uppercase tracking-wider text-zinc-800 mb-2">Select cancellation reason:</p>
                   <div className="space-y-1.5">
                     {DRIVER_CANCELLATION_REASONS.map((r) => {
                       const isSelected = selectedDriverReason === r;
@@ -800,19 +800,19 @@ export default function DriverRidePage() {
                           key={r}
                           type="button"
                           onClick={() => setSelectedDriverReason(r)}
-                          className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs transition-all flex items-center justify-between border ${
+                          className={`w-full text-left px-3.5 py-2.5 rounded-none text-xs transition-all flex items-center justify-between border cursor-pointer ${
                             isSelected
-                              ? "bg-zinc-950 text-white border-zinc-950 font-bold shadow-sm"
-                              : "bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200"
+                              ? "bg-zinc-950 text-white border-zinc-950 font-bold"
+                              : "bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-300"
                           }`}
                         >
                           <span>{r}</span>
                           <span
-                            className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ml-2 ${
-                              isSelected ? "border-white bg-white" : "border-zinc-300 bg-white"
+                            className={`w-3.5 h-3.5 rounded-none border flex items-center justify-center flex-shrink-0 ml-2 ${
+                              isSelected ? "border-white bg-white" : "border-zinc-400 bg-white"
                             }`}
                           >
-                            {isSelected && <span className="w-2 h-2 rounded-full bg-zinc-950" />}
+                            {isSelected && <span className="w-1.5 h-1.5 rounded-none bg-zinc-950" />}
                           </span>
                         </button>
                       );
@@ -824,7 +824,7 @@ export default function DriverRidePage() {
                       value={customDriverNote}
                       onChange={(e) => setCustomDriverNote(e.target.value)}
                       placeholder="Please specify operational reason..."
-                      className="w-full text-xs p-3 border border-zinc-200 rounded-xl outline-none focus:border-zinc-900 mt-2.5 resize-none text-zinc-900"
+                      className="w-full text-xs p-3 border border-zinc-300 rounded-none outline-none focus:border-zinc-950 mt-2.5 resize-none text-zinc-900"
                       rows={2}
                     />
                   )}
@@ -832,12 +832,12 @@ export default function DriverRidePage() {
               </div>
 
               {/* Actions Footer */}
-              <div className="p-5 pt-3 border-t border-zinc-100 bg-zinc-50/50 flex gap-3">
+              <div className="p-4 border-t border-zinc-200 bg-zinc-50 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowCancelConfirm(false)}
                   disabled={cancellingRide}
-                  className="flex-1 py-3 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-xs font-bold transition active:scale-[0.98] disabled:opacity-50"
+                  className="flex-1 py-3 border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-900 rounded-none text-xs font-black uppercase tracking-wider transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                 >
                   Keep Ride
                 </button>
@@ -845,10 +845,10 @@ export default function DriverRidePage() {
                   type="button"
                   onClick={confirmCancelRide}
                   disabled={!selectedDriverReason || cancellingRide}
-                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black transition active:scale-[0.98] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-none text-xs font-black uppercase tracking-wider transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   {cancellingRide ? (
-                    <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <span className="w-4 h-4 rounded-none border-2 border-white/30 border-t-white animate-spin" />
                   ) : (
                     "Confirm Cancellation"
                   )}
@@ -866,21 +866,21 @@ export default function DriverRidePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] px-4"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.98, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-zinc-100"
+              exit={{ scale: 0.98, y: 15 }}
+              className="bg-white w-full max-w-sm rounded-none shadow-2xl overflow-hidden border border-zinc-300"
             >
               <div className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500">
-                  <XCircle size={28} />
+                <div className="w-12 h-12 bg-red-100 rounded-none flex items-center justify-center mx-auto text-red-600">
+                  <XCircle size={24} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-lg font-black text-zinc-900">Error</h3>
-                  <p className="text-zinc-500 text-xs font-semibold leading-relaxed">
+                  <h3 className="text-base font-black uppercase text-zinc-950">Error</h3>
+                  <p className="text-zinc-600 text-xs font-medium leading-relaxed">
                     {showCancelError}
                   </p>
                 </div>
@@ -888,7 +888,7 @@ export default function DriverRidePage() {
               <div className="px-6 pb-6 pt-2">
                 <button
                   onClick={() => setShowCancelError(null)}
-                  className="w-full py-3 bg-zinc-900 hover:bg-black text-white rounded-xl text-sm font-bold transition active:scale-[0.98]"
+                  className="w-full py-3 bg-zinc-950 hover:bg-black text-white rounded-none text-xs font-black uppercase tracking-wider transition active:scale-[0.98] cursor-pointer"
                 >
                   Okay
                 </button>
@@ -1028,16 +1028,16 @@ function ActionBar({
     : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(targetAddress || "")}&travelmode=driving`;
 
   return (
-    <div className="flex-shrink-0 border-t border-zinc-100 bg-white px-5 py-4">
+    <div className="flex-shrink-0 border-t border-zinc-200 bg-white px-4 py-3">
       {/* 🧭 Turn-by-Turn GPS Navigation Action */}
       <a
         href={navUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full mb-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+        className="w-full mb-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white py-3 px-4 rounded-none font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-none transition-all cursor-pointer"
       >
         <Navigation size={14} className="fill-white" />
-        <span>Navigate in Google Maps ({status === "started" ? "To Drop" : "To Pickup"})</span>
+        <span>Navigate in Maps ({status === "started" ? "To Drop" : "To Pickup"})</span>
         <ExternalLink size={13} className="opacity-80 ml-1" />
       </a>
 
@@ -1048,9 +1048,9 @@ function ActionBar({
           <motion.button key="arrived"
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             onClick={async () => { await sendPickupOtp(); setOtpMode(true); }}
-            className="w-full bg-zinc-900 hover:bg-zinc-800 active:scale-[0.97] text-white py-4 rounded-2xl font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2"
+            className="w-full bg-zinc-950 hover:bg-black active:scale-[0.98] text-white py-3.5 rounded-none font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <MapPin size={16} /> I've Arrived at Pickup <ArrowRight size={15} className="ml-1" />
+            <MapPin size={15} /> I've Arrived at Pickup <ArrowRight size={14} className="ml-1" />
           </motion.button>
         )}
 
@@ -1058,31 +1058,31 @@ function ActionBar({
         {status === "confirmed" && otpMode && !otpVerified && (
           <motion.div key="pickup-otp"
             initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.98 }} transition={{ duration: 0.3 }}
-            className="bg-zinc-50 border border-zinc-200 rounded-2xl overflow-hidden"
+            exit={{ opacity: 0, y: -10, scale: 0.98 }} transition={{ duration: 0.2 }}
+            className="bg-zinc-50 border-2 border-zinc-950 rounded-none overflow-hidden"
           >
-            <div className="bg-zinc-950 px-4 py-3 flex items-center gap-2">
+            <div className="bg-zinc-950 px-4 py-2.5 flex items-center gap-2">
               <KeyRound size={14} className="text-amber-400" />
-              <p className="text-white text-xs font-bold tracking-wide uppercase">Enter Customer OTP</p>
+              <p className="text-white text-xs font-black tracking-wider uppercase">Enter Customer OTP</p>
             </div>
             <div className="p-4 space-y-3">
-              <p className="text-xs text-zinc-500">Ask the customer for their 4-digit OTP to start the ride.</p>
+              <p className="text-xs text-zinc-600 font-medium">Ask customer for their 4-digit PIN to start ride.</p>
               <div className="flex justify-center">
                 <input type="text" inputMode="numeric" maxLength={4} value={otp}
                   onChange={e => { setOtp(e.target.value.replace(/\D/g, "")); setOtpError(""); }}
                   placeholder="· · · ·"
-                  className="w-48 border-2 border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-center text-2xl tracking-[0.5em] font-black outline-none transition-colors"
+                  className="w-48 border-2 border-zinc-900 focus:border-black rounded-none px-4 py-2 text-center text-2xl tracking-[0.5em] font-mono font-black outline-none transition-colors bg-white text-zinc-950"
                 />
               </div>
-              {otpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 text-xs text-center font-medium">{otpError}</motion.p>}
+              {otpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-600 text-xs text-center font-bold">{otpError}</motion.p>}
               <div className="flex gap-2">
                 <button onClick={() => { setOtpMode(false); setOtp(""); setOtpError(""); }}
-                  className="flex-1 border border-zinc-200 bg-white text-zinc-700 py-2.5 rounded-xl text-sm font-semibold active:scale-[0.97] transition-all"
+                  className="flex-1 border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-900 py-2.5 rounded-none text-xs font-black uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
                 >Cancel</button>
                 <button onClick={handleVerifyOtp} disabled={loadingOtp || otp.length < 4}
-                  className="flex-1 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-40 text-white py-2.5 rounded-xl text-sm font-bold active:scale-[0.97] transition-all"
+                  className="flex-1 bg-zinc-950 hover:bg-black disabled:opacity-40 text-white py-2.5 rounded-none text-xs font-black uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
                 >
-                  {loadingOtp ? <span className="flex items-center justify-center gap-2"><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Verifying…</span> : "Verify OTP"}
+                  {loadingOtp ? <span className="flex items-center justify-center gap-2"><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-none animate-spin" />Verifying…</span> : "Verify OTP"}
                 </button>
               </div>
             </div>
@@ -1094,9 +1094,9 @@ function ActionBar({
           <motion.div key="pickup-verified"
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
           >
-            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-2.5 rounded-xl">
-              <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
-              <p className="text-emerald-700 text-xs font-semibold">OTP Verified — Ride has started</p>
+            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-300 px-4 py-2.5 rounded-none">
+              <CheckCircle2 size={15} className="text-emerald-700 flex-shrink-0" />
+              <p className="text-emerald-900 text-xs font-black uppercase tracking-wider">OTP Verified — Trip In Progress</p>
             </div>
           </motion.div>
         )}
@@ -1106,9 +1106,9 @@ function ActionBar({
           <motion.button key="drop-btn"
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             onClick={async () => { await sendDropOtp(); setDropOtpMode(true); }}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] text-white py-4 rounded-2xl font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white py-3.5 rounded-none font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Navigation size={16} /> Mark as Dropped <ArrowRight size={15} />
+            <Navigation size={15} /> Mark as Dropped <ArrowRight size={14} />
           </motion.button>
         )}
 
@@ -1116,31 +1116,31 @@ function ActionBar({
         {status === "started" && dropOtpMode && (
           <motion.div key="drop-otp"
             initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.98 }} transition={{ duration: 0.3 }}
-            className="bg-zinc-50 border border-zinc-200 rounded-2xl overflow-hidden"
+            exit={{ opacity: 0, y: -10, scale: 0.98 }} transition={{ duration: 0.2 }}
+            className="bg-zinc-50 border-2 border-zinc-950 rounded-none overflow-hidden"
           >
-            <div className="bg-emerald-700 px-4 py-3 flex items-center gap-2">
+            <div className="bg-zinc-950 px-4 py-2.5 flex items-center gap-2">
               <KeyRound size={14} className="text-white" />
-              <p className="text-white text-xs font-bold tracking-wide uppercase">Confirm Drop OTP</p>
+              <p className="text-white text-xs font-black tracking-wider uppercase">Confirm Drop OTP</p>
             </div>
             <div className="p-4 space-y-3">
-              <p className="text-xs text-zinc-500">Ask the customer for their drop OTP to complete the ride.</p>
+              <p className="text-xs text-zinc-600 font-medium">Ask customer for their drop PIN to end the ride.</p>
               <div className="flex justify-center">
                 <input type="text" inputMode="numeric" maxLength={4} value={dropOtp}
                   onChange={e => { setDropOtp(e.target.value.replace(/\D/g, "")); setDropOtpError(""); }}
                   placeholder="· · · ·"
-                  className="w-48 border-2 border-zinc-200 focus:border-emerald-600 rounded-xl px-4 py-3 text-center text-2xl tracking-[0.5em] font-black outline-none transition-colors"
+                  className="w-48 border-2 border-zinc-900 focus:border-black rounded-none px-4 py-2 text-center text-2xl tracking-[0.5em] font-mono font-black outline-none transition-colors bg-white text-zinc-950"
                 />
               </div>
-              {dropOtpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 text-xs text-center font-medium">{dropOtpError}</motion.p>}
+              {dropOtpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-600 text-xs text-center font-bold">{dropOtpError}</motion.p>}
               <div className="flex gap-2">
                 <button onClick={() => { setDropOtpMode(false); setDropOtp(""); setDropOtpError(""); }}
-                  className="flex-1 border border-zinc-200 bg-white text-zinc-700 py-2.5 rounded-xl text-sm font-semibold active:scale-[0.97] transition-all"
+                  className="flex-1 border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-900 py-2.5 rounded-none text-xs font-black uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
                 >Cancel</button>
                 <button onClick={handleVerifyDropOtp} disabled={loadingDropOtp || dropOtp.length < 4}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white py-2.5 rounded-xl text-sm font-bold active:scale-[0.97] transition-all"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white py-2.5 rounded-none text-xs font-black uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
                 >
-                  {loadingDropOtp ? <span className="flex items-center justify-center gap-2"><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Verifying…</span> : "Complete Ride"}
+                  {loadingDropOtp ? <span className="flex items-center justify-center gap-2"><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-none animate-spin" />Verifying…</span> : "Complete Ride"}
                 </button>
               </div>
             </div>
@@ -1157,17 +1157,17 @@ function ActionBar({
 ══════════════════════════════════════════════════════════════════════ */
 function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen, onChatToggle, onCancel, onCallClick }: any) {
   return (
-    <div className="flex flex-col pt-5 pb-4 gap-3">
+    <div className="flex flex-col pt-4 pb-4 gap-3">
 
       {/* DRIVER PANIC ALERT BANNER */}
       {booking?.isPanicActive && (
-        <div className="mx-5 lg:mx-6">
-          <div className="bg-red-950/90 border-2 border-red-600 rounded-2xl p-4 text-white shadow-xl shadow-red-900/30 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center animate-bounce flex-shrink-0">
-              <Siren size={22} className="text-white" />
+        <div className="mx-4 lg:mx-6">
+          <div className="bg-red-950 border-2 border-red-600 rounded-none p-4 text-white flex items-center gap-3">
+            <div className="w-8 h-8 rounded-none bg-red-600 flex items-center justify-center flex-shrink-0">
+              <Siren size={18} className="text-white" />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-wider text-red-400">Emergency SOS Triggered</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-red-400">Emergency SOS Triggered</p>
               <p className="text-xs font-medium text-red-100">Passenger requested emergency safety assistance. Please adhere to standard safety guidelines.</p>
             </div>
           </div>
@@ -1176,25 +1176,25 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
 
       {/* ETA + FARE */}
       {isActive && (
-        <div className="mx-5 lg:mx-6 grid grid-cols-2 gap-2">
-          <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center flex-shrink-0">
-              <Clock size={16} className="text-zinc-600" />
+        <div className="mx-4 lg:mx-6 grid grid-cols-2 gap-2">
+          <div className="bg-white border border-zinc-300 rounded-none p-3.5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-none bg-zinc-100 border border-zinc-200 flex items-center justify-center flex-shrink-0">
+              <Clock size={15} className="text-zinc-600" />
             </div>
             <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">ETA</p>
-              <p className="text-lg font-black text-zinc-900 leading-none mt-0.5">
-                {Math.round(displayEta)}<span className="text-xs font-normal text-zinc-400 ml-0.5">min</span>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">ETA</p>
+              <p className="text-base font-black text-zinc-950 leading-none mt-0.5">
+                {Math.round(displayEta)}<span className="text-xs font-normal text-zinc-500 ml-0.5">min</span>
               </p>
             </div>
           </div>
-          <div className="bg-zinc-950 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-              <IndianRupee size={16} className="text-white" />
+          <div className="bg-zinc-950 border border-zinc-950 rounded-none p-3.5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0">
+              <IndianRupee size={15} className="text-white" />
             </div>
             <div>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Fare</p>
-              <p className="text-lg font-black text-white leading-none mt-0.5">₹{booking?.fare ?? "—"}</p>
+              <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-black">Fare</p>
+              <p className="text-base font-black text-white leading-none mt-0.5 font-mono">₹{booking?.fare ?? "—"}</p>
             </div>
           </div>
         </div>
@@ -1202,25 +1202,25 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
 
       {/* CUSTOMER CARD */}
       {booking?.user && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mx-5 lg:mx-6">
-          <div className="bg-zinc-950 rounded-2xl p-4 flex items-center gap-4">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mx-4 lg:mx-6">
+          <div className="bg-zinc-950 border border-zinc-900 rounded-none p-4 flex items-center gap-3.5">
             <div className="relative flex-shrink-0">
-              <div className="w-14 h-14 rounded-xl bg-zinc-800 flex items-center justify-center">
-                <User2 size={26} className="text-zinc-300" />
+              <div className="w-12 h-12 rounded-none bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+                <User2 size={24} className="text-zinc-300" />
               </div>
-              <div className="absolute -bottom-1 -right-1 bg-emerald-400 w-4 h-4 rounded-full border-2 border-zinc-950" />
+              <div className="absolute -bottom-1 -right-1 bg-emerald-400 w-3 h-3 rounded-none border border-zinc-950" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-white font-bold text-base truncate">{(booking.user as any)?.name || "Customer"}</p>
-                <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full flex-shrink-0">
+                <p className="text-white font-black text-sm truncate uppercase tracking-tight">{(booking.user as any)?.name || "Customer"}</p>
+                <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-none flex-shrink-0">
                   <IndianRupee size={10} className="text-amber-400" />
-                  <span className="text-white text-xs font-semibold">{booking.fare}</span>
+                  <span className="text-white text-xs font-mono font-bold">{booking.fare}</span>
                 </div>
               </div>
               {booking.paymentStatus && (
                 <div className="flex items-center gap-2 mt-1.5">
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${PAYMENT_BADGE[booking.paymentStatus as PaymentStatus]?.cls ?? "bg-zinc-700 text-zinc-300"}`}>
+                  <span className="text-[10px] px-2 py-0.5 rounded-none font-mono font-black uppercase tracking-wider bg-zinc-900 border border-zinc-800 text-zinc-300">
                     {PAYMENT_BADGE[booking.paymentStatus as PaymentStatus]?.label ?? booking.paymentStatus}
                   </span>
                 </div>
@@ -1232,25 +1232,25 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
             <div className="grid grid-cols-2 sm:flex gap-2 mt-2">
               <button
                 onClick={onCallClick}
-                className="flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 active:scale-[0.97] transition-all text-white py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold shadow-sm"
+                className="flex items-center justify-center gap-1.5 bg-zinc-950 hover:bg-black text-white border border-zinc-900 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-none text-xs font-black uppercase tracking-wider cursor-pointer"
               >
-                <Phone size={15} /> In-App Call
+                <Phone size={13} /> <span>In-App Call</span>
               </button>
               {booking.userMobileNumber && (
                 <a
                   href={`tel:${booking.userMobileNumber}`}
-                  className="flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 active:scale-[0.97] transition-all py-3 px-3 rounded-xl text-xs font-bold shadow-sm"
+                  className="flex items-center justify-center gap-1.5 bg-white hover:bg-zinc-100 text-zinc-900 border border-zinc-300 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-none text-xs font-black uppercase tracking-wider cursor-pointer"
                   title="Direct Cellular Phone Call"
                 >
-                  <PhoneCall size={14} /> Phone
+                  <PhoneCall size={13} /> <span>Phone</span>
                 </a>
               )}
               {canChat && (
                 <button onClick={onChatToggle}
-                  className={`col-span-2 sm:flex-1 flex items-center justify-center gap-2 active:scale-[0.97] transition-all py-3 px-3 rounded-xl text-xs sm:text-sm font-semibold ${chatOpen ? "bg-zinc-200 text-zinc-900" : "bg-zinc-900 hover:bg-zinc-800 text-white"}`}
+                  className={`col-span-2 sm:flex-1 flex items-center justify-center gap-2 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-none text-xs font-black uppercase tracking-wider border cursor-pointer ${chatOpen ? "bg-zinc-200 text-zinc-900 border-zinc-300" : "bg-white hover:bg-zinc-100 text-zinc-900 border-zinc-300"}`}
                 >
-                  <MessageCircle size={15} />
-                  {chatOpen ? "Close Chat" : "Message"}
+                  <MessageCircle size={13} />
+                  <span>{chatOpen ? "Close Chat" : "Message"}</span>
                 </button>
               )}
             </div>
@@ -1264,9 +1264,9 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
           <motion.div key="chat"
             initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-5 lg:mx-6 overflow-hidden"
+            className="mx-4 lg:mx-6 overflow-hidden"
           >
-            <div className="rounded-2xl overflow-hidden border border-zinc-100 h-[460px]">
+            <div className="rounded-none overflow-hidden border border-zinc-300 h-[460px]">
               <RideChat currentRole="driver" rideId={booking._id} userName={(booking?.user as any)?.name} />
             </div>
           </motion.div>
@@ -1275,17 +1275,17 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
 
       {/* VEHICLE CARD */}
       {booking?.vehicle && (
-        <div className="mx-5 lg:mx-6">
-          <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-zinc-900 flex items-center justify-center flex-shrink-0">
-              <Car size={18} className="text-white" />
+        <div className="mx-4 lg:mx-6">
+          <div className="bg-white border border-zinc-300 rounded-none p-3.5 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-none bg-zinc-950 flex items-center justify-center flex-shrink-0 text-white">
+              <Car size={16} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Your Vehicle</p>
-              <p className="text-sm font-bold text-zinc-900 truncate">{(booking.vehicle as any).vehicleModel}</p>
+              <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-black mb-0.5">Your Vehicle</p>
+              <p className="text-xs font-black text-zinc-900 truncate uppercase">{(booking.vehicle as any).vehicleModel}</p>
             </div>
             {(booking.vehicle as any).number && (
-              <div className="flex-shrink-0 bg-zinc-900 px-3 py-1.5 rounded-lg">
+              <div className="flex-shrink-0 bg-zinc-950 px-3 py-1 rounded-none border border-zinc-950">
                 <p className="text-white text-xs font-black tracking-widest font-mono">{(booking.vehicle as any).number}</p>
               </div>
             )}
@@ -1294,35 +1294,35 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
       )}
 
       {/* ROUTE CARD */}
-      <div className="mx-5 lg:mx-6">
-        <div className="bg-zinc-50 border border-zinc-100 rounded-2xl overflow-hidden">
-          <div className="flex gap-3 p-4 border-b border-zinc-100">
+      <div className="mx-4 lg:mx-6">
+        <div className="bg-white border border-zinc-300 rounded-none overflow-hidden">
+          <div className="flex gap-3 p-3.5 border-b border-zinc-200">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="w-3 h-3 rounded-full bg-zinc-900 border-2 border-white shadow-sm" />
-              <div className="w-px bg-zinc-200 mt-1" style={{ height: 20 }} />
+              <div className="w-2.5 h-2.5 rounded-none bg-zinc-950 flex-shrink-0" />
+              <div className="w-0.5 bg-zinc-300 mt-1 flex-1 min-h-[20px]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Pickup</p>
-              <p className="text-sm text-zinc-800 leading-snug">{booking?.pickupAddress || "—"}</p>
+              <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Pickup</p>
+              <p className="text-xs font-bold text-zinc-900 leading-snug">{booking?.pickupAddress || "—"}</p>
             </div>
           </div>
-          <div className="flex gap-3 p-4">
+          <div className="flex gap-3 p-3.5">
             <div className="flex-shrink-0 pt-1">
-              <div className="w-3 h-3 rounded-sm bg-zinc-900 border-2 border-white shadow-sm" />
+              <div className="w-2.5 h-2.5 rounded-none border-2 border-zinc-950 bg-white flex-shrink-0" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Drop</p>
-              <p className="text-sm text-zinc-800 leading-snug">{booking?.dropAddress || "—"}</p>
+              <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Drop</p>
+              <p className="text-xs font-black text-zinc-900 leading-snug">{booking?.dropAddress || "—"}</p>
             </div>
           </div>
         </div>
       </div>
       {/* CANCEL BUTTON */}
       {["confirmed", "awaiting_payment"].includes(status) && (
-        <div className="mx-5 lg:mx-6 mt-2">
+        <div className="mx-4 lg:mx-6 mt-1">
           <button
             onClick={onCancel}
-            className="w-full bg-zinc-100 hover:bg-red-50 hover:text-red-600 text-zinc-700 py-3.5 rounded-xl text-sm font-semibold active:scale-[0.97] transition-all border border-transparent hover:border-red-100 flex items-center justify-center gap-2"
+            className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-900 py-3.5 rounded-none text-xs font-black uppercase tracking-wider transition-all border border-zinc-300 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
           >
             Cancel Ride
           </button>
@@ -1331,12 +1331,12 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
 
       {/* DRIVER EMERGENCY SOS & HELPLINE */}
       {["confirmed", "started"].includes(status) && (
-        <div className="mx-5 lg:mx-6 mt-3 pt-3 border-t border-zinc-100 flex gap-2">
+        <div className="mx-4 lg:mx-6 mt-2 pt-2 border-t border-zinc-200 flex gap-2">
           <a
             href="tel:112"
-            className="flex-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 py-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+            className="flex-1 bg-red-100 hover:bg-red-200 border border-red-300 text-red-900 py-2.5 rounded-none text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
           >
-            <Siren size={15} className="text-red-600" />
+            <Siren size={14} className="text-red-700" />
             Police (112)
           </a>
           <button
@@ -1355,9 +1355,9 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
                 }
               }
             }}
-            className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+            className="flex-1 bg-zinc-950 hover:bg-black text-white py-2.5 rounded-none text-xs font-black uppercase tracking-wider border border-zinc-900 transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
           >
-            <ShieldAlert size={15} className="text-amber-400" />
+            <ShieldAlert size={14} className="text-amber-400" />
             Safety SOS
           </button>
         </div>
@@ -1383,10 +1383,8 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="mb-8"
         >
-          <div className="w-32 h-32 rounded-full bg-emerald-400/10 flex items-center justify-center">
-            <div className="w-24 h-24 rounded-full bg-emerald-400/20 flex items-center justify-center">
-              <CheckCircle2 size={52} className="text-emerald-400" />
-            </div>
+          <div className="w-24 h-24 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+            <CheckCircle2 size={44} className="text-emerald-400" />
           </div>
         </motion.div>
 
@@ -1395,61 +1393,61 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
           transition={{ delay: 0.2, duration: 0.5 }}
           className="w-full max-w-sm"
         >
-          <p className="text-zinc-400 text-xs uppercase tracking-[0.25em] font-semibold text-center mb-2">Trip Complete</p>
-          <h1 className="text-white text-3xl font-black text-center mb-1">Ride Completed!</h1>
-          <p className="text-zinc-500 text-sm text-center mb-8">You have successfully dropped the customer.</p>
+          <p className="text-zinc-500 text-[10px] uppercase tracking-[0.25em] font-black text-center mb-1">Trip Complete</p>
+          <h1 className="text-white text-2xl font-black uppercase tracking-tight text-center mb-1">Ride Completed!</h1>
+          <p className="text-zinc-400 text-xs text-center mb-6">You have successfully dropped the customer.</p>
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-3">
-            <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold mb-1 text-center">Fare Collected</p>
-            <p className="text-white text-5xl font-black flex items-center justify-center gap-1 mb-4">
-              <IndianRupee size={30} strokeWidth={2.5} /> {booking.fare}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-none p-5 mb-3">
+            <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1 text-center">Fare Collected</p>
+            <p className="text-white text-4xl font-black flex items-center justify-center gap-1 mb-4 font-mono">
+              <IndianRupee size={28} strokeWidth={2.5} /> {booking.fare}
             </p>
             <div className="flex items-center justify-between text-xs border-t border-zinc-800 pt-3">
-              <span className="text-zinc-500">Payment Status</span>
-              <span className={`px-2.5 py-1 rounded-full font-semibold text-[11px] ${PAYMENT_BADGE[booking.paymentStatus]?.cls ?? "bg-zinc-700 text-zinc-300"}`}>
+              <span className="text-zinc-400 font-bold uppercase text-[10px] tracking-wider">Payment Status</span>
+              <span className={`px-2 py-0.5 rounded-none font-mono font-black text-[10px] uppercase tracking-wider ${PAYMENT_BADGE[booking.paymentStatus]?.cls ?? "bg-zinc-700 text-zinc-300"}`}>
                 {PAYMENT_BADGE[booking.paymentStatus]?.label ?? booking.paymentStatus}
               </span>
             </div>
           </div>
 
           {booking.user && (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center flex-shrink-0">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-none p-3.5 flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-none bg-zinc-800 flex items-center justify-center flex-shrink-0">
                 <User2 size={20} className="text-zinc-400" />
               </div>
               <div>
-                <p className="text-zinc-500 text-[10px] uppercase tracking-wider font-semibold">Customer</p>
-                <p className="text-white text-sm font-bold">{(booking.user as any)?.name || "Customer"}</p>
+                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black">Customer</p>
+                <p className="text-white text-xs font-black uppercase">{(booking.user as any)?.name || "Customer"}</p>
               </div>
             </div>
           )}
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden mb-6">
-            <div className="flex gap-3 p-4 border-b border-zinc-800">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-none overflow-hidden mb-5">
+            <div className="flex gap-3 p-3.5 border-b border-zinc-800">
               <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-500 border-2 border-zinc-900" />
-                <div className="w-px bg-zinc-700 mt-1" style={{ height: 18 }} />
+                <div className="w-2 h-2 rounded-none bg-zinc-400" />
+                <div className="w-0.5 bg-zinc-700 mt-1 flex-1 min-h-[16px]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Pickup</p>
-                <p className="text-sm text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Pickup</p>
+                <p className="text-xs text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
               </div>
             </div>
-            <div className="flex gap-3 p-4">
+            <div className="flex gap-3 p-3.5">
               <div className="flex-shrink-0 pt-1">
-                <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400 border-2 border-zinc-900" />
+                <div className="w-2 h-2 rounded-none border border-emerald-400 bg-emerald-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Drop</p>
-                <p className="text-sm text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Drop</p>
+                <p className="text-xs text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
               </div>
             </div>
           </div>
 
           <motion.button
-            whileTap={{ scale: 0.97 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => window.location.href = "/partners/dashboard"}
-            className="w-full bg-white text-zinc-900 py-4 rounded-2xl text-sm font-bold hover:bg-zinc-100 transition-colors"
+            className="w-full bg-white text-zinc-950 py-3.5 rounded-none text-xs font-black uppercase tracking-wider hover:bg-zinc-100 transition-colors cursor-pointer"
           >
             Back to Dashboard
           </motion.button>
@@ -1478,10 +1476,8 @@ function FailedScreen({ booking, status, cfg }: {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="mb-8"
       >
-        <div className={`w-28 h-28 rounded-full flex items-center justify-center ${isExpired ? "bg-orange-400/10" : "bg-red-400/10"}`}>
-          <div className={`w-20 h-20 rounded-full flex items-center justify-center ${isExpired ? "bg-orange-400/20" : "bg-red-400/20"}`}>
-            {isExpired ? <AlertCircle size={44} className="text-orange-400" /> : <XCircle size={44} className="text-red-400" />}
-          </div>
+        <div className={`w-20 h-20 rounded-none flex items-center justify-center border ${isExpired ? "bg-orange-500/10 border-orange-500/30" : "bg-red-500/10 border-red-500/30"}`}>
+          {isExpired ? <AlertCircle size={36} className="text-orange-400" /> : <XCircle size={36} className="text-red-400" />}
         </div>
       </motion.div>
 
@@ -1490,47 +1486,47 @@ function FailedScreen({ booking, status, cfg }: {
         transition={{ delay: 0.2, duration: 0.5 }}
         className="w-full max-w-sm text-center"
       >
-        <h1 className="text-white text-2xl font-black mb-2">{cfg.label}</h1>
-        <p className="text-zinc-500 text-sm mb-8">{cfg.sublabel}</p>
+        <h1 className="text-white text-2xl font-black uppercase tracking-tight mb-1">{cfg.label}</h1>
+        <p className="text-zinc-500 text-xs mb-6">{cfg.sublabel}</p>
 
         {booking.user && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-3 mb-4 text-left">
-            <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center flex-shrink-0">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-none p-3.5 flex items-center gap-3 mb-3 text-left">
+            <div className="w-10 h-10 rounded-none bg-zinc-800 flex items-center justify-center flex-shrink-0">
               <User2 size={18} className="text-zinc-400" />
             </div>
             <div>
-              <p className="text-zinc-500 text-[10px] uppercase tracking-wider font-semibold">Customer</p>
-              <p className="text-white text-sm font-bold">{(booking.user as any)?.name || "Customer"}</p>
+              <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black">Customer</p>
+              <p className="text-white text-xs font-black uppercase">{(booking.user as any)?.name || "Customer"}</p>
             </div>
           </div>
         )}
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden mb-6 text-left">
-          <div className="flex gap-3 p-4 border-b border-zinc-800">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-none overflow-hidden mb-5 text-left">
+          <div className="flex gap-3 p-3.5 border-b border-zinc-800">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
-              <div className="w-px bg-zinc-700 mt-1" style={{ height: 18 }} />
+              <div className="w-2 h-2 rounded-none bg-zinc-600" />
+              <div className="w-0.5 bg-zinc-700 mt-1 flex-1 min-h-[16px]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Pickup</p>
-              <p className="text-sm text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Pickup</p>
+              <p className="text-xs text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
             </div>
           </div>
-          <div className="flex gap-3 p-4">
+          <div className="flex gap-3 p-3.5">
             <div className="flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-sm bg-zinc-600" />
+              <div className="w-2 h-2 rounded-none bg-zinc-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-0.5">Drop</p>
-              <p className="text-sm text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Drop</p>
+              <p className="text-xs text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
             </div>
           </div>
         </div>
 
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => window.location.href = "/partners/dashboard"}
-          className="w-full bg-white text-zinc-900 py-4 rounded-2xl text-sm font-bold hover:bg-zinc-100 transition-colors"
+          className="w-full bg-white text-zinc-950 py-3.5 rounded-none text-xs font-black uppercase tracking-wider hover:bg-zinc-100 transition-colors cursor-pointer"
         >
           Back to Dashboard
         </motion.button>
