@@ -19,6 +19,7 @@ import { IUser } from "@/models/user.model";
 import { IVehicle } from "@/models/vehicle.model";
 import RideChat from "@/features/rides/components/RideChat";
 import { haversineKm } from "@/lib/routeUtils";
+import FareCollectionModal from "@/features/rides/components/FareCollectionModal";
 
 const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
@@ -1290,7 +1291,7 @@ function PanelContent({
         </div>
       )}
 
-      {/* ETA + FARE */}
+      {/* ETA + GUARANTEED EARNINGS */}
       {isActive && (
         <div className="mx-4 lg:mx-6 grid grid-cols-2 gap-2">
           <div className="bg-white border border-zinc-300 rounded-none p-3.5 flex items-center gap-3">
@@ -1306,11 +1307,16 @@ function PanelContent({
           </div>
           <div className="bg-zinc-950 border border-zinc-950 rounded-none p-3.5 flex items-center gap-3">
             <div className="w-8 h-8 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0">
-              <IndianRupee size={15} className="text-white" />
+              <IndianRupee size={15} className="text-emerald-400" />
             </div>
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-black">Fare</p>
-              <p className="text-base font-black text-white leading-none mt-0.5 font-mono">₹{booking?.fare ?? "—"}</p>
+            <div className="min-w-0">
+              <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-black truncate">Your Earning</p>
+              <p className="text-base font-black text-emerald-400 leading-none mt-0.5 font-mono">
+                ₹{booking?.partnerAmount || (booking?.fare ? Math.round(booking.fare * 0.9) : "—")}
+              </p>
+              <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-wider block mt-0.5">
+                ● Guaranteed Net
+              </span>
             </div>
           </div>
         </div>
@@ -1329,15 +1335,25 @@ function PanelContent({
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-white font-black text-sm truncate uppercase tracking-tight">{(booking.user as any)?.name || "Customer"}</p>
-                <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-none flex-shrink-0">
-                  <IndianRupee size={10} className="text-amber-400" />
+                <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-none flex-shrink-0">
+                  <span className="text-[9px] text-zinc-400 font-bold uppercase mr-0.5">
+                    {booking.paymentStatus === "cash" ? "Collect:" : "Customer:"}
+                  </span>
+                  <IndianRupee size={11} className="text-amber-400" />
                   <span className="text-white text-xs font-mono font-bold">{booking.fare}</span>
                 </div>
               </div>
               {booking.paymentStatus && (
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-[10px] px-2 py-0.5 rounded-none font-mono font-black uppercase tracking-wider bg-zinc-900 border border-zinc-800 text-zinc-300">
-                    {PAYMENT_BADGE[booking.paymentStatus as PaymentStatus]?.label ?? booking.paymentStatus}
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-none font-mono font-black uppercase tracking-wider ${
+                    booking.paymentStatus === "cash"
+                      ? "bg-amber-400/20 text-amber-300 border border-amber-500/40"
+                      : "bg-emerald-400/20 text-emerald-300 border border-emerald-500/40"
+                  }`}>
+                    {booking.paymentStatus === "cash" ? "Collect Cash on Drop" : "Paid Online"}
+                  </span>
+                  <span className="text-[10px] text-zinc-400 font-mono">
+                    {booking.paymentStatus === "cash" ? `Rider pays ₹${booking.fare}` : "Wallet auto-credited"}
                   </span>
                 </div>
               )}
@@ -1345,28 +1361,30 @@ function PanelContent({
           </div>
 
           {isActive && (
-            <div className="grid grid-cols-2 sm:flex gap-2 mt-2">
+            <div className="grid grid-cols-3 gap-2 mt-2">
               <button
                 onClick={onCallClick}
                 className="flex items-center justify-center gap-1.5 bg-zinc-950 hover:bg-black text-white border border-zinc-900 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-none text-xs font-black uppercase tracking-wider cursor-pointer"
               >
-                <Phone size={13} /> <span>In-App Call</span>
+                <Phone size={13} /> <span>Call</span>
               </button>
-              {booking.userMobileNumber && (
+              {booking.userMobileNumber ? (
                 <a
                   href={`tel:${booking.userMobileNumber}`}
-                  className="flex items-center justify-center gap-1.5 bg-white hover:bg-zinc-100 text-zinc-900 border border-zinc-300 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-none text-xs font-black uppercase tracking-wider cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 bg-white hover:bg-zinc-100 text-zinc-900 border border-zinc-300 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-none text-xs font-black uppercase tracking-wider cursor-pointer text-center"
                   title="Direct Cellular Phone Call"
                 >
                   <PhoneCall size={13} /> <span>Phone</span>
                 </a>
+              ) : (
+                <div />
               )}
               {canChat && (
                 <button onClick={onChatToggle}
-                  className={`col-span-2 sm:flex-1 flex items-center justify-center gap-2 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-none text-xs font-black uppercase tracking-wider border cursor-pointer ${chatOpen ? "bg-zinc-200 text-zinc-900 border-zinc-300" : "bg-white hover:bg-zinc-100 text-zinc-900 border-zinc-300"}`}
+                  className={`flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-none text-xs font-black uppercase tracking-wider border cursor-pointer ${chatOpen ? "bg-zinc-200 text-zinc-900 border-zinc-300" : "bg-white hover:bg-zinc-100 text-zinc-900 border-zinc-300"}`}
                 >
                   <MessageCircle size={13} />
-                  <span>{chatOpen ? "Close Chat" : "Message"}</span>
+                  <span>{chatOpen ? "Close" : "Chat"}</span>
                 </button>
               )}
             </div>
@@ -1487,106 +1505,126 @@ function PanelContent({
    COMPLETED FULL SCREEN
 ══════════════════════════════════════════════════════════════════════ */
 function CompletedScreen({ booking }: { booking: IBooking }) {
+  const [showFareModal, setShowFareModal] = useState(true);
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
-      className="h-screen w-full bg-zinc-950 flex flex-col overflow-y-auto"
-    >
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+    <>
+      <FareCollectionModal
+        isOpen={showFareModal}
+        onClose={() => setShowFareModal(false)}
+        booking={booking}
+        perspective="vendor"
+      />
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+        className="h-screen w-full bg-zinc-950 flex flex-col overflow-y-auto"
+      >
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
 
-        <motion.div
-          initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-8"
-        >
-          <div className="w-24 h-24 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-            <CheckCircle2 size={44} className="text-emerald-400" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="w-full max-w-sm"
-        >
-          <p className="text-zinc-500 text-[10px] uppercase tracking-[0.25em] font-black text-center mb-1">Trip Complete</p>
-          <h1 className="text-white text-2xl font-black uppercase tracking-tight text-center mb-1">Ride Completed!</h1>
-          <p className="text-zinc-400 text-xs text-center mb-6">You have successfully dropped the customer.</p>
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-none p-5 mb-3">
-            <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1 text-center">Net Earnings Credited</p>
-            <p className="text-emerald-400 text-4xl font-black flex items-center justify-center gap-1 mb-4 font-mono">
-              <IndianRupee size={28} strokeWidth={2.5} /> {booking.partnerAmount || Math.round(booking.fare * 0.9)}
-            </p>
-
-            {/* Itemized Price Confirmation */}
-            <div className="space-y-1.5 border-t border-zinc-800 pt-3 pb-3 text-xs">
-              <div className="flex justify-between text-zinc-400 font-medium">
-                <span>Customer Gross Fare:</span>
-                <span className="font-mono text-white">₹{booking.fare}</span>
-              </div>
-              <div className="flex justify-between text-zinc-400 font-medium">
-                <span>Platform Commission (10%):</span>
-                <span className="font-mono text-rose-400">-₹{booking.adminCommission || Math.round(booking.fare * 0.1)}</span>
-              </div>
-              <div className="flex justify-between text-white font-bold border-t border-zinc-800/80 pt-1.5">
-                <span className="text-emerald-400">Net Driver Payout:</span>
-                <span className="font-mono text-emerald-400">₹{booking.partnerAmount || Math.round(booking.fare * 0.9)}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-xs border-t border-zinc-800 pt-3">
-              <span className="text-zinc-400 font-bold uppercase text-[10px] tracking-wider">Payment Mode</span>
-              <span className={`px-2 py-0.5 rounded-none font-mono font-black text-[10px] uppercase tracking-wider ${PAYMENT_BADGE[booking.paymentStatus]?.cls ?? "bg-zinc-700 text-zinc-300"}`}>
-                {booking.paymentStatus === "cash" ? "Cash (Keep Full Fare)" : "Online Wallet Credited"}
-              </span>
-            </div>
-          </div>
-
-          {booking.user && (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-none p-3.5 flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-none bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                <User2 size={20} className="text-zinc-400" />
-              </div>
-              <div>
-                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black">Customer</p>
-                <p className="text-white text-xs font-black uppercase">{(booking.user as any)?.name || "Customer"}</p>
-              </div>
-            </div>
-          )}
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-none overflow-hidden mb-5">
-            <div className="flex gap-3 p-3.5 border-b border-zinc-800">
-              <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                <div className="w-2 h-2 rounded-none bg-zinc-400" />
-                <div className="w-0.5 bg-zinc-700 mt-1 flex-1 min-h-[16px]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Pickup</p>
-                <p className="text-xs text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
-              </div>
-            </div>
-            <div className="flex gap-3 p-3.5">
-              <div className="flex-shrink-0 pt-1">
-                <div className="w-2 h-2 rounded-none border border-emerald-400 bg-emerald-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Drop</p>
-                <p className="text-xs text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
-              </div>
-            </div>
-          </div>
-
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={() => window.location.href = "/partners/dashboard"}
-            className="w-full bg-white text-zinc-950 py-3.5 rounded-none text-xs font-black uppercase tracking-wider hover:bg-zinc-100 transition-colors cursor-pointer"
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8"
           >
-            Back to Dashboard
-          </motion.button>
-        </motion.div>
-      </div>
-    </motion.div>
+            <div className="w-24 h-24 rounded-none bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+              <CheckCircle2 size={44} className="text-emerald-400" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="w-full max-w-sm"
+          >
+            <p className="text-zinc-500 text-[10px] uppercase tracking-[0.25em] font-black text-center mb-1">Trip Complete</p>
+            <h1 className="text-white text-2xl font-black uppercase tracking-tight text-center mb-1">Ride Completed!</h1>
+            <p className="text-zinc-400 text-xs text-center mb-6">You have successfully dropped the customer.</p>
+
+            {/* Payment Collection Pop-up Reopen Action */}
+            <button
+              type="button"
+              onClick={() => setShowFareModal(true)}
+              className="w-full mb-4 bg-amber-400 hover:bg-amber-300 text-zinc-950 py-3 px-4 rounded-none text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg transition active:scale-[0.99]"
+            >
+              <IndianRupee size={15} className="stroke-[2.5]" />
+              <span>Customer Payment Pop-Up (₹{booking.fare})</span>
+            </button>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-none p-5 mb-3">
+              <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1 text-center">Net Earnings Credited</p>
+              <p className="text-emerald-400 text-4xl font-black flex items-center justify-center gap-1 mb-4 font-mono">
+                <IndianRupee size={28} strokeWidth={2.5} /> {booking.partnerAmount || Math.round(booking.fare * 0.9)}
+              </p>
+
+              {/* Itemized Price Confirmation */}
+              <div className="space-y-1.5 border-t border-zinc-800 pt-3 pb-3 text-xs">
+                <div className="flex justify-between text-zinc-400 font-medium">
+                  <span>Customer Gross Fare:</span>
+                  <span className="font-mono text-white">₹{booking.fare}</span>
+                </div>
+                <div className="flex justify-between text-zinc-400 font-medium">
+                  <span>Platform Commission (10%):</span>
+                  <span className="font-mono text-rose-400">-₹{booking.adminCommission || Math.round(booking.fare * 0.1)}</span>
+                </div>
+                <div className="flex justify-between text-white font-bold border-t border-zinc-800/80 pt-1.5">
+                  <span className="text-emerald-400">Net Driver Payout:</span>
+                  <span className="font-mono text-emerald-400">₹{booking.partnerAmount || Math.round(booking.fare * 0.9)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs border-t border-zinc-800 pt-3">
+                <span className="text-zinc-400 font-bold uppercase text-[10px] tracking-wider">Payment Mode</span>
+                <span className={`px-2 py-0.5 rounded-none font-mono font-black text-[10px] uppercase tracking-wider ${PAYMENT_BADGE[booking.paymentStatus]?.cls ?? "bg-zinc-700 text-zinc-300"}`}>
+                  {booking.paymentStatus === "cash" ? "Cash (Keep Full Fare)" : "Online Wallet Credited"}
+                </span>
+              </div>
+            </div>
+
+            {booking.user && (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-none p-3.5 flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-none bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                  <User2 size={20} className="text-zinc-400" />
+                </div>
+                <div>
+                  <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black">Customer</p>
+                  <p className="text-white text-xs font-black uppercase">{(booking.user as any)?.name || "Customer"}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-none overflow-hidden mb-5">
+              <div className="flex gap-3 p-3.5 border-b border-zinc-800">
+                <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                  <div className="w-2 h-2 rounded-none bg-zinc-400" />
+                  <div className="w-0.5 bg-zinc-700 mt-1 flex-1 min-h-[16px]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Pickup</p>
+                  <p className="text-xs text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
+                </div>
+              </div>
+              <div className="flex gap-3 p-3.5">
+                <div className="flex-shrink-0 pt-1">
+                  <div className="w-2 h-2 rounded-none border border-emerald-400 bg-emerald-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Drop</p>
+                  <p className="text-xs text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
+                </div>
+              </div>
+            </div>
+
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => window.location.href = "/partners/dashboard"}
+              className="w-full bg-white text-zinc-950 py-3.5 rounded-none text-xs font-black uppercase tracking-wider hover:bg-zinc-100 transition-colors cursor-pointer"
+            >
+              Back to Dashboard
+            </motion.button>
+          </motion.div>
+        </div>
+      </motion.div>
+    </>
   );
 }
 

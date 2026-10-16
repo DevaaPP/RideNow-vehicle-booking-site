@@ -15,6 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import FareCollectionModal from "@/features/rides/components/FareCollectionModal";
 
 interface RideCompletedViewProps {
   booking: any;
@@ -27,6 +28,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
   const [submittingRating, setSubmittingRating] = useState(false);
   const [ratingFeedback, setRatingFeedback] = useState(booking.feedback || "");
   const [ratingError, setRatingError] = useState<string | null>(null);
+  const [showFarePopup, setShowFarePopup] = useState(true);
 
   const handleRatingSubmit = async () => {
     if (!selectedRating || submitted || submittingRating) return;
@@ -92,12 +94,19 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen w-full bg-zinc-950 flex flex-col items-center justify-center px-4 py-8 relative"
-    >
+    <>
+      <FareCollectionModal
+        isOpen={showFarePopup}
+        onClose={() => setShowFarePopup(false)}
+        booking={booking}
+        perspective="rider"
+      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen w-full bg-zinc-950 flex flex-col items-center justify-center px-4 py-8 relative"
+      >
       <div className="w-full max-w-md text-center">
         {/* Animated Success Badge */}
         <motion.div
@@ -366,5 +375,6 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
         )}
       </AnimatePresence>
     </motion.div>
+    </>
   );
 }
