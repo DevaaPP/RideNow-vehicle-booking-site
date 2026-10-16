@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 
 import User from "@/models/user.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
+import Vehicle from "@/models/vehicle.model";
 import PartnerBank from "@/models/partnerBank.model";
 import { recordAuditLog } from "@/lib/auditLogger";
 
@@ -90,6 +91,12 @@ export async function POST(
       bank.status = "verified";
       await bank.save();
     }
+
+    // Synchronize vehicle collection status to approved so matching engine discovers fleet
+    await Vehicle.updateMany(
+      { owner: vendorId },
+      { status: "approved", isActive: true }
+    );
 
     await recordAuditLog({
       adminId: session.user.id || (session.user as any)._id,

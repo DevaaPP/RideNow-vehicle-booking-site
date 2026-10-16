@@ -6,6 +6,7 @@ import connectDb from "@/lib/db";
 import { auth } from "@/auth";
 import User, { IDriverVerificationStatus, VerificationItemStatus } from "@/models/user.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
+import Vehicle from "@/models/vehicle.model";
 import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function POST(
@@ -114,6 +115,9 @@ export async function POST(
       driver.vendorStatus = "approved";
       driver.vendorApprovedAt = new Date();
       driver.isVendorBlocked = false;
+      await Vehicle.updateMany({ owner: vendorId }, { status: "approved", isActive: true });
+    } else if (pillar === "vehicle" && status === "verified") {
+      await Vehicle.updateMany({ owner: vendorId }, { status: "approved", isActive: true });
     } else if (status === "rejected") {
       driver.vendorStatus = "rejected";
       if (rejectionReason) driver.vendorRejectionReason = rejectionReason;

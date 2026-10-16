@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
+import Vehicle from "@/models/vehicle.model";
 import { evaluateDocumentExpirations } from "@/lib/documentExpiryEngine";
 import { NextResponse } from "next/server";
 
@@ -62,7 +63,7 @@ export async function PATCH(req: Request) {
     }
 
     const driver = await User.findById(session.user.id);
-    if (!driver || driver.role !== "vendor") {
+    if (!driver || (driver.role !== "vendor" && driver.role !== "driver")) {
       return NextResponse.json({ message: "Unauthorized driver account" }, { status: 403 });
     }
 
@@ -133,6 +134,12 @@ export async function PATCH(req: Request) {
           { status: 403 }
         );
       }
+
+      // Activate all valid partner vehicles for dispatch discovery
+      await Vehicle.updateMany(
+        { owner: driver._id, status: { $ne: "rejected" } },
+        { isActive: true }
+      );
     }
 
     const updateData: any = {

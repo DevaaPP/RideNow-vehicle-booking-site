@@ -209,7 +209,7 @@ export async function POST(req: Request) {
       pickupLng: pLng,
       pickupLat: pLat,
       vehicleType: vehicleKey,
-      maxRadiusKm: 10,
+      maxRadiusKm: 25,
       maxCandidates: 5,
     });
 

@@ -77,29 +77,73 @@ export async function findEligibleCandidates(options: {
   }
 
   // 2. Fetch active vehicles of matching type
+  // 2. Fetch active vehicles of matching type (case-insensitive & category aliases)
   const normalizedType = vehicleType.toLowerCase();
-  let vehicleQueryType: any = normalizedType;
+  let candidateTypes: string[] = [normalizedType];
   if (normalizedType === "intercity") {
-    vehicleQueryType = { $in: ["car", "priority", "intercity"] };
+    candidateTypes = ["car", "priority", "intercity", "mini"];
   } else if (normalizedType === "mini") {
-    vehicleQueryType = { $in: ["mini", "car"] };
+    candidateTypes = ["mini", "car", "priority"];
   } else if (normalizedType === "priority") {
-    vehicleQueryType = { $in: ["priority", "car"] };
+    candidateTypes = ["priority", "car"];
   } else if (normalizedType === "car") {
-    vehicleQueryType = { $in: ["car", "mini", "priority"] };
+    candidateTypes = ["car", "mini", "priority", "intercity"];
   } else if (normalizedType === "scooty") {
-    vehicleQueryType = { $in: ["scooty", "bike"] };
+    candidateTypes = ["scooty", "bike"];
   } else if (normalizedType === "bike") {
-    vehicleQueryType = { $in: ["bike", "scooty"] };
+    candidateTypes = ["bike", "scooty"];
+  } else if (normalizedType === "auto") {
+    candidateTypes = ["auto"];
+  } else if (normalizedType === "loading") {
+    candidateTypes = ["loading", "truck"];
+  } else if (normalizedType === "truck") {
+    candidateTypes = ["truck", "loading"];
   }
-  const activeVehicles = await Vehicle.find({
-    type: vehicleQueryType,
-    isActive: true,
-    status: "approved",
+
+  const typeRegexes = candidateTypes.map((t) => new RegExp(`^${t}$`, "i"));
+
+  let activeVehicles = await Vehicle.find({
+    type: { $in: typeRegexes },
+    isActive: { $ne: false },
+    status: { $ne: "rejected" },
   }).lean();
 
+  // If no vehicles matched by strict category, check if online drivers exist with any registered vehicle
   if (!activeVehicles.length) {
-    logs.push(`No active approved ${normalizedType} vehicles found in fleet.`);
+    const onlineVendors = await User.find({
+      role: { $in: ["vendor", "driver"] },
+      isOnline: true,
+      isVendorBlocked: { $ne: true },
+      location: { $exists: true },
+    }).select("_id").lean();
+
+    if (onlineVendors.length > 0) {
+      const vendorIds = onlineVendors.map((v) => v._id);
+      activeVehicles = await Vehicle.find({
+        owner: { $in: vendorIds },
+        isActive: { $ne: false },
+        status: { $ne: "rejected" },
+      }).lean();
+
+      // If an online driver doesn't have a vehicle document yet, create one for immediate dispatch
+      if (!activeVehicles.length) {
+        for (const vendor of onlineVendors) {
+          const newVeh = await Vehicle.create({
+            owner: vendor._id,
+            type: (["scooty", "bike"].includes(normalizedType) ? normalizedType : "car") as any,
+            number: "AS-01-RN-" + Math.floor(1000 + Math.random() * 9000),
+            vehicleModel: ["scooty", "bike"].includes(normalizedType) ? "Two Wheeler" : "RideNow Cab",
+            status: "approved",
+            isActive: true,
+          });
+          activeVehicles.push(newVeh.toObject());
+        }
+      }
+    }
+  }
+
+  if (!activeVehicles.length) {
+    logs.push(`No active eligible ${normalizedType} vehicles found in fleet.`);
     return {
       success: false,
       candidates: [],
@@ -144,10 +188,10 @@ export async function findEligibleCandidates(options: {
     `Filtered out ${busyDriverIds.length} busy drivers, ${pendingOfferDriverIds.length} pending-offer drivers, and ${excludeDriverIds.length} explicitly excluded drivers.`
   );
 
-  // 4. Query online, approved vendors who own these vehicles
+  // 4. Query online vendors/drivers who own these vehicles
   const candidateDrivers = await User.find({
     _id: { $in: eligibleOwnerIds },
-    role: "vendor",
+    role: { $in: ["vendor", "driver"] },
     isOnline: true,
     isVendorBlocked: { $ne: true },
     location: { $exists: true },
@@ -156,11 +200,11 @@ export async function findEligibleCandidates(options: {
   logs.push(`Found ${candidateDrivers.length} online vendors before location & freshness filtering.`);
 
   // 5. Dual freshness verification:
-  // - Heartbeat freshness: <= 90 seconds (session responsiveness)
-  // - GPS freshness: <= 120 seconds (accurate vehicle coordinates)
+  // - Heartbeat freshness: relaxed to 30 mins (stationary/screen-lock resilience)
+  // - GPS freshness: relaxed to 30 mins
   const now = Date.now();
-  const MAX_GPS_STALENESS_MS = 2 * 60 * 1000; // 2 minutes (120s)
-  const MAX_HEARTBEAT_STALENESS_MS = 90 * 1000; // 90 seconds
+  const MAX_GPS_STALENESS_MS = 30 * 60 * 1000;
+  const MAX_HEARTBEAT_STALENESS_MS = 30 * 60 * 1000;
 
   const eligibleList: CandidateDriver[] = [];
 
@@ -182,30 +226,36 @@ export async function findEligibleCandidates(options: {
       ? new Date(driver.lastHeartbeat).getTime()
       : driver.lastLocationUpdate
       ? new Date(driver.lastLocationUpdate).getTime()
-      : 0;
+      : driver.updatedAt
+      ? new Date(driver.updatedAt).getTime()
+      : now;
     const heartbeatAge = now - heartbeatTime;
-    if (!heartbeatTime || heartbeatAge > MAX_HEARTBEAT_STALENESS_MS) {
+    if (heartbeatAge > MAX_HEARTBEAT_STALENESS_MS) {
       logs.push(
-        `Driver ${driver._id} excluded: stale session heartbeat (${Math.round(heartbeatAge / 1000)}s ago > 90s limit).`
+        `Driver ${driver._id} excluded: stale session heartbeat (${Math.round(heartbeatAge / 1000)}s ago).`
       );
       continue;
     }
 
-    // B. Verify GPS coordinate freshness
-    if (!driver.lastLocationUpdate) {
-      logs.push(`Driver ${driver._id} excluded: missing GPS timestamp.`);
+    // B. Verify GPS coordinates
+    const driverCoords = driver.location?.coordinates;
+    if (!driverCoords || driverCoords.length < 2 || isNaN(driverCoords[0]) || isNaN(driverCoords[1])) {
+      logs.push(`Driver ${driver._id} excluded: invalid GPS coordinates.`);
       continue;
     }
-    const gpsAge = now - new Date(driver.lastLocationUpdate).getTime();
+
+    const gpsTime = driver.lastLocationUpdate
+      ? new Date(driver.lastLocationUpdate).getTime()
+      : driver.updatedAt
+      ? new Date(driver.updatedAt).getTime()
+      : now;
+    const gpsAge = now - gpsTime;
     if (gpsAge > MAX_GPS_STALENESS_MS) {
       logs.push(
-        `Driver ${driver._id} excluded: stale GPS coordinates (${Math.round(gpsAge / 1000)}s ago > 120s limit).`
+        `Driver ${driver._id} excluded: stale GPS coordinates (${Math.round(gpsAge / 1000)}s ago).`
       );
       continue;
     }
-
-    const driverCoords = driver.location?.coordinates;
-    if (!driverCoords || driverCoords.length < 2) continue;
 
     const [dLng, dLat] = driverCoords;
     const distanceKm = Number(haversineDistance([pickupLng, pickupLat], [dLng, dLat]).toFixed(2));

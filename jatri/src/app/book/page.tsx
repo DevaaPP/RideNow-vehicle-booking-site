@@ -2133,9 +2133,9 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* Vehicle Cards List */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between mb-1.5 px-0.5">
+      {/* Seamless Unified Vehicle Selection List */}
+      <div>
+        <div className="flex items-center justify-between mb-2 px-0.5">
           <div>
             <h2 className="text-base sm:text-lg font-bold tracking-tight text-zinc-950 font-heading">
               {serviceMode === "passenger" ? "Choose a trip" : "Goods Transport Vehicles"}
@@ -2152,106 +2152,110 @@ export default function BookPage() {
             <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
         ) : (
-          (serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v) => {
-            const isSelected = vehicle === v.id;
-            const isLimitOk = checkLimit(v.id, effectiveDistance);
-            const fare = estimateFare(v.id, effectiveDistance);
-            const isSmartPick = smartMatchResult?.vehicleId === v.id;
-            const Icon = VEHICLE_ICONS[v.id] || Car;
-            const isFastest =
-              (serviceMode === "passenger" && (v.id === "bike" || v.id === "scooty")) ||
-              (serviceMode === "logistics" && v.id === "loading");
+          <div className="border border-zinc-200 bg-white divide-y divide-zinc-200 overflow-hidden">
+            {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v) => {
+              const isSelected = vehicle === v.id;
+              const isLimitOk = checkLimit(v.id, effectiveDistance);
+              const fare = estimateFare(v.id, effectiveDistance);
+              const isSmartPick = smartMatchResult?.vehicleId === v.id;
+              const Icon = VEHICLE_ICONS[v.id] || Car;
+              const isFastest =
+                (serviceMode === "passenger" && (v.id === "bike" || v.id === "scooty")) ||
+                (serviceMode === "logistics" && v.id === "loading");
 
-            return (
-              <div
-                key={v.id}
-                onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                className={`relative flex items-center justify-between px-3.5 py-3 rounded-none border transition-all cursor-pointer ${
-                  isSelected
-                    ? "bg-zinc-950 text-white border-zinc-950 shadow-sm"
-                    : isSmartPick
-                    ? "bg-emerald-50/50 hover:bg-emerald-100/50 text-zinc-900 border-emerald-300"
-                    : "bg-white hover:bg-zinc-50 text-zinc-900 border-zinc-200"
-                } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
-              >
-                {isSmartPick && (
-                  <span className="absolute -top-2 right-4 bg-emerald-700 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none shadow-xs flex items-center gap-1">
-                    <Sparkles size={9} />
-                    <span>Best Match</span>
-                  </span>
-                )}
-                <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1 mr-2">
-                  <div className="w-12 h-10 flex items-center justify-center flex-shrink-0">
-                    <Icon size={26} className={isSelected ? "text-white" : "text-zinc-900"} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    {/* Line 1: Vehicle Title + Capacity */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className={`font-bold text-base sm:text-[17px] tracking-tight leading-tight ${
-                        isSelected ? "text-white" : "text-zinc-950"
-                      }`}>
-                        {v.label}
-                      </span>
-                      {v.passengerCapacity ? (
-                        <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
-                          isSelected ? "text-zinc-300" : "text-zinc-500"
-                        }`}>
-                          <User size={12} className="inline opacity-80" />
-                          <span className="tabular-nums">{v.passengerCapacity}</span>
-                        </span>
-                      ) : (
-                        <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
-                          isSelected ? "text-zinc-300" : "text-zinc-500"
-                        }`}>
-                          <Package size={12} className="inline opacity-80" />
-                          <span className="tabular-nums">{v.maxWeightKg} kg</span>
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Line 2: Clock ETA duration */}
-                    <div className={`text-xs mt-0.5 font-medium flex items-center gap-1 ${
-                      isSelected ? "text-zinc-300" : "text-zinc-600"
-                    }`}>
-                      {isFastest && <Zap size={11} className="text-amber-500 fill-amber-500 shrink-0" />}
-                      <span className="tabular-nums">{formatEtaTime(v.etaText)}</span>
-                    </div>
-
-                    {/* Line 3: Tagline */}
-                    <p className={`text-xs mt-0.5 leading-snug truncate ${
-                      isSelected ? "text-zinc-400" : "text-zinc-400"
-                    }`}>
-                      {v.tagline}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-right flex-shrink-0 pl-2 min-w-[76px] sm:min-w-[90px]">
-                  <p className={`font-black text-lg sm:text-xl leading-none tracking-tight tabular-nums whitespace-nowrap ${
-                    isSelected ? "text-white" : "text-zinc-950"
-                  }`}>
-                    ₹{fare}
-                  </p>
-                  {effectiveDistance > 100 && v.id === "car" ? (
-                    <span className="text-[9px] font-bold uppercase text-zinc-950 bg-zinc-100 px-1.5 py-0.5 rounded-none border border-zinc-300 tracking-wider block mt-1">
-                      Intercity
+              return (
+                <div
+                  key={v.id}
+                  onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
+                  className={`relative flex items-center justify-between px-3.5 py-3 transition-colors cursor-pointer select-none ${
+                    isSelected
+                      ? "bg-zinc-950 text-white"
+                      : isSmartPick
+                      ? "bg-emerald-50/40 hover:bg-emerald-50 text-zinc-900"
+                      : "bg-white hover:bg-zinc-50 text-zinc-900"
+                  } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
+                >
+                  {isSmartPick && !isSelected && (
+                    <span className="absolute top-1.5 right-3 bg-emerald-700 text-white text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-none shadow-xs flex items-center gap-1">
+                      <Sparkles size={8} />
+                      <span>Best Match</span>
                     </span>
-                  ) : !isLimitOk ? (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setVehicle("car");
-                      }}
-                      className="text-[9px] font-bold uppercase text-amber-800 bg-amber-50 hover:bg-amber-100 px-1.5 py-0.5 rounded-none border border-amber-300 block mt-1"
-                    >
-                      Use Intercity
-                    </button>
-                  ) : null}
+                  )}
+                  <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1 mr-2">
+                    <div className="w-12 h-10 flex items-center justify-center flex-shrink-0">
+                      <Icon size={26} className={isSelected ? "text-white" : "text-zinc-900"} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      {/* Line 1: Vehicle Title + Capacity */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`font-bold text-base sm:text-[17px] tracking-tight leading-tight ${
+                          isSelected ? "text-white" : "text-zinc-950"
+                        }`}>
+                          {v.label}
+                        </span>
+                        {v.passengerCapacity ? (
+                          <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
+                            isSelected ? "text-zinc-300" : "text-zinc-500"
+                          }`}>
+                            <User size={12} className="inline opacity-80" />
+                            <span className="tabular-nums">{v.passengerCapacity}</span>
+                          </span>
+                        ) : (
+                          <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
+                            isSelected ? "text-zinc-300" : "text-zinc-500"
+                          }`}>
+                            <Package size={12} className="inline opacity-80" />
+                            <span className="tabular-nums">{v.maxWeightKg} kg</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Line 2: Clock ETA duration */}
+                      <div className={`text-xs mt-0.5 font-medium flex items-center gap-1 ${
+                        isSelected ? "text-zinc-300" : "text-zinc-600"
+                      }`}>
+                        {isFastest && <Zap size={11} className="text-amber-500 fill-amber-500 shrink-0" />}
+                        <span className="tabular-nums">{formatEtaTime(v.etaText)}</span>
+                      </div>
+
+                      {/* Line 3: Tagline */}
+                      <p className={`text-xs mt-0.5 leading-snug truncate ${
+                        isSelected ? "text-zinc-400" : "text-zinc-400"
+                      }`}>
+                        {v.tagline}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right flex-shrink-0 pl-2 min-w-[76px] sm:min-w-[90px]">
+                    <p className={`font-black text-lg sm:text-xl leading-none tracking-tight tabular-nums whitespace-nowrap ${
+                      isSelected ? "text-white" : "text-zinc-950"
+                    }`}>
+                      ₹{fare}
+                    </p>
+                    {effectiveDistance > 100 && v.id === "car" ? (
+                      <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-none border tracking-wider block mt-1 ${
+                        isSelected ? "bg-zinc-800 text-white border-zinc-700" : "text-zinc-950 bg-zinc-100 border-zinc-300"
+                      }`}>
+                        Intercity
+                      </span>
+                    ) : !isLimitOk ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setVehicle("car");
+                        }}
+                        className="text-[9px] font-bold uppercase text-amber-800 bg-amber-50 hover:bg-amber-100 px-1.5 py-0.5 rounded-none border border-amber-300 block mt-1"
+                      >
+                        Use Intercity
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
       </div>
 
@@ -2616,7 +2620,7 @@ export default function BookPage() {
             </div>
 
             {/* Bottom Tactile Sliding Booking Interface (Full Up 86dvh, Half flex-1 min-h-0, Down 130px) */}
-            <div className={`flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            <div className={`flex flex-col bg-white overflow-hidden shadow-2xl relative z-10 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
               mobileSheetState === "up"
                 ? "h-[86dvh]"
                 : mobileSheetState === "down"
@@ -2628,6 +2632,7 @@ export default function BookPage() {
                 className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-zinc-200 bg-zinc-50 cursor-grab active:cursor-grabbing select-none"
                 onTouchStart={(e) => {
                   const startY = e.touches[0].clientY;
+                  const startTime = Date.now();
                   let currentY = startY;
 
                   const handleTouchMove = (moveEv: TouchEvent) => {
@@ -2636,10 +2641,14 @@ export default function BookPage() {
 
                   const handleTouchEnd = () => {
                     const diffY = currentY - startY;
-                    if (diffY < -20) {
+                    const elapsed = Math.max(1, Date.now() - startTime);
+                    const velocity = Math.abs(diffY) / elapsed;
+
+                    // Fluid velocity-aware sliding physics
+                    if (diffY < -20 || (diffY < -10 && velocity > 0.35)) {
                       // Slide UP: down -> half -> up
                       setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
-                    } else if (diffY > 20) {
+                    } else if (diffY > 20 || (diffY > 10 && velocity > 0.35)) {
                       // Slide DOWN: up -> half -> down
                       setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
                     }
@@ -2656,8 +2665,8 @@ export default function BookPage() {
                   onClick={() => {
                     setMobileSheetState((prev) => (prev === "up" ? "down" : prev === "down" ? "half" : "up"));
                   }}
-                  className="w-12 h-1.5 bg-zinc-400 mx-auto rounded-full mb-2 cursor-pointer hover:bg-zinc-600 transition"
-                  title="Slide or click to adjust view"
+                  className="w-12 h-1 bg-zinc-300 mx-auto rounded-full mb-2 cursor-pointer hover:bg-zinc-500 active:scale-95 transition-all"
+                  title="Slide to adjust view"
                 />
 
                 <div className="flex items-center justify-between">
@@ -2689,17 +2698,6 @@ export default function BookPage() {
                     >
                       <Edit2 size={10} />
                       <span>{isEditingRoute ? "Done" : "Edit"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMobileSheetState((prev) => (prev === "up" ? "half" : "up"));
-                      }}
-                      className="px-1.5 py-0.5 rounded-none border border-zinc-300 bg-zinc-100 text-zinc-800 text-[10px] font-bold cursor-pointer"
-                      title={mobileSheetState === "up" ? "Collapse to half" : "Expand full"}
-                    >
-                      {mobileSheetState === "up" ? "▼" : "▲"}
                     </button>
                   </div>
                 </div>
