@@ -19,7 +19,7 @@ export async function GET() {
     await connectDb();
 
     const driver = await User.findById(session.user.id).select(
-      "name email mobileNumber role vendorStatus vendorOnboardingStep isVendorBlocked videoKycStatus driverVerificationStatus isOnline"
+      "name email mobileNumber role vendorStatus vendorOnboardingStep isVendorBlocked videoKycStatus driverVerificationStatus isOnline profilePicture"
     );
 
     if (!driver || driver.role !== "vendor") {
@@ -44,6 +44,17 @@ export async function GET() {
 
     const blockingReasons: string[] = [];
 
+    // Check Profile Photo / Face Verification
+    const hasProfilePic = Boolean(driver.profilePicture || doc?.profilePictureUrl);
+    if (!hasProfilePic) {
+      status.face = "not_submitted";
+      blockingReasons.push("Driver profile photograph is mandatory and has not been uploaded.");
+    } else if (driver.videoKycStatus === "approved" || doc?.profilePictureStatus === "verified") {
+      status.face = "verified";
+    } else {
+      status.face = "pending";
+    }
+
     // Check bank
     if (bank && bank.status === "verified") {
       status.bank = "verified";
@@ -55,15 +66,11 @@ export async function GET() {
       blockingReasons.push("Bank account details have not been submitted");
     }
 
-    // Check Face / Video KYC
+    // Check Video KYC if face photo is provided
     if (driver.videoKycStatus === "approved") {
-      status.face = "verified";
+      // already verified
     } else if (driver.videoKycStatus === "in_progress" || driver.videoKycStatus === "pending") {
-      status.face = "pending";
       blockingReasons.push("Live Face / Video KYC verification is pending");
-    } else {
-      status.face = "not_submitted";
-      blockingReasons.push("Face / Video KYC check not completed");
     }
 
     // Check Document Expirations via authoritative expiry engine
@@ -109,6 +116,7 @@ export async function GET() {
     const canGoOnline =
       driver.vendorStatus === "approved" &&
       !driver.isVendorBlocked &&
+      hasProfilePic &&
       status.drivingLicense === "verified" &&
       status.vehicle === "verified" &&
       status.bank === "verified" &&
@@ -118,6 +126,7 @@ export async function GET() {
       success: true,
       canGoOnline,
       blockingReasons,
+      profilePicture: driver.profilePicture || doc?.profilePictureUrl || null,
       verificationStatus: status,
       vendorStatus: driver.vendorStatus,
       isOnline: driver.isOnline,
@@ -126,6 +135,8 @@ export async function GET() {
       hasUrgentWarning: expiryEvaluation.hasUrgentWarning,
       hasAdvanceWarning: expiryEvaluation.hasAdvanceWarning,
       documentSummary: {
+        hasProfilePicture: hasProfilePic,
+        profilePictureUrl: driver.profilePicture || doc?.profilePictureUrl || null,
         hasAadhaar: Boolean(doc?.aadhaarUrl || doc?.aadhaarMaskedNumber),
         hasPAN: Boolean(doc?.panUrl || doc?.panNumber),
         hasLicense: Boolean(doc?.licenseUrl || doc?.licenseNumber),

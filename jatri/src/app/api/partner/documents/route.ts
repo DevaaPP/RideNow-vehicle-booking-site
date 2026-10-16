@@ -32,7 +32,7 @@ export async function GET() {
     }).lean();
 
     const user = await User.findById(session.user.id)
-      .select("driverVerificationStatus vendorStatus isVendorBlocked")
+      .select("driverVerificationStatus vendorStatus isVendorBlocked profilePicture")
       .lean();
 
     const expiryEvaluation = evaluateDocumentExpirations(documents);
@@ -40,6 +40,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       documents: documents || null,
+      profilePicture: user?.profilePicture || documents?.profilePictureUrl || null,
       verificationStatus: user?.driverVerificationStatus || null,
       vendorStatus: user?.vendorStatus || "pending",
       expiryEvaluation,
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     // File Blobs
+    const profilePicture = (formData.get("profilePicture") || formData.get("profilePhoto")) as Blob | null;
     const aadhaar = formData.get("aadhaar") as Blob | null;
     const license = formData.get("license") as Blob | null;
     const rc = formData.get("rc") as Blob | null;
@@ -146,6 +148,14 @@ export async function POST(req: NextRequest) {
     }
 
     /* ========= CLOUDINARY UPLOADS ========= */
+    if (profilePicture) {
+      const url = await uploadOnCloudinary(profilePicture);
+      if (!url) return NextResponse.json({ message: "Profile photograph upload failed" }, { status: 500 });
+      updatePayload.profilePictureUrl = url;
+      updatePayload.profilePictureStatus = "pending";
+      user.profilePicture = url;
+    }
+
     if (aadhaar) {
       const url = await uploadOnCloudinary(aadhaar);
       if (!url) return NextResponse.json({ message: "Aadhaar upload failed" }, { status: 500 });
@@ -242,6 +252,10 @@ export async function POST(req: NextRequest) {
 
     if (policeVerification || policeVerificationCertificateNo) {
       user.driverVerificationStatus.background = "pending";
+    }
+
+    if (profilePicture) {
+      user.driverVerificationStatus.face = "pending";
     }
 
     user.vendorOnboardingStep = Math.max(user.vendorOnboardingStep || 0, 2);

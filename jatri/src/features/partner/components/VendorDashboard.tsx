@@ -21,9 +21,15 @@ import {
   Car,
   FileText,
   Landmark,
+  RefreshCw,
+  Zap,
+  Radio,
+  Truck,
+  Bike,
+  Camera,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { getSocket } from "@/lib/socket";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
@@ -323,25 +329,25 @@ export default function VendorDashboard({
       if (videoKycStatus === "in_progress" && roomId) {
         return (
           <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-r from-blue-900 via-indigo-950 to-neutral-950 text-white rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6 border border-blue-500/30"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-zinc-950 text-white rounded-none p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border border-zinc-950 shadow-none font-sans"
           >
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center shrink-0 animate-pulse">
-                <Video size={28} className="text-blue-400" />
+              <div className="w-12 h-12 rounded-none bg-white text-zinc-950 flex items-center justify-center shrink-0">
+                <Video size={24} />
               </div>
               <div>
-                <span className="text-xs uppercase tracking-wider font-bold text-blue-400">Call Session Ready</span>
-                <h2 className="text-xl sm:text-2xl font-bold mt-0.5">Video KYC Call Active</h2>
-                <p className="text-sm text-blue-200/80 mt-1">A verification room is open. Join now to complete your identity check.</p>
+                <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-zinc-400">Live Call Session Ready</span>
+                <h2 className="text-xl sm:text-2xl font-bold mt-0.5 tracking-tight font-sans">Video KYC Verification Active</h2>
+                <p className="text-xs text-zinc-400 mt-1 font-mono">Verification room is established. Connect now to finalize identity verification.</p>
               </div>
             </div>
             <button
               onClick={() => router.push(`/video-kyc/${roomId}`)}
-              className="w-full sm:w-auto px-8 py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl shadow-lg transition transform hover:scale-105 shrink-0 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-zinc-200 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold rounded-none transition-colors shrink-0 flex items-center justify-center gap-2"
             >
-              <Video size={18} /> Join Video KYC Call
+              <Video size={16} /> Join Video KYC Call
             </button>
           </motion.div>
         );
@@ -349,9 +355,9 @@ export default function VendorDashboard({
 
       return (
         <ActionCard
-          icon={<Video size={24} />}
+          icon={<Video size={22} />}
           title="Step 5: Live Video KYC Verification"
-          desc="Your documents are approved! You can initiate your live 2-minute verification call now or wait for an admin to call."
+          desc="Your documents are approved. Initiate live verification call to authenticate facial biometrics."
           button={startingKyc ? "Connecting..." : "Start Video KYC"}
           onClick={startDriverKyc}
         />
@@ -365,7 +371,7 @@ export default function VendorDashboard({
           <StatusCard
             icon={<Clock size={20} />}
             title="Vehicle Under Review"
-            desc="Admin is reviewing your vehicle photograph. You'll be live as soon as it is approved."
+            desc="Statutory vehicle exterior inspection photograph is undergoing administrative review."
           />
         );
       }
@@ -383,9 +389,9 @@ export default function VendorDashboard({
 
       return (
         <ActionCard
-          icon={<ImagePlus size={24} />}
+          icon={<ImagePlus size={22} />}
           title="Step 6: Upload Vehicle Photo"
-          desc="Your Video KYC is verified! Upload a clear photo of your vehicle exterior to finish onboarding."
+          desc="Your Video KYC is verified. Upload a clear photograph of vehicle exterior to complete onboarding."
           button="Upload Vehicle Photo"
           onClick={() => setShowPricing(true)}
         />
@@ -396,19 +402,28 @@ export default function VendorDashboard({
     if (activeStep === 7) {
       return (
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-black text-white rounded-3xl p-10 shadow-2xl"
+          className="bg-zinc-950 text-white rounded-none p-8 sm:p-10 border border-zinc-950 shadow-none font-sans"
         >
-          <h2 className="text-2xl font-bold">
-            🚀 You’re Live
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-2 h-2 rounded-none bg-emerald-400 inline-block" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold">
+              Verification Approved
+            </span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Partner Account Activated
           </h2>
+          <p className="text-xs text-zinc-400 mt-1 font-mono max-w-md">
+            All identity credentials and statutory vehicle inspections are verified. You can now toggle online duty and receive ride assignments.
+          </p>
 
           <button
             onClick={() => router.push("/partner/bookings")}
-            className="mt-6 bg-white text-black px-6 py-3 rounded-xl font-semibold flex items-center gap-2"
+            className="mt-6 bg-white text-zinc-950 hover:bg-zinc-200 px-6 py-3 rounded-none font-mono text-xs uppercase tracking-wider font-bold flex items-center gap-2 transition-colors"
           >
-            Go to Orders <ArrowRight size={16} />
+            Access Dispatch Orders <ArrowRight size={15} />
           </button>
         </motion.div>
       );
@@ -433,54 +448,60 @@ export default function VendorDashboard({
   /* Guard against flash while pricing is loading for onboarded or nearly onboarded partners */
   if ((activeStep >= 6 || vendorStep >= 6) && loadingPricing && !initialPricing) {
     return (
-      <section className="min-h-screen bg-zinc-50 pt-28 pb-20 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
-          <div className="h-10 bg-zinc-200 rounded-2xl w-48" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="h-44 bg-zinc-200 rounded-3xl" />
-            <div className="h-44 bg-zinc-200 rounded-3xl" />
-            <div className="h-44 bg-zinc-200 rounded-3xl" />
+      <section className="min-h-screen bg-zinc-50 pt-28 pb-20 px-4 md:px-8 font-sans">
+        <div className="max-w-7xl mx-auto space-y-6 animate-pulse">
+          <div className="h-8 bg-zinc-200 rounded-none w-48 border border-zinc-300" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="h-40 bg-zinc-200 rounded-none border border-zinc-300" />
+            <div className="h-40 bg-zinc-200 rounded-none border border-zinc-300" />
+            <div className="h-40 bg-zinc-200 rounded-none border border-zinc-300" />
           </div>
-          <div className="h-96 bg-zinc-200 rounded-3xl" />
+          <div className="h-80 bg-zinc-200 rounded-none border border-zinc-300" />
         </div>
       </section>
     );
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 px-3 sm:px-6 pt-20 sm:pt-28 pb-16">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-12">
+    <section className="min-h-screen bg-zinc-50 px-3 sm:px-6 pt-20 sm:pt-28 pb-16 font-sans">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
-        <div>
-          <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 tracking-tight">
-            Vendor Onboarding
+        <div className="border-b border-zinc-200 pb-5">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="w-2 h-2 rounded-none bg-zinc-950 inline-block" />
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500">
+              Partner Verification
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight font-sans">
+            Vendor Activation Steps
           </h1>
-          <p className="text-zinc-600 text-xs sm:text-sm mt-1 sm:mt-2">
-            Complete all steps to activate your partner driver account
+          <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-mono">
+            Complete compliance onboarding to activate live dispatch and receive bookings.
           </p>
         </div>
 
-        {/* MOBILE STEPPER (NATIVE APP STYLE) */}
-        <div className="block md:hidden bg-white rounded-2xl p-4 shadow-lg border border-gray-100 space-y-3">
+        {/* MOBILE STEPPER */}
+        <div className="block md:hidden bg-white rounded-none p-4 border border-zinc-300 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Step {activeStep} of {TOTAL_STEPS}
+            <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider">
+              Step 0{activeStep} / 0{TOTAL_STEPS}
             </span>
-            <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-black text-white">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 bg-zinc-950 text-white border border-zinc-950">
               {STEPS[activeStep - 1]?.title || "Onboarding"}
             </span>
           </div>
 
-          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-zinc-100 rounded-none overflow-hidden border border-zinc-200">
             <motion.div
               animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 0.5 }}
-              className="h-full bg-black rounded-full"
+              transition={{ duration: 0.3 }}
+              className="h-full bg-zinc-950"
             />
           </div>
 
-          {/* Swipeable Step Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
+          {/* Step Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar">
             {STEPS.map((step) => {
               const completed = activeStep > step.id;
               const active = activeStep === step.id;
@@ -491,21 +512,15 @@ export default function VendorDashboard({
                   key={step.id}
                   disabled={locked}
                   onClick={() => goToStep(step)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[11px] font-mono font-bold uppercase tracking-wider shrink-0 transition-colors ${
                     completed
                       ? "bg-zinc-100 text-zinc-900 border border-zinc-300"
                       : active
-                      ? "bg-black text-white shadow-md shadow-black/20"
-                      : "bg-zinc-50 text-zinc-400 border border-zinc-200/60"
+                      ? "bg-zinc-950 text-white border border-zinc-950"
+                      : "bg-zinc-50 text-zinc-400 border border-zinc-200"
                   }`}
                 >
-                  <span
-                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                      completed ? "text-emerald-600" : active ? "text-white" : "text-zinc-400"
-                    }`}
-                  >
-                    {completed ? "✓" : step.id}
-                  </span>
+                  <span>{completed ? "✓" : `0${step.id}`}</span>
                   <span>{step.title}</span>
                 </button>
               );
@@ -514,15 +529,14 @@ export default function VendorDashboard({
         </div>
 
         {/* DESKTOP STEPPER */}
-        <div className="hidden md:block bg-white rounded-3xl p-8 sm:p-10 shadow-xl border overflow-x-auto">
+        <div className="hidden md:block bg-white rounded-none p-6 sm:p-8 border border-zinc-300 overflow-x-auto">
           <div className="relative min-w-[700px]">
-
-            <div className="absolute top-7 left-0 w-full h-[3px] bg-gray-200 rounded-full" />
+            <div className="absolute top-6 left-0 w-full h-[2px] bg-zinc-200" />
 
             <motion.div
               animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 0.6 }}
-              className="absolute top-7 left-0 h-[3px] bg-black rounded-full"
+              transition={{ duration: 0.4 }}
+              className="absolute top-6 left-0 h-[2px] bg-zinc-950"
             />
 
             <div className="relative flex justify-between">
@@ -532,35 +546,36 @@ export default function VendorDashboard({
                 const locked = step.id > activeStep;
 
                 return (
-                  <motion.div
+                  <div
                     key={step.id}
-                    whileHover={!locked ? { scale: 1.1 } : {}}
                     onClick={() => goToStep(step)}
                     className="flex flex-col items-center z-10 cursor-pointer"
                   >
                     <div
-                      className={`w-14 h-14 rounded-full flex items-center justify-center border-2 transition-all
+                      className={`w-12 h-12 rounded-none flex items-center justify-center border font-mono text-xs font-bold transition-colors
                       ${
                         completed
-                          ? "bg-black text-white border-black"
+                          ? "bg-zinc-950 text-white border-zinc-950"
                           : active
-                          ? "border-black bg-white"
-                          : "border-gray-300 text-gray-400 bg-white"
+                          ? "border-zinc-950 bg-white text-zinc-950"
+                          : "border-zinc-300 text-zinc-400 bg-white"
                       }`}
                     >
                       {completed ? (
-                        <Check size={20} />
+                        <Check size={16} />
                       ) : locked ? (
-                        <Lock size={18} />
+                        <Lock size={14} />
                       ) : (
-                        step.id
+                        `0${step.id}`
                       )}
                     </div>
 
-                    <p className="mt-3 text-sm font-semibold text-center">
+                    <p className={`mt-2.5 text-xs font-mono font-bold uppercase tracking-wider text-center ${
+                      active ? "text-zinc-950" : "text-zinc-500"
+                    }`}>
                       {step.title}
                     </p>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
@@ -631,37 +646,46 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-zinc-950/60 backdrop-blur-xs flex items-center justify-center z-50 px-4"
         >
           <motion.div
-            initial={{ scale: 0.85 }}
+            initial={{ scale: 0.98 }}
             animate={{ scale: 1 }}
-            className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
+            className="bg-white w-full max-w-lg rounded-none border border-zinc-300 shadow-none overflow-hidden p-6 font-sans"
           >
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-bold">
-                Vehicle Image Upload
+            <div className="border-b border-zinc-200 pb-4 mb-4">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-bold">
+                Vehicle Compliance
+              </span>
+              <h2 className="text-lg font-bold text-zinc-950 tracking-tight mt-0.5">
+                Vehicle Exterior Inspection Photo
               </h2>
             </div>
 
-            <div className="p-6 space-y-6">
-              <p className="text-xs text-zinc-500 font-semibold leading-relaxed">
-                Please upload a clear picture of your vehicle. This helps passengers identify you during pickup.
+            <div className="space-y-4">
+              <p className="text-xs text-zinc-500 font-mono leading-relaxed">
+                Upload a clear exterior photo showing vehicle body and license plate for rider identification.
               </p>
 
-              <label className="relative h-44 border-2 border-dashed rounded-2xl flex items-center justify-center cursor-pointer">
+              <label className="relative h-44 border border-zinc-300 rounded-none bg-zinc-50 flex items-center justify-center cursor-pointer hover:border-zinc-950 transition-colors">
                 {!preview ? (
-                  <ImagePlus size={28} />
+                  <div className="flex flex-col items-center gap-1.5 text-zinc-400">
+                    <ImagePlus size={26} />
+                    <span className="text-[10px] font-mono uppercase tracking-wider">Select Vehicle Photo</span>
+                  </div>
                 ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={preview}
-                    className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+                    alt="Vehicle preview"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 )}
 
                 <input
                   hidden
                   type="file"
+                  accept="image/*"
                   onChange={(e) => {
                     if (e.target.files?.[0]) {
                       setImage(e.target.files[0]);
@@ -674,19 +698,19 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
               </label>
             </div>
 
-            <div className="p-6 border-t flex gap-3">
+            <div className="pt-5 mt-5 border-t border-zinc-200 flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 py-3 border rounded-xl font-semibold text-zinc-700 hover:bg-zinc-50 transition"
+                className="flex-1 py-2.5 border border-zinc-300 rounded-none font-mono text-xs uppercase font-bold text-zinc-700 hover:bg-zinc-100 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={submitPricing}
                 disabled={loading || !image}
-                className="flex-1 py-3 bg-black text-white font-semibold rounded-xl hover:bg-zinc-900 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 py-2.5 bg-zinc-950 text-white font-mono text-xs uppercase tracking-wider font-bold rounded-none hover:bg-black transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Image"}
+                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Photo"}
               </button>
             </div>
           </motion.div>
@@ -703,29 +727,29 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
 function StatusCard({ icon, title, desc }: any) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="
         bg-white 
-        rounded-2xl md:rounded-3xl 
-        p-5 sm:p-6 md:p-8 
-        shadow-lg 
-        border 
+        rounded-none 
+        border border-zinc-300 
+        p-5 sm:p-7 
+        shadow-none 
         flex 
         flex-col sm:flex-row 
         gap-4 sm:gap-5
         items-start sm:items-center
       "
     >
-      <div className="bg-black text-white p-3 md:p-4 rounded-xl shrink-0">
+      <div className="bg-zinc-950 text-white p-3 rounded-none shrink-0 font-mono">
         {icon}
       </div>
 
       <div className="flex-1">
-        <h3 className="text-base sm:text-lg md:text-xl font-semibold">
+        <h3 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight">
           {title}
         </h3>
-        <p className="text-gray-600 text-sm sm:text-base mt-1">
+        <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-mono">
           {desc}
         </p>
       </div>
@@ -741,10 +765,10 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
     <div
       className="
         bg-white 
-        rounded-2xl md:rounded-3xl 
-        p-5 sm:p-6 md:p-8 
-        shadow-lg 
-        border 
+        rounded-none 
+        border border-zinc-300 
+        p-5 sm:p-7 
+        shadow-none 
         flex 
         flex-col sm:flex-row 
         justify-between 
@@ -753,16 +777,16 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
       "
     >
       <div className="flex items-center gap-4">
-        <div className="bg-black text-white p-3 md:p-4 rounded-xl shrink-0">
+        <div className="bg-zinc-950 text-white p-3 rounded-none shrink-0 font-mono">
           {icon}
         </div>
 
         <div>
-          <h3 className="text-base sm:text-lg md:text-xl font-semibold">
+          <h3 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight">
             {title}
           </h3>
           {desc && (
-            <p className="text-gray-600 text-sm mt-1">
+            <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-mono">
               {desc}
             </p>
           )}
@@ -773,15 +797,16 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
         onClick={onClick}
         className="
           w-full sm:w-auto
-          bg-black 
+          bg-zinc-950 
           text-white 
           px-6 
           py-2.5 
-          rounded-xl 
-          text-sm sm:text-base 
-          font-medium
-          transition 
-          hover:bg-gray-800
+          rounded-none 
+          text-xs 
+          font-mono font-bold uppercase tracking-wider
+          transition-colors 
+          hover:bg-black
+          border border-zinc-950
         "
       >
         {button}
@@ -802,20 +827,20 @@ function RejectionCard({
   return (
     <div
       className="
-        bg-red-50 
-        border border-red-200 
-        rounded-2xl md:rounded-3xl 
-        p-5 sm:p-6 md:p-8 
+        bg-zinc-50 
+        border border-zinc-300 
+        rounded-none 
+        p-5 sm:p-7 
         space-y-4
       "
     >
-      <div className="flex items-center gap-2 text-red-600 font-semibold text-sm sm:text-base">
-        <AlertTriangle size={18} />
+      <div className="flex items-center gap-2 text-red-600 font-mono font-bold text-xs uppercase tracking-wider">
+        <AlertTriangle size={16} />
         {title}
       </div>
 
-      <div className="bg-white border rounded-xl p-4 text-sm sm:text-base">
-        {reason || "No reason provided"}
+      <div className="bg-white border border-zinc-200 rounded-none p-3.5 text-xs sm:text-sm font-mono text-zinc-900">
+        {reason || "No specification provided"}
       </div>
 
       {onAction && (
@@ -825,13 +850,13 @@ function RejectionCard({
             w-full sm:w-auto
             px-6 
             py-2.5 
-            bg-black 
+            bg-zinc-950 
             text-white 
-            rounded-xl 
-            text-sm sm:text-base
-            font-medium
-            hover:bg-gray-800 
-            transition
+            rounded-none 
+            text-xs font-mono uppercase tracking-wider font-bold
+            hover:bg-black 
+            transition-colors
+            border border-zinc-950
           "
         >
           {actionLabel || "Retry"}
@@ -845,13 +870,13 @@ function RejectionCard({
 function PriceInput({ label, value, onChange }: any) {
   return (
     <div>
-      <p className="text-sm font-semibold mb-1">{label}</p>
-      <div className="flex items-center gap-2 border rounded-xl px-4 py-3 bg-white">
-        <IndianRupee size={16} />
+      <p className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-600 mb-1">{label}</p>
+      <div className="flex items-center gap-2 border border-zinc-300 rounded-none px-3.5 py-2.5 bg-white font-mono">
+        <IndianRupee size={15} className="text-zinc-400" />
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full outline-none"
+          className="w-full outline-none bg-transparent text-sm"
         />
       </div>
     </div>
@@ -860,14 +885,41 @@ function PriceInput({ label, value, onChange }: any) {
 
 function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }: any) {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState(false);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [lastSyncedTime, setLastSyncedTime] = useState<Date | null>(null);
   const [pendingRequest, setPendingRequest] = useState<any | null>(null);
   const [processingAction, setProcessingAction] = useState<string | null>(null);
   const [rates, setRates] = useState<any>(null);
+  const [profilePicture, setProfilePicture] = useState<string | null>(userData?.profilePicture || null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const lastLocationSyncRef = useRef<{ time: number; lat: number; lng: number }>({ time: 0, lat: 0, lng: 0 });
+
+  const handleProfilePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingPhoto(true);
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+      const res = await axios.post("/api/partner/profile-picture", formData);
+      if (res.data?.success && res.data?.profilePicture) {
+        setProfilePicture(res.data.profilePicture);
+        if (userData) {
+          dispatch(setUserData({ ...userData, profilePicture: res.data.profilePicture }));
+        }
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to upload profile picture.");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const standardRates: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number }> = {
     bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0 },
@@ -1039,6 +1091,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               latitude: res.data.location.coordinates[1]
             });
           }
+          if (res.data.profilePicture) {
+            setProfilePicture(res.data.profilePicture);
+          }
           if (Array.isArray(res.data.expiryAlerts)) {
             setExpiryAlerts(res.data.expiryAlerts);
           }
@@ -1047,56 +1102,137 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       .catch((err) => console.error("Error loading partner status:", err));
   }, []);
 
-  useEffect(() => {
-    if (!navigator.geolocation) return;
+  const syncDriverLocation = useCallback((forcedLat?: number, forcedLng?: number) => {
+    if (typeof window === "undefined" || !navigator.geolocation) return;
 
-    // Get current position on mount so map centers on their current location immediately
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoords({ latitude, longitude });
+    const performSync = (lat: number, lng: number) => {
+      setCoords({ latitude: lat, longitude: lng });
+      setLastSyncedTime(new Date());
 
-        if (isOnline) {
-          axios.patch("/api/partner/status", { isOnline: true, latitude, longitude })
-            .catch(err => console.error("Initial db location update error:", err));
+      if (isOnline) {
+        axios.patch("/api/partner/status", { isOnline: true, latitude: lat, longitude: lng })
+          .catch((err) => console.debug("Partner status sync note:", err?.message || err));
+
+        const socket = getSocket();
+        if (userData?._id) {
+          socket.emit("identity", userData._id);
         }
-      },
-      (error) => console.error("Initial geolocation error:", error),
-      { enableHighAccuracy: true }
-    );
-  }, [isOnline]);
+        socket.emit("update-location", {
+          userId: userData?._id,
+          latitude: lat,
+          longitude: lng,
+        });
+      }
+    };
 
+    if (typeof forcedLat === "number" && typeof forcedLng === "number") {
+      performSync(forcedLat, forcedLng);
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocating(false);
+        performSync(pos.coords.latitude, pos.coords.longitude);
+      },
+      (err) => {
+        console.warn("High accuracy geolocation timed out, attempting standard accuracy:", err);
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setIsLocating(false);
+            performSync(pos.coords.latitude, pos.coords.longitude);
+          },
+          (err2) => {
+            setIsLocating(false);
+            console.error("Standard geolocation failed:", err2);
+          },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 }
+        );
+      },
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 5000 }
+    );
+  }, [isOnline, userData?._id]);
+
+  // 1. Initial location fix on mount
   useEffect(() => {
-    if (!isOnline || !navigator.geolocation) return;
+    syncDriverLocation();
+  }, [syncDriverLocation]);
+
+  // 2. Continuous watchPosition for movement (both online and offline!)
+  useEffect(() => {
+    if (typeof window === "undefined" || !navigator.geolocation) return;
 
     const watcher = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
         setCoords({ latitude, longitude });
 
         const now = Date.now();
         const last = lastLocationSyncRef.current;
         const dLat = Math.abs(latitude - last.lat);
         const dLng = Math.abs(longitude - last.lng);
-        const hasMovedSignificantly = dLat > 0.00015 || dLng > 0.00015;
-        const hasTimeElapsed = now - last.time >= 10000;
+        const hasMovedSignificantly = dLat > 0.0001 || dLng > 0.0001;
+        const hasTimeElapsed = now - last.time >= 8000;
 
         if (hasTimeElapsed || hasMovedSignificantly) {
           lastLocationSyncRef.current = { time: now, lat: latitude, lng: longitude };
-          axios.patch("/api/partner/status", { isOnline: true, latitude, longitude })
-            .catch(err => console.error("Continuous location sync error:", err));
+          setLastSyncedTime(new Date());
+
+          if (isOnline) {
+            axios.patch("/api/partner/status", { isOnline: true, latitude, longitude })
+              .catch((err) => console.debug("Live sync note:", err?.message || err));
+
+            const socket = getSocket();
+            if (userData?._id) {
+              socket.emit("identity", userData._id);
+            }
+            socket.emit("update-location", {
+              userId: userData?._id,
+              latitude,
+              longitude,
+            });
+          }
         }
       },
-      (error) => {
-        console.error("Watch location error:", error);
-      },
-      { enableHighAccuracy: true, maximumAge: 10000 }
+      (err) => console.debug("WatchPosition note:", err.message),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 3000 }
     );
+
+    // 3. Heartbeat interval: even when parked / stationary, ping GPS every 15 seconds
+    const intervalTimer = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setCoords({ latitude: lat, longitude: lng });
+          setLastSyncedTime(new Date());
+
+          if (isOnline) {
+            axios.patch("/api/partner/status", { isOnline: true, latitude: lat, longitude: lng })
+              .catch((err) => console.debug("Interval sync note:", err?.message || err));
+
+            const socket = getSocket();
+            if (userData?._id) {
+              socket.emit("identity", userData._id);
+            }
+            socket.emit("update-location", {
+              userId: userData?._id,
+              latitude: lat,
+              longitude: lng,
+            });
+          }
+        },
+        (err) => console.debug("Stationary ping note:", err.message),
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 }
+      );
+    }, 15000);
 
     return () => {
       navigator.geolocation.clearWatch(watcher);
+      clearInterval(intervalTimer);
     };
-  }, [isOnline]);
+  }, [isOnline, userData?._id]);
 
   const handleToggleOnline = async () => {
     try {
@@ -1111,35 +1247,35 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           return;
         }
 
-        let geoSuccess = false;
-        await new Promise<void>((resolve) => {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const { latitude, longitude } = position.coords;
-              setCoords({ latitude, longitude });
-              updatePayload.latitude = latitude;
-              updatePayload.longitude = longitude;
-              geoSuccess = true;
-              resolve();
-            },
-            (error) => {
-              console.error("Geolocation check error:", error);
-              resolve();
-            },
-            { enableHighAccuracy: true, timeout: 8000 }
-          );
-        });
+        let currentLat = coords?.latitude;
+        let currentLng = coords?.longitude;
 
-        if (!geoSuccess && !coords) {
+        if (!currentLat || !currentLng) {
+          await new Promise<void>((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                currentLat = position.coords.latitude;
+                currentLng = position.coords.longitude;
+                setCoords({ latitude: currentLat, longitude: currentLng });
+                resolve();
+              },
+              (error) => {
+                console.error("Geolocation check error:", error);
+                resolve();
+              },
+              { enableHighAccuracy: true, timeout: 6000 }
+            );
+          });
+        }
+
+        if (!currentLat || !currentLng) {
           alert("Please allow device location access to go online. Location is required so nearby riders can find and match with you.");
           setLoading(false);
           return;
         }
 
-        if (!geoSuccess && coords) {
-          updatePayload.latitude = coords.latitude;
-          updatePayload.longitude = coords.longitude;
-        }
+        updatePayload.latitude = currentLat;
+        updatePayload.longitude = currentLng;
       }
 
       const res = await axios.patch("/api/partner/status", updatePayload);
@@ -1151,10 +1287,13 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         }
         if (updatePayload.latitude && updatePayload.longitude) {
           socket.emit("update-location", {
+            userId: userData?._id,
             latitude: updatePayload.latitude,
             longitude: updatePayload.longitude,
           });
         }
+        setLastSyncedTime(new Date());
+        fetchShiftSummary();
       }
     } catch (err: any) {
       console.error(err);
@@ -1177,110 +1316,181 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       <div className="relative max-w-7xl mx-auto space-y-5 sm:space-y-8 z-10">
         
         {/* Header Block */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-zinc-200/65 shadow-sm">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-zinc-950 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-lg shadow-zinc-950/20 shrink-0">
-              {userData?.name?.charAt(0).toUpperCase()}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-none p-5 sm:p-7 md:p-8 border border-zinc-300 shadow-none">
+          <div className="flex items-center gap-3.5 sm:gap-4">
+            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-none border border-zinc-300 overflow-hidden bg-zinc-950">
+              {profilePicture ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profilePicture}
+                  alt={userData?.name || "Driver Headshot"}
+                  className="w-full h-full object-cover rounded-none"
+                />
+              ) : (
+                <div className="w-full h-full text-white flex items-center justify-center font-black text-xl sm:text-2xl font-heading">
+                  {userData?.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              {/* Upload Overlay Button */}
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                title="Update mandatory profile photo"
+                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity cursor-pointer text-center p-1"
+              >
+                {uploadingPhoto ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <>
+                    <Camera size={16} />
+                    <span className="text-[8px] font-mono uppercase font-bold mt-0.5">Photo</span>
+                  </>
+                )}
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                capture="user"
+                className="hidden"
+                onChange={handleProfilePhotoUpload}
+              />
             </div>
+
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight truncate">{userData?.name}</h1>
-                <span className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-zinc-200">
-                  Live Partner
+                <h1 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight truncate font-heading">{userData?.name}</h1>
+                <span className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-900 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-none border border-zinc-300">
+                  Verified Partner
                 </span>
+                {!profilePicture && (
+                  <span className="inline-flex items-center gap-1 bg-zinc-950 text-white text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 border border-zinc-950">
+                    Photo Required
+                  </span>
+                )}
               </div>
-              <p className="text-zinc-400 text-xs sm:text-sm mt-0.5 font-semibold truncate">Manage online status and live fleet rides</p>
+              <p className="text-zinc-500 text-xs sm:text-sm mt-0.5 font-medium truncate font-body">
+                Manage live duty status, real-time GPS telemetry, and fleet ride dispatching
+              </p>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => window.location.href = "/partner/pending-requests"}
-              className="flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl sm:rounded-2xl shadow-lg shadow-zinc-950/10 transition-all active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white text-xs sm:text-sm font-black uppercase tracking-wider px-5 py-3 rounded-none transition cursor-pointer"
             >
               <span>Incoming Requests</span>
               <ArrowRight size={15} />
             </button>
             <button
               onClick={() => window.location.href = "/partner/bookings"}
-              className="flex items-center justify-center gap-2 border border-zinc-200 hover:bg-zinc-50 bg-white text-zinc-800 text-xs sm:text-sm font-bold px-4 py-3 rounded-xl sm:rounded-2xl transition-all active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 border border-zinc-300 hover:bg-zinc-100 bg-white text-zinc-900 text-xs sm:text-sm font-black uppercase tracking-wider px-4 py-3 rounded-none transition cursor-pointer"
             >
               Ride History
             </button>
           </div>
         </div>
 
+        {/* Mandatory Profile Picture Alert Banner */}
+        {!profilePicture && (
+          <div className="bg-zinc-950 text-white border border-zinc-950 rounded-none p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-none bg-white text-zinc-950 flex items-center justify-center font-bold shrink-0">
+                <Camera size={16} />
+              </div>
+              <div>
+                <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                  Mandatory Driver Face Photo Required
+                </p>
+                <p className="text-[11px] text-zinc-400 mt-0.5 font-mono">
+                  You must upload a clear facial photograph to complete driver verification and remain active on dispatch.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => photoInputRef.current?.click()}
+              disabled={uploadingPhoto}
+              className="px-4 py-2 bg-white text-zinc-950 hover:bg-zinc-200 text-xs font-mono font-bold uppercase tracking-wider transition-colors shrink-0"
+            >
+              {uploadingPhoto ? "Uploading..." : "Upload Profile Photo"}
+            </button>
+          </div>
+        )}
+
         {/* Today's Shift Performance Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-white rounded-none p-4 sm:p-5 border border-zinc-300 shadow-none flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider">{t("driver.todayEarnings", "Today's Earnings")}</span>
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{t("driver.todayEarnings", "Today's Earnings")}</span>
+              <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center">
                 <IndianRupee size={13} />
               </div>
             </div>
             <div>
-              <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight leading-none">
+              <p className="text-xl sm:text-3xl font-black text-zinc-950 tracking-tight leading-none tabular-nums font-heading">
                 ₹{shiftSummary?.todayEarnings ?? 0}
               </p>
-              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1">Net take-home</p>
+              <p className="text-[11px] text-zinc-500 font-medium mt-1">Net shift earnings</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
+          <div className="bg-white rounded-none p-4 sm:p-5 border border-zinc-300 shadow-none flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider">{t("driver.tripsCompleted", "Trips Completed")}</span>
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                <CheckCircle2 size={13} className="sm:w-[15px] sm:h-[15px]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{t("driver.tripsCompleted", "Trips Completed")}</span>
+              <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center">
+                <CheckCircle2 size={13} />
               </div>
             </div>
             <div>
-              <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight leading-none">
+              <p className="text-xl sm:text-3xl font-black text-zinc-950 tracking-tight leading-none tabular-nums font-heading">
                 {shiftSummary?.todayTrips ?? 0}
               </p>
-              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1 truncate">
+              <p className="text-[11px] text-zinc-500 font-medium mt-1 truncate">
                 {shiftSummary?.totalCompleted ? `${shiftSummary.totalCompleted} all-time` : "Today's shift"}
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
+          <div className="bg-white rounded-none p-4 sm:p-5 border border-zinc-300 shadow-none flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider">{t("driver.onlineShift", "Online Shift")}</span>
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                <Clock size={13} className="sm:w-[15px] sm:h-[15px]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{t("driver.onlineShift", "Online Shift")}</span>
+              <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center">
+                <Clock size={13} />
               </div>
             </div>
             <div>
-              <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight leading-none">
-                {shiftSummary?.hoursOnline ?? 0}<span className="text-xs sm:text-sm font-normal text-zinc-400 ml-0.5">hrs</span>
+              <p className="text-xl sm:text-3xl font-black text-zinc-950 tracking-tight leading-none tabular-nums font-heading">
+                {shiftSummary?.hoursOnline ?? 0}<span className="text-sm font-normal text-zinc-500 ml-0.5">hrs</span>
               </p>
-              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1">Active driving shift</p>
+              <p className="text-[11px] text-zinc-500 font-medium mt-1">Active duty shift</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
+          <div className="bg-white rounded-none p-4 sm:p-5 border border-zinc-300 shadow-none flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider">{t("driver.rating", "Driver Rating")}</span>
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                <Shield size={13} className="sm:w-[15px] sm:h-[15px]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{t("driver.rating", "Driver Rating")}</span>
+              <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center">
+                <Shield size={13} />
               </div>
             </div>
             <div>
-              <div className="flex items-baseline gap-1 sm:gap-1.5 leading-none">
-                <p className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight">
+              <div className="flex items-baseline gap-1.5 leading-none">
+                <p className="text-xl sm:text-3xl font-black text-zinc-950 tracking-tight tabular-nums font-heading">
                   ★ {shiftSummary?.rating ?? 5.0}
                 </p>
-                <span className={`text-[9px] sm:text-[11px] font-bold px-1 sm:px-1.5 py-0.5 rounded ${
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-none uppercase tracking-wider ${
                   (shiftSummary?.cancellationRate ?? 0) > 10
-                    ? "text-red-600 bg-red-50"
-                    : "text-emerald-600 bg-emerald-50"
+                    ? "text-red-700 bg-red-50 border border-red-200"
+                    : "text-emerald-800 bg-emerald-50 border border-emerald-200"
                 }`}>
                   {shiftSummary?.acceptanceRate ?? 100}% accept
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold mt-1">
-                {shiftSummary?.dailyCancellations ? `${shiftSummary.dailyCancellations} cancelled today` : "Clean shift"}
+              <p className="text-[11px] text-zinc-500 font-medium mt-1">
+                {shiftSummary?.dailyCancellations ? `${shiftSummary.dailyCancellations} cancelled today` : "Clean shift rating"}
               </p>
             </div>
           </div>
@@ -1288,11 +1498,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Cooldown Alert Banner */}
         {shiftSummary?.isCooldownActive && shiftSummary?.dispatchBlockedUntil && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
-            <AlertTriangle className="text-red-500 flex-shrink-0" size={20} />
+          <div className="bg-red-50 border border-red-300 rounded-none p-4 flex items-center gap-3">
+            <AlertTriangle className="text-red-600 flex-shrink-0" size={20} />
             <div className="text-xs">
-              <p className="text-red-700 font-bold">Dispatch Cooldown Active</p>
-              <p className="text-zinc-600 text-[11px] mt-0.5">
+              <p className="text-red-900 font-black uppercase tracking-wide">Dispatch Cooldown Active</p>
+              <p className="text-red-800 text-[11px] mt-0.5 font-medium">
                 Multiple ride cancellations today have placed new dispatch assignments on temporary cooldown until{" "}
                 {new Date(shiftSummary.dispatchBlockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
               </p>
@@ -1308,35 +1518,35 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               return (
                 <div
                   key={idx}
-                  className={`rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                  className={`rounded-none p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                     isExpired
-                      ? "bg-red-50 border-red-200 text-red-900"
-                      : "bg-amber-50 border-amber-200 text-amber-900"
+                      ? "bg-red-50 border-red-300 text-red-950"
+                      : "bg-amber-50 border-amber-300 text-amber-950"
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <AlertTriangle
-                      className={isExpired ? "text-red-500 mt-0.5 flex-shrink-0" : "text-amber-500 mt-0.5 flex-shrink-0"}
+                      className={isExpired ? "text-red-600 mt-0.5 flex-shrink-0" : "text-amber-600 mt-0.5 flex-shrink-0"}
                       size={18}
                     />
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-xs font-bold">
+                        <p className="text-xs font-black uppercase tracking-wide">
                           {isExpired ? "Document Expired — Service Restricted" : "Document Expiry Warning"}
                         </p>
                         <span
-                          className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                          className={`text-[9px] font-black px-2 py-0.5 rounded-none uppercase tracking-wider border ${
                             isExpired
-                              ? "bg-red-200 text-red-900"
+                              ? "bg-red-200 text-red-950 border-red-400"
                               : alert.status === "urgent_7_days"
-                              ? "bg-amber-200 text-amber-900"
-                              : "bg-amber-100 text-amber-800"
+                              ? "bg-amber-200 text-amber-950 border-amber-400"
+                              : "bg-amber-100 text-amber-900 border-amber-300"
                           }`}
                         >
                           {isExpired ? "Expired" : `${alert.daysRemaining} days left`}
                         </span>
                       </div>
-                      <p className="text-[11px] text-zinc-600 mt-0.5 leading-snug">
+                      <p className="text-[11px] text-zinc-700 mt-0.5 leading-snug font-medium">
                         {alert.message}
                       </p>
                     </div>
@@ -1344,10 +1554,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <button
                     type="button"
                     onClick={() => router.push("/partner/onboard/documents")}
-                    className={`text-xs font-bold px-4 py-2 rounded-xl transition-colors whitespace-nowrap self-start sm:self-center ${
+                    className={`text-xs font-black uppercase tracking-wider px-4 py-2 rounded-none transition whitespace-nowrap self-start sm:self-center cursor-pointer ${
                       isExpired
-                        ? "bg-red-600 hover:bg-red-500 text-white"
-                        : "bg-amber-500 hover:bg-amber-400 text-zinc-950"
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-amber-400 hover:bg-amber-500 text-zinc-950"
                     }`}
                   >
                     Renew Document
@@ -1358,123 +1568,188 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           </div>
         )}
 
-        {/* Dashboard Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Dashboard 3-Card Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
 
-          {/* Online Toggle Card */}
-          <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[280px]">
+          {/* Card 1: Duty Status Command */}
+          <div className="bg-white rounded-none border border-zinc-300 p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-none">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Service Status</p>
-              <h2 className="text-2xl font-black text-zinc-900 tracking-tight">{t("driver.statusCommand", "Status Command")}</h2>
-              <p className="text-zinc-400 text-xs font-semibold mt-1">Toggle your availability to start receiving passenger requests</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">
+                Dispatch & Duty Status
+              </p>
+              <h2 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight font-heading">
+                {isOnline ? "Online — Accepting Trips" : "Offline — Duty Paused"}
+              </h2>
+              <p className="text-zinc-500 text-xs font-medium mt-1 leading-relaxed font-body">
+                {isOnline
+                  ? "Live radar active. You will receive real-time ride dispatch assignments matching your registered fleet."
+                  : "Toggle online to start receiving ride dispatch assignments and passenger bookings."}
+              </p>
             </div>
 
-            <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 flex items-center justify-between my-4">
+            <div className="bg-zinc-50 rounded-none p-4 border border-zinc-200 flex items-center justify-between my-4">
               <div className="flex items-center gap-3">
-                <span className={`relative flex h-3.5 w-3.5 flex-shrink-0`}>
+                <span className="relative flex h-3.5 w-3.5 flex-shrink-0">
                   {isOnline && (
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   )}
-                  <span className={`relative inline-flex rounded-full h-3.5 w-3.5 ${isOnline ? "bg-emerald-500" : "bg-zinc-300"}`}></span>
+                  <span
+                    className={`relative inline-flex rounded-full h-3.5 w-3.5 ${
+                      isOnline ? "bg-emerald-500" : "bg-zinc-300"
+                    }`}
+                  ></span>
                 </span>
                 <div>
-                  <p className="text-sm font-bold text-zinc-900">{isOnline ? t("driver.online", "Online") : t("driver.offline", "Offline")}</p>
-                  <p className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">
-                    {isOnline ? t("driver.receivingBookings", "Receiving Bookings") : t("driver.inactive", "Inactive")}
+                  <p className="text-sm font-bold text-zinc-950 tracking-tight">
+                    {isOnline ? "Duty: Online" : "Duty: Offline"}
+                  </p>
+                  <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
+                    {isOnline ? "Broadcasting live coordinates" : "Unavailable for dispatch"}
                   </p>
                 </div>
               </div>
 
               <button
+                type="button"
                 onClick={handleToggleOnline}
                 disabled={loading}
-                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${
-                  isOnline ? "bg-emerald-500" : "bg-zinc-200"
+                className={`relative inline-flex h-8 w-14 items-center rounded-none border transition-all cursor-pointer focus:outline-none ${
+                  isOnline
+                    ? "bg-zinc-950 border-zinc-950 justify-end"
+                    : "bg-zinc-200 border-zinc-300 justify-start"
                 }`}
+                title={isOnline ? "Switch to Offline" : "Switch to Online"}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                    isOnline ? "translate-x-6" : "translate-x-1"
+                  className={`inline-block h-6 w-6 rounded-none transition-transform ${
+                    isOnline ? "bg-emerald-500 shadow-sm" : "bg-white border border-zinc-300"
                   }`}
                 />
               </button>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-semibold text-zinc-400">
-              <MapPin size={13} />
-              <span>
-                {coords
-                  ? `Lat: ${coords.latitude.toFixed(5)}, Lng: ${coords.longitude.toFixed(5)}`
-                  : "Location tracking enabled"}
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs text-zinc-500">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <MapPin size={13} className="text-zinc-400 shrink-0" />
+                <span className="truncate tabular-nums font-mono text-[11px]">
+                  {coords
+                    ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
+                    : "Detecting GPS..."}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => syncDriverLocation()}
+                disabled={isLocating}
+                className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-700 hover:text-black border border-zinc-300 hover:border-zinc-500 px-2.5 py-1 rounded-none bg-white transition cursor-pointer shrink-0 ml-2"
+                title="Refresh and sync GPS location now"
+              >
+                <RefreshCw size={11} className={isLocating ? "animate-spin text-zinc-950" : "text-zinc-600"} />
+                <span>{isLocating ? "Syncing..." : "Sync GPS"}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Card 2: Live Location Tracker & Radar */}
+          <div className="bg-white rounded-none border border-zinc-300 p-6 flex flex-col justify-between min-h-[310px] shadow-none">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">
+                  Live GPS Telemetry
+                </p>
+                <h2 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight font-heading">
+                  Location Radar
+                </h2>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-emerald-50 border border-emerald-300 text-emerald-900 text-[10px] font-black uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                <span>Live GPS</span>
+              </span>
+            </div>
+
+            <div className="flex-1 w-full h-[155px] relative my-3">
+              <DriverLocationMap coords={coords} vehicleType={vType} />
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-zinc-500 border-t border-zinc-100 pt-2">
+              <span className="truncate">
+                {lastSyncedTime
+                  ? `Synced ${lastSyncedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
+                  : "Continuous device tracking active"}
+              </span>
+              <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-50 px-1.5 py-0.5 border border-emerald-300 shrink-0 ml-2">
+                Active Radar
               </span>
             </div>
           </div>
 
-          {/* Driver Location Map Card */}
-          <div className="bg-white rounded-3xl border border-zinc-200 p-6 shadow-sm flex flex-col min-h-[280px]">
+          {/* Card 3: Fleet Vehicle Specifications */}
+          <div className="bg-white rounded-none border border-zinc-300 p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-none">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Your Location</p>
-                <h2 className="text-2xl font-black text-zinc-900 tracking-tight mb-2">Live Tracker</h2>
-              </div>
-            </div>
-            <div className="flex-1 w-full h-[140px] relative">
-              <DriverLocationMap coords={coords} />
-            </div>
-            <p className="text-[10px] text-zinc-400 font-semibold mt-2 text-center">
-              💡 Showing your live GPS coordinates tracked from your device.
-            </p>
-          </div>
-
-          {/* Vehicle & Pricing Card */}
-          <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[280px]">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Vehicle specs</p>
-                <h2 className="text-2xl font-black text-zinc-900 tracking-tight">Active Vehicle</h2>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">
+                  Fleet Specifications
+                </p>
+                <h2 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight font-heading capitalize">
+                  {vType} Fleet
+                </h2>
               </div>
               <button
+                type="button"
                 onClick={() => setShowPricing(true)}
-                className="text-zinc-500 hover:text-zinc-950 p-2 rounded-xl hover:bg-zinc-50 border border-transparent hover:border-zinc-200 transition-all"
+                className="text-zinc-700 hover:text-zinc-950 p-2 rounded-none border border-zinc-300 hover:border-zinc-950 hover:bg-zinc-100 transition-all cursor-pointer"
+                title="Edit pricing and vehicle details"
               >
-                <Edit3 size={16} />
+                <Edit3 size={15} />
               </button>
             </div>
 
-            <div className="flex gap-4 items-center my-4">
+            <div className="flex gap-4 items-center my-3">
               {pricing?.imageUrl ? (
                 <img
                   src={pricing.imageUrl}
                   alt="Vehicle"
-                  className="w-20 h-20 rounded-2xl object-cover border"
+                  className="w-20 h-20 rounded-none object-cover border border-zinc-300 shrink-0"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-400">
-                  No Image
+                <div className="w-20 h-20 rounded-none bg-zinc-100 border border-zinc-300 flex flex-col items-center justify-center text-zinc-600 shrink-0 gap-1">
+                  {vType === "auto" ? (
+                    <Car size={26} className="text-amber-600" />
+                  ) : vType === "bike" || vType === "scooty" ? (
+                    <Bike size={26} className="text-emerald-600" />
+                  ) : vType === "loading" || vType === "truck" ? (
+                    <Truck size={26} className="text-zinc-900" />
+                  ) : (
+                    <Car size={26} className="text-zinc-900" />
+                  )}
+                  <span className="text-[9px] font-black uppercase tracking-wider text-zinc-500">
+                    {vType}
+                  </span>
                 </div>
               )}
-              <div className="space-y-1.5 flex-1">
-                <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
-                  <span>Base Fare:</span>
-                  <span className="font-mono text-zinc-900 font-bold">₹{cfg.baseFare}</span>
+              <div className="space-y-1.5 flex-1 min-w-0">
+                <div className="flex items-center justify-between text-xs text-zinc-600">
+                  <span className="font-medium">Base Fare:</span>
+                  <span className="tabular-nums text-zinc-950 font-bold">₹{cfg.baseFare}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
-                  <span>Price / KM:</span>
-                  <span className="font-mono text-zinc-900 font-bold">₹{cfg.pricePerKm}</span>
+                <div className="flex items-center justify-between text-xs text-zinc-600">
+                  <span className="font-medium">Distance Rate:</span>
+                  <span className="tabular-nums text-zinc-950 font-bold">₹{cfg.pricePerKm}/km</span>
                 </div>
-                <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
-                  <span>Time / Min:</span>
-                  <span className="font-mono text-zinc-900 font-bold">₹{cfg.pricePerMinute}</span>
+                <div className="flex items-center justify-between text-xs text-zinc-600">
+                  <span className="font-medium">Time Charge:</span>
+                  <span className="tabular-nums text-zinc-950 font-bold">₹{cfg.pricePerMinute}/min</span>
                 </div>
-                <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
-                  <span>Multiplier:</span>
-                  <span className="font-mono text-zinc-900 font-bold">{cfg.multiplier}x</span>
+                <div className="flex items-center justify-between text-xs text-zinc-600">
+                  <span className="font-medium">Demand Multiplier:</span>
+                  <span className="tabular-nums text-zinc-950 font-bold">{cfg.multiplier}x</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100 mt-auto self-start">
-              <Check size={12} /> Pricing Approved
+            <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-none border border-emerald-300 mt-auto self-start uppercase tracking-wider">
+              <Check size={12} className="text-emerald-700" />
+              <span>Pricing Approved & Verified</span>
             </div>
           </div>
 

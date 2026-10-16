@@ -21,7 +21,7 @@ export async function GET() {
       { lastHeartbeat: new Date() },
       { new: true }
     ).select(
-      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate lastHeartbeat driverVerificationStatus dispatchBlockedUntil dailyCancellationCount"
+      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate lastHeartbeat driverVerificationStatus dispatchBlockedUntil dailyCancellationCount profilePicture"
     );
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -36,6 +36,7 @@ export async function GET() {
       location: user.location,
       vendorStatus: user.vendorStatus,
       isVendorBlocked: user.isVendorBlocked,
+      profilePicture: user.profilePicture || doc?.profilePictureUrl || null,
       lastLocationUpdate: user.lastLocationUpdate,
       lastHeartbeat: user.lastHeartbeat,
       driverVerificationStatus: user.driverVerificationStatus || null,
@@ -107,6 +108,16 @@ export async function PATCH(req: Request) {
         return NextResponse.json(
           {
             error: "Vehicle documents not found. Please complete document verification before going online.",
+          },
+          { status: 403 }
+        );
+      }
+
+      // Mandatory Profile Picture Check
+      if (!driver.profilePicture && !doc.profilePictureUrl) {
+        return NextResponse.json(
+          {
+            error: "Mandatory driver profile picture required. Please upload your profile photo in documents or dashboard to go online.",
           },
           { status: 403 }
         );

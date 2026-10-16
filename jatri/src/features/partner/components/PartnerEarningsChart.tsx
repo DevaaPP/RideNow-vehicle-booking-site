@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrendingUp, TrendingDown, Zap, Calendar, BarChart2, Star } from "lucide-react";
+import { TrendingUp, TrendingDown, Star, BarChart2 } from "lucide-react";
 import axios from "axios";
 
 type Earnings = {
@@ -36,11 +36,11 @@ const CustomTooltip = ({
 }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-xl p-4 min-w-[140px]">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">
+      <div className="bg-white border border-zinc-300 rounded-none p-3 shadow-none min-w-[130px]">
+        <p className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest mb-1">
           {label}
         </p>
-        <p className="text-xl font-bold text-gray-900 font-mono">
+        <p className="text-lg font-bold text-zinc-950 font-mono">
           ₹{payload[0].value.toLocaleString("en-IN")}
         </p>
       </div>
@@ -85,88 +85,81 @@ export default function PartnerEarningsChart() {
 
   const metrics = [
     {
-      label: "Best Day",
+      label: "Peak Day",
       value: fmt(max),
       sub: bestDay?.date ?? "—",
-      icon: <Star size={14} />,
-      color: "text-violet-600",
-      bg: "bg-violet-50",
+      icon: <Star size={13} />,
     },
     {
-      label: "Daily Avg",
+      label: "Shift Average",
       value: fmt(avg),
       sub: "per day",
-      icon: <BarChart2 size={14} />,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-    },
-    {
-      label: "Today",
-      value: today ? fmt(today.earnings) : "—",
-      sub: today && yesterday
-        ? `${deltaPositive ? "+" : ""}${fmt(delta)} vs yesterday`
-        : "—",
-      icon: <Zap size={14} />,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
+      icon: <BarChart2 size={13} />,
     },
   ];
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 w-full">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
+    <div className="bg-white rounded-none border border-zinc-300 p-5 sm:p-7 shadow-none">
+      {/* Top Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b border-zinc-200">
         <div>
-          <span className="inline-block text-[11px] font-semibold tracking-widest uppercase text-blue-600 bg-blue-50 px-3 py-1 rounded-full mb-2">
-            Partner Dashboard
-          </span>
-          <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-            Daily Earnings
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-none bg-zinc-950 inline-block" />
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500">
+              Revenue Analytics
+            </span>
+          </div>
+          <h2 className="text-lg sm:text-xl font-bold text-zinc-950 tracking-tight font-sans">
+            7-Day Performance Ledger
           </h2>
-          <p className="text-sm text-gray-400 mt-0.5">Last 7 days performance</p>
+          <p className="text-xs text-zinc-500 mt-0.5 font-mono">
+            Daily verified fare settlements
+          </p>
         </div>
 
-        <div className="text-right">
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
-            Weekly Total
+        <div className="sm:text-right">
+          <p className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest mb-0.5">
+            Trailing 7-Day Gross
           </p>
           <motion.p
             key={total}
-            initial={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold text-gray-900 font-mono tracking-tight"
+            className="text-2xl sm:text-3xl font-bold text-zinc-950 font-mono tracking-tight"
           >
             {fmt(total)}
           </motion.p>
           <div
-            className={`flex items-center justify-end gap-1 text-xs font-semibold mt-1 ${
-              deltaPositive ? "text-emerald-600" : "text-rose-500"
+            className={`flex items-center sm:justify-end gap-1 text-[11px] font-mono mt-0.5 ${
+              deltaPositive ? "text-zinc-900" : "text-zinc-600"
             }`}
           >
-            {deltaPositive ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-            <span>{deltaPct}% vs yesterday</span>
+            {deltaPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            <span>{deltaPct}% vs previous day</span>
           </div>
         </div>
       </div>
 
-      {/* Metric Cards */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      {/* Metric Cards Bento */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
         {metrics.map((m, i) => (
           <motion.div
             key={m.label}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={loaded ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: i * 0.07, duration: 0.4 }}
-            className="bg-gray-50 rounded-2xl p-4"
+            transition={{ delay: i * 0.05, duration: 0.3 }}
+            className="bg-zinc-50 rounded-none border border-zinc-200 p-3.5 flex flex-col justify-between"
           >
-            <div className={`flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider mb-2 ${m.color}`}>
-              <span className={`${m.bg} p-1 rounded-lg ${m.color}`}>{m.icon}</span>
-              {m.label}
+            <div className="flex items-center justify-between text-zinc-500 text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
+              <span>{m.label}</span>
+              <span className="text-zinc-950">{m.icon}</span>
             </div>
-            <p className="text-lg font-bold text-gray-900 font-mono leading-none">
-              {m.value}
-            </p>
-            <p className="text-[11px] text-gray-400 mt-1">{m.sub}</p>
+            <div>
+              <p className="text-base sm:text-lg font-bold text-zinc-950 font-mono leading-none">
+                {m.value}
+              </p>
+              <p className="text-[10px] font-mono text-zinc-400 mt-1">{m.sub}</p>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -175,41 +168,35 @@ export default function PartnerEarningsChart() {
       <AnimatePresence>
         {loaded && (
           <motion.div
-            initial={{ opacity: 0, scaleY: 0.92 }}
-            animate={{ opacity: 1, scaleY: 1 }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
             className="h-56"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+              <BarChart data={data} barCategoryGap="25%">
+                <CartesianGrid strokeDasharray="2 2" stroke="#e4e4e7" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 11, fill: "#9ca3af", fontWeight: 500 }}
-                  axisLine={false}
+                  tick={{ fontSize: 10, fill: "#71717a", fontFamily: "monospace" }}
+                  axisLine={{ stroke: "#d4d4d8" }}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  axisLine={false}
+                  tick={{ fontSize: 10, fill: "#71717a", fontFamily: "monospace" }}
+                  axisLine={{ stroke: "#d4d4d8" }}
                   tickLine={false}
                   tickFormatter={(v) => "₹" + (v >= 1000 ? (v / 1000).toFixed(0) + "k" : v)}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f9fafb", radius: 8 }} />
-                <Bar dataKey="earnings" radius={[8, 8, 3, 3]}>
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f4f4f5" }} />
+                <Bar dataKey="earnings" radius={[0, 0, 0, 0]}>
                   {data.map((entry, index) => {
                     const isToday = index === data.length - 1;
                     const isBest = entry.earnings === max && !isToday;
                     return (
                       <Cell
                         key={`cell-${index}`}
-                        fill={
-                          isToday
-                            ? "#10b981"
-                            : isBest
-                            ? "#8b5cf6"
-                            : "#bfdbfe"
-                        }
+                        fill={isToday ? "#18181b" : isBest ? "#3f3f46" : "#a1a1aa"}
                       />
                     );
                   })}
@@ -219,26 +206,6 @@ export default function PartnerEarningsChart() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Legend + Footer */}
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50 flex-wrap gap-3">
-        <div className="flex items-center gap-4 flex-wrap">
-          {[
-            { color: "bg-emerald-500", label: "Today" },
-            { color: "bg-violet-500", label: "Best day" },
-            { color: "bg-blue-200", label: "Other days" },
-          ].map((l) => (
-            <span key={l.label} className="flex items-center gap-1.5 text-[12px] text-gray-500">
-              <span className={`w-2.5 h-2.5 rounded-sm ${l.color}`} />
-              {l.label}
-            </span>
-          ))}
-        </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
-          <Calendar size={12} />
-          Updated just now
-        </div>
-      </div>
     </div>
   );
 }

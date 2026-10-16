@@ -12,6 +12,8 @@ export interface IVehicleDocument {
   owner: Types.ObjectId;
 
   // Identity Documents
+  profilePictureUrl?: string;
+  profilePictureStatus?: DocVerificationItemStatus;
   aadhaarUrl?: string;
   aadhaarMaskedNumber?: string;
   panNumber?: string;
@@ -87,6 +89,12 @@ const DocumentSchema = new Schema<IVehicleDocument>(
     },
 
     // Identity Documents
+    profilePictureUrl: String,
+    profilePictureStatus: {
+      type: String,
+      enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+      default: "not_submitted",
+    },
     aadhaarUrl: String,
     aadhaarMaskedNumber: String,
     panNumber: String,

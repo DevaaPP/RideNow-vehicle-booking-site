@@ -5,28 +5,31 @@ import {
   ArrowLeft,
   ArrowRight,
   UploadCloud,
-  FileCheck,
   CheckCircle,
   Pencil,
   ShieldCheck,
   AlertCircle,
   Car,
   UserCheck,
+  Camera,
+  Image as ImageIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
 /* ================= TYPES ================= */
 
-type DocKey = "aadhaar" | "license" | "rc" | "insurance" | "puc" | "fitness";
+type DocKey = "profilePicture" | "aadhaar" | "license" | "rc" | "insurance" | "puc" | "fitness";
 
 /* ================= PAGE ================= */
 
 export default function PartnerDocumentsPage() {
   const router = useRouter();
+  const profilePicInputRef = useRef<HTMLInputElement>(null);
 
   const [docs, setDocs] = useState<Record<DocKey, File | null>>({
+    profilePicture: null,
     aadhaar: null,
     license: null,
     rc: null,
@@ -34,6 +37,8 @@ export default function PartnerDocumentsPage() {
     puc: null,
     fitness: null,
   });
+
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
 
   const [metadata, setMetadata] = useState({
     licenseNumber: "",
@@ -95,17 +100,26 @@ export default function PartnerDocumentsPage() {
     axios
       .get("/api/partner/documents")
       .then((res) => {
-        if (res.data?.documents) {
+        if (res.data?.documents || res.data?.profilePicture) {
           setCompleted(true);
-          setExistingSummary(res.data.documents);
-          if (res.data.documents.licenseNumber) {
+          const docsData = res.data.documents || {};
+          const profPic = res.data.profilePicture || docsData.profilePictureUrl;
+          if (profPic) {
+            setProfilePreview(profPic);
+          }
+          setExistingSummary({
+            ...docsData,
+            profilePictureUrl: profPic,
+          });
+
+          if (docsData.licenseNumber) {
             setMetadata((prev) => ({
               ...prev,
-              licenseNumber: res.data.documents.licenseNumber || "",
-              rcNumber: res.data.documents.rcNumber || "",
-              insurancePolicyNumber: res.data.documents.insurancePolicyNumber || "",
-              insuranceExpiry: res.data.documents.insuranceExpiry
-                ? new Date(res.data.documents.insuranceExpiry).toISOString().split("T")[0]
+              licenseNumber: docsData.licenseNumber || "",
+              rcNumber: docsData.rcNumber || "",
+              insurancePolicyNumber: docsData.insurancePolicyNumber || "",
+              insuranceExpiry: docsData.insuranceExpiry
+                ? new Date(docsData.insuranceExpiry).toISOString().split("T")[0]
                 : "",
             }));
           }
@@ -117,6 +131,9 @@ export default function PartnerDocumentsPage() {
   const handleFileChange = (key: DocKey, file: File | null) => {
     if (!file) return;
     setDocs((prev) => ({ ...prev, [key]: file }));
+    if (key === "profilePicture") {
+      setProfilePreview(URL.createObjectURL(file));
+    }
   };
 
   /* ================= SUBMIT ================= */
@@ -127,7 +144,14 @@ export default function PartnerDocumentsPage() {
       return;
     }
 
-    // Required files: DL, Identity, RC, Insurance
+    // Mandatory Profile Picture Check
+    const hasProfilePic = Boolean(docs.profilePicture || existingSummary?.profilePictureUrl);
+    if (!hasProfilePic) {
+      setError("Mandatory driver profile picture is required. Please upload a clear photo of yourself.");
+      return;
+    }
+
+    // Required files: DL, RC, Insurance
     if (!docs.license || !docs.rc || !docs.insurance) {
       if (!existingSummary?.licenseUrl || !existingSummary?.rcUrl || !existingSummary?.insuranceUrl) {
         setError("Please upload Driving License, Vehicle RC, and Vehicle Commercial Insurance.");
@@ -140,6 +164,7 @@ export default function PartnerDocumentsPage() {
 
     try {
       const formData = new FormData();
+      if (docs.profilePicture) formData.append("profilePicture", docs.profilePicture);
       if (docs.aadhaar) formData.append("aadhaar", docs.aadhaar);
       if (docs.license) formData.append("license", docs.license);
       if (docs.rc) formData.append("rc", docs.rc);
@@ -165,94 +190,161 @@ export default function PartnerDocumentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 sm:bg-white flex flex-col justify-center px-3 sm:px-4 py-6 sm:py-12">
+    <div className="min-h-screen bg-zinc-50 sm:bg-zinc-100/60 flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-2xl mx-auto bg-white rounded-2xl sm:rounded-3xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] sm:shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-5 sm:p-8"
+        transition={{ duration: 0.25 }}
+        className="w-full max-w-2xl mx-auto bg-white rounded-none border border-zinc-300 p-6 sm:p-10"
       >
         {/* ================= HEADER ================= */}
-        <div className="relative text-center">
-          <button
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="absolute left-0 top-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition active:scale-95"
-          >
-            <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
-          </button>
+        <div className="relative border-b border-zinc-200 pb-6 mb-6">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              aria-label="Go back"
+              className="w-8 h-8 rounded-none border border-zinc-300 flex items-center justify-center hover:bg-zinc-100 transition-colors"
+            >
+              <ArrowLeft size={16} />
+            </button>
 
-          <p className="text-[11px] sm:text-xs text-gray-500 font-semibold tracking-wide uppercase">
-            Step 2 of 3 • Compliance Verification
-          </p>
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500">
+              Step 02 / 03
+            </span>
+          </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold mt-1 tracking-tight text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold mt-4 tracking-tight text-zinc-950 font-sans">
             Driver &amp; Vehicle Verification
           </h1>
 
-          <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            Mandatory documents required under Motor Vehicle Aggregator Guidelines, 2025
+          <p className="text-xs sm:text-sm text-zinc-500 mt-1 leading-relaxed">
+            Mandatory identity compliance under Motor Vehicle Aggregator Guidelines, 2025.
           </p>
 
           {completed && !editMode && (
-            <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5">
-              <div className="flex items-center gap-1.5 text-green-600 text-xs sm:text-sm font-semibold bg-green-50 px-3 py-1 rounded-full border border-green-200">
-                <CheckCircle size={15} />
-                Compliance Documents Submitted
+            <div className="mt-4 p-3 bg-zinc-50 border border-zinc-200 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-zinc-900 text-xs font-semibold">
+                <CheckCircle size={15} className="text-zinc-900" />
+                <span>Verification documents on file</span>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-semibold text-black underline flex items-center gap-1 py-1"
+                className="text-xs font-mono font-semibold text-zinc-900 underline flex items-center gap-1 hover:text-black uppercase tracking-wider"
               >
                 <Pencil size={12} />
-                Update / Replace Documents
-              </motion.button>
+                Update Documents
+              </button>
             </div>
           )}
         </div>
 
-        {/* ================= DIGILOCKER INSTANT VERIFICATION CARD ================= */}
-        <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-50/80 via-indigo-50/40 to-white border border-blue-200/80 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xs shadow-xs">
-                DL
+        {/* ================= SECTION 0: MANDATORY PROFILE PICTURE ================= */}
+        <div className={`mb-6 p-4 border border-zinc-300 bg-zinc-50/50 ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 bg-zinc-950 text-white flex items-center justify-center font-mono text-[10px] font-bold">
+                01
               </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs sm:text-sm font-black text-blue-950">
-                    Instant DigiLocker Verification
-                  </h3>
-                  <span className="text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                    Recommended
-                  </span>
+              <h2 className="text-xs sm:text-sm font-bold text-zinc-950 tracking-tight uppercase">
+                Mandatory Driver Profile Photo *
+              </h2>
+            </div>
+            <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 border border-zinc-950 bg-zinc-950 text-white">
+              Strictly Required
+            </span>
+          </div>
+
+          <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
+            Must be a clear, front-facing photograph taken in good lighting. Sunglass or face-mask photos will be rejected during automatic validation.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            {/* PHOTO PREVIEW BOX */}
+            <div className="w-28 h-32 sm:w-32 sm:h-36 rounded-none border border-zinc-300 bg-white flex flex-col items-center justify-center relative overflow-hidden shrink-0">
+              {profilePreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profilePreview}
+                  alt="Driver Profile Preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-zinc-400 p-2 text-center">
+                  <Camera size={26} className="mb-1 text-zinc-400" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider">No Photo</span>
                 </div>
-                <p className="text-[11px] text-blue-800/80 font-medium mt-0.5">
-                  Instantly verify your Aadhaar &amp; Driving Licence with National Digital Locker Gateway
-                </p>
+              )}
+            </div>
+
+            {/* UPLOAD CONTROLS */}
+            <div className="flex-1 w-full space-y-2">
+              <input
+                ref={profilePicInputRef}
+                type="file"
+                accept="image/*"
+                capture="user"
+                className="hidden"
+                onChange={(e) => handleFileChange("profilePicture", e.target.files?.[0] || null)}
+              />
+
+              <button
+                type="button"
+                onClick={() => profilePicInputRef.current?.click()}
+                className="w-full h-10 rounded-none bg-zinc-950 hover:bg-black text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 border border-zinc-950 transition-colors"
+              >
+                <Camera size={14} />
+                <span>{profilePreview ? "Change Profile Photo" : "Take / Upload Profile Photo"}</span>
+              </button>
+
+              <p className="text-[10px] font-mono text-zinc-500">
+                Supports JPG, PNG or WEBP · Maximum 5MB · Clear headshot
+              </p>
+
+              {profilePreview && (
+                <div className="flex items-center gap-1.5 text-[11px] text-zinc-900 font-medium">
+                  <CheckCircle size={13} className="text-zinc-900" />
+                  <span>Photo selected and staged for encryption</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ================= DIGILOCKER INSTANT VERIFICATION CARD ================= */}
+        <div className="mb-6 p-4 rounded-none bg-zinc-50 border border-zinc-300 space-y-3">
+          <div className="flex items-start sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-zinc-950 uppercase tracking-tight">
+                  DigiLocker National Identity Gateway
+                </span>
+                <span className="text-[9px] font-mono font-bold uppercase tracking-wider bg-zinc-200 text-zinc-900 px-1.5 py-0.5">
+                  Fast Track
+                </span>
               </div>
+              <p className="text-[11px] text-zinc-500 mt-0.5">
+                Instant digital authentication for Aadhaar &amp; Driving Licence credentials.
+              </p>
             </div>
 
             {(existingSummary?.isDigiLockerVerified || digiLockerSuccess) && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wide">
-                <CheckCircle size={12} className="text-emerald-600" />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-zinc-950 text-white text-[10px] font-mono font-bold uppercase tracking-wider shrink-0">
+                <CheckCircle size={11} />
                 Verified
               </span>
             )}
           </div>
 
           {existingSummary?.isDigiLockerVerified || digiLockerSuccess ? (
-            <div className="p-3 bg-white/80 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between">
+            <div className="p-3 bg-white border border-zinc-200 text-xs text-zinc-900 flex items-center justify-between">
               <div>
-                <p className="font-bold">✓ Government KYC Verified</p>
+                <p className="font-semibold text-xs text-zinc-950">Govt DigiLocker Verified</p>
                 <p className="text-[10px] text-zinc-500 font-mono mt-0.5">
                   Ref: {existingSummary?.digiLockerDlRef || "DL-VERIFIED"} • {existingSummary?.digiLockerAadhaarRef || "AADHAAR-MKYC"}
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-zinc-400">Zero physical paper required</span>
+              <span className="text-[10px] font-mono text-zinc-400 uppercase">Verified</span>
             </div>
           ) : (
             <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -262,13 +354,13 @@ export default function PartnerDocumentsPage() {
                 maxLength={4}
                 value={aadhaarLast4Input}
                 onChange={(e) => setAadhaarLast4Input(e.target.value.replace(/\D/g, ""))}
-                className="h-9 px-3 text-xs rounded-xl border border-blue-200 bg-white font-mono placeholder:text-zinc-400 focus:outline-none focus:border-blue-600 sm:w-56"
+                className="h-9 px-3 text-xs rounded-none border border-zinc-300 bg-white font-mono placeholder:text-zinc-400 focus:outline-none focus:border-zinc-950 sm:w-56"
               />
               <button
                 type="button"
                 disabled={digiLockerLoading}
                 onClick={handleDigiLockerVerify}
-                className="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition active:scale-98"
+                className="h-9 px-4 rounded-none bg-zinc-950 hover:bg-black disabled:opacity-50 text-white font-medium text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors"
               >
                 {digiLockerLoading ? "Verifying with Gateway..." : "Verify via DigiLocker"}
               </button>
@@ -277,26 +369,28 @@ export default function PartnerDocumentsPage() {
         </div>
 
         {/* ================= SECTION 1: DRIVER IDENTITY ================= */}
-        <div className={`mt-6 sm:mt-8 space-y-4 ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
-          <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
-            <UserCheck size={16} className="text-orange-600" />
-            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-gray-700">
-              1. Driver Identity Verification (Or Manual Upload)
+        <div className={`space-y-4 ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
+          <div className="flex items-center gap-2 pb-2 border-b border-zinc-200">
+            <div className="w-5 h-5 bg-zinc-950 text-white flex items-center justify-center font-mono text-[10px] font-bold">
+              02
+            </div>
+            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-950 font-sans">
+              Driver Identification Proof
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <DocUpload
+            <DocUploadMinimal
               label="Driving Licence (DL) *"
-              desc="Valid driver licence"
+              desc="Front & rear scan"
               file={docs.license}
               existing={existingSummary?.licenseUrl}
               onChange={(f) => handleFileChange("license", f)}
             />
 
-            <DocUpload
-              label="Aadhaar / PAN Card *"
-              desc="Government identity proof"
+            <DocUploadMinimal
+              label="Aadhaar / Identity Proof *"
+              desc="Government identity card"
               file={docs.aadhaar}
               existing={existingSummary?.aadhaarUrl}
               onChange={(f) => handleFileChange("aadhaar", f)}
@@ -304,7 +398,7 @@ export default function PartnerDocumentsPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-gray-600 uppercase mb-1">
+            <label className="block text-[11px] font-mono uppercase tracking-wider font-semibold text-zinc-600 mb-1">
               Driving Licence Number
             </label>
             <input
@@ -312,46 +406,48 @@ export default function PartnerDocumentsPage() {
               placeholder="e.g. AS01 20210012345"
               value={metadata.licenseNumber}
               onChange={(e) => setMetadata({ ...metadata, licenseNumber: e.target.value.toUpperCase() })}
-              className="w-full h-10 px-3 text-xs sm:text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-black uppercase font-mono"
+              className="w-full h-10 px-3 text-xs sm:text-sm rounded-none border border-zinc-300 focus:outline-none focus:border-zinc-950 uppercase font-mono bg-white"
             />
           </div>
 
           {/* ================= SECTION 2: VEHICLE COMPLIANCE ================= */}
-          <div className="flex items-center gap-2 pt-3 pb-1 border-b border-gray-100">
-            <Car size={16} className="text-orange-600" />
-            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-gray-700">
-              2. Vehicle Statutory Compliance
+          <div className="flex items-center gap-2 pt-4 pb-2 border-b border-zinc-200">
+            <div className="w-5 h-5 bg-zinc-950 text-white flex items-center justify-center font-mono text-[10px] font-bold">
+              03
+            </div>
+            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-950 font-sans">
+              Vehicle Statutory Documentation
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <DocUpload
+            <DocUploadMinimal
               label="Registration Certificate (RC) *"
-              desc="Vehicle RC (Front & Back)"
+              desc="Vehicle RC document"
               file={docs.rc}
               existing={existingSummary?.rcUrl}
               onChange={(f) => handleFileChange("rc", f)}
             />
 
-            <DocUpload
+            <DocUploadMinimal
               label="Commercial Insurance *"
-              desc="Active Insurance Policy"
+              desc="Active policy certificate"
               file={docs.insurance}
               existing={existingSummary?.insuranceUrl}
               onChange={(f) => handleFileChange("insurance", f)}
             />
 
-            <DocUpload
+            <DocUploadMinimal
               label="PUC Certificate"
-              desc="Pollution Under Control"
+              desc="Pollution under control"
               file={docs.puc}
               existing={existingSummary?.pucUrl}
               onChange={(f) => handleFileChange("puc", f)}
             />
 
-            <DocUpload
+            <DocUploadMinimal
               label="Fitness / Permit"
-              desc="Commercial Fitness or Permit"
+              desc="Commercial permit document"
               file={docs.fitness}
               existing={existingSummary?.fitnessUrl}
               onChange={(f) => handleFileChange("fitness", f)}
@@ -360,7 +456,7 @@ export default function PartnerDocumentsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-gray-600 uppercase mb-1">
+              <label className="block text-[11px] font-mono uppercase tracking-wider font-semibold text-zinc-600 mb-1">
                 Vehicle Registration Number (RC)
               </label>
               <input
@@ -368,35 +464,35 @@ export default function PartnerDocumentsPage() {
                 placeholder="e.g. AS01AB1234"
                 value={metadata.rcNumber}
                 onChange={(e) => setMetadata({ ...metadata, rcNumber: e.target.value.toUpperCase() })}
-                className="w-full h-10 px-3 text-xs sm:text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-black uppercase font-mono"
+                className="w-full h-10 px-3 text-xs sm:text-sm rounded-none border border-zinc-300 focus:outline-none focus:border-zinc-950 uppercase font-mono bg-white"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-gray-600 uppercase mb-1">
+              <label className="block text-[11px] font-mono uppercase tracking-wider font-semibold text-zinc-600 mb-1">
                 Insurance Expiry Date
               </label>
               <input
                 type="date"
                 value={metadata.insuranceExpiry}
                 onChange={(e) => setMetadata({ ...metadata, insuranceExpiry: e.target.value })}
-                className="w-full h-10 px-3 text-xs sm:text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-black"
+                className="w-full h-10 px-3 text-xs sm:text-sm rounded-none border border-zinc-300 focus:outline-none focus:border-zinc-950 bg-white font-mono"
               />
             </div>
           </div>
         </div>
 
         {/* DPDP 2025 INFO */}
-        <div className="mt-5 flex items-start gap-2.5 text-xs text-gray-500 bg-orange-50/50 p-3.5 rounded-xl border border-orange-100">
-          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-orange-600" />
+        <div className="mt-6 flex items-start gap-2.5 text-xs text-zinc-500 bg-zinc-50 p-3.5 rounded-none border border-zinc-200">
+          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-zinc-900" />
           <p className="leading-relaxed">
-            <strong className="text-gray-900 font-semibold">DPDP Rules 2025 Compliance:</strong> Driver and vehicle documents are encrypted (AES-256) and used strictly for identity and safety verification. Raw Aadhaar numbers are never stored.
+            <strong className="text-zinc-950 font-semibold">DPDP Rules 2025 Compliance:</strong> All driver photographs and statutory credentials are encrypted (AES-256) and strictly maintained for safety dispatch verification.
           </p>
         </div>
 
         {/* ERROR */}
         {error && (
-          <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
+          <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-red-600 bg-zinc-50 p-3 rounded-none border border-zinc-300 font-mono">
             <AlertCircle size={15} className="shrink-0" />
             <p>{error}</p>
           </div>
@@ -404,29 +500,30 @@ export default function PartnerDocumentsPage() {
 
         {/* CTA */}
         <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
+          whileTap={{ scale: 0.99 }}
           disabled={loading}
           onClick={submitDocuments}
-          className="mt-6 sm:mt-8 w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-black text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 disabled:opacity-40 transition shadow-lg active:scale-98"
+          className="mt-8 w-full h-12 sm:h-13 rounded-none bg-zinc-950 hover:bg-black text-white font-medium text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 border border-zinc-950 transition-colors disabled:opacity-50"
         >
-          {completed && !editMode
-            ? "Continue to Bank Verification"
-            : editMode
-            ? "Save & Continue"
-            : loading
-            ? "Uploading & Encrypting..."
-            : "Save & Continue"}
-          <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+          <span>
+            {completed && !editMode
+              ? "Continue to Step 3: Bank Setup"
+              : editMode
+              ? "Save Documents & Continue"
+              : loading
+              ? "Encrypting & Storing Documents..."
+              : "Save Documents & Continue"}
+          </span>
+          <ArrowRight size={16} />
         </motion.button>
       </motion.div>
     </div>
   );
 }
 
-/* ================= DOC UPLOAD COMPONENT ================= */
+/* ================= MINIMALIST DOC UPLOAD COMPONENT ================= */
 
-function DocUpload({
+function DocUploadMinimal({
   label,
   desc,
   file,
@@ -440,33 +537,33 @@ function DocUpload({
   onChange: (f: File | null) => void;
 }) {
   return (
-    <label className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl border border-gray-200 cursor-pointer hover:border-black active:scale-[0.99] transition bg-white shadow-sm">
+    <label className="flex items-center justify-between p-3.5 rounded-none border border-zinc-200 cursor-pointer hover:border-zinc-950 transition-colors bg-white">
       <div className="min-w-0 pr-2">
-        <p className="text-xs sm:text-sm font-semibold truncate text-gray-900">
+        <p className="text-xs sm:text-sm font-semibold truncate text-zinc-950">
           {label}
         </p>
-        <p className="text-[11px] text-gray-500 truncate">
-          {file ? file.name : existing ? "Already uploaded" : desc}
+        <p className="text-[11px] text-zinc-500 truncate font-mono mt-0.5">
+          {file ? file.name : existing ? "Document on file" : desc}
         </p>
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
         {file ? (
-          <span className="text-[10px] sm:text-[11px] text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
+          <span className="text-[10px] text-zinc-950 font-mono font-bold bg-zinc-100 px-2 py-0.5 border border-zinc-300">
             Selected
           </span>
         ) : existing ? (
-          <span className="text-[10px] sm:text-[11px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+          <span className="text-[10px] text-zinc-950 font-mono font-bold bg-zinc-100 px-2 py-0.5 border border-zinc-300">
             Uploaded
           </span>
         ) : (
-          <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">
-            Upload
+          <span className="text-[10px] text-zinc-400 font-mono">
+            Browse
           </span>
         )}
 
-        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black text-white flex items-center justify-center shadow-sm">
-          <UploadCloud size={14} className="sm:w-[16px] sm:h-[16px]" />
+        <div className="w-7 h-7 rounded-none bg-zinc-950 text-white flex items-center justify-center">
+          <UploadCloud size={14} />
         </div>
       </div>
 

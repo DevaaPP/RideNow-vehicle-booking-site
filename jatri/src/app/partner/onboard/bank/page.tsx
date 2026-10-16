@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
+  ArrowRight,
   CheckCircle,
   Landmark,
   CreditCard,
@@ -43,7 +44,7 @@ export default function PartnerBankPage() {
           const bank = res.data.bank;
           setName(bank.accountHolderName || "");
           setIfsc(bank.ifsc || "");
-          setAccount(bank.accountNumber || "" )
+          setAccount(bank.accountNumber || "");
           setUpi(bank.upi || "");
           setMobileNumber(bank.mobileNumber || "");
           setCompleted(true);
@@ -98,66 +99,64 @@ export default function PartnerBankPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 sm:bg-white flex flex-col justify-center px-3 sm:px-4 py-6 sm:py-12">
+    <div className="min-h-screen bg-zinc-50 sm:bg-zinc-100/60 flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-xl mx-auto bg-white rounded-2xl sm:rounded-3xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] sm:shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-5 sm:p-8"
+        transition={{ duration: 0.25 }}
+        className="w-full max-w-xl mx-auto bg-white rounded-none border border-zinc-300 p-6 sm:p-10"
       >
         {/* ================= HEADER ================= */}
-        <div className="relative text-center">
-          <button
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="absolute left-0 top-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition active:scale-95"
-          >
-            <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
-          </button>
+        <div className="relative border-b border-zinc-200 pb-6 mb-6">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              aria-label="Go back"
+              className="w-8 h-8 rounded-none border border-zinc-300 flex items-center justify-center hover:bg-zinc-100 transition-colors"
+            >
+              <ArrowLeft size={16} />
+            </button>
 
-          <p className="text-[11px] sm:text-xs text-gray-500 font-semibold tracking-wide uppercase">
-            Step 3 of 3
-          </p>
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500">
+              Step 03 / 03
+            </span>
+          </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold mt-1 tracking-tight">
-            Bank & Payout Setup
+          <h1 className="text-xl sm:text-2xl font-bold mt-4 tracking-tight text-zinc-950 font-sans">
+            Bank &amp; Automated Payout Setup
           </h1>
 
-          <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            Used for vendor payouts
+          <p className="text-xs sm:text-sm text-zinc-500 mt-1 leading-relaxed">
+            Registered commercial account for immediate daily ride revenue disbursements.
           </p>
 
           {completed && !editMode && (
-            <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5">
-              <div className="flex items-center gap-1.5 text-green-600 text-xs sm:text-sm font-semibold">
-                <CheckCircle size={15} />
-                Bank details added
+            <div className="mt-4 p-3 bg-zinc-50 border border-zinc-200 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-zinc-900 text-xs font-semibold">
+                <CheckCircle size={15} className="text-zinc-900" />
+                <span>Bank account details recorded</span>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-semibold underline flex items-center gap-1 py-1"
+                className="text-xs font-mono font-semibold text-zinc-900 underline flex items-center gap-1 hover:text-black uppercase tracking-wider"
               >
                 <Pencil size={12} />
-                Edit details
-              </motion.button>
+                Edit Account
+              </button>
             </div>
           )}
         </div>
 
         {/* ================= FORM ================= */}
         <div
-          className={`mt-6 sm:mt-8 space-y-4 sm:space-y-5 ${
-            completed && !editMode
-              ? "opacity-50 pointer-events-none"
-              : ""
+          className={`space-y-4 ${
+            completed && !editMode ? "opacity-50 pointer-events-none" : ""
           }`}
         >
-          <InputField
-            label="Account holder name"
-            placeholder="As per bank records"
+          <InputFieldMinimal
+            label="Account Holder Name *"
+            placeholder="Name exactly as printed on bank account"
             icon={<BadgeCheck size={16} />}
             value={name}
             onChange={setName}
@@ -165,21 +164,21 @@ export default function PartnerBankPage() {
             errorText="Minimum 3 characters required"
           />
 
-          <InputField
-            label="Bank account number"
-            placeholder="Enter account number"
+          <InputFieldMinimal
+            label="Bank Account Number *"
+            placeholder="e.g. 012345678901"
             icon={<CreditCard size={16} />}
             value={account}
             onChange={(v) =>
               setAccount(v.replace(/\D/g, ""))
             }
             error={!isAccountValid && account.length > 0}
-            errorText="Account number must be at least 9 digits"
+            errorText="Bank account number must be at least 9 numeric digits"
           />
 
-          <InputField
-            label="IFSC code"
-            placeholder="HDFC0001234"
+          <InputFieldMinimal
+            label="IFSC Code *"
+            placeholder="e.g. HDFC0001234"
             icon={<Landmark size={16} />}
             value={ifsc}
             onChange={(v) =>
@@ -187,12 +186,12 @@ export default function PartnerBankPage() {
             }
             maxLength={11}
             error={ifsc.length === 11 && !isIfscValid}
-            errorText="Invalid IFSC code"
+            errorText="Invalid IFSC format (4 alphabetic characters + 0 + 6 alphanumeric digits)"
           />
 
-          <InputField
-            label="Mobile number"
-            placeholder="10 digit mobile number"
+          <InputFieldMinimal
+            label="Bank Registered Mobile Number *"
+            placeholder="10-digit registered number"
             icon={<Phone size={16} />}
             value={mobileNumber}
             onChange={(v) => setMobileNumber(v.replace(/\D/g, "").slice(0, 10))}
@@ -201,9 +200,9 @@ export default function PartnerBankPage() {
             errorText="Enter a valid 10-digit mobile number"
           />
 
-          <InputField
-            label="UPI ID"
-            placeholder="name@upi"
+          <InputFieldMinimal
+            label="Direct UPI ID (Optional)"
+            placeholder="driver@okaxis / driver@paytm"
             value={upi}
             onChange={setUpi}
             optional
@@ -212,54 +211,56 @@ export default function PartnerBankPage() {
 
         {/* ================= WHY DISABLED ================= */}
         {!canSubmit && editMode && (
-          <div className="mt-4 sm:mt-5 text-xs text-amber-800 bg-amber-50 p-3 rounded-xl border border-amber-200/60 space-y-1">
-            <p className="font-semibold">
-              Complete the following to continue:
+          <div className="mt-4 text-xs font-mono text-zinc-950 bg-zinc-50 p-3 rounded-none border border-zinc-300 space-y-1">
+            <p className="font-bold uppercase tracking-wider">
+              Required Fields Missing:
             </p>
             {!isNameValid && <p>• Valid account holder name</p>}
-            {!isAccountValid && <p>• Valid bank account number</p>}
-            {!isIfscValid && <p>• Correct IFSC code</p>}
-            {!isMobileValid && <p>• Valid 10-digit mobile number</p>}
+            {!isAccountValid && <p>• Valid numeric bank account number</p>}
+            {!isIfscValid && <p>• Standard 11-character IFSC code</p>}
+            {!isMobileValid && <p>• 10-digit verified mobile number</p>}
           </div>
         )}
 
         {/* ================= INFO ================= */}
-        <div className="mt-5 flex items-start gap-2.5 text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
-          <CheckCircle size={16} className="mt-0.5 shrink-0 text-gray-700" />
+        <div className="mt-5 flex items-start gap-2.5 text-xs text-zinc-500 bg-zinc-50 p-3.5 rounded-none border border-zinc-200">
+          <CheckCircle size={15} className="mt-0.5 shrink-0 text-zinc-900" />
           <p className="leading-relaxed">
-            Bank details are verified before first payout. This usually takes 24–48 hours.
+            Direct IMPS/NEFT bank settlement verifies automatically upon first completed dispatch ride. Zero commission deductions on partner payout.
           </p>
         </div>
 
         {/* ================= ERROR ================= */}
         {error && (
-          <p className="mt-4 text-xs sm:text-sm text-red-500 bg-red-50 p-2.5 rounded-lg border border-red-100">
+          <div className="mt-4 p-3 rounded-none bg-zinc-50 border border-zinc-300 text-xs text-red-600 font-mono">
             {error}
-          </p>
+          </div>
         )}
 
         {/* ================= CTA ================= */}
         <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
+          whileTap={{ scale: 0.99 }}
           disabled={!canSubmit || loading}
           onClick={handleSubmit}
-          className="mt-6 sm:mt-8 w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-black text-white font-semibold text-sm sm:text-base disabled:opacity-40 transition shadow-lg active:scale-98"
+          className="mt-8 w-full h-12 sm:h-13 rounded-none bg-zinc-950 hover:bg-black text-white font-medium text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 border border-zinc-950 transition-colors disabled:opacity-50"
         >
-          {completed && !editMode
-            ? "Continue"
-            : loading
-            ? "Saving..."
-            : "Save & Continue"}
+          <span>
+            {completed && !editMode
+              ? "Access Partner Dashboard"
+              : loading
+              ? "Validating Account..."
+              : "Submit & Access Dashboard"}
+          </span>
+          <ArrowRight size={16} />
         </motion.button>
       </motion.div>
     </div>
   );
 }
 
-/* ================= INPUT ================= */
+/* ================= MINIMALIST INPUT FIELD ================= */
 
-function InputField({
+function InputFieldMinimal({
   label,
   placeholder,
   value,
@@ -282,32 +283,34 @@ function InputField({
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-gray-500">
-        {label}{" "}
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-zinc-600">
+          {label}
+        </label>
         {optional && (
-          <span className="text-gray-400 font-normal">
-            (optional)
+          <span className="text-[10px] font-mono text-zinc-400">
+            Optional
           </span>
         )}
-      </label>
+      </div>
 
-      <div className="flex items-center gap-2 mt-2">
-        {icon && <div className="text-gray-400">{icon}</div>}
+      <div className="flex items-center rounded-none border border-zinc-300 bg-white focus-within:border-zinc-950 transition-colors">
+        {icon && (
+          <div className="pl-3 pr-2 text-zinc-400 shrink-0">
+            {icon}
+          </div>
+        )}
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
-          className={`flex-1 border-b pb-2 text-sm focus:outline-none ${
-            error
-              ? "border-red-400 focus:border-red-500"
-              : "border-gray-300 focus:border-black"
-          }`}
+          className="w-full h-10 px-2.5 text-xs sm:text-sm bg-transparent focus:outline-none font-mono placeholder:text-zinc-400"
         />
       </div>
 
       {error && errorText && (
-        <p className="mt-1 text-xs text-red-500">
+        <p className="mt-1 text-[11px] font-mono text-red-600">
           {errorText}
         </p>
       )}
