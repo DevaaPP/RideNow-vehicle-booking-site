@@ -657,7 +657,7 @@ export default function RidePage() {
   };
 
   return (
-    <div className="h-screen w-full bg-zinc-100 flex flex-col lg:flex-row overflow-hidden">
+    <div className="h-screen w-full bg-zinc-100 flex flex-col md:flex-row overflow-hidden">
 
       {/* ══ MAP ══ */}
       <div className="relative flex-1 h-full z-0">
@@ -685,11 +685,11 @@ export default function RidePage() {
         </motion.div>
       </div>
 
-      {/* ══ DESKTOP PANEL ══ */}
+      {/* ══ DESKTOP / TABLET EDITORIAL PANEL (UP TO 40% WIDTH LIKE /book) ══ */}
       <motion.div
         initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden lg:flex w-[420px] xl:w-[460px] bg-white border-l border-zinc-200 flex-col overflow-hidden"
+        className="hidden md:flex w-full md:w-[45%] lg:w-[40%] xl:w-[40%] 2xl:w-[40%] min-w-[380px] max-w-[580px] bg-white border-l border-zinc-200 flex-col overflow-hidden flex-shrink-0 z-10"
       >
         <div className="bg-zinc-950 px-6 py-5 flex-shrink-0">
           <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold mb-1">Live Tracking</p>
@@ -708,8 +708,8 @@ export default function RidePage() {
         </div>
       </motion.div>
 
-      {/* ══ MOBILE BOTTOM SHEET ══ */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
+      {/* ══ MOBILE BOTTOM SHEET (< md) ══ */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
           className="bg-white rounded-none shadow-2xl pointer-events-auto overflow-hidden border-t-2 border-zinc-950 flex flex-col"
           animate={{ height: expanded ? "82vh" : PEEK_H }}
