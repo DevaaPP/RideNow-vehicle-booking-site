@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
@@ -68,7 +71,10 @@ export async function GET(req: NextRequest) {
       },
       {
         status: 200,
-        headers: { "X-Request-Id": requestId },
+        headers: {
+          "X-Request-Id": requestId,
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
       }
     );
   } catch (error: any) {

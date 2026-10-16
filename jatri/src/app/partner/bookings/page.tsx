@@ -16,6 +16,7 @@ import {
   User,
   Phone,
 } from "lucide-react";
+import { RideCardSkeleton } from "@/shared/components/skeletons/RideCardSkeleton";
 
 interface Booking {
   _id: string;
@@ -157,10 +158,10 @@ export default function PartnerBookingsPage() {
             </select>
           </div>
 
-          {/* LOADING STATE */}
+          {/* SKELETON LOADING STATE */}
           {loading && (
-            <div className="flex justify-center py-16">
-              <Loader2 className="animate-spin w-8 h-8 text-blue-600" />
+            <div className="py-2">
+              <RideCardSkeleton count={3} />
             </div>
           )}
 
