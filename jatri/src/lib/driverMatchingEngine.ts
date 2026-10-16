@@ -63,20 +63,12 @@ export async function findEligibleCandidates(options: {
   const logs: string[] = [];
   logs.push(`Matching request initiated for ${vehicleType} at [${pickupLng}, ${pickupLat}].`);
 
-  // 1. Service Area Verification
+  // 1. Service Area Verification (log warning without hard-blocking dispatch)
   const areaCheck = validateServiceArea(pickupLat, pickupLng);
   if (!areaCheck.isSupported) {
-    logs.push(`Location outside service area: ${areaCheck.message}`);
-    return {
-      success: false,
-      candidates: [],
-      totalEligibleFound: 0,
-      searchRadiusKm: maxRadiusKm,
-      logs,
-    };
+    logs.push(`Location service area notice: ${areaCheck.message || "Operating outside standard boundary"}. Proceeding with matching.`);
   }
 
-  // 2. Fetch active vehicles of matching type
   // 2. Fetch active vehicles of matching type (case-insensitive & category aliases)
   const normalizedType = vehicleType.toLowerCase();
   let candidateTypes: string[] = [normalizedType];
@@ -115,42 +107,54 @@ export async function findEligibleCandidates(options: {
       }
     : { type: { $in: typeRegexes } };
 
+  // Fetch online vendors first to ensure live drivers are always matched
+  const onlineVendors = await User.find({
+    isOnline: { $in: [true, "true"] },
+    isVendorBlocked: { $ne: true },
+    location: { $exists: true },
+  }).lean();
+
+  logs.push(`Found ${onlineVendors.length} online vendors currently active in system.`);
+
   let activeVehicles = await Vehicle.find({
     ...typeFilter,
-    isActive: { $ne: false },
     status: { $ne: "rejected" },
   }).lean();
 
-  // If no vehicles matched by strict category, check if online drivers exist with any registered vehicle
-  if (!activeVehicles.length) {
-    const onlineVendors = await User.find({
-      isOnline: { $in: [true, "true"] },
-      isVendorBlocked: { $ne: true },
-      location: { $exists: true },
-    }).select("_id").lean();
-
-    if (onlineVendors.length > 0) {
-      const vendorIds = onlineVendors.map((v) => v._id);
-      activeVehicles = await Vehicle.find({
-        owner: { $in: vendorIds },
-        isActive: { $ne: false },
-        status: { $ne: "rejected" },
-      }).lean();
-
-      // If an online driver doesn't have a vehicle document yet, create one for immediate dispatch
-      if (!activeVehicles.length) {
-        for (const vendor of onlineVendors) {
+  // If online vendors exist, ensure each has a recognized vehicle in activeVehicles
+  if (onlineVendors.length > 0) {
+    for (const vendor of onlineVendors) {
+      const vIdStr = vendor._id.toString();
+      const hasVeh = activeVehicles.some((v) => v.owner && v.owner.toString() === vIdStr);
+      if (!hasVeh) {
+        // Look up any existing non-rejected vehicle for this online vendor
+        const existingVeh = await Vehicle.findOne({ owner: vendor._id, status: { $ne: "rejected" } }).lean();
+        if (existingVeh) {
+          activeVehicles.push(existingVeh);
+        } else {
+          // Auto-create matching vehicle for online vendor
+          const isTwoWheeler = ["scooty", "bike"].includes(normalizedType);
+          const isAuto = normalizedType === "auto";
+          const isGoods = ["loading", "truck"].includes(normalizedType);
           const newVeh = await Vehicle.create({
             owner: vendor._id,
-            type: (["scooty", "bike"].includes(normalizedType) ? normalizedType : "car") as any,
+            type: (isTwoWheeler ? normalizedType : isAuto ? "auto" : isGoods ? normalizedType : "car") as any,
             number: "AS-01-RN-" + Math.floor(1000 + Math.random() * 9000),
-            vehicleModel: ["scooty", "bike"].includes(normalizedType) ? "Two Wheeler" : "RideNow Cab",
+            vehicleModel: isTwoWheeler ? "Two Wheeler" : isAuto ? "Auto Rickshaw" : isGoods ? "Delivery Vehicle" : "RideNow Cab",
             status: "approved",
             isActive: true,
           });
           activeVehicles.push(newVeh.toObject());
         }
       }
+    }
+  }
+
+  // Ensure active status on vehicles
+  for (const v of activeVehicles) {
+    if (v.isActive === false) {
+      await Vehicle.updateOne({ _id: v._id }, { isActive: true }).catch(() => {});
+      (v as any).isActive = true;
     }
   }
 
@@ -175,12 +179,13 @@ export async function findEligibleCandidates(options: {
     } catch (e) {}
   }
 
-  // 3. Duplicate Assignment Prevention: Find drivers currently busy with an active trip
-  // or reserved with an active 25-second pending dispatch countdown
+  // 3. Duplicate Assignment Prevention: Freshness threshold applied to avoid locking out drivers from stale test bookings
+  const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
   const busyDriverIds = await Booking.find({
     status: {
       $in: [
-        "awaiting_payment",
         "confirmed",
         "driver_assigned",
         "driver_arriving",
@@ -190,6 +195,12 @@ export async function findEligibleCandidates(options: {
         "ride_in_progress",
       ],
     },
+    updatedAt: { $gte: threeHoursAgo },
+  }).distinct("driver");
+
+  const pendingPaymentDriverIds = await Booking.find({
+    status: "awaiting_payment",
+    updatedAt: { $gte: tenMinutesAgo },
   }).distinct("driver");
 
   const pendingOfferDriverIds = await Booking.find({
@@ -200,12 +211,13 @@ export async function findEligibleCandidates(options: {
 
   const excludedSet = new Set([
     ...busyDriverIds.map((id) => id.toString()),
+    ...pendingPaymentDriverIds.map((id) => id.toString()),
     ...pendingOfferDriverIds.map((id) => id.toString()),
     ...excludeDriverIds.map((id) => id.toString()),
   ]);
 
   logs.push(
-    `Filtered out ${busyDriverIds.length} busy drivers, ${pendingOfferDriverIds.length} pending-offer drivers, and ${excludeDriverIds.length} explicitly excluded drivers.`
+    `Filtered out ${busyDriverIds.length} busy drivers, ${pendingPaymentDriverIds.length} pending-payment drivers, ${pendingOfferDriverIds.length} pending-offer drivers, and ${excludeDriverIds.length} explicitly excluded drivers.`
   );
 
   // 4. Query online vendors/drivers who own these vehicles (supports both ObjectId & string)
@@ -219,13 +231,14 @@ export async function findEligibleCandidates(options: {
   logs.push(`Found ${candidateDrivers.length} online vendors before location & freshness filtering.`);
 
   // 5. Dual freshness verification:
-  // - Heartbeat freshness: relaxed to 30 mins (stationary/screen-lock resilience)
-  // - GPS freshness: relaxed to 30 mins
+  // - Heartbeat freshness: relaxed to 24 hours for online drivers
+  // - GPS freshness: relaxed to 24 hours for online drivers
   const now = Date.now();
-  const MAX_GPS_STALENESS_MS = 30 * 60 * 1000;
-  const MAX_HEARTBEAT_STALENESS_MS = 30 * 60 * 1000;
+  const MAX_GPS_STALENESS_MS = 24 * 60 * 60 * 1000;
+  const MAX_HEARTBEAT_STALENESS_MS = 24 * 60 * 60 * 1000;
 
   const eligibleList: CandidateDriver[] = [];
+  const secondaryRadiusList: CandidateDriver[] = [];
 
   for (const driver of candidateDrivers) {
     const driverIdStr = driver._id.toString();
@@ -279,34 +292,47 @@ export async function findEligibleCandidates(options: {
     const [dLng, dLat] = driverCoords;
     const distanceKm = Number(haversineDistance([pickupLng, pickupLat], [dLng, dLat]).toFixed(2));
 
-    if (distanceKm <= maxRadiusKm) {
-      const vehicleDoc = activeVehicles.find((v) => v.owner.toString() === driverIdStr);
-      if (vehicleDoc) {
-        eligibleList.push({
-          driverId: driver._id,
-          driverName: driver.name || "Driver",
-          driverMobile: driver.mobileNumber || "",
-          distanceKm,
-          estimatedEtaMinutes: Math.max(2, Math.round(distanceKm * 2.5)),
-          vehicleId: vehicleDoc._id,
-          vehicleModel: vehicleDoc.vehicleModel || "Vehicle",
-          vehicleNumber: vehicleDoc.number || "",
-        });
+    const vehicleDoc = activeVehicles.find((v) => v.owner && v.owner.toString() === driverIdStr);
+    if (vehicleDoc) {
+      const candidateObj: CandidateDriver = {
+        driverId: driver._id,
+        driverName: driver.name || "Driver",
+        driverMobile: driver.mobileNumber || "",
+        distanceKm,
+        estimatedEtaMinutes: Math.max(2, Math.round(distanceKm * 2.5)),
+        vehicleId: vehicleDoc._id,
+        vehicleModel: vehicleDoc.vehicleModel || "Vehicle",
+        vehicleNumber: vehicleDoc.number || "",
+      };
+
+      if (distanceKm <= maxRadiusKm) {
+        eligibleList.push(candidateObj);
+      } else if (distanceKm <= 25) {
+        secondaryRadiusList.push(candidateObj);
       }
     }
   }
 
-  // 6. Sort candidates by closest distance
-  eligibleList.sort((a, b) => a.distanceKm - b.distanceKm);
+  // If no candidates found in strict primary radius (e.g. 10 km), fallback to secondary metro radius
+  let finalCandidates = eligibleList;
+  let effectiveRadius = maxRadiusKm;
+  if (finalCandidates.length === 0 && secondaryRadiusList.length > 0) {
+    finalCandidates = secondaryRadiusList;
+    effectiveRadius = 25;
+    logs.push(`No drivers within ${maxRadiusKm} km; expanded search radius to 25 km to include nearest available driver.`);
+  }
 
-  const topCandidates = eligibleList.slice(0, maxCandidates);
-  logs.push(`Selected top ${topCandidates.length} nearest candidates out of ${eligibleList.length} eligible.`);
+  // 6. Sort candidates by closest distance
+  finalCandidates.sort((a, b) => a.distanceKm - b.distanceKm);
+
+  const topCandidates = finalCandidates.slice(0, maxCandidates);
+  logs.push(`Selected top ${topCandidates.length} nearest candidates out of ${finalCandidates.length} eligible.`);
 
   return {
     success: topCandidates.length > 0,
     candidates: topCandidates,
-    totalEligibleFound: eligibleList.length,
-    searchRadiusKm: maxRadiusKm,
+    totalEligibleFound: finalCandidates.length,
+    searchRadiusKm: effectiveRadius,
     logs,
   };
 }

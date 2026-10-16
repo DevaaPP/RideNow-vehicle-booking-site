@@ -2759,7 +2759,7 @@ export default function BookPage() {
                     <span>
                       {bookingMode === "schedule"
                         ? t("booking.scheduleRide", "Schedule Ride")
-                        : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride")} • ₹${currentBreakdown.totalFare}`}
+                        : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride")}`}
                     </span>
                     <ArrowRight size={16} />
                   </motion.button>
