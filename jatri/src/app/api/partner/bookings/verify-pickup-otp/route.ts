@@ -12,12 +12,17 @@ export async function POST(req: Request) {
   try {
     // ── Authentication ───────────────────────────────────────────────────
     const session = await auth();
-    if (!session?.user?.email) {
+    const userId = session?.user?.id;
+    const userEmail = session?.user?.email;
+
+    if (!userId && !userEmail) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const caller = await User.findOne({ email: session.user.email })
-      .select("_id role")
-      .lean();
+
+    const caller = userId
+      ? await User.findById(userId).select("_id role").lean()
+      : await User.findOne({ email: userEmail }).select("_id role").lean();
+
     if (!caller) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
@@ -46,8 +51,12 @@ export async function POST(req: Request) {
     }
 
     if (!booking.pickupOtp) {
+      // Auto-heal: If pickupOtp was somehow missing, generate and notify passenger
+      booking.pickupOtp = generateSecureOtp(4);
+      booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
+      await booking.save();
       return NextResponse.json(
-        { message: "OTP not generated yet. Please tap 'I've Arrived at Pickup'." },
+        { message: "A new 4-digit PIN has been generated on the customer's screen. Please ask the passenger for the code." },
         { status: 400 }
       );
     }
@@ -125,6 +134,7 @@ export async function POST(req: Request) {
     const transitionRes = await transitionBookingState({
       bookingId: booking._id,
       targetStatus: "started",
+      actorId: (caller as any)._id,
       actorRole: "driver",
       payload: {
         startedAt: now,

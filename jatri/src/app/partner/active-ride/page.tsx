@@ -1144,10 +1144,13 @@ function ActionBar({
     );
   }
 
-  if (!["confirmed", "started"].includes(status)) return null;
+  const isPreTrip = ["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "awaiting_payment"].includes(status);
+  const isStarted = ["started", "ride_started", "ride_in_progress"].includes(status);
 
-  const targetCoords = status === "started" ? dropPos : pickupPos;
-  const targetAddress = status === "started" ? booking?.dropAddress : booking?.pickupAddress;
+  if (!isPreTrip && !isStarted) return null;
+
+  const targetCoords = isStarted ? dropPos : pickupPos;
+  const targetAddress = isStarted ? booking?.dropAddress : booking?.pickupAddress;
   const navUrl = targetCoords
     ? `https://www.google.com/maps/dir/?api=1&destination=${targetCoords[0]},${targetCoords[1]}&travelmode=driving`
     : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(targetAddress || "")}&travelmode=driving`;
@@ -1162,14 +1165,14 @@ function ActionBar({
         className="w-full mb-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white py-3 px-4 rounded-none font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-none transition-all cursor-pointer"
       >
         <Navigation size={14} className="fill-white" />
-        <span>Navigate in Maps ({status === "started" ? "To Drop" : "To Pickup"})</span>
+        <span>Navigate in Maps ({isStarted ? "To Drop" : "To Pickup"})</span>
         <ExternalLink size={13} className="opacity-80 ml-1" />
       </a>
 
       <AnimatePresence mode="wait">
 
         {/* STATE 1 — Arrived */}
-        {status === "confirmed" && !otpMode && !otpVerified && (
+        {isPreTrip && !otpMode && !otpVerified && (
           <motion.button key="arrived"
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             onClick={async () => { await sendPickupOtp(); setOtpMode(true); }}
@@ -1180,7 +1183,7 @@ function ActionBar({
         )}
 
         {/* STATE 2 — Pickup OTP */}
-        {status === "confirmed" && otpMode && !otpVerified && (
+        {isPreTrip && otpMode && !otpVerified && (
           <motion.div key="pickup-otp"
             initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }} transition={{ duration: 0.2 }}
@@ -1215,7 +1218,7 @@ function ActionBar({
         )}
 
         {/* STATE 3 — Pickup verified */}
-        {otpVerified && status === "confirmed" && (
+        {otpVerified && isPreTrip && (
           <motion.div key="pickup-verified"
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
           >
@@ -1227,7 +1230,7 @@ function ActionBar({
         )}
 
         {/* STATE 4 — Mark as Dropped */}
-        {status === "started" && !dropOtpMode && (
+        {isStarted && !dropOtpMode && (
           <motion.button key="drop-btn"
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             onClick={async () => { await sendDropOtp(); setDropOtpMode(true); }}
@@ -1238,7 +1241,7 @@ function ActionBar({
         )}
 
         {/* STATE 5 — Drop OTP */}
-        {status === "started" && dropOtpMode && (
+        {isStarted && dropOtpMode && (
           <motion.div key="drop-otp"
             initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }} transition={{ duration: 0.2 }}

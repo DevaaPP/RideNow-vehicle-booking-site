@@ -1364,6 +1364,8 @@ function PanelContent({
   chatOpen, onChatToggle, onCancel, onRetryPayment, router,
   onCallClick, onPanicClick,
 }: any) {
+  const isPreTrip = ["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "awaiting_payment"].includes(status);
+
   return (
     <div className="flex flex-col pt-4 pb-6 gap-3">
 
@@ -1629,7 +1631,7 @@ function PanelContent({
       </AnimatePresence>
 
       {/* 🔐 START RIDE PICKUP OTP BANNER */}
-      {booking.pickupOtp && status === "confirmed" && (
+      {booking.pickupOtp && isPreTrip && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1691,7 +1693,7 @@ function PanelContent({
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Pickup</p>
               <p className="text-xs font-bold text-zinc-900 leading-snug">{booking.pickupAddress || "—"}</p>
-              {booking.pickupOtp && status === "confirmed" && (
+              {booking.pickupOtp && isPreTrip && (
                 <div className="mt-1.5 inline-flex items-center gap-1.5 bg-zinc-100 border border-zinc-300 px-2 py-0.5 rounded-none">
                   <p className="text-zinc-950 text-xs font-black tracking-widest font-mono">{booking.pickupOtp}</p>
                   <p className="text-zinc-500 text-[10px] font-bold uppercase">PIN</p>

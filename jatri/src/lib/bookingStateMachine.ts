@@ -30,9 +30,10 @@ export interface TransitionResult {
  * Valid state transitions mapping. Terminal states have empty target sets.
  */
 export const ALLOWED_TRANSITIONS: Record<string, BookingStatus[]> = {
+  scheduled: ["requested", "searching_driver", "driver_assigned", "awaiting_payment", "confirmed", "cancelled", "expired"],
   requested: ["searching_driver", "driver_assigned", "awaiting_payment", "confirmed", "cancelled", "expired", "no_drivers_available"],
   searching_driver: ["driver_assigned", "awaiting_payment", "confirmed", "cancelled", "expired", "no_drivers_available"],
-  awaiting_payment: ["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "cancelled", "expired", "payment_failed"],
+  awaiting_payment: ["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "started", "ride_started", "cancelled", "expired", "payment_failed"],
   confirmed: ["driver_assigned", "driver_arriving", "driver_arrived", "started", "ride_started", "cancelled", "disputed"],
   driver_assigned: ["driver_arriving", "driver_arrived", "started", "ride_started", "cancelled", "disputed"],
   driver_arriving: ["driver_arrived", "started", "ride_started", "cancelled", "disputed"],

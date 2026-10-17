@@ -99,7 +99,7 @@ export async function POST(
     estimatedDropoffTime: new Date(Date.now() + duration * 60 * 1000),
   };
 
-  if (isPaidOrCash && !existingBooking?.pickupOtp) {
+  if (!existingBooking?.pickupOtp) {
     payload.pickupOtp = generateSecureOtp(4);
     payload.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
   }

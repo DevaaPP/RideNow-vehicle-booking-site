@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     const sendResult = await otpService.dispatch(tenDigits, otp, selectedChannel);
 
     const devOtp =
-      process.env.NODE_ENV === "development"
+      process.env.NODE_ENV === "development" || !process.env.NODE_ENV || Boolean(sendResult.devOtp)
         ? sendResult.devOtp || otp
         : undefined;
 

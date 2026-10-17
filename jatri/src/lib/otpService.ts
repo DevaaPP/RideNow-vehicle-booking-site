@@ -134,6 +134,20 @@ class OTPService {
     const provider = this.providers[preferredChannel] || this.providers.whatsapp;
     const result = await provider.sendOtp(toPhone, otp);
 
+    // Automatic Fallback: If WhatsApp fails (e.g. unconfigured or 24h window elapsed), try SMS provider
+    if (!result.success && preferredChannel === "whatsapp") {
+      console.warn("WhatsApp OTP dispatch failed, falling back to SMS provider...");
+      const smsResult = await this.providers.sms.sendOtp(toPhone, otp);
+      if (smsResult.success) {
+        return {
+          success: true,
+          channel: "sms",
+          messageId: smsResult.messageId,
+          devOtp: smsResult.devOtp,
+        };
+      }
+    }
+
     return {
       success: result.success,
       channel: preferredChannel,

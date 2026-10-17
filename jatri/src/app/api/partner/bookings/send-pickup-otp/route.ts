@@ -12,12 +12,17 @@ export async function POST(req: Request) {
   try {
     // ── Authentication ───────────────────────────────────────────────────
     const session = await auth();
-    if (!session?.user?.email) {
+    const userId = session?.user?.id;
+    const userEmail = session?.user?.email;
+
+    if (!userId && !userEmail) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const caller = await User.findOne({ email: session.user.email })
-      .select("_id role")
-      .lean();
+
+    const caller = userId
+      ? await User.findById(userId).select("_id role").lean()
+      : await User.findOne({ email: userEmail }).select("_id role").lean();
+
     if (!caller) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }

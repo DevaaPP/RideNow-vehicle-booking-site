@@ -318,12 +318,41 @@ export default function PhoneLinkModal() {
                       maxLength={1}
                       value={digit}
                       onChange={(e) => {
-                        const val = e.target.value;
-                        if (!/^[0-9]?$/.test(val)) return;
+                        const val = e.target.value.replace(/\D/g, "");
+                        if (!val) {
+                          const copy = [...otp];
+                          copy[i] = "";
+                          setOtp(copy);
+                          return;
+                        }
+                        if (val.length > 1) {
+                          const digits = val.slice(0, 6).split("");
+                          const copy = [...otp];
+                          digits.forEach((d, idx) => {
+                            if (i + idx < 6) copy[i + idx] = d;
+                          });
+                          setOtp(copy);
+                          const nextIdx = Math.min(i + digits.length, 5);
+                          otpInputRefs.current[nextIdx]?.focus();
+                          return;
+                        }
                         const copy = [...otp];
                         copy[i] = val;
                         setOtp(copy);
                         if (val && i < 5) otpInputRefs.current[i + 1]?.focus();
+                      }}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+                        if (!pasted) return;
+                        const digits = pasted.split("");
+                        const copy = [...otp];
+                        digits.forEach((d, idx) => {
+                          if (i + idx < 6) copy[i + idx] = d;
+                        });
+                        setOtp(copy);
+                        const nextIdx = Math.min(i + digits.length, 5);
+                        otpInputRefs.current[nextIdx]?.focus();
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Backspace" && !otp[i] && i > 0) {

@@ -31,12 +31,28 @@ export async function POST(
           { status: 400 }
         );
       }
+      if (!booking.pickupOtp) {
+        const { generateSecureOtp } = await import("@/lib/cryptoOtp");
+        booking.pickupOtp = generateSecureOtp(4);
+        booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
+        await booking.save();
+        return NextResponse.json(
+          { success: false, message: "A fresh PIN has been generated on the customer's screen. Please ask the passenger for the code." },
+          { status: 400 }
+        );
+      }
       if (String(booking.pickupOtp).trim() !== String(otp).trim()) {
         return NextResponse.json(
           { success: false, message: "Invalid Pickup OTP. Please check the 4-digit code on the customer's screen." },
           { status: 400 }
         );
       }
+    }
+
+    const { generateSecureOtp } = await import("@/lib/cryptoOtp");
+    let newDropOtp = generateSecureOtp(4);
+    while (newDropOtp === String(otp).trim()) {
+      newDropOtp = generateSecureOtp(4);
     }
 
     const transitionRes = await transitionBookingState({
@@ -49,12 +65,36 @@ export async function POST(
         actualPickupTime: new Date(),
         pickupOtp: "", // Clear used OTP
         pickupOtpExpires: null,
+        dropOtp: newDropOtp,
+        dropOtpExpires: new Date(Date.now() + 60 * 60 * 1000),
       },
     });
 
     if (!transitionRes.success) {
       const status = transitionRes.errorCode === "UNAUTHORIZED" ? 403 : 400;
       return NextResponse.json({ success: false, message: transitionRes.message || "Could not start ride" }, { status });
+    }
+
+    // Notify passenger and driver via socket
+    try {
+      if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
+        await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: booking.user.toString(),
+            event: "booking-updated",
+            data: {
+              bookingId: booking._id.toString(),
+              status: "started",
+              pickupOtp: "",
+              dropOtp: newDropOtp,
+            },
+          }),
+        });
+      }
+    } catch (sockErr) {
+      console.warn("Socket emit error in start route:", sockErr);
     }
 
     return NextResponse.json({

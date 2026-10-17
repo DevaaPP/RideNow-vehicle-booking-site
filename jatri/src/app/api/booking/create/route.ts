@@ -14,6 +14,7 @@ import { sendPushToUser } from "@/lib/webPush";
 import { findEligibleCandidates } from "@/lib/driverMatchingEngine";
 import { idempotency } from "@/lib/idempotency";
 import { getRequestId } from "@/lib/apiResponse";
+import { generateSecureOtp } from "@/lib/cryptoOtp";
 
 export async function POST(req: Request) {
   const requestId = getRequestId(req);
@@ -456,6 +457,8 @@ export async function POST(req: Request) {
               deliveryNotes: cargoDetails.deliveryNotes || "",
             }
           : undefined,
+      pickupOtp: generateSecureOtp(4),
+      pickupOtpExpires: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
       status: isScheduled ? "scheduled" : "requested",
     });
 

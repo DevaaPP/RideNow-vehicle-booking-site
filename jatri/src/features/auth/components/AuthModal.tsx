@@ -101,15 +101,47 @@ export default function AuthModal({ open, onClose }: Props) {
 
   /* Handle Phone OTP Input */
   const handlePhoneOtpChange = (index: number, val: string) => {
-    if (!/^[0-9]?$/.test(val)) return;
+    const clean = val.replace(/\D/g, "");
+    if (!clean) {
+      const updated = [...phoneOtp];
+      updated[index] = "";
+      setPhoneOtp(updated);
+      return;
+    }
+
+    if (clean.length > 1) {
+      const digits = clean.slice(0, 6).split("");
+      const updated = [...phoneOtp];
+      digits.forEach((d, idx) => {
+        if (index + idx < 6) updated[index + idx] = d;
+      });
+      setPhoneOtp(updated);
+      const nextIdx = Math.min(index + digits.length, 5);
+      otpInputRefs.current[nextIdx]?.focus();
+      return;
+    }
 
     const updated = [...phoneOtp];
-    updated[index] = val;
+    updated[index] = clean;
     setPhoneOtp(updated);
 
-    if (val && index < 5) {
+    if (clean && index < 5) {
       otpInputRefs.current[index + 1]?.focus();
     }
+  };
+
+  const handlePhoneOtpPaste = (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    const digits = pasted.split("");
+    const updated = [...phoneOtp];
+    digits.forEach((d, idx) => {
+      if (index + idx < 6) updated[index + idx] = d;
+    });
+    setPhoneOtp(updated);
+    const nextIdx = Math.min(index + digits.length, 5);
+    otpInputRefs.current[nextIdx]?.focus();
   };
 
   const handlePhoneOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -534,6 +566,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           value={digit}
                           onChange={(e) => handlePhoneOtpChange(i, e.target.value)}
                           onKeyDown={(e) => handlePhoneOtpKeyDown(i, e)}
+                          onPaste={(e) => handlePhoneOtpPaste(i, e)}
                           className="w-11 h-13 text-center text-lg font-bold rounded-xl bg-zinc-50 border border-zinc-300 focus:border-zinc-900 focus:bg-white outline-none transition"
                         />
                       ))}
