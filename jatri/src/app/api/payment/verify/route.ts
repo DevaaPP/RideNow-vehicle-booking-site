@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import { verifyPayment } from "@/lib/paymentService";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -54,38 +55,30 @@ export async function POST(req: Request) {
     const payment = result.payment;
 
     try {
-      if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
-        // Notify driver (without secret pickup OTP)
-        await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: booking?.driver ? booking.driver.toString() : undefined,
-            event: "booking-updated",
-            data: {
-              bookingId: booking._id.toString(),
-              status: "confirmed",
-              paymentStatus: "paid",
-            },
-          }),
-        });
+      // Notify driver (without secret pickup OTP)
+      await emitSocketEvent({
+        userId: booking?.driver ? booking.driver.toString() : undefined,
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          status: "confirmed",
+          paymentStatus: "paid",
+        },
+        directBookingId: booking._id.toString(),
+      });
 
-        // Notify passenger
-        await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: booking?.user ? booking.user.toString() : undefined,
-            event: "booking-updated",
-            data: {
-              bookingId: booking._id.toString(),
-              status: "confirmed",
-              paymentStatus: "paid",
-              pickupOtp: booking.pickupOtp,
-            },
-          }),
-        });
-      }
+      // Notify passenger
+      await emitSocketEvent({
+        userId: booking?.user ? booking.user.toString() : undefined,
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          status: "confirmed",
+          paymentStatus: "paid",
+          pickupOtp: booking.pickupOtp,
+        },
+        directBookingId: booking._id.toString(),
+      });
     } catch (err) {
       console.warn("Socket digital payment verify emit failed:", err);
     }

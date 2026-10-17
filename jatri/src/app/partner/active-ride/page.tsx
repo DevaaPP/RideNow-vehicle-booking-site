@@ -322,8 +322,8 @@ export default function DriverRidePage() {
       );
     }
 
-    // Adaptive polling: poll every 6s on cellular stutter/socket disconnect, 12s when healthy
-    const pollInterval = isSocketConnected ? 12000 : 6000;
+    // Adaptive polling: poll every 2s on cellular stutter/socket disconnect, 3s when healthy
+    const pollInterval = isSocketConnected ? 3000 : 2000;
     const interval = setInterval(fetchBookingDetails, pollInterval);
     return () => clearInterval(interval);
   }, [isSocketConnected]);
@@ -334,7 +334,8 @@ export default function DriverRidePage() {
     if (TERMINAL.includes(booking.status)) return;
     if (!navigator.geolocation) return;
 
-    const socket = getSocket();
+    const driverId = (booking?.driver as any)?._id || booking?.driver;
+    const socket = getSocket(driverId ? { userId: String(driverId) } : undefined);
     const watchId = navigator.geolocation.watchPosition(
       pos => {
         const b = bookingRef.current;
@@ -368,13 +369,22 @@ export default function DriverRidePage() {
   useEffect(() => {
     if (!booking?._id) return;
     if (TERMINAL.includes(booking.status)) return;
-    const socket = getSocket();
+    const driverId = (booking?.driver as any)?._id || booking?.driver;
+    const socket = getSocket(driverId ? { userId: String(driverId) } : undefined);
+    if (driverId) {
+      socket.emit("identity", String(driverId));
+    }
     const bookingIdStr = String(booking._id);
 
     joinBookingRoom(bookingIdStr);
     setIsSocketConnected(socket.connected);
 
-    const onConnect = () => setIsSocketConnected(true);
+    const onConnect = () => {
+      setIsSocketConnected(true);
+      if (driverId) {
+        socket.emit("identity", String(driverId));
+      }
+    };
     const onDisconnect = () => setIsSocketConnected(false);
     const onConnectError = () => setIsSocketConnected(false);
 
@@ -451,6 +461,16 @@ export default function DriverRidePage() {
       setOtp("");
       setChatOpen(false);
       setBooking(prev => prev ? { ...prev, status: "started" } : prev);
+
+      // Instant direct socket relay to booking room
+      if (booking?._id) {
+        const socket = getSocket();
+        socket.emit("booking-status-update", {
+          bookingId: booking._id,
+          status: "started",
+          dropOtp: data.dropOtp || (data.booking && data.booking.dropOtp),
+        });
+      }
     } catch { setOtpError("Verification failed"); }
     finally   { setLoadingOtp(false); }
   };
@@ -477,6 +497,15 @@ export default function DriverRidePage() {
       setDropOtp("");
       setDropOtpMode(false);
       setBooking(prev => prev ? { ...prev, status: "completed" } : prev);
+
+      // Instant direct socket relay to booking room
+      if (booking?._id) {
+        const socket = getSocket();
+        socket.emit("booking-status-update", {
+          bookingId: booking._id,
+          status: "completed",
+        });
+      }
     } catch { setDropOtpError("Verification failed"); }
     finally   { setLoadingDropOtp(false); }
   };

@@ -10,6 +10,7 @@ import {
 } from "@/lib/cancellationEngine";
 import { sendPushToUser } from "@/lib/webPush";
 import { haversineDistance } from "@/lib/routeUtils";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export async function GET(
   req: NextRequest,
@@ -243,26 +244,20 @@ export async function POST(
 
     // Emit to driver socket
     if (booking.driver) {
-      await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: booking.driver.toString(),
-          event: "booking-updated",
-          data: payload,
-        }),
+      await emitSocketEvent({
+        userId: booking.driver.toString(),
+        event: "booking-updated",
+        data: payload,
+        directBookingId: booking._id.toString(),
       });
     }
 
     // Emit to passenger socket
-    await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: booking.user.toString(),
-        event: "booking-updated",
-        data: payload,
-      }),
+    await emitSocketEvent({
+      userId: booking.user.toString(),
+      event: "booking-updated",
+      data: payload,
+      directBookingId: booking._id.toString(),
     });
   } catch (err) {
     console.error("Socket cancel emit failed:", err);

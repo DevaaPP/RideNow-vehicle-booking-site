@@ -1058,21 +1058,22 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     fetchPendingRequest();
     fetchShiftSummary();
 
-    // 🔁 Polling fallback every 12 seconds in case socket drops (Socket.IO handles real-time alerts)
+    // 🔁 Fast polling fallback every 2 seconds ensures instant notification even on slow networks
     const interval = setInterval(() => {
       checkActiveRide();
       fetchPendingRequest();
       fetchShiftSummary();
-    }, 12000);
+    }, 2000);
 
     // 3. Setup socket listener for incoming requests
-    const socket = getSocket(userData?._id ? { userId: userData._id } : undefined);
-    if (userData?._id) {
-      socket.emit("identity", userData._id);
+    const activeUserId = userData?._id ? String(userData._id) : undefined;
+    const socket = getSocket(activeUserId ? { userId: activeUserId } : undefined);
+    if (activeUserId) {
+      socket.emit("identity", activeUserId);
     }
     const handleConnect = () => {
-      if (userData?._id) {
-        socket.emit("identity", userData._id);
+      if (activeUserId) {
+        socket.emit("identity", activeUserId);
       }
     };
     socket.on("connect", handleConnect);

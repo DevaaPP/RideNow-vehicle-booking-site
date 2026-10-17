@@ -6,13 +6,16 @@ import Vehicle from "@/models/vehicle.model";
 import { auth } from "@/auth";
 import axios from "axios";
 import { haversineDistance } from "@/lib/routeUtils";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 async function notifySocket(userId: string, event: string, data: any) {
   try {
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-      { userId, event, data }
-    );
+    await emitSocketEvent({
+      userId,
+      event,
+      data,
+      directBookingId: data?._id?.toString() || data?.bookingId?.toString(),
+    });
   } catch (err) {
     console.error("Socket emit error in passenger rematch route:", err);
   }

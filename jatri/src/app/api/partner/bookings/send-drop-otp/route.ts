@@ -5,6 +5,7 @@ import User from "@/models/user.model";
 import { auth } from "@/auth";
 import { sendMail } from "@/lib/mailer";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export async function POST(req: Request) {
   await connectDB();
@@ -108,17 +109,14 @@ export async function POST(req: Request) {
 
     /* Notify passenger via socket */
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: (booking.user as any)._id.toString(),
-          event: "booking-updated",
-          data: {
-            bookingId: booking._id.toString(),
-            dropOtp: otp,
-          },
-        }),
+      await emitSocketEvent({
+        userId: (booking.user as any)._id.toString(),
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          dropOtp: otp,
+        },
+        directBookingId: booking._id.toString(),
       });
     } catch (err) {
       console.error("Socket notification for drop OTP failed:", err);

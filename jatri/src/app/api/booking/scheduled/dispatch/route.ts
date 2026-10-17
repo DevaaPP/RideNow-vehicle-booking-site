@@ -4,7 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
-import axios from "axios";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export async function POST(req: Request) {
   try {
@@ -29,10 +29,11 @@ export async function POST(req: Request) {
       // Emit new-booking to assigned driver
       if (booking.driver?._id) {
         try {
-          await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
+          await emitSocketEvent({
             userId: booking.driver._id.toString(),
             event: "new-booking",
             data: booking,
+            directBookingId: booking._id.toString(),
           });
         } catch (socketErr) {
           console.error(`Socket dispatch error for booking ${booking._id}:`, socketErr);

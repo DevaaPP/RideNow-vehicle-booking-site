@@ -5,6 +5,7 @@ import User from "@/models/user.model";
 import { auth } from "@/auth";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export async function POST(req: Request) {
   await connectDB();
@@ -154,24 +155,21 @@ export async function POST(req: Request) {
       );
     }
 
-    /* Notify passenger via socket */
+    /* Notify passenger and booking room via socket */
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: booking.user.toString(),
-          event: "booking-updated",
-          data: {
-            bookingId: booking._id.toString(),
-            status: "started",
-            startedAt: now,
-            estimatedDropoffTime,
-            tripDurationMinutes: duration,
-            pickupOtp: "",
-            dropOtp: newDropOtp,
-          },
-        }),
+      await emitSocketEvent({
+        userId: booking.user.toString(),
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          status: "started",
+          startedAt: now,
+          estimatedDropoffTime,
+          tripDurationMinutes: duration,
+          pickupOtp: "",
+          dropOtp: newDropOtp,
+        },
+        directBookingId: booking._id.toString(),
       });
     } catch (err) {
       console.error("Socket notification for verified pickup OTP failed:", err);

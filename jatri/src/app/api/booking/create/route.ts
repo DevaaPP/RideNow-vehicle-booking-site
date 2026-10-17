@@ -15,6 +15,7 @@ import { findEligibleCandidates } from "@/lib/driverMatchingEngine";
 import { idempotency } from "@/lib/idempotency";
 import { getRequestId } from "@/lib/apiResponse";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export async function POST(req: Request) {
   const requestId = getRequestId(req);
@@ -475,20 +476,14 @@ export async function POST(req: Request) {
       status: isScheduled ? "scheduled" : "requested",
     });
 
-    // 4️⃣ Safely emit socket event to driver
+    // 4️⃣ Safely emit socket event to driver and booking room
     try {
-      if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
-        const eventName = isScheduled ? "new-scheduled-booking" : "new-booking";
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-          {
-            userId: nearestVendor._id.toString(),
-            event: eventName,
-            data: booking,
-          },
-          { timeout: 3000 }
-        );
-      }
+      const eventName = isScheduled ? "new-scheduled-booking" : "new-booking";
+      await emitSocketEvent({
+        userId: nearestVendor._id.toString(),
+        event: eventName,
+        data: booking,
+      });
     } catch (err) {
       console.warn("Socket emission error (booking still active):", err);
     }

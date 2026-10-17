@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import { auth } from "@/auth";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export async function POST(
   req: NextRequest,
@@ -77,20 +78,28 @@ export async function POST(
 
     // Notify passenger and driver via socket
     try {
-      if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
-        await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: booking.user.toString(),
-            event: "booking-updated",
-            data: {
-              bookingId: booking._id.toString(),
-              status: "started",
-              pickupOtp: "",
-              dropOtp: newDropOtp,
-            },
-          }),
+      await emitSocketEvent({
+        userId: booking.user.toString(),
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          status: "started",
+          pickupOtp: "",
+          dropOtp: newDropOtp,
+        },
+        directBookingId: booking._id.toString(),
+      });
+      if (booking.driver) {
+        await emitSocketEvent({
+          userId: booking.driver.toString(),
+          event: "booking-updated",
+          data: {
+            bookingId: booking._id.toString(),
+            status: "started",
+            pickupOtp: "",
+            dropOtp: newDropOtp,
+          },
+          directBookingId: booking._id.toString(),
         });
       }
     } catch (sockErr) {

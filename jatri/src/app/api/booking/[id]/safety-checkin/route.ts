@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import { auth } from "@/auth";
-import axios from "axios";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 async function notifySocket(userId: string, event: string, data: any) {
   try {
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-      { userId, event, data }
-    );
+    await emitSocketEvent({
+      userId,
+      event,
+      data,
+      directBookingId: data?.bookingId?.toString(),
+    });
   } catch (err) {
     console.error("Socket emit error in safety checkin route:", err);
   }

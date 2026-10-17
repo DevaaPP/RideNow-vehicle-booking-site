@@ -38,6 +38,7 @@ type PaymentStatus = "pending" | "paid" | "cash" | "failed" | "refunded";
 
 interface BookingDetails {
   _id: string;
+  user?: any;
   driver?: { _id: string; name: string };
   vehicle?: { vehicleModel: string; number: string; type?: string };
   pickupAddress: string;
@@ -443,10 +444,8 @@ export default function RidePage() {
     fetchBooking(); 
 
     // Dynamic adaptive polling:
-    // If socket connection stutters or drops, automatically poll /api/booking/[id]/status
-    // every 6 seconds so passenger never gets stuck with a stale map.
-    // When socket is healthy, poll every 12 seconds as a background heartbeat.
-    const pollInterval = isSocketConnected ? 12000 : 6000;
+    // Polls frequently so passenger screen updates with zero delay even on poor cellular connection
+    const pollInterval = isSocketConnected ? 3000 : 2000;
     const interval = setInterval(() => {
       pollBookingStatus();
     }, pollInterval);
@@ -458,14 +457,23 @@ export default function RidePage() {
   useEffect(() => {
     if (!id) return;
     const bookingIdStr = String(id);
-    const socket = getSocket();
+    const passengerId = (booking?.user as any)?._id || (booking?.user ? String(booking.user) : undefined);
+    const socket = getSocket(passengerId ? { userId: passengerId } : undefined);
+    if (passengerId) {
+      socket.emit("identity", passengerId);
+    }
 
     // Register room with auto-rejoin on reconnect
     joinBookingRoom(bookingIdStr);
 
     setIsSocketConnected(socket.connected);
 
-    const onConnect = () => setIsSocketConnected(true);
+    const onConnect = () => {
+      setIsSocketConnected(true);
+      if (passengerId) {
+        socket.emit("identity", passengerId);
+      }
+    };
     const onDisconnect = () => setIsSocketConnected(false);
     const onConnectError = () => setIsSocketConnected(false);
 
@@ -481,6 +489,10 @@ export default function RidePage() {
     socket.on("booking-updated", (data: any) => {
       setBooking(prev => prev ? { ...prev, ...data } : null);
       /* close chat if ride moves past confirmed */
+      if (data.status && data.status !== "confirmed") setChatOpen(false);
+    });
+    socket.on("booking-status-update", (data: any) => {
+      setBooking(prev => prev ? { ...prev, ...data } : null);
       if (data.status && data.status !== "confirmed") setChatOpen(false);
     });
     socket.on("driver-assigned", (data: any) => {
@@ -527,6 +539,7 @@ export default function RidePage() {
       socket.off("connect_error", onConnectError);
       socket.off("driver-location");
       socket.off("booking-updated");
+      socket.off("booking-status-update");
       socket.off("driver-assigned");
       socket.off("auto-rematch-started");
       socket.off("auto-rematch-searching");

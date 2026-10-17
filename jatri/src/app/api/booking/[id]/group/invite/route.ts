@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import { auth } from "@/auth";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export async function POST(
   req: NextRequest,
@@ -69,16 +70,12 @@ export async function POST(
 
     // Broadcast socket event
     try {
-      const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
-      if (socketServer && booking.user) {
-        await fetch(`${socketServer}/emit`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: booking.user.toString(),
-            event: "booking-updated",
-            data: { bookingId: booking._id.toString(), isGroupRide: true, groupMembers: booking.groupMembers, splitFarePerPerson: splitPerPerson },
-          }),
+      if (booking.user) {
+        await emitSocketEvent({
+          userId: booking.user.toString(),
+          event: "booking-updated",
+          data: { bookingId: booking._id.toString(), isGroupRide: true, groupMembers: booking.groupMembers, splitFarePerPerson: splitPerPerson },
+          directBookingId: booking._id.toString(),
         });
       }
     } catch (socketErr) {

@@ -5,6 +5,7 @@ import User from "@/models/user.model";
 import { auth } from "@/auth";
 import { settleCompletedRidePayment } from "@/lib/settlePayment";
 import { sendPushToUser } from "@/lib/webPush";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export async function POST(req: Request) {
   await connectDB();
@@ -157,23 +158,20 @@ export async function POST(req: Request) {
     /* Settle commission and driver wallet earnings */
     await settleCompletedRidePayment(booking._id);
 
-    /* Notify passenger via socket */
+    /* Notify passenger and booking room via socket */
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: booking.user.toString(),
-          event: "booking-updated",
-          data: {
-            bookingId: booking._id.toString(),
-            status: "completed",
-            completedAt: booking.completedAt,
-            actualDropoffTime: booking.actualDropoffTime,
-            tripDurationMinutes: booking.tripDurationMinutes,
-            dropOtp: "",
-          },
-        }),
+      await emitSocketEvent({
+        userId: booking.user.toString(),
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          status: "completed",
+          completedAt: booking.completedAt,
+          actualDropoffTime: booking.actualDropoffTime,
+          tripDurationMinutes: booking.tripDurationMinutes,
+          dropOtp: "",
+        },
+        directBookingId: booking._id.toString(),
       });
     } catch (err) {
       console.error("Socket notification for verified drop OTP failed:", err);

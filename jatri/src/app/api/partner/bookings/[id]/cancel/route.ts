@@ -6,13 +6,16 @@ import Vehicle from "@/models/vehicle.model";
 import { auth } from "@/auth";
 import axios from "axios";
 import { sendPushToUser } from "@/lib/webPush";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
-async function notifySocket(userId: string, event: string, data: any) {
+async function notifySocket(userId: string, event: string, data: any, bookingId?: string) {
   try {
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-      { userId, event, data }
-    );
+    await emitSocketEvent({
+      userId,
+      event,
+      data,
+      directBookingId: bookingId || data?.bookingId?.toString(),
+    });
   } catch (err) {
     console.error("Socket emit error in partner cancel route:", err);
   }

@@ -4,6 +4,7 @@ import User from "@/models/user.model";
 import { auth } from "@/auth";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { recoverCustomerOutstandingDues } from "@/lib/cancellationEngine";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -64,34 +65,28 @@ export async function POST(
 
   try {
     // Notify driver: confirm payment without leaking pickup OTP
-    await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: booking.driver ? booking.driver.toString() : undefined,
-        event: "booking-updated",
-        data: {
-          bookingId: booking._id.toString(),
-          status: "confirmed",
-          paymentStatus: booking.paymentStatus,
-        },
-      }),
+    await emitSocketEvent({
+      userId: booking.driver ? booking.driver.toString() : undefined,
+      event: "booking-updated",
+      data: {
+        bookingId: booking._id.toString(),
+        status: "confirmed",
+        paymentStatus: booking.paymentStatus,
+      },
+      directBookingId: booking._id.toString(),
     });
 
     // Also notify passenger so their screen immediately gets the OTP
-    await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: booking.user.toString(),
-        event: "booking-updated",
-        data: {
-          bookingId: booking._id.toString(),
-          status: "confirmed",
-          paymentStatus: booking.paymentStatus,
-          pickupOtp: booking.pickupOtp,
-        },
-      }),
+    await emitSocketEvent({
+      userId: booking.user.toString(),
+      event: "booking-updated",
+      data: {
+        bookingId: booking._id.toString(),
+        status: "confirmed",
+        paymentStatus: booking.paymentStatus,
+        pickupOtp: booking.pickupOtp,
+      },
+      directBookingId: booking._id.toString(),
     });
   } catch (err) {
     console.error("Socket confirmation payment emit failed:", err);

@@ -442,7 +442,7 @@ export default function CheckoutContent() {
         window.location.href = `/ride/${data.booking._id}`;
       } else {
         setStatus("requested");
-        setCountdown(20);
+        setCountdown(45);
       }
     } catch (err: any) {
       console.error("Booking creation error:", err);
@@ -581,10 +581,21 @@ export default function CheckoutContent() {
   /* ── SOCKET ── */
   useEffect(() => {
     if (!bookingId) return;
-    const socket = getSocket();
+    const currentUid = userData?._id ? String(userData._id) : undefined;
+    const socket = getSocket(currentUid ? { userId: currentUid } : undefined);
+    if (currentUid) {
+      socket.emit("identity", currentUid);
+    }
     joinBookingRoom(bookingId);
 
-    socket.on("booking-updated", (data: any) => {
+    const onConnect = () => {
+      if (userData?._id) {
+        socket.emit("identity", userData._id);
+      }
+    };
+    socket.on("connect", onConnect);
+
+    const handleUpdate = (data: any) => {
       if (data.status === "awaiting_payment") {
         setStatus((prev) => (prev === "payment" ? "payment" : "awaiting_payment"));
       }
@@ -595,25 +606,30 @@ export default function CheckoutContent() {
       if (data.status === "auto_rematching")  setStatus("auto_rematching");
       if (data.status === "requested") {
         setStatus("requested");
-        setCountdown(60); // Reset timer for next driver
+        setCountdown(45); // Reset timer for next driver
       }
-    });
+    };
+
+    socket.on("booking-updated", handleUpdate);
+    socket.on("booking-status-update", handleUpdate);
 
     socket.on("auto-rematch-started", () => setStatus("auto_rematching"));
     socket.on("auto-rematch-searching", () => setStatus("auto_rematching"));
     socket.on("auto-rematch-success", () => {
       setStatus("requested");
-      setCountdown(60);
+      setCountdown(45);
     });
 
     return () => {
       leaveBookingRoom(bookingId);
-      socket.off("booking-updated");
+      socket.off("connect", onConnect);
+      socket.off("booking-updated", handleUpdate);
+      socket.off("booking-status-update", handleUpdate);
       socket.off("auto-rematch-started");
       socket.off("auto-rematch-searching");
       socket.off("auto-rematch-success");
     };
-  }, [bookingId]);
+  }, [bookingId, userData?._id]);
 
   /* ── COUNTDOWN TIMER ── */
   useEffect(() => {
@@ -675,12 +691,12 @@ export default function CheckoutContent() {
 
     checkActiveBooking();
 
-    // Fallback poll every 2.5 seconds while booking is requested or awaiting payment
+    // Fallback poll every 1.5 seconds while booking is requested or awaiting payment
     const interval = setInterval(() => {
       if (status === "requested" || status === "awaiting_payment") {
         checkActiveBooking();
       }
-    }, 2500);
+    }, 1500);
 
     return () => clearInterval(interval);
   }, [status]);

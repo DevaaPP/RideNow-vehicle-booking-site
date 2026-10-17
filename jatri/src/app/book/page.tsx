@@ -2514,14 +2514,6 @@ export default function BookPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Link
-                href="/"
-                className="hidden lg:inline-flex items-center gap-1 px-2.5 py-1 text-xs font-black uppercase tracking-wider text-zinc-700 hover:text-black hover:bg-zinc-100 border border-zinc-300 transition"
-                title="Return to Home"
-              >
-                <Home size={12} />
-                <span>Home</span>
-              </Link>
               {hasRoute && (
                 <span className="text-[11px] font-black uppercase tracking-wider bg-zinc-950 text-white border border-zinc-950 px-2.5 py-1 rounded-none tabular-nums">
                   {effectiveDistance} km
@@ -2671,12 +2663,6 @@ export default function BookPage() {
                     </span>
                   </Link>
                 </div>
-                <Link
-                  href="/"
-                  className="px-2 py-0.5 text-[11px] font-black uppercase tracking-wider text-zinc-700 bg-zinc-100 border border-zinc-300"
-                >
-                  Home
-                </Link>
               </div>
               <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
               {renderLocationInputs()}

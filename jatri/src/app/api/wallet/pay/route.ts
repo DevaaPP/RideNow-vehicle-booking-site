@@ -7,6 +7,7 @@ import WalletTransaction from "@/models/wallet-transaction.model";
 import { getOrCreateWallet, generateTransactionId } from "@/lib/walletLedger";
 import { calculateCommissionSplit } from "@/lib/commission";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -174,34 +175,28 @@ export async function POST(req: NextRequest) {
     // Emit live socket event to driver and passenger
     try {
       if (booking.driver) {
-        await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: booking.driver.toString(),
-            event: "booking-updated",
-            data: {
-              bookingId: booking._id.toString(),
-              status: "confirmed",
-              paymentStatus: "paid",
-            },
-          }),
-        });
-      }
-
-      await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: booking.user.toString(),
+        await emitSocketEvent({
+          userId: booking.driver.toString(),
           event: "booking-updated",
           data: {
             bookingId: booking._id.toString(),
             status: "confirmed",
             paymentStatus: "paid",
-            pickupOtp: booking.pickupOtp,
           },
-        }),
+          directBookingId: booking._id.toString(),
+        });
+      }
+
+      await emitSocketEvent({
+        userId: booking.user.toString(),
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          status: "confirmed",
+          paymentStatus: "paid",
+          pickupOtp: booking.pickupOtp,
+        },
+        directBookingId: booking._id.toString(),
       });
     } catch (err) {
       console.error("Socket emit failed on wallet payment:", err);
