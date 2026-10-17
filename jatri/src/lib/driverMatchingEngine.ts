@@ -10,7 +10,7 @@ import Booking, { IBooking } from "@/models/booking.model";
 import { haversineDistance } from "@/lib/routeUtils";
 import { validateServiceArea } from "@/lib/serviceArea";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
-import axios from "axios";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 
 export interface CandidateDriver {
   driverId: Types.ObjectId;
@@ -387,21 +387,11 @@ export async function escalateToNextCandidate(
 
       // Dispatch real-time WebSocket notification to candidate driver
       try {
-        const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
-        const socketSecret = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
-        if (socketServer) {
-          await axios.post(
-            `${socketServer}/emit`,
-            {
-              userId: nextDriver._id.toString(),
-              event: "new-booking",
-              data: booking,
-            },
-            {
-              headers: { "x-socket-secret": socketSecret },
-            }
-          );
-        }
+        await emitSocketEvent({
+          userId: nextDriver._id.toString(),
+          event: "new-booking",
+          data: booking,
+        });
       } catch (err) {
         console.warn("Socket notification error on dispatch escalation:", err);
       }
@@ -444,21 +434,11 @@ export async function escalateToNextCandidate(
       await booking.save();
 
       try {
-        const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
-        const socketSecret = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
-        if (socketServer) {
-          await axios.post(
-            `${socketServer}/emit`,
-            {
-              userId: newDriver.driverId.toString(),
-              event: "new-booking",
-              data: booking,
-            },
-            {
-              headers: { "x-socket-secret": socketSecret },
-            }
-          );
-        }
+        await emitSocketEvent({
+          userId: newDriver.driverId.toString(),
+          event: "new-booking",
+          data: booking,
+        });
       } catch (err) {
         console.warn("Socket notification error on fresh candidate sweep:", err);
       }

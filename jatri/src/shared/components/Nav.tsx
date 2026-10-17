@@ -132,7 +132,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [currentUser?.role, isVendorRoute]);
+  }, [currentUser, isVendorRoute]);
 
   /* Close menus on route change */
   useEffect(() => {
