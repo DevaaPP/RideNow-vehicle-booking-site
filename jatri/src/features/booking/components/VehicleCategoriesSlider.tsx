@@ -6,19 +6,21 @@ import {
   ChevronLeft, ChevronRight, ArrowRight, Sparkles,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "@/context/LanguageContext";
 
 const VEHICLE_CATEGORIES_RAW = [
-  { key: "allVehicles", title: "All Vehicles",  desc: "Browse the full fleet",        Icon: CarTaxiFront, tagKey: "popular", tag: "Popular"  },
-  { key: "bikes",       title: "Bikes",         desc: "Fast & affordable rides",      Icon: Bike,         tagKey: "quick",   tag: "Quick"    },
-  { key: "cars",        title: "Cars",          desc: "Comfortable city travel",      Icon: Car,          tagKey: "comfort", tag: "Comfort"  },
-  { key: "suvs",        title: "SUVs",          desc: "Premium & spacious",           Icon: Car,          tagKey: "premium", tag: "Premium"  },
-  { key: "vans",        title: "Vans",          desc: "Family & group transport",     Icon: Bus,          tagKey: "family",  tag: "Family"   },
-  { key: "trucks",      title: "Trucks",        desc: "Heavy & commercial transport", Icon: Truck,        tagKey: "cargo",   tag: "Cargo"    },
+  { key: "allVehicles", title: "All Vehicles",  desc: "Browse the full fleet",        Icon: CarTaxiFront, tagKey: "popular", tag: "Popular", routeCategory: "all" },
+  { key: "bikes",       title: "Bikes",         desc: "Fast & affordable rides",      Icon: Bike,         tagKey: "quick",   tag: "Quick",   routeCategory: "bikes" },
+  { key: "cars",        title: "Cars",          desc: "Comfortable city travel",      Icon: Car,          tagKey: "comfort", tag: "Comfort", routeCategory: "cars" },
+  { key: "suvs",        title: "SUVs",          desc: "Premium & spacious",           Icon: Car,          tagKey: "premium", tag: "Premium", routeCategory: "suvs" },
+  { key: "vans",        title: "Vans",          desc: "Family & group transport",     Icon: Bus,          tagKey: "family",  tag: "Family",  routeCategory: "vans" },
+  { key: "trucks",      title: "Trucks",        desc: "Heavy & commercial transport", Icon: Truck,        tagKey: "cargo",   tag: "Cargo",   routeCategory: "trucks" },
 ];
 
 export default function VehicleCategoriesSlider() {
   const { t } = useTranslation();
+  const router = useRouter();
   const sliderRef  = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const inView     = useInView(sectionRef, { once: true, margin: "-80px" });
@@ -130,25 +132,26 @@ export default function VehicleCategoriesSlider() {
                   onHoverStart={() => setHovered(i)}
                   onHoverEnd={() => setHovered(null)}
                   whileHover={{ y: -6 }}
-                  className="group relative min-w-[200px] sm:min-w-[260px] flex-shrink-0 cursor-pointer select-none"
-                  
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push(`/book?fresh=true&category=${item.routeCategory}`)}
+                  className="group relative min-w-[210px] sm:min-w-[270px] flex-shrink-0 cursor-pointer select-none"
                 >
                   {/* Card */}
                   <motion.div
                     animate={{
                       backgroundColor: isHovered ? "#09090b" : "#ffffff",
-                      borderColor: isHovered ? "#09090b" : "#e4e4e7",
+                      borderColor: isHovered ? "#09090b" : "#d4d4d8",
                       boxShadow: isHovered
-                        ? "0 20px 48px rgba(0,0,0,0.18)"
-                        : "0 2px 14px rgba(0,0,0,0.05)",
+                        ? "0 20px 48px rgba(0,0,0,0.22)"
+                        : "0 2px 14px rgba(0,0,0,0.06)",
                     }}
                     transition={{ duration: 0.25 }}
-                    className="relative rounded-2xl sm:rounded-3xl border p-5 sm:p-7 overflow-hidden h-full"
+                    className="relative rounded-2xl sm:rounded-3xl border-2 p-5 sm:p-7 overflow-hidden h-full"
                   >
 
                     {/* BG dot pattern on hover */}
                     <motion.div
-                      animate={{ opacity: isHovered ? 0.06 : 0 }}
+                      animate={{ opacity: isHovered ? 0.08 : 0 }}
                       transition={{ duration: 0.3 }}
                       className="absolute inset-0 pointer-events-none"
                       style={{
@@ -157,56 +160,53 @@ export default function VehicleCategoriesSlider() {
                       }}
                     />
 
-                    {/* TAG */}
+                    {/* TAG (SOLID HIGH CONTRAST) */}
                     <motion.div
                       animate={{
-                        backgroundColor: isHovered ? "rgba(255,255,255,0.12)" : "#f4f4f5",
-                        color: isHovered ? "#ffffff" : "#71717a",
-                        borderColor: isHovered ? "rgba(255,255,255,0.15)" : "#e4e4e7",
+                        backgroundColor: isHovered ? "#ffffff" : "#000000",
+                        color: isHovered ? "#000000" : "#ffffff",
+                        borderColor: isHovered ? "#ffffff" : "#000000",
                       }}
-                      className="inline-flex items-center gap-1.5 border text-[9px] font-black uppercase tracking-[0.18em] px-2.5 py-1.5 rounded-full mb-5 transition-colors"
+                      className="inline-flex items-center gap-1.5 border text-[10px] font-black uppercase tracking-[0.18em] px-3 py-1.5 rounded-full mb-5 transition-colors shadow-xs"
                     >
-                      <Sparkles size={8} />
+                      <Sparkles size={10} />
                       {item.tag}
                     </motion.div>
 
                     {/* ICON BOX */}
                     <motion.div
                       animate={{
-                        backgroundColor: isHovered ? "rgba(255,255,255,0.1)" : "#f4f4f5",
-                        borderColor: isHovered ? "rgba(255,255,255,0.15)" : "#e4e4e7",
+                        backgroundColor: isHovered ? "rgba(255,255,255,0.15)" : "#f4f4f5",
+                        borderColor: isHovered ? "rgba(255,255,255,0.2)" : "#d4d4d8",
                       }}
-                      className="w-14 h-14 rounded-2xl border flex items-center justify-center mb-5 transition-colors"
+                      className="w-14 h-14 rounded-2xl border-2 flex items-center justify-center mb-5 transition-colors"
                     >
                       <motion.div
-                        animate={{ color: isHovered ? "#ffffff" : "#3f3f46" }}
+                        animate={{ color: isHovered ? "#ffffff" : "#000000" }}
                         transition={{ duration: 0.2 }}
                       >
-                        <item.Icon size={24} strokeWidth={1.8} />
+                        <item.Icon size={26} strokeWidth={2.2} />
                       </motion.div>
                     </motion.div>
 
                     {/* TEXT */}
                     <motion.h3
-                      animate={{ color: isHovered ? "#ffffff" : "#09090b" }}
+                      animate={{ color: isHovered ? "#ffffff" : "#000000" }}
                       transition={{ duration: 0.2 }}
-                      className="text-lg font-black tracking-tight leading-none mb-2"
+                      className="text-xl sm:text-2xl font-black tracking-tight leading-none mb-2"
                     >
                       {item.title}
                     </motion.h3>
                     <motion.p
-                      animate={{ color: isHovered ? "rgba(255,255,255,0.5)" : "#a1a1aa" }}
+                      animate={{ color: isHovered ? "rgba(255,255,255,0.8)" : "#52525b" }}
                       transition={{ duration: 0.2 }}
-                      className="text-xs font-medium leading-relaxed"
+                      className="text-xs sm:text-sm font-semibold leading-relaxed"
                     >
                       {item.desc}
                     </motion.p>
 
-                    {/* Arrow CTA */}
-               
-
                     {/* Static index number — subtle */}
-                    <div className="absolute bottom-5 right-5 text-[10px] font-black tabular-nums" style={{ color: isHovered ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)" }}>
+                    <div className="absolute bottom-5 right-5 text-xs font-black tabular-nums" style={{ color: isHovered ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)" }}>
                       0{i + 1}
                     </div>
                   </motion.div>

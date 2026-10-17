@@ -11,7 +11,7 @@ export default function PublicHome() {
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
-    <>
+    <main className="w-full pt-18 sm:pt-20 bg-white">
       <HeroSection onAuthRequired={() => setAuthOpen(true)} />
       <VehicleCategoriesSlider />
 
@@ -19,6 +19,6 @@ export default function PublicHome() {
         open={authOpen}
         onClose={() => setAuthOpen(false)}
       />
-    </>
+    </main>
   );
 }
