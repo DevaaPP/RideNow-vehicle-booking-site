@@ -20,6 +20,7 @@ import { IVehicle } from "@/models/vehicle.model";
 import RideChat from "@/features/rides/components/RideChat";
 import { haversineKm } from "@/lib/routeUtils";
 import FareCollectionModal from "@/features/rides/components/FareCollectionModal";
+import { useWakeLock } from "@/shared/hooks/useWakeLock";
 
 const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
@@ -130,6 +131,10 @@ export default function DriverRidePage() {
   const [etaToDrop,     setEtaToDrop]     = useState(0);
   const [distanceToPickup, setDistanceToPickup] = useState(0);
   const [distanceToDrop,   setDistanceToDrop]   = useState(0);
+
+  // Keep driver mobile screen awake during active trip navigation
+  const isRideActive = Boolean(booking?._id && !TERMINAL.includes(booking.status));
+  const { isLocked: isWakeLockActive } = useWakeLock(isRideActive);
 
   /* Pickup OTP */
   const [otpMode,     setOtpMode]     = useState(false);
@@ -665,6 +670,12 @@ export default function DriverRidePage() {
           <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-none shadow-md border border-zinc-300">
             <span className={`w-2 h-2 rounded-none ${cfg.dot}`} />
             <span className="text-xs font-black uppercase tracking-wider text-zinc-900">{cfg.label}</span>
+            {isWakeLockActive && (
+              <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                AWAKE
+              </span>
+            )}
           </div>
         </motion.div>
       </div>
@@ -679,12 +690,20 @@ export default function DriverRidePage() {
           <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold mb-1">Driver Panel</p>
           <div className="flex items-center justify-between">
             <h1 className="text-white text-xl font-black uppercase tracking-tight">Active Ride</h1>
-            {isActive && (
-              <div className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-none">
-                <Zap size={12} className="text-amber-400" />
-                <span className="text-white text-xs font-mono font-bold">{Math.round(displayEta)} MIN</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              {isWakeLockActive && (
+                <div className="flex items-center gap-1 bg-emerald-950/80 border border-emerald-600/40 px-2 py-1 text-[10px] font-mono font-bold text-emerald-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  AWAKE
+                </div>
+              )}
+              {isActive && (
+                <div className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-none">
+                  <Zap size={12} className="text-amber-400" />
+                  <span className="text-white text-xs font-mono font-bold">{Math.round(displayEta)} MIN</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex-1 flex flex-col overflow-hidden">
