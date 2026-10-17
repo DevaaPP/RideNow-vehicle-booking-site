@@ -52,10 +52,6 @@ export default function AdminDashboardClient() {
   const [activeTab, setActiveTab] = useState<TabType>("kyc");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadAll();
-  }, []);
-
   async function loadAll() {
     try {
       const [dashboardRes, kycRes] = await Promise.all([
@@ -77,6 +73,10 @@ export default function AdminDashboardClient() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    loadAll();
+  }, []);
 
   if (loading || !stats) {
     return (
@@ -465,10 +465,6 @@ function PricingConfigEditor() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchConfigs();
-  }, []);
-
   const fetchConfigs = async () => {
     try {
       setLoading(true);
@@ -482,6 +478,10 @@ function PricingConfigEditor() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchConfigs();
+  }, []);
 
   const handleUpdate = (index: number, field: string, value: number) => {
     setConfigs((prev) => {

@@ -12,8 +12,11 @@ export async function emitSocketEvent(params: {
   event: string;
   data: any;
 }) {
-  const socketServer =
-    process.env.NEXT_PUBLIC_SOCKET_SERVER || "http://localhost:5000";
+  const socketServer = (
+    process.env.SOCKET_SERVER_URL ||
+    process.env.NEXT_PUBLIC_SOCKET_SERVER ||
+    "http://localhost:5000"
+  ).replace(/\/$/, "");
 
   const internalSecret = process.env.SOCKET_INTERNAL_SECRET;
   if (!internalSecret) {

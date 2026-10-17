@@ -7,7 +7,7 @@ import Footer from "@/shared/components/Footer";
 import User from "@/models/user.model";
 import connectDb from "@/lib/db";
 import PublicHome from "@/shared/components/PublicHome";
-import { redirect, RedirectType } from "next/navigation";
+import { redirect } from "next/navigation";
 import GeoUpdater from "@/features/maps/components/GeoUpdater";
 
 import ActiveRideBanner from "@/features/rides/components/ActiveRideBanner";
@@ -23,6 +23,10 @@ export default async function Home() {
       .select("role vendorOnboardingStep vendorStatus")
       .lean();
 
+    if (user?.role === "admin" || session?.user?.role === "admin") {
+      redirect("/admin/dashboard");
+    }
+
     if (user?.role === "vendor") {
       redirect("/partners/dashboard");
     }
@@ -32,11 +36,7 @@ export default async function Home() {
     <div className="w-full min-h-screen bg-white">
       <Nav />
       <GeoUpdater userId={session?.user?.id}/>
-      {session?.user?.role === "admin" ? (
-        redirect("/admin/dashboard", RedirectType.push)
-      ) : (
-        <PublicHome />
-      )}
+      <PublicHome />
 
       {/* Floating active ride recovery pill when user has an ongoing trip */}
       <ActiveRideBanner variant="floating" />

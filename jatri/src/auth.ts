@@ -177,7 +177,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         // 🔥 CRITICAL FIX: Always fetch role from database to sync transitions (user -> vendor)
-        if (token.email) {
+        const targetUserId = (token.id as string) || (user?.id as string);
+        if (targetUserId) {
+            await connectDb()
+            const dbUser = await User.findById(targetUserId).select("role email name")
+            if (dbUser) {
+                token.role = dbUser.role
+                token.id = dbUser._id.toString()
+                if (dbUser.email && !token.email) token.email = dbUser.email
+            }
+        } else if (token.email) {
             await connectDb()
             const dbUser = await User.findOne({ email: token.email }).select("role")
             if (dbUser) {

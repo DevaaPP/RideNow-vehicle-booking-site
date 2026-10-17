@@ -19,6 +19,7 @@ import SafetyIncident, {
 } from "@/models/safetyIncident.model";
 import { haversineDistance } from "@/lib/routeUtils";
 import { sendPushToUser } from "@/lib/webPush";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { Types } from "mongoose";
 import crypto from "crypto";
 
@@ -139,34 +140,19 @@ export async function triggerEmergencySos(params: TriggerSosParams) {
     };
 
     try {
-      const socketSecret = process.env.SOCKET_INTERNAL_SECRET || "ridenow-internal-secret-2026";
       if (booking.user) {
-        await fetch(`${socketServer}/emit`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-socket-secret": socketSecret,
-          },
-          body: JSON.stringify({
-            userId: (booking.user._id || booking.user).toString(),
-            event: "safety-panic-alert",
-            data: payload,
-          }),
+        await emitSocketEvent({
+          userId: (booking.user._id || booking.user).toString(),
+          event: "safety-panic-alert",
+          data: payload,
         });
       }
 
       if (booking.driver) {
-        await fetch(`${socketServer}/emit`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-socket-secret": socketSecret,
-          },
-          body: JSON.stringify({
-            userId: (booking.driver._id || booking.driver).toString(),
-            event: "safety-panic-alert",
-            data: payload,
-          }),
+        await emitSocketEvent({
+          userId: (booking.driver._id || booking.driver).toString(),
+          event: "safety-panic-alert",
+          data: payload,
         });
       }
     } catch (wsErr) {

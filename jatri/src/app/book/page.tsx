@@ -918,7 +918,7 @@ export default function BookPage() {
     setLocating(false);
   };
 
-  const useCurrentLocation = () => {
+  const locateCurrentLocation = () => {
     if (!navigator.geolocation) {
       setLocationError("Geolocation is not supported by your browser.");
       return;
@@ -959,7 +959,7 @@ export default function BookPage() {
     setRouteDistance(null);
     setSelectedSmartPickup(null);
     setSelectedFamilyMember(null);
-    useCurrentLocation();
+    locateCurrentLocation();
   };
 
   /* ── INITIAL MOUNT: FRESH SESSION VS CHECKOUT EDIT ── */
@@ -977,7 +977,7 @@ export default function BookPage() {
           sessionStorage.removeItem("ridenow_booking_draft");
           localStorage.removeItem("ridenow_booking_draft");
         } catch (_) {}
-        useCurrentLocation();
+        locateCurrentLocation();
         if (window.location.search) {
           window.history.replaceState({}, "", "/book");
         }
@@ -1005,7 +1005,7 @@ export default function BookPage() {
       const hasValidDraftOrParams = Boolean((p && d) || (pLat && dLat) || isEdit);
 
       if (!hasValidDraftOrParams) {
-        useCurrentLocation();
+        locateCurrentLocation();
         return;
       }
 
@@ -1044,7 +1044,7 @@ export default function BookPage() {
       }
     } catch (e) {
       console.warn("Failed to restore booking draft from storage:", e);
-      useCurrentLocation();
+      locateCurrentLocation();
     }
   }, []);
 
@@ -1305,7 +1305,7 @@ export default function BookPage() {
           <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-800">
             <button
               type="button"
-              onClick={useCurrentLocation}
+              onClick={locateCurrentLocation}
               disabled={locating}
               className="px-3 py-1.5 bg-white text-zinc-950 hover:bg-zinc-200 text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
@@ -1393,7 +1393,7 @@ export default function BookPage() {
           ) : null}
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={useCurrentLocation}
+            onClick={locateCurrentLocation}
             disabled={locating}
             title="Use current location"
             className="w-7 h-7 rounded-none border border-zinc-300 bg-zinc-100 hover:bg-zinc-200 transition flex items-center justify-center flex-shrink-0"
@@ -1450,7 +1450,7 @@ export default function BookPage() {
                 onMouseDown={(e) => {
                   e.preventDefault();
                   setActiveSearchField(null);
-                  useCurrentLocation();
+                  locateCurrentLocation();
                 }}
                 className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 transition"
               >
@@ -2861,7 +2861,7 @@ export default function BookPage() {
                   type="button"
                   onClick={() => {
                     setShowLocationSettingsGuide(false);
-                    useCurrentLocation();
+                    locateCurrentLocation();
                   }}
                   className="px-4 py-2 bg-zinc-950 hover:bg-black text-white text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5"
                 >

@@ -76,6 +76,19 @@ export default function VendorPendingPage() {
     };
   }, [activeDispatch?._id]);
 
+  const handleDeclineOrTimeout = async (bookingId: string) => {
+    try {
+      setProcessingId(bookingId);
+      await axios.post("/api/partner/bookings/dispatch-next", { bookingId });
+      setBookings((prev) => prev.filter((b) => b._id !== bookingId));
+      setActiveDispatch(null);
+    } catch (err) {
+      console.error("Escalation error:", err);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   useEffect(() => {
     if (!activeDispatch) return;
 
@@ -92,19 +105,6 @@ export default function VendorPendingPage() {
 
     return () => clearInterval(timer);
   }, [activeDispatch]);
-
-  const handleDeclineOrTimeout = async (bookingId: string) => {
-    try {
-      setProcessingId(bookingId);
-      await axios.post("/api/partner/bookings/dispatch-next", { bookingId });
-      setBookings((prev) => prev.filter((b) => b._id !== bookingId));
-      setActiveDispatch(null);
-    } catch (err) {
-      console.error("Escalation error:", err);
-    } finally {
-      setProcessingId(null);
-    }
-  };
 
   const handleAccept = async (bookingId: string) => {
     try {

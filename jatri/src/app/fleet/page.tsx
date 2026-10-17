@@ -1,16 +1,86 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Car, Zap, Shield, TrendingUp } from "lucide-react";
+import { ArrowRight, Car, Zap, Shield, TrendingUp } from "lucide-react";
+import Link from "next/link";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
+import { VEHICLE_OPTIONS } from "@/lib/vehicleConfig";
+import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
+
+const FLEET_CATEGORIES = [
+  {
+    id: "bike",
+    name: VEHICLE_OPTIONS.bike.label,
+    description: VEHICLE_OPTIONS.bike.tagline,
+    price: "Starting from ₹8/km",
+    Icon: VEHICLE_SVG_ICONS.bike,
+    capacity: "1 Passenger",
+  },
+  {
+    id: "scooty",
+    name: VEHICLE_OPTIONS.scooty.label,
+    description: VEHICLE_OPTIONS.scooty.tagline,
+    price: "Starting from ₹7/km",
+    Icon: VEHICLE_SVG_ICONS.scooty,
+    capacity: "1 Passenger",
+  },
+  {
+    id: "auto",
+    name: VEHICLE_OPTIONS.auto.label,
+    description: VEHICLE_OPTIONS.auto.tagline,
+    price: "Starting from ₹11.5/km",
+    Icon: VEHICLE_SVG_ICONS.auto,
+    capacity: "3 Passengers",
+  },
+  {
+    id: "mini",
+    name: VEHICLE_OPTIONS.mini.label,
+    description: VEHICLE_OPTIONS.mini.tagline,
+    price: "Starting from ₹13.5/km",
+    Icon: VEHICLE_SVG_ICONS.mini,
+    capacity: "4 Passengers (AC)",
+  },
+  {
+    id: "car",
+    name: VEHICLE_OPTIONS.car.label,
+    description: VEHICLE_OPTIONS.car.tagline,
+    price: "Starting from ₹16.5/km",
+    Icon: VEHICLE_SVG_ICONS.car,
+    capacity: "4 Passengers (Sedan)",
+  },
+  {
+    id: "priority",
+    name: VEHICLE_OPTIONS.priority.label,
+    description: VEHICLE_OPTIONS.priority.tagline,
+    price: "Starting from ₹21/km",
+    Icon: VEHICLE_SVG_ICONS.priority,
+    capacity: "6 Passengers (SUV)",
+  },
+  {
+    id: "loading",
+    name: VEHICLE_OPTIONS.loading.label,
+    description: VEHICLE_OPTIONS.loading.tagline,
+    price: "Starting from ₹20/km",
+    Icon: VEHICLE_SVG_ICONS.loading,
+    capacity: "Up to 500 kg Cargo",
+  },
+  {
+    id: "truck",
+    name: VEHICLE_OPTIONS.truck.label,
+    description: VEHICLE_OPTIONS.truck.tagline,
+    price: "Starting from ₹35/km",
+    Icon: VEHICLE_SVG_ICONS.truck,
+    capacity: "Up to 2,000 kg Freight",
+  },
+];
 
 export default function FleetPage() {
   const features = [
     {
       icon: Car,
       title: "Diverse Vehicle Options",
-      description: "Choose from bikes, cars, and trucks for every need",
+      description: "Choose from scooty, bikes, autos, compact cabs, premium SUVs, and freight trucks",
     },
     {
       icon: Zap,
@@ -44,7 +114,7 @@ export default function FleetPage() {
           Our Fleet
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl">
-          Explore our wide range of vehicles designed to meet every transportation need. From bikes to trucks, we've got you covered.
+          Explore our wide range of vehicles designed to meet every transportation need. From quick city solo rides to heavy commercial freight, we have got you covered.
         </p>
       </motion.div>
 
@@ -73,36 +143,37 @@ export default function FleetPage() {
       {/* Vehicle Categories */}
       <div className="max-w-6xl mx-auto px-4 mb-20">
         <h2 className="text-4xl font-bold mb-12">Vehicle Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              name: "Bikes",
-              description: "Quick and efficient for solo travels",
-              price: "Starting from $2/km",
-            },
-            {
-              name: "Cars",
-              description: "Comfortable rides for personal and family trips",
-              price: "Starting from $4/km",
-            },
-            {
-              name: "Trucks",
-              description: "Heavy-duty vehicles for cargo and bulk transport",
-              price: "Starting from $6/km",
-            },
-          ].map((category, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: idx * 0.1 }}
-              className="bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl p-8"
-            >
-              <h3 className="text-2xl font-bold mb-3">{category.name}</h3>
-              <p className="text-gray-400 mb-4">{category.description}</p>
-              <p className="text-white font-semibold">{category.price}</p>
-            </motion.div>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {FLEET_CATEGORIES.map((category, idx) => {
+            const Icon = category.Icon;
+            return (
+              <motion.div
+                key={category.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: idx * 0.05 }}
+                className="bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl p-6 flex flex-col justify-between group hover:border-white/30 transition select-none"
+              >
+                <div>
+                  <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-4 p-2">
+                    <Icon size={40} className="w-full h-full object-contain" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-1 text-white">{category.name}</h3>
+                  <p className="text-[11px] font-bold text-amber-400 mb-2 uppercase tracking-wider">{category.capacity}</p>
+                  <p className="text-gray-400 text-xs mb-4 leading-relaxed">{category.description}</p>
+                </div>
+                <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                  <p className="text-white text-xs font-semibold">{category.price}</p>
+                  <Link
+                    href={`/book?vehicle=${category.id}&fresh=true`}
+                    className="text-[11px] font-bold text-zinc-300 group-hover:text-white transition flex items-center gap-1"
+                  >
+                    Book <ArrowRight size={12} />
+                  </Link>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
@@ -114,12 +185,12 @@ export default function FleetPage() {
         className="max-w-6xl mx-auto px-4 py-20 text-center"
       >
         <h2 className="text-4xl font-bold mb-6">Ready to ride?</h2>
-        <a
-          href="/book"
+        <Link
+          href="/book?fresh=true"
           className="inline-block px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition"
         >
           Book Now
-        </a>
+        </Link>
       </motion.div>
       </div>
       <Footer />

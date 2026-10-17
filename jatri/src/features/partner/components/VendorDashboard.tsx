@@ -39,6 +39,7 @@ import PartnerEarningsChart from "./PartnerEarningsChart";
 import DriverWalletCard from "./DriverWalletCard";
 import dynamic from "next/dynamic";
 import { useTranslation } from "@/context/LanguageContext";
+import { useWakeLock } from "@/shared/hooks/useWakeLock";
 
 const DriverLocationMap = dynamic(() => import("@/features/maps/components/DriverLocationMap"), { ssr: false });
 
@@ -924,6 +925,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   const dispatch = useDispatch<AppDispatch>();
   const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState(false);
+  // Keep mobile screen awake while driver is online on duty
+  const { isLocked: isWakeLockActive } = useWakeLock(isOnline);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
@@ -1274,7 +1277,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     try {
       setLoading(true);
       const nextOnline = !isOnline;
-      let updatePayload: any = { isOnline: nextOnline };
+      const updatePayload: any = { isOnline: nextOnline };
 
       if (nextOnline) {
         if (!navigator.geolocation) {
@@ -1625,9 +1628,17 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
             <div className="bg-zinc-50 rounded-none p-4 border border-zinc-200 flex items-center justify-between my-4">
               <div>
-                <p className="text-sm font-bold text-zinc-950 tracking-tight">
-                  {isOnline ? "Duty: Online" : "Duty: Offline"}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-bold text-zinc-950 tracking-tight">
+                    {isOnline ? "Duty: Online" : "Duty: Offline"}
+                  </p>
+                  {isOnline && isWakeLockActive && (
+                    <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 border border-emerald-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      SCREEN AWAKE
+                    </span>
+                  )}
+                </div>
                 <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
                   {isOnline ? "Broadcasting live coordinates" : "Unavailable for dispatch"}
                 </p>

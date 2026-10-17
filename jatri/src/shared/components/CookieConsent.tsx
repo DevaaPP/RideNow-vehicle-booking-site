@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Cookie, ShieldCheck, ChevronDown, ChevronUp, Check, X, SlidersHorizontal, Lock } from "lucide-react";
+import { Cookie, ChevronDown, ChevronUp, Check, X, SlidersHorizontal, Lock } from "lucide-react";
 import Link from "next/link";
 
 const STORAGE_KEY = "ridenow_cookie_consent_v1";
@@ -22,12 +22,12 @@ export default function CookieConsent() {
   const [marketing, setMarketing] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) {
         // Show after small delay so initial page paint is uninterrupted
         const timer = setTimeout(() => {
+          setMounted(true);
           setVisible(true);
         }, 800);
         return () => clearTimeout(timer);

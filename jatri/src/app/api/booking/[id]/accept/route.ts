@@ -1,7 +1,7 @@
 import connectDb from "@/lib/db";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import axios from "axios";
+import { emitSocketEvent } from "@/lib/socketServerEmit";
 import Booking from "@/models/booking.model";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
@@ -103,25 +103,14 @@ export async function POST(
   const booking = transitionRes.booking!;
 
   try {
-    if (process.env.NEXT_PUBLIC_SOCKET_SERVER) {
-      const socketSecret = process.env.SOCKET_INTERNAL_SECRET;
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-        {
-          userId: booking.user.toString(),
-          roomId: booking._id.toString(),
-          event: "booking-updated",
-          data: {
-            bookingId: booking._id.toString(),
-            status: targetStatus,
-          },
-        },
-        {
-          headers: socketSecret ? { "x-socket-secret": socketSecret } : {},
-          timeout: 3500,
-        }
-      );
-    }
+    await emitSocketEvent({
+      userId: booking.user.toString(),
+      event: "booking-updated",
+      data: {
+        bookingId: booking._id.toString(),
+        status: targetStatus,
+      },
+    });
   } catch (socketErr) {
     console.warn("Socket notification in accept route failed:", socketErr);
   }

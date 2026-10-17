@@ -82,7 +82,7 @@ export async function createPaymentOrder(params: CreateOrderParams) {
   const effectiveIdempotencyKey = idempotencyKey || `order_${booking._id}_${booking.fare}`;
 
   // Check existing initiated/pending payment record
-  let existingPayment = await Payment.findOne({
+  const existingPayment = await Payment.findOne({
     booking: booking._id,
     idempotencyKey: effectiveIdempotencyKey,
     status: { $in: ["initiated", "pending"] },

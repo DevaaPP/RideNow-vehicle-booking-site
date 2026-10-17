@@ -17,24 +17,28 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export function usePushNotifications() {
-  const [isSupported, setIsSupported] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [isSupported] = useState(
+    () => typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window
+  );
+  const [permission, setPermission] = useState<NotificationPermission>(
+    () => (typeof window !== "undefined" && "Notification" in window ? Notification.permission : "default")
+  );
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window) {
-      setIsSupported(true);
-      setPermission(Notification.permission);
-
       // Check current registration and subscription
-      navigator.serviceWorker.register("/sw.js").then((registration) => {
-        registration.pushManager.getSubscription().then((sub) => {
-          setIsSubscribed(Boolean(sub));
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          registration.pushManager.getSubscription().then((sub) => {
+            setIsSubscribed(Boolean(sub));
+          });
+        })
+        .catch((err) => {
+          console.warn("ServiceWorker registration notice:", err);
         });
-      }).catch((err) => {
-        console.warn("ServiceWorker registration notice:", err);
-      });
     }
   }, []);
 

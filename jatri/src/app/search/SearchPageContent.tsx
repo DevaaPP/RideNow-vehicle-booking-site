@@ -12,13 +12,17 @@ import {
 import VehicleBookingCard from "@/features/booking/components/VehicleBookingCard";
 
 const RouteMap = dynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
+import { VEHICLE_OPTIONS } from "@/lib/vehicleConfig";
 
 const VEHICLE_META: Record<string, { label: string; Icon: typeof Bike }> = {
-  bike:    { label: "Bike",    Icon: Bike  },
-  auto:    { label: "Auto",    Icon: Car   },
-  car:     { label: "Car",     Icon: Car   },
-  loading: { label: "Loading", Icon: Truck },
-  truck:   { label: "Truck",   Icon: Truck },
+  scooty:   { label: VEHICLE_OPTIONS.scooty.label,   Icon: Bike  },
+  bike:     { label: VEHICLE_OPTIONS.bike.label,     Icon: Bike  },
+  auto:     { label: VEHICLE_OPTIONS.auto.label,     Icon: Car   },
+  mini:     { label: VEHICLE_OPTIONS.mini.label,     Icon: Car   },
+  car:      { label: VEHICLE_OPTIONS.car.label,      Icon: Car   },
+  priority: { label: VEHICLE_OPTIONS.priority.label, Icon: Car   },
+  loading:  { label: VEHICLE_OPTIONS.loading.label,  Icon: Truck },
+  truck:    { label: VEHICLE_OPTIONS.truck.label,    Icon: Truck },
 };
 
 export default function SearchPageContent() {

@@ -4,7 +4,11 @@ let socket: Socket | null = null;
 
 export const getSocket = (authData?: { userId?: string }): Socket => {
   if (!socket) {
-    const url = process.env.NEXT_PUBLIC_SOCKET_SERVER || "http://localhost:5000";
+    const url = (
+      process.env.NEXT_PUBLIC_SOCKET_SERVER ||
+      process.env.NEXT_PUBLIC_SOCKET_SERVER_URL ||
+      "http://localhost:5000"
+    ).replace(/\/$/, "");
     socket = io(url, {
       transports: ["websocket", "polling"],
       reconnection: true,

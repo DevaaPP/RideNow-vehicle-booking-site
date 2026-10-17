@@ -2,20 +2,106 @@
 
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
-  Bike, Car, Truck, Bus, CarTaxiFront,
   ChevronLeft, ChevronRight, ArrowRight, Sparkles,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/context/LanguageContext";
+import { VEHICLE_OPTIONS, VehicleType } from "@/lib/vehicleConfig";
+import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
 
-const VEHICLE_CATEGORIES_RAW = [
-  { key: "allVehicles", title: "All Vehicles",  desc: "Browse the full fleet",        Icon: CarTaxiFront, tagKey: "popular", tag: "Popular", routeCategory: "all" },
-  { key: "bikes",       title: "Bikes",         desc: "Fast & affordable rides",      Icon: Bike,         tagKey: "quick",   tag: "Quick",   routeCategory: "bikes" },
-  { key: "cars",        title: "Cars",          desc: "Comfortable city travel",      Icon: Car,          tagKey: "comfort", tag: "Comfort", routeCategory: "cars" },
-  { key: "suvs",        title: "SUVs",          desc: "Premium & spacious",           Icon: Car,          tagKey: "premium", tag: "Premium", routeCategory: "suvs" },
-  { key: "vans",        title: "Vans",          desc: "Family & group transport",     Icon: Bus,          tagKey: "family",  tag: "Family",  routeCategory: "vans" },
-  { key: "trucks",      title: "Trucks",        desc: "Heavy & commercial transport", Icon: Truck,        tagKey: "cargo",   tag: "Cargo",   routeCategory: "trucks" },
+interface FleetSliderItem {
+  id: VehicleType;
+  key: string;
+  title: string;
+  desc: string;
+  Icon: React.ComponentType<{ size?: number; className?: string }>;
+  tagKey: string;
+  tag: string;
+  rate: string;
+}
+
+const FLEET_ITEMS: FleetSliderItem[] = [
+  {
+    id: "bike",
+    key: "bike",
+    title: VEHICLE_OPTIONS.bike.label,
+    desc: VEHICLE_OPTIONS.bike.tagline,
+    Icon: VEHICLE_SVG_ICONS.bike,
+    tagKey: "quick",
+    tag: "Quick",
+    rate: "₹8/km",
+  },
+  {
+    id: "scooty",
+    key: "scooty",
+    title: VEHICLE_OPTIONS.scooty.label,
+    desc: VEHICLE_OPTIONS.scooty.tagline,
+    Icon: VEHICLE_SVG_ICONS.scooty,
+    tagKey: "eco",
+    tag: "Eco",
+    rate: "₹7/km",
+  },
+  {
+    id: "auto",
+    key: "auto",
+    title: VEHICLE_OPTIONS.auto.label,
+    desc: VEHICLE_OPTIONS.auto.tagline,
+    Icon: VEHICLE_SVG_ICONS.auto,
+    tagKey: "popular",
+    tag: "Popular",
+    rate: "₹11.5/km",
+  },
+  {
+    id: "mini",
+    key: "mini",
+    title: VEHICLE_OPTIONS.mini.label,
+    desc: VEHICLE_OPTIONS.mini.tagline,
+    Icon: VEHICLE_SVG_ICONS.mini,
+    tagKey: "economy",
+    tag: "Economy",
+    rate: "₹13.5/km",
+  },
+  {
+    id: "car",
+    key: "car",
+    title: VEHICLE_OPTIONS.car.label,
+    desc: VEHICLE_OPTIONS.car.tagline,
+    Icon: VEHICLE_SVG_ICONS.car,
+    tagKey: "comfort",
+    tag: "Comfort",
+    rate: "₹16.5/km",
+  },
+  {
+    id: "priority",
+    key: "priority",
+    title: VEHICLE_OPTIONS.priority.label,
+    desc: VEHICLE_OPTIONS.priority.tagline,
+    Icon: VEHICLE_SVG_ICONS.priority,
+    tagKey: "premium",
+    tag: "Premium",
+    rate: "₹21/km",
+  },
+  {
+    id: "loading",
+    key: "loading",
+    title: VEHICLE_OPTIONS.loading.label,
+    desc: VEHICLE_OPTIONS.loading.tagline,
+    Icon: VEHICLE_SVG_ICONS.loading,
+    tagKey: "cargo",
+    tag: "Cargo",
+    rate: "₹20/km",
+  },
+  {
+    id: "truck",
+    key: "truck",
+    title: VEHICLE_OPTIONS.truck.label,
+    desc: VEHICLE_OPTIONS.truck.tagline,
+    Icon: VEHICLE_SVG_ICONS.truck,
+    tagKey: "logistics",
+    tag: "Logistics",
+    rate: "₹35/km",
+  },
 ];
 
 export default function VehicleCategoriesSlider() {
@@ -28,11 +114,11 @@ export default function VehicleCategoriesSlider() {
   const [canLeft,  setCanLeft]  = useState(false);
   const [canRight, setCanRight] = useState(true);
 
-  const vehicleCategories = VEHICLE_CATEGORIES_RAW.map(c => ({
+  const vehicleCategories = FLEET_ITEMS.map((c) => ({
     ...c,
     title: t(`fleet.${c.key}`, c.title),
     desc: t(`fleet.${c.key}Desc`, c.desc),
-    tag: t(`fleet.${c.tagKey}`, c.tag)
+    tag: t(`fleet.${c.tagKey}`, c.tag),
   }));
 
   const scroll = (dir: "left" | "right") => {
@@ -45,6 +131,16 @@ export default function VehicleCategoriesSlider() {
     const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
     setCanLeft(scrollLeft > 8);
     setCanRight(scrollLeft < scrollWidth - clientWidth - 8);
+  };
+
+  const handleSelectVehicle = (vehicleId: string) => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("ridenow_booking_draft");
+        localStorage.removeItem("ridenow_booking_draft");
+      } catch (_) {}
+    }
+    router.push(`/book?vehicle=${vehicleId}&fresh=true`);
   };
 
   return (
@@ -76,7 +172,8 @@ export default function VehicleCategoriesSlider() {
               whileTap={{ scale: 0.88 }}
               onClick={() => scroll("left")}
               disabled={!canLeft}
-              className="w-11 h-11 rounded-2xl border border-zinc-200 bg-white flex items-center justify-center hover:bg-zinc-900 hover:border-zinc-900 hover:text-white disabled:opacity-25 disabled:hover:bg-white disabled:hover:text-zinc-900 disabled:hover:border-zinc-200 transition-all text-zinc-700 shadow-sm"
+              aria-label="Scroll left"
+              className="w-11 h-11 rounded-2xl border border-zinc-200 bg-white flex items-center justify-center hover:bg-zinc-900 hover:border-zinc-900 hover:text-white disabled:opacity-25 disabled:hover:bg-white disabled:hover:text-zinc-900 disabled:hover:border-zinc-200 transition-all text-zinc-700 shadow-sm cursor-pointer"
             >
               <ChevronLeft size={18} strokeWidth={2.5} />
             </motion.button>
@@ -84,7 +181,8 @@ export default function VehicleCategoriesSlider() {
               whileTap={{ scale: 0.88 }}
               onClick={() => scroll("right")}
               disabled={!canRight}
-              className="w-11 h-11 rounded-2xl border border-zinc-200 bg-white flex items-center justify-center hover:bg-zinc-900 hover:border-zinc-900 hover:text-white disabled:opacity-25 disabled:hover:bg-white disabled:hover:text-zinc-900 disabled:hover:border-zinc-200 transition-all text-zinc-700 shadow-sm"
+              aria-label="Scroll right"
+              className="w-11 h-11 rounded-2xl border border-zinc-200 bg-white flex items-center justify-center hover:bg-zinc-900 hover:border-zinc-900 hover:text-white disabled:opacity-25 disabled:hover:bg-white disabled:hover:text-zinc-900 disabled:hover:border-zinc-200 transition-all text-zinc-700 shadow-sm cursor-pointer"
             >
               <ChevronRight size={18} strokeWidth={2.5} />
             </motion.button>
@@ -122,36 +220,36 @@ export default function VehicleCategoriesSlider() {
           >
             {vehicleCategories.map((item, i) => {
               const isHovered = hovered === i;
+              const Icon = item.Icon;
 
               return (
                 <motion.div
-                  key={i}
+                  key={item.id}
                   initial={{ opacity: 0, y: 28 }}
                   animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: 0.05 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   onHoverStart={() => setHovered(i)}
                   onHoverEnd={() => setHovered(null)}
                   whileHover={{ y: -6 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => router.push(`/book?fresh=true&category=${item.routeCategory}`)}
-                  className="group relative min-w-[210px] sm:min-w-[270px] flex-shrink-0 cursor-pointer select-none"
+                  onClick={() => handleSelectVehicle(item.id)}
+                  className="group relative min-w-[220px] sm:min-w-[270px] flex-shrink-0 cursor-pointer select-none"
                 >
                   {/* Card */}
                   <motion.div
                     animate={{
                       backgroundColor: isHovered ? "#09090b" : "#ffffff",
-                      borderColor: isHovered ? "#09090b" : "#d4d4d8",
+                      borderColor: isHovered ? "#09090b" : "#e4e4e7",
                       boxShadow: isHovered
-                        ? "0 20px 48px rgba(0,0,0,0.22)"
-                        : "0 2px 14px rgba(0,0,0,0.06)",
+                        ? "0 20px 48px rgba(0,0,0,0.18)"
+                        : "0 2px 14px rgba(0,0,0,0.05)",
                     }}
                     transition={{ duration: 0.25 }}
-                    className="relative rounded-2xl sm:rounded-3xl border-2 p-5 sm:p-7 overflow-hidden h-full"
+                    className="relative rounded-2xl sm:rounded-3xl border p-5 sm:p-7 overflow-hidden h-full flex flex-col justify-between"
                   >
 
                     {/* BG dot pattern on hover */}
                     <motion.div
-                      animate={{ opacity: isHovered ? 0.08 : 0 }}
+                      animate={{ opacity: isHovered ? 0.06 : 0 }}
                       transition={{ duration: 0.3 }}
                       className="absolute inset-0 pointer-events-none"
                       style={{
@@ -160,62 +258,68 @@ export default function VehicleCategoriesSlider() {
                       }}
                     />
 
-                    {/* TAG (SOLID HIGH CONTRAST) */}
-                    <motion.div
-                      animate={{
-                        backgroundColor: isHovered ? "#ffffff" : "#000000",
-                        color: isHovered ? "#000000" : "#ffffff",
-                        borderColor: isHovered ? "#ffffff" : "#000000",
-                      }}
-                      className="inline-flex items-center gap-1.5 border text-[10px] font-black uppercase tracking-[0.18em] px-3 py-1.5 rounded-full mb-5 transition-colors shadow-xs"
-                    >
-                      <Sparkles size={10} />
-                      {item.tag}
-                    </motion.div>
-
-                    {/* ICON BOX */}
-                    <motion.div
-                      animate={{
-                        backgroundColor: isHovered ? "rgba(255,255,255,0.15)" : "#f4f4f5",
-                        borderColor: isHovered ? "rgba(255,255,255,0.2)" : "#d4d4d8",
-                      }}
-                      className="w-14 h-14 rounded-2xl border-2 flex items-center justify-center mb-5 transition-colors"
-                    >
+                    <div>
+                      {/* TAG */}
                       <motion.div
-                        animate={{ color: isHovered ? "#ffffff" : "#000000" }}
-                        transition={{ duration: 0.2 }}
+                        animate={{
+                          backgroundColor: isHovered ? "rgba(255,255,255,0.12)" : "#f4f4f5",
+                          color: isHovered ? "#ffffff" : "#71717a",
+                          borderColor: isHovered ? "rgba(255,255,255,0.15)" : "#e4e4e7",
+                        }}
+                        className="inline-flex items-center gap-1.5 border text-[9px] font-black uppercase tracking-[0.18em] px-2.5 py-1.5 rounded-full mb-5 transition-colors"
                       >
-                        <item.Icon size={26} strokeWidth={2.2} />
+                        <Sparkles size={8} />
+                        {item.tag}
                       </motion.div>
-                    </motion.div>
 
-                    {/* TEXT */}
-                    <motion.h3
-                      animate={{ color: isHovered ? "#ffffff" : "#000000" }}
-                      transition={{ duration: 0.2 }}
-                      className="text-xl sm:text-2xl font-black tracking-tight leading-none mb-2"
-                    >
-                      {item.title}
-                    </motion.h3>
-                    <motion.p
-                      animate={{ color: isHovered ? "rgba(255,255,255,0.8)" : "#52525b" }}
-                      transition={{ duration: 0.2 }}
-                      className="text-xs sm:text-sm font-semibold leading-relaxed"
-                    >
-                      {item.desc}
-                    </motion.p>
+                      {/* ICON BOX */}
+                      <motion.div
+                        animate={{
+                          backgroundColor: isHovered ? "rgba(255,255,255,0.1)" : "#f4f4f5",
+                          borderColor: isHovered ? "rgba(255,255,255,0.15)" : "#e4e4e7",
+                        }}
+                        className="w-16 h-16 rounded-2xl border flex items-center justify-center mb-5 p-2 transition-colors overflow-hidden"
+                      >
+                        <div className="w-12 h-12 flex items-center justify-center">
+                          <Icon size={44} className="w-full h-full object-contain" />
+                        </div>
+                      </motion.div>
+
+                      {/* TEXT */}
+                      <motion.h3
+                        animate={{ color: isHovered ? "#ffffff" : "#09090b" }}
+                        transition={{ duration: 0.2 }}
+                        className="text-lg font-black tracking-tight leading-none mb-2"
+                      >
+                        {item.title}
+                      </motion.h3>
+                      <motion.p
+                        animate={{ color: isHovered ? "rgba(255,255,255,0.6)" : "#71717a" }}
+                        transition={{ duration: 0.2 }}
+                        className="text-xs font-medium leading-relaxed"
+                      >
+                        {item.desc}
+                      </motion.p>
+                    </div>
+
+                    {/* Bottom Rate & Book Action */}
+                    <div className="mt-5 pt-3.5 border-t border-zinc-100 group-hover:border-zinc-800 transition-colors flex items-center justify-between">
+                      <span className={`text-xs font-bold ${isHovered ? "text-amber-400" : "text-zinc-900"}`}>
+                        From {item.rate}
+                      </span>
+                      <span className={`text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${isHovered ? "text-white" : "text-zinc-500"}`}>
+                        Book <ArrowRight size={12} />
+                      </span>
+                    </div>
 
                     {/* Static index number — subtle */}
-                    <div className="absolute bottom-5 right-5 text-xs font-black tabular-nums" style={{ color: isHovered ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)" }}>
+                    <div className="absolute top-5 right-5 text-[10px] font-black tabular-nums" style={{ color: isHovered ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)" }}>
                       0{i + 1}
                     </div>
                   </motion.div>
                 </motion.div>
               );
             })}
-
-            {/* View all card */}
-          
           </div>
         </div>
 
@@ -227,9 +331,9 @@ export default function VehicleCategoriesSlider() {
           className="flex flex-wrap items-center justify-between sm:justify-start gap-3 sm:gap-6 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-zinc-100"
         >
           {[
-            { num: "6+",   label: "Categories"   },
-            { num: "50+",  label: "Vehicle types" },
-            { num: "24/7", label: "Availability"  },
+            { num: "8",    label: "Fleet Options" },
+            { num: "100%", label: "Verified Drivers" },
+            { num: "24/7", label: "Instant Dispatch" },
           ].map((s, i) => (
             <div key={i} className="flex items-center gap-2 sm:gap-3">
               <p className="text-zinc-900 text-base sm:text-lg font-black tracking-tight">{s.num}</p>
