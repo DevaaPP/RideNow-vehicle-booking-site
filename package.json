@@ -2,6 +2,10 @@
   "name": "ridenow-platform",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "jatri",
+    "socketServer"
+  ],
   "scripts": {
     "build": "npm --prefix jatri run build",
     "start": "npm --prefix jatri start",
