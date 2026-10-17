@@ -33,6 +33,13 @@ export async function POST(
     return NextResponse.json({ message: "Booking not found" }, { status: 404 });
   }
 
+  // Only the booking owner or an admin may confirm payment
+  const isOwner = booking.user?.toString() === (sessionUser as any)._id.toString();
+  const isAdmin = (sessionUser as any).role === "admin";
+  if (!isOwner && !isAdmin) {
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  }
+
   // Idempotency: If already confirmed with valid payment status, return success cleanly without error loop
   if (booking.status === "confirmed" && (booking.paymentStatus === "paid" || booking.paymentStatus === "cash")) {
     return NextResponse.json({
@@ -46,13 +53,6 @@ export async function POST(
 
   if (booking.status !== "awaiting_payment" && booking.status !== "confirmed") {
     return NextResponse.json({ message: "Invalid booking status for payment confirmation" }, { status: 400 });
-  }
-
-  // Only the booking owner or an admin may confirm payment
-  const isOwner = booking.user?.toString() === (sessionUser as any)._id.toString();
-  const isAdmin = (sessionUser as any).role === "admin";
-  if (!isOwner && !isAdmin) {
-    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
 
   booking.status = "confirmed";

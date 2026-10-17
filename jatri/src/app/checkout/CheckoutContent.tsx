@@ -696,12 +696,20 @@ export default function CheckoutContent() {
 
     checkActiveBooking();
 
-    // Fallback poll while booking is requested, awaiting_payment, or payment
+    // Adaptive poll interval: slower during payment (2500ms) to avoid race conditions,
+    // faster during driver search (1500ms) for snappy UX.
+    // "confirmed" and terminal statuses don't need aggressive polling — socket handles them.
+    const intervalMs =
+      status === "payment" ? 2500 :
+      status === "requested" || status === "awaiting_payment" ? 1500 :
+      status === "auto_rematching" ? 2000 :
+      5000; // idle / confirmed fallback heartbeat
+
     const interval = setInterval(() => {
-      if (status === "requested" || status === "awaiting_payment" || status === "payment") {
+      if (status === "requested" || status === "awaiting_payment" || status === "payment" || status === "auto_rematching") {
         checkActiveBooking();
       }
-    }, 1500);
+    }, intervalMs);
 
     return () => clearInterval(interval);
   }, [status]);

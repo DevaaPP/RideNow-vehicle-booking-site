@@ -765,38 +765,59 @@ export default function LiveTrackingMap({
   const hadDriverRef = useRef<boolean>(false);
   const lastFramedCoordsRef = useRef<string>("");
 
+  const pickupLocationRef = useRef(pickupLocation);
+  const dropLocationRef = useRef(dropLocation);
+  const driverLocationRef = useRef(driverLocation);
+
+  useEffect(() => { pickupLocationRef.current = pickupLocation; }, [pickupLocation]);
+  useEffect(() => { dropLocationRef.current = dropLocation; }, [dropLocation]);
+  useEffect(() => { driverLocationRef.current = driverLocation; }, [driverLocation]);
+
   const fitRouteCamera = useCallback((force = false) => {
     const map = mapRef.current;
-    if (!map || !pickupLocation || !dropLocation) return;
+    const pickup = pickupLocationRef.current;
+    const drop = dropLocationRef.current;
+    const driver = driverLocationRef.current;
+    if (!map || !pickup || !drop) return;
     if (!force && userInteractedRef.current) return;
 
     try {
       const bounds = new maplibregl.LngLatBounds();
-      bounds.extend([pickupLocation[1], pickupLocation[0]]);
-      bounds.extend([dropLocation[1], dropLocation[0]]);
-      if (driverLocation && typeof driverLocation[0] === "number" && typeof driverLocation[1] === "number") {
-        bounds.extend([driverLocation[1], driverLocation[0]]);
+      bounds.extend([pickup[1], pickup[0]]);
+      bounds.extend([drop[1], drop[0]]);
+      if (driver && typeof driver[0] === "number" && typeof driver[1] === "number") {
+        bounds.extend([driver[1], driver[0]]);
       }
 
       map.fitBounds(bounds, {
         padding: { top: 90, bottom: 200, left: 60, right: 60 },
-        duration: 800,
+        duration: 500,
+        essential: true,
         maxZoom: 16.5,
       });
     } catch (_) {}
-  }, [pickupLocation, dropLocation, driverLocation]);
+  }, []);
 
   // Track user manual pan/zoom so continuous driver updates never fight the user
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    const onUserInteraction = () => {
-      userInteractedRef.current = true;
-    };
-    map.on("dragstart", onUserInteraction);
-    map.on("touchmove", onUserInteraction);
-    map.on("wheel", onUserInteraction);
+    const timeout = setTimeout(() => {
+      const map = mapRef.current;
+      if (!map) return;
+      const onUserInteraction = () => {
+        userInteractedRef.current = true;
+      };
+      map.on("dragstart", onUserInteraction);
+      map.on("touchmove", onUserInteraction);
+      map.on("wheel", onUserInteraction);
+    }, 200);
+
     return () => {
+      clearTimeout(timeout);
+      const map = mapRef.current;
+      if (!map) return;
+      const onUserInteraction = () => {
+        userInteractedRef.current = true;
+      };
       map.off("dragstart", onUserInteraction);
       map.off("touchmove", onUserInteraction);
       map.off("wheel", onUserInteraction);

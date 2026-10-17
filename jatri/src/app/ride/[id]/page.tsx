@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RideChat from "@/features/rides/components/RideChat";
 import NotificationToggle from "@/shared/components/NotificationToggle";
@@ -167,7 +167,7 @@ export default function RidePage() {
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  const handlePayNow = async () => {
+  const handlePayNow = useCallback(async () => {
     if (!id || paymentProcessing) return;
     setPaymentProcessing(true);
     setPaymentError(null);
@@ -183,12 +183,12 @@ export default function RidePage() {
         if (data.success || data.alreadyConfirmed) {
           setBooking((prev) =>
             prev
-              ? {
+              ? ({
                   ...prev,
                   status: "confirmed",
                   paymentStatus: "cash",
                   pickupOtp: data.pickupOtp || prev.pickupOtp,
-                }
+                } as BookingDetails)
               : null
           );
           return;
@@ -205,12 +205,12 @@ export default function RidePage() {
         if (data.success || data.alreadyConfirmed) {
           setBooking((prev) =>
             prev
-              ? {
+              ? ({
                   ...prev,
                   status: "confirmed",
                   paymentStatus: "paid",
                   pickupOtp: data.pickupOtp || prev.pickupOtp,
-                }
+                } as BookingDetails)
               : null
           );
           return;
@@ -265,12 +265,12 @@ export default function RidePage() {
               if (verifyData.success || verifyData.alreadyConfirmed) {
                 setBooking((prev) =>
                   prev
-                    ? {
+                    ? ({
                         ...prev,
                         status: "confirmed",
                         paymentStatus: "paid",
                         pickupOtp: verifyData.pickupOtp || prev.pickupOtp,
-                      }
+                      } as BookingDetails)
                     : null
                 );
               } else {
@@ -296,7 +296,7 @@ export default function RidePage() {
         setPaymentProcessing(false);
       }
     }
-  };
+  }, [id, paymentMethod, paymentProcessing]);
 
   /* ── SAFETY CHECK-IN STATE & ROUTE DEVIATION ── */
   const [showSafetyCheckIn, setShowSafetyCheckIn] = useState(false);
@@ -902,7 +902,7 @@ export default function RidePage() {
   };
 
   return (
-    <div className="h-screen w-full bg-zinc-100 flex flex-col md:flex-row overflow-hidden">
+    <div className="h-screen w-full bg-zinc-100 flex flex-col lg:flex-row overflow-hidden">
 
       {/* ══ MAP ══ */}
       <div className="relative flex-1 h-full z-0">
@@ -949,11 +949,11 @@ export default function RidePage() {
         </motion.div>
       </div>
 
-      {/* ══ DESKTOP / TABLET EDITORIAL PANEL (UP TO 40% WIDTH LIKE /book) ══ */}
+      {/* ══ DESKTOP EDITORIAL PANEL (MATCHES /partner/active-ride) ══ */}
       <motion.div
         initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden md:flex w-full md:w-[45%] lg:w-[40%] xl:w-[40%] 2xl:w-[40%] min-w-[380px] max-w-[580px] bg-white border-l border-zinc-200 flex-col overflow-hidden flex-shrink-0 z-10"
+        className="hidden lg:flex w-[420px] xl:w-[460px] bg-white border-l border-zinc-200 flex-col overflow-hidden flex-shrink-0 z-10"
       >
         <div className="bg-zinc-950 px-6 py-5 flex-shrink-0">
           <div className="flex items-center justify-between mb-1">
@@ -991,8 +991,8 @@ export default function RidePage() {
         </div>
       </motion.div>
 
-      {/* ══ MOBILE BOTTOM SHEET (< md) ══ */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
+      {/* ══ SWIPE BOTTOM SHEET (< lg, MATCHES /partner/active-ride) ══ */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
           className="bg-white rounded-none shadow-2xl pointer-events-auto overflow-hidden border-t-2 border-zinc-950 flex flex-col"
           animate={{ height: expanded ? "82vh" : PEEK_H }}
@@ -1048,7 +1048,7 @@ export default function RidePage() {
               </div>
             </div>
           </motion.div>
-          <div className="overflow-y-auto h-full pb-10">
+          <div className="flex-1 overflow-y-auto min-h-0 pb-10">
             <PanelContent {...panelProps} />
           </div>
         </motion.div>
@@ -1965,12 +1965,6 @@ function PanelContent({
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Pickup</p>
               <p className="text-xs font-bold text-zinc-900 leading-snug">{booking.pickupAddress || "—"}</p>
-              {booking.pickupOtp && isPreTrip && (
-                <div className="mt-1.5 inline-flex items-center gap-1.5 bg-zinc-100 border border-zinc-300 px-2 py-0.5 rounded-none">
-                  <p className="text-zinc-950 text-xs font-black tracking-widest font-mono">{booking.pickupOtp}</p>
-                  <p className="text-zinc-500 text-[10px] font-bold uppercase">PIN</p>
-                </div>
-              )}
             </div>
           </div>
 
