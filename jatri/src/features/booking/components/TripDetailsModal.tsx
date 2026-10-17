@@ -386,8 +386,17 @@ export default function TripDetailsModal({
                   <span>₹{(booking.fare * 0.048).toFixed(2)}</span>
                 </div>
                 <div className="pt-2 border-t border-zinc-200 flex justify-between font-black text-zinc-950 text-sm">
-                  <span>Total Paid ({booking.paymentStatus || "cash"})</span>
-                  <span>₹{booking.fare}</span>
+                  {["cancelled", "expired", "rejected"].includes(booking.status) ? (
+                    <>
+                      <span className="text-zinc-500">Trip Status</span>
+                      <span className="capitalize text-red-600 font-bold">{booking.status} (No Charge)</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Total Paid ({booking.paymentStatus === "paid" ? "Online" : booking.paymentStatus === "cash" ? "Cash" : booking.paymentStatus || "Cash"})</span>
+                      <span>₹{booking.fare}</span>
+                    </>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -435,37 +444,39 @@ export default function TripDetailsModal({
             </div>
           </div>
 
-          {/* 6. RATE TRIP / PASSENGER SECTION */}
-          <div className="p-4 bg-white flex items-center justify-between border-t border-zinc-200">
-            <div>
-              <p className="text-sm font-black text-zinc-950 uppercase tracking-tight">
-                {isVendor ? "Rate your passenger" : "Rate your trip"}
-              </p>
-              <p className="text-[11px] text-zinc-500 font-medium">
-                {rated ? "Feedback submitted" : isVendor ? `How was ${counterpartName}?` : "How was your driver?"}
-              </p>
+          {/* 6. RATE TRIP / PASSENGER SECTION - ONLY FOR COMPLETED TRIPS */}
+          {booking.status === "completed" && (
+            <div className="p-4 bg-white flex items-center justify-between border-t border-zinc-200">
+              <div>
+                <p className="text-sm font-black text-zinc-950 uppercase tracking-tight">
+                  {isVendor ? "Rate your passenger" : "Rate your trip"}
+                </p>
+                <p className="text-[11px] text-zinc-500 font-medium">
+                  {rated ? "Feedback submitted" : isVendor ? `How was ${counterpartName}?` : "How was your driver?"}
+                </p>
+              </div>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => handleRate(star)}
+                    className="p-1 hover:scale-110 transition cursor-pointer"
+                    aria-label={`Rate ${star} stars`}
+                  >
+                    <Star
+                      size={20}
+                      className={`${
+                        star <= userRating
+                          ? "text-amber-400 fill-amber-400"
+                          : "text-zinc-300"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => handleRate(star)}
-                  className="p-1 hover:scale-110 transition cursor-pointer"
-                  aria-label={`Rate ${star} stars`}
-                >
-                  <Star
-                    size={20}
-                    className={`${
-                      star <= userRating
-                        ? "text-amber-400 fill-amber-400"
-                        : "text-zinc-300"
-                    }`}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
           {/* 7. PRIVACY NOTE */}
           <div className="p-4 bg-zinc-100 flex items-start gap-3 text-zinc-600 border-t border-zinc-200">

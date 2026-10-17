@@ -305,13 +305,19 @@ export default function MyBookingsPage() {
                       <div className="flex items-center gap-1.5 sm:gap-2">
                         <span className="text-[11px] sm:text-xs text-gray-500">Payment:</span>
                         
-                        <span className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full ${
-                          booking.paymentStatus === 'paid' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {booking.paymentStatus || 'pending'}
-                        </span>
+                        {["cancelled", "expired", "rejected"].includes(booking.status) ? (
+                          <span className="text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 font-medium">
+                            Not Applicable
+                          </span>
+                        ) : (
+                          <span className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full ${
+                            booking.paymentStatus === 'paid' 
+                              ? 'bg-green-100 text-green-700 font-medium' 
+                              : 'bg-yellow-100 text-yellow-700 font-medium'
+                          }`}>
+                            {booking.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         {booking.status === "completed" && (

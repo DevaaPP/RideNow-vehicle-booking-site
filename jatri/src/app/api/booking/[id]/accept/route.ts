@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import connectDb from "@/lib/db";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
@@ -39,23 +40,38 @@ export async function POST(
     });
   }
 
-  // 2. Concurrency Safety: Ensure driver is not already committed to another active trip
+  // 2. Concurrency Safety: Ensure driver is not already committed to another active trip within fresh window
   if (actorId && actorRole === "driver") {
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const driverIdQuery: any[] = [actorId];
+    try {
+      driverIdQuery.push(new Types.ObjectId(actorId));
+    } catch (_) {}
+
     const activeRide = await Booking.findOne({
-      driver: actorId,
+      driver: { $in: driverIdQuery },
       _id: { $ne: id },
-      status: {
-        $in: [
-          "awaiting_payment",
-          "confirmed",
-          "driver_assigned",
-          "driver_arriving",
-          "driver_arrived",
-          "started",
-          "ride_started",
-          "ride_in_progress",
-        ],
-      },
+      $or: [
+        {
+          status: {
+            $in: [
+              "confirmed",
+              "driver_assigned",
+              "driver_arriving",
+              "driver_arrived",
+              "started",
+              "ride_started",
+              "ride_in_progress",
+            ],
+          },
+          updatedAt: { $gte: twoHoursAgo },
+        },
+        {
+          status: "awaiting_payment",
+          updatedAt: { $gte: tenMinutesAgo },
+        },
+      ],
     });
 
     if (activeRide) {
@@ -126,7 +142,12 @@ export async function POST(
       data: {
         bookingId: booking._id.toString(),
         status: targetStatus,
+        paymentStatus: booking.paymentStatus,
+        driver: booking.driver,
+        driverMobileNumber: booking.driverMobileNumber,
+        pickupOtp: booking.pickupOtp,
       },
+      directBookingId: booking._id.toString(),
     });
   } catch (socketErr) {
     console.warn("Socket notification in accept route failed:", socketErr);

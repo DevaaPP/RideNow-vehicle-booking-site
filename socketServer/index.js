@@ -141,6 +141,12 @@ io.use(async (socket, next) => {
 });
 
 io.on("connection", (socket) => {
+  // Auto-join user room if authenticated during handshake
+  if (socket.userId) {
+    socket.join(`user-${socket.userId}`);
+    User.findByIdAndUpdate(socket.userId, { socketId: socket.id, lastHeartbeat: new Date() }).catch(() => {});
+  }
+
   // Identity binding
   socket.on("identity", async (userId) => {
     if (!userId || typeof userId !== "string" || !mongoose.Types.ObjectId.isValid(userId)) {

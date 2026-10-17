@@ -52,20 +52,31 @@ export async function GET() {
     return NextResponse.json(null);
   }
 
+  const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
   const booking: any = await Booking.findOne({
     driver: { $in: driverIds },
-    status: {
-      $in: [
-        "driver_assigned",
-        "awaiting_payment",
-        "confirmed",
-        "driver_arriving",
-        "driver_arrived",
-        "started",
-        "ride_started",
-        "ride_in_progress",
-      ],
-    },
+    $or: [
+      {
+        status: {
+          $in: [
+            "driver_assigned",
+            "confirmed",
+            "driver_arriving",
+            "driver_arrived",
+            "started",
+            "ride_started",
+            "ride_in_progress",
+          ],
+        },
+        updatedAt: { $gte: sixHoursAgo },
+      },
+      {
+        status: "awaiting_payment",
+        updatedAt: { $gte: tenMinutesAgo },
+      },
+    ],
   })
     .sort({ updatedAt: -1, createdAt: -1 })
     .populate("user driver vehicle")

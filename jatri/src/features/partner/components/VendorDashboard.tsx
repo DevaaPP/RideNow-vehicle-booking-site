@@ -1011,10 +1011,16 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       const res = await axios.get("/api/partner/bookings/pending", {
         headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
       });
-      if (res.data.bookings && res.data.bookings.length > 0) {
+      if (res.data?.bookings && res.data.bookings.length > 0) {
         setPendingRequest(res.data.bookings[0]);
       } else {
-        setPendingRequest(null);
+        // Only clear if the current request is older than 45 seconds or already resolved
+        setPendingRequest((prev: any) => {
+          if (!prev) return null;
+          const age = prev.createdAt ? Date.now() - new Date(prev.createdAt).getTime() : 0;
+          if (age > 45000) return null;
+          return prev;
+        });
       }
     } catch (err) {
       console.error("Failed to fetch pending requests:", err);

@@ -5,21 +5,8 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
+import { Types } from "mongoose";
 import { NextResponse } from "next/server";
-
-function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371; // Earth's radius in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
 
 export async function GET() {
   try {
@@ -30,61 +17,63 @@ export async function GET() {
 
     if (!session || !session.user) {
       return NextResponse.json(
-        { message: "Unauthorized" },
+        { message: "Unauthorized", bookings: [] },
         { status: 401 }
       );
     }
 
-    if (session.user.role !== "vendor" && session.user.role !== "driver") {
+    const driverIds: any[] = [];
+    if (session.user.id) {
+      driverIds.push(session.user.id);
+      try {
+        driverIds.push(new Types.ObjectId(session.user.id));
+      } catch (_) {}
+    }
+
+    let userDoc: any = null;
+    if (session.user.id) {
+      userDoc = await User.findById(session.user.id).select("_id role").lean();
+    }
+    if (!userDoc && session.user.email) {
+      userDoc = await User.findOne({ email: session.user.email }).select("_id role").lean();
+    }
+
+    if (userDoc?._id) {
+      const idStr = userDoc._id.toString();
+      if (!driverIds.includes(idStr)) driverIds.push(idStr);
+      try {
+        driverIds.push(new Types.ObjectId(idStr));
+      } catch (_) {}
+    }
+
+    if (userDoc && userDoc.role !== "vendor" && userDoc.role !== "driver" && session.user.role !== "vendor" && session.user.role !== "driver") {
       return NextResponse.json(
-        { message: "Forbidden" },
+        { message: "Forbidden", bookings: [] },
         { status: 403 }
       );
     }
 
-    const vendorId = session.user.id;
-
-    /* ===== GET DRIVER LOCATION ===== */
-    const driver = await User.findById(vendorId).select("location").lean();
-    const driverCoords = driver?.location?.coordinates;
-
-    /* ===== FETCH PENDING BOOKINGS ===== */
-    const rawBookings = await Booking.find({
-      driver: vendorId,
-      status: "requested",
+    /* ===== FETCH PENDING BOOKINGS DISPATCHED TO THIS DRIVER ===== */
+    // Match recent unaccepted requests within active dispatch horizon (last 5 minutes)
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const bookings = await Booking.find({
+      driver: { $in: driverIds },
+      status: { $in: ["requested", "searching_driver"] },
+      createdAt: { $gte: fiveMinutesAgo },
     })
       .sort({ createdAt: -1 })
-      .select("_id pickupAddress dropAddress fare partnerAmount adminCommission createdAt pickupLocation")
+      .populate("vehicle", "number vehicleModel type")
+      .populate("user", "name mobileNumber")
       .lean();
 
-    // Filter to strictly incoming requests within 10km limit
-    const bookings = rawBookings.filter((b: any) => {
-      if (
-        driverCoords &&
-        Array.isArray(driverCoords) &&
-        driverCoords.length === 2 &&
-        b.pickupLocation?.coordinates &&
-        Array.isArray(b.pickupLocation.coordinates)
-      ) {
-        const [dLng, dLat] = driverCoords;
-        const [pLng, pLat] = b.pickupLocation.coordinates;
-        if (typeof dLat === "number" && typeof pLat === "number") {
-          const dist = haversineDistance(dLat, dLng, pLat, pLng);
-          return dist <= 10;
-        }
-      }
-      return true;
-    });
-
     return NextResponse.json({
-      bookings,
+      bookings: bookings || [],
     });
-
   } catch (error) {
     console.error("Pending Bookings Error:", error);
 
     return NextResponse.json(
-      { message: "Server Error" },
+      { message: "Server Error", bookings: [] },
       { status: 500 }
     );
   }
