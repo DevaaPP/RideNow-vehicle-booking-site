@@ -468,8 +468,11 @@ export default function CheckoutContent() {
 
         const data = await res.json();
 
-        if(data.success){
+        if (data.success || data.alreadyConfirmed) {
+          setStatus("confirmed");
           window.location.href = `/ride/${bookingId}`;
+        } else {
+          alert(data.message || "Failed to confirm cash payment. Please retry.");
         }
 
         return;
@@ -484,7 +487,8 @@ export default function CheckoutContent() {
 
         const data = await res.json();
 
-        if (data.success) {
+        if (data.success || data.alreadyConfirmed) {
+          setStatus("confirmed");
           window.location.href = `/ride/${bookingId}`;
           return;
         } else if (data.insufficientBalance) {
@@ -543,7 +547,8 @@ export default function CheckoutContent() {
 
             const verifyData = await verify.json();
 
-            if(verifyData.success){
+            if (verifyData.success || verifyData.alreadyConfirmed) {
+              setStatus("confirmed");
               window.location.href = `/ride/${bookingId}`;
             } else {
               alert(verifyData.message || "Payment verification failed");
@@ -674,8 +679,8 @@ export default function CheckoutContent() {
           if (resolvedType) {
             setVehicle(resolvedType);
           }
-          // If server state is awaiting_payment but local state is already payment, do not revert
-          if (data.booking.status === "awaiting_payment" && status === "payment") {
+          // If server state is awaiting_payment but local state is already payment or confirmed, do not revert
+          if (data.booking.status === "awaiting_payment" && (status === "payment" || status === "confirmed")) {
             return;
           }
           if (["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "started", "ride_started", "ride_in_progress"].includes(data.booking.status)) {
@@ -691,9 +696,9 @@ export default function CheckoutContent() {
 
     checkActiveBooking();
 
-    // Fallback poll every 1.5 seconds while booking is requested or awaiting payment
+    // Fallback poll while booking is requested, awaiting_payment, or payment
     const interval = setInterval(() => {
-      if (status === "requested" || status === "awaiting_payment") {
+      if (status === "requested" || status === "awaiting_payment" || status === "payment") {
         checkActiveBooking();
       }
     }, 1500);

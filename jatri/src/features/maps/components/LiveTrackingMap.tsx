@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
+import { Crosshair } from "lucide-react";
 import { LIVE_TRACKING_MAP_STYLE } from "@/lib/mapConfig";
 
 type VehicleType = "auto" | "car" | "bike" | "suv" | string;
@@ -758,26 +759,94 @@ export default function LiveTrackingMap({
     tripRouteDrawnRef.current = false;
   }, [pickupLocation?.[0], pickupLocation?.[1], dropLocation?.[0], dropLocation?.[1]]);
 
-  /* ─── CAMERA FRAMING ─── */
+  /* ─── STABLE CAMERA FRAMING & USER INTERACTION (NO PERPETUAL BOUNCING) ─── */
+  const userInteractedRef = useRef(false);
+  const prevFramedStatusRef = useRef<string | null>(null);
+  const hadDriverRef = useRef<boolean>(false);
+  const lastFramedCoordsRef = useRef<string>("");
+
+  const fitRouteCamera = useCallback((force = false) => {
+    const map = mapRef.current;
+    if (!map || !pickupLocation || !dropLocation) return;
+    if (!force && userInteractedRef.current) return;
+
+    try {
+      const bounds = new maplibregl.LngLatBounds();
+      bounds.extend([pickupLocation[1], pickupLocation[0]]);
+      bounds.extend([dropLocation[1], dropLocation[0]]);
+      if (driverLocation && typeof driverLocation[0] === "number" && typeof driverLocation[1] === "number") {
+        bounds.extend([driverLocation[1], driverLocation[0]]);
+      }
+
+      map.fitBounds(bounds, {
+        padding: { top: 90, bottom: 200, left: 60, right: 60 },
+        duration: 800,
+        maxZoom: 16.5,
+      });
+    } catch (_) {}
+  }, [pickupLocation, dropLocation, driverLocation]);
+
+  // Track user manual pan/zoom so continuous driver updates never fight the user
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const onUserInteraction = () => {
+      userInteractedRef.current = true;
+    };
+    map.on("dragstart", onUserInteraction);
+    map.on("touchmove", onUserInteraction);
+    map.on("wheel", onUserInteraction);
+    return () => {
+      map.off("dragstart", onUserInteraction);
+      map.off("touchmove", onUserInteraction);
+      map.off("wheel", onUserInteraction);
+    };
+  }, []);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !pickupLocation || !dropLocation) return;
 
-    const bounds = new maplibregl.LngLatBounds();
-    bounds.extend([pickupLocation[1], pickupLocation[0]]);
-    bounds.extend([dropLocation[1], dropLocation[0]]);
-    if (driverLocation) bounds.extend([driverLocation[1], driverLocation[0]]);
+    const pLat = typeof pickupLocation[0] === "number" ? pickupLocation[0].toFixed(4) : "";
+    const pLng = typeof pickupLocation[1] === "number" ? pickupLocation[1].toFixed(4) : "";
+    const dLat = typeof dropLocation[0] === "number" ? dropLocation[0].toFixed(4) : "";
+    const dLng = typeof dropLocation[1] === "number" ? dropLocation[1].toFixed(4) : "";
+    const coordsKey = `${pLat},${pLng}_${dLat},${dLng}`;
 
-    map.fitBounds(bounds, {
-      padding: { top: 100, bottom: 200, left: 60, right: 60 },
-      duration: 1000,
-      maxZoom: 16.5,
-    });
-  }, [pickupLocation, dropLocation, driverLocation]);
+    const isNewLocation = coordsKey !== lastFramedCoordsRef.current;
+    const isNewStatus = status !== prevFramedStatusRef.current;
+    const hasDriverNow = Boolean(driverLocation && typeof driverLocation[0] === "number");
+    const driverFirstAppeared = hasDriverNow && !hadDriverRef.current;
+
+    // Only frame camera on initial route load, when status transitions (e.g. arriving -> ongoing),
+    // or when driver first becomes available. Never frame on continuous periodic driverLocation updates!
+    if (isNewLocation || isNewStatus || driverFirstAppeared) {
+      lastFramedCoordsRef.current = coordsKey;
+      prevFramedStatusRef.current = status;
+      hadDriverRef.current = hasDriverNow;
+      userInteractedRef.current = false;
+      fitRouteCamera(true);
+    }
+  }, [pickupLocation, dropLocation, driverLocation, status, fitRouteCamera]);
 
   return (
     <div className="relative w-full h-full overflow-hidden select-none">
       <div ref={mapContainerRef} className="w-full h-full" />
+
+      {/* Floating Re-center / Fit Route Button */}
+      <button
+        type="button"
+        onClick={() => {
+          userInteractedRef.current = false;
+          fitRouteCamera(true);
+        }}
+        className="absolute bottom-28 md:bottom-8 right-4 z-20 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-md p-2.5 rounded-none flex items-center justify-center transition active:scale-95 cursor-pointer backdrop-blur-xs"
+        title="Re-center Route"
+        aria-label="Re-center Route"
+      >
+        <Crosshair size={18} className="text-zinc-900" />
+      </button>
+
       {/* ── FAIL-SAFE SVG ROUTE POLYLINE OVERLAY ── */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"

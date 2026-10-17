@@ -29,8 +29,23 @@ export async function POST(
   const { method } = await req.json();
   const booking = await Booking.findById(id);
 
-  if (!booking || booking.status !== "awaiting_payment") {
-    return NextResponse.json({ message: "Invalid" }, { status: 400 });
+  if (!booking) {
+    return NextResponse.json({ message: "Booking not found" }, { status: 404 });
+  }
+
+  // Idempotency: If already confirmed with valid payment status, return success cleanly without error loop
+  if (booking.status === "confirmed" && (booking.paymentStatus === "paid" || booking.paymentStatus === "cash")) {
+    return NextResponse.json({
+      success: true,
+      alreadyConfirmed: true,
+      status: "confirmed",
+      paymentStatus: booking.paymentStatus,
+      pickupOtp: booking.pickupOtp,
+    });
+  }
+
+  if (booking.status !== "awaiting_payment" && booking.status !== "confirmed") {
+    return NextResponse.json({ message: "Invalid booking status for payment confirmation" }, { status: 400 });
   }
 
   // Only the booking owner or an admin may confirm payment

@@ -24,6 +24,7 @@ import RideCompletedView from "@/features/rides/components/RideCompletedView";
 import RideFailedView from "@/features/rides/components/RideFailedView";
 import RideSafetyAlert from "@/features/rides/components/RideSafetyAlert";
 import { calculateCancellationPenalty } from "@/lib/cancellationRules";
+import { loadRazorpayScript } from "@/lib/loadRazorpay";
 
 const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
@@ -160,6 +161,142 @@ export default function RidePage() {
   const [fetchingQuote, setFetchingQuote] = useState<boolean>(false);
   const [showPanicConfirm, setShowPanicConfirm] = useState(false);
   const [panicLoading, setPanicLoading] = useState(false);
+
+  /* ── IN-PAGE PAYMENT STATE (FOR AWAITING_PAYMENT) ── */
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | "wallet">("cash");
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  const handlePayNow = async () => {
+    if (!id || paymentProcessing) return;
+    setPaymentProcessing(true);
+    setPaymentError(null);
+
+    try {
+      if (paymentMethod === "cash") {
+        const res = await fetch(`/api/booking/${id}/confirm-payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ method: "cash" }),
+        });
+        const data = await res.json();
+        if (data.success || data.alreadyConfirmed) {
+          setBooking((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "confirmed",
+                  paymentStatus: "cash",
+                  pickupOtp: data.pickupOtp || prev.pickupOtp,
+                }
+              : null
+          );
+          return;
+        } else {
+          setPaymentError(data.message || "Failed to confirm cash payment.");
+        }
+      } else if (paymentMethod === "wallet") {
+        const res = await fetch("/api/wallet/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId: id }),
+        });
+        const data = await res.json();
+        if (data.success || data.alreadyConfirmed) {
+          setBooking((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "confirmed",
+                  paymentStatus: "paid",
+                  pickupOtp: data.pickupOtp || prev.pickupOtp,
+                }
+              : null
+          );
+          return;
+        } else if (data.insufficientBalance) {
+          setPaymentError(
+            `Insufficient wallet balance (₹${data.balance}). Shortfall: ₹${data.shortfall}. Please choose Cash or Online.`
+          );
+        } else {
+          setPaymentError(data.error || "Wallet payment failed.");
+        }
+      } else if (paymentMethod === "online") {
+        const razorpayLoaded = await loadRazorpayScript();
+        if (!razorpayLoaded) {
+          setPaymentError("Razorpay SDK failed to load. Please check your internet connection.");
+          return;
+        }
+
+        const orderRes = await fetch("/api/payment/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId: id }),
+        });
+        const orderData = await orderRes.json();
+        if (!orderRes.ok || !orderData.orderId) {
+          setPaymentError(orderData.message || "Failed to create payment order.");
+          return;
+        }
+
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+          amount: orderData.amount,
+          currency: "INR",
+          name: "RideNow",
+          description: "Ride Payment",
+          order_id: orderData.orderId,
+          modal: {
+            ondismiss: function () {
+              setPaymentProcessing(false);
+            },
+          },
+          handler: async function (response: any) {
+            try {
+              const verifyRes = await fetch("/api/payment/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  bookingId: id,
+                  ...response,
+                }),
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyData.success || verifyData.alreadyConfirmed) {
+                setBooking((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        status: "confirmed",
+                        paymentStatus: "paid",
+                        pickupOtp: verifyData.pickupOtp || prev.pickupOtp,
+                      }
+                    : null
+                );
+              } else {
+                setPaymentError(verifyData.message || "Payment verification failed.");
+              }
+            } catch {
+              setPaymentError("Payment verification error.");
+            } finally {
+              setPaymentProcessing(false);
+            }
+          },
+        };
+
+        const paymentObject = new (window as any).Razorpay(options);
+        paymentObject.open();
+        return;
+      }
+    } catch (err: any) {
+      console.error("Payment confirmation error:", err);
+      setPaymentError(err.message || "Network error while confirming payment.");
+    } finally {
+      if (paymentMethod !== "online") {
+        setPaymentProcessing(false);
+      }
+    }
+  };
 
   /* ── SAFETY CHECK-IN STATE & ROUTE DEVIATION ── */
   const [showSafetyCheckIn, setShowSafetyCheckIn] = useState(false);
@@ -759,6 +896,9 @@ export default function RidePage() {
     onCancel: handleCancel, onRetryPayment: fetchBooking, router,
     onCallClick: startVoipCall,
     onPanicClick: () => setShowPanicConfirm(true),
+    paymentMethod, setPaymentMethod,
+    paymentProcessing, paymentError,
+    onPayNow: handlePayNow,
   };
 
   return (
@@ -1402,6 +1542,8 @@ function PanelContent({
   displayEta, displayDistance,
   chatOpen, onChatToggle, onCancel, onRetryPayment, router,
   onCallClick, onPanicClick,
+  paymentMethod, setPaymentMethod,
+  paymentProcessing, paymentError, onPayNow,
 }: any) {
   const isPreTrip = ["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "awaiting_payment"].includes(status);
 
@@ -1518,17 +1660,108 @@ function PanelContent({
         </div>
       )}
 
-      {/* PAYMENT (awaiting_payment) */}
+      {/* 💳 ACTION REQUIRED: INTERACTIVE PAYMENT CONFIRMATION (awaiting_payment) */}
       {status === "awaiting_payment" && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-zinc-950 border border-zinc-900 rounded-none p-4">
-            <p className="text-zinc-400 text-[10px] uppercase tracking-widest font-black mb-1">Action Required</p>
-            <p className="text-white font-black text-xl mb-1 flex items-center gap-1 font-mono">
-              <IndianRupee size={18} /> {booking.fare}
-            </p>
-            <p className="text-zinc-400 text-xs mb-3 font-medium">Complete payment to confirm your ride</p>
-            <button onClick={onRetryPayment} className="w-full bg-white hover:bg-zinc-100 text-zinc-950 py-3 rounded-none text-xs font-black uppercase tracking-wider transition cursor-pointer">
-              Pay Now
+          <div className="bg-zinc-950 border-2 border-zinc-900 rounded-none p-4 text-white space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div>
+                <p className="text-amber-400 text-[10px] uppercase tracking-widest font-black flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-none bg-amber-400 animate-pulse" />
+                  Driver Accepted • Confirmation Required
+                </p>
+                <h3 className="text-base font-black text-white uppercase tracking-tight mt-0.5">
+                  Choose Payment Method
+                </h3>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-black text-emerald-400 font-mono">₹{booking.fare}</span>
+                <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">Total Fare</p>
+              </div>
+            </div>
+
+            {/* Payment Mode Selector */}
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("cash")}
+                className={`p-3 rounded-none border text-left transition cursor-pointer flex flex-col justify-between min-h-[70px] ${
+                  paymentMethod === "cash"
+                    ? "bg-white text-zinc-950 border-white font-black"
+                    : "bg-zinc-900 text-zinc-300 border-zinc-800 hover:border-zinc-700 font-medium"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-base">💵</span>
+                  {paymentMethod === "cash" && <span className="text-[8px] font-mono uppercase bg-zinc-950 text-white px-1">Selected</span>}
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-wider">Cash</p>
+                  <p className="text-[10px] opacity-75 leading-tight">Pay driver</p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("online")}
+                className={`p-3 rounded-none border text-left transition cursor-pointer flex flex-col justify-between min-h-[70px] ${
+                  paymentMethod === "online"
+                    ? "bg-white text-zinc-950 border-white font-black"
+                    : "bg-zinc-900 text-zinc-300 border-zinc-800 hover:border-zinc-700 font-medium"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-base">⚡</span>
+                  {paymentMethod === "online" && <span className="text-[8px] font-mono uppercase bg-zinc-950 text-white px-1">Selected</span>}
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-wider">UPI / Card</p>
+                  <p className="text-[10px] opacity-75 leading-tight">Razorpay</p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("wallet")}
+                className={`p-3 rounded-none border text-left transition cursor-pointer flex flex-col justify-between min-h-[70px] ${
+                  paymentMethod === "wallet"
+                    ? "bg-white text-zinc-950 border-white font-black"
+                    : "bg-zinc-900 text-zinc-300 border-zinc-800 hover:border-zinc-700 font-medium"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-base">💳</span>
+                  {paymentMethod === "wallet" && <span className="text-[8px] font-mono uppercase bg-zinc-950 text-white px-1">Selected</span>}
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-wider">Wallet</p>
+                  <p className="text-[10px] opacity-75 leading-tight">1-Click Balance</p>
+                </div>
+              </button>
+            </div>
+
+            {paymentError && (
+              <div className="p-3 bg-red-950/80 border border-red-700 text-red-200 text-xs font-medium">
+                {paymentError}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={onPayNow}
+              disabled={paymentProcessing}
+              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-zinc-950 py-3.5 rounded-none text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] shadow-md"
+            >
+              {paymentProcessing ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-zinc-950/30 border-t-zinc-950 rounded-full animate-spin" />
+                  <span>Processing Payment...</span>
+                </>
+              ) : (
+                <>
+                  <span>Confirm Ride &bull; {paymentMethod === "cash" ? "Pay with Cash" : paymentMethod === "wallet" ? "Pay with Wallet" : "Pay via UPI/Card"}</span>
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -1567,6 +1800,32 @@ function PanelContent({
             <p className="text-base font-black text-white leading-none font-mono">₹{booking.fare}</p>
           </div>
         </div>
+      )}
+
+      {/* 🔐 START RIDE PICKUP OTP BANNER (PROMINENT PRE-TRIP DISPLAY) */}
+      {booking.pickupOtp && isPreTrip && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-4 lg:mx-6"
+        >
+          <div className="bg-zinc-50 border-2 border-zinc-950 rounded-none p-3.5 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-none bg-zinc-950 text-white flex items-center justify-center font-bold flex-shrink-0">
+                <KeyRound size={18} />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Start Ride PIN</p>
+                <p className="text-xs text-zinc-900 font-bold">Share this code with your driver</p>
+              </div>
+            </div>
+            <div className="bg-zinc-950 px-4 py-1.5 rounded-none border border-zinc-950 shadow-sm">
+              <span className="font-mono text-2xl font-black tracking-widest text-white">
+                {booking.pickupOtp}
+              </span>
+            </div>
+          </div>
+        </motion.div>
       )}
 
       {/* DRIVER CARD */}
@@ -1668,32 +1927,6 @@ function PanelContent({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* 🔐 START RIDE PICKUP OTP BANNER */}
-      {booking.pickupOtp && isPreTrip && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mx-4 lg:mx-6"
-        >
-          <div className="bg-zinc-50 border-2 border-zinc-950 rounded-none p-3.5 flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-none bg-zinc-950 text-white flex items-center justify-center font-bold flex-shrink-0">
-                <KeyRound size={18} />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Start Ride PIN</p>
-                <p className="text-xs text-zinc-900 font-bold">Share this code with your driver</p>
-              </div>
-            </div>
-            <div className="bg-zinc-950 px-4 py-1.5 rounded-none border border-zinc-950 shadow-sm">
-              <span className="font-mono text-2xl font-black tracking-widest text-white">
-                {booking.pickupOtp}
-              </span>
-            </div>
-          </div>
-        </motion.div>
-      )}
 
       {/* 🏁 END RIDE DROP OTP BANNER */}
       {booking.dropOtp && status === "started" && (
@@ -1823,23 +2056,6 @@ function PanelContent({
         </div>
       )}
 
-      {/* VEHICLE CARD */}
-      {booking.vehicle && showDriver && (
-        <div className="mx-4 lg:mx-6">
-          <div className="bg-white border border-zinc-300 rounded-none p-3.5 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-none bg-zinc-950 flex items-center justify-center flex-shrink-0 text-white">
-              <Car size={16} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-black mb-0.5">Vehicle</p>
-              <p className="text-xs font-black text-zinc-900 truncate uppercase">{booking.vehicle.vehicleModel}</p>
-            </div>
-            <div className="flex-shrink-0 bg-zinc-950 px-3 py-1 rounded-none border border-zinc-950">
-              <p className="text-white text-xs font-black tracking-widest font-mono">{booking.vehicle.number}</p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* CANCEL BUTTON */}
       {["requested", "awaiting_payment", "confirmed", "scheduled"].includes(status) && (
