@@ -252,16 +252,6 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
           );
         })}
 
-        {/* Uber/Rapido-style Drive Link directly on Desktop Navbar */}
-        {(!currentUser || currentUser?.role === "user") && (
-          <Link
-            href="/partner/onboard/vehicle"
-            className="text-[16px] lg:text-[17px] font-bold px-4 py-2 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition active:scale-95 flex items-center gap-1.5"
-          >
-            <span>Drive</span>
-          </Link>
-        )}
-
         {currentUser?.role === "admin" && (
           <Link
             href="/admin/dashboard"
@@ -368,12 +358,12 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   onClick={() => setAuthOpen(true)}
                   className="px-6 py-2.5 rounded-full bg-white text-black font-extrabold text-[15px] sm:text-[16px] hover:bg-zinc-200 active:scale-95 transition shadow-sm"
                 >
-                  {t("nav.signIn", "Login")}
+                  {t("nav.signIn", "Sign In")}
                 </button>
               )}
             </div>
 
-            {/* MOBILE QUICK LOGIN/PROFILE BUTTON */}
+            {/* MOBILE QUICK SIGN IN / PROFILE BUTTON */}
             <div className="md:hidden flex items-center gap-2">
               {currentUser ? (
                 <button
@@ -390,7 +380,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   onClick={() => setAuthOpen(true)}
                   className="px-4 py-2 rounded-full bg-white text-black text-sm font-extrabold active:scale-95 transition"
                 >
-                  Login
+                  Sign In
                 </button>
               )}
             </div>
