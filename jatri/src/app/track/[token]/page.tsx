@@ -10,7 +10,7 @@ import {
   Car, User2, Clock, Zap, IndianRupee,
   ShieldCheck, AlertCircle, Share2, CheckCircle2, Siren
 } from "lucide-react";
-import { getSocket } from "@/lib/socket";
+import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 
 const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
@@ -77,13 +77,15 @@ export default function PublicTrackPage() {
 
   useEffect(() => {
     if (!booking?._id) return;
+    const bookingIdStr = String(booking._id);
     const socket = getSocket();
-    socket.emit("join-booking", booking._id);
+    joinBookingRoom(bookingIdStr);
     socket.on("driver-location", (data: any) => setDriverPos([data.latitude, data.longitude]));
     socket.on("booking-updated", (data: any) => {
       setBooking((prev: any) => prev ? { ...prev, ...data } : null);
     });
     return () => {
+      leaveBookingRoom(bookingIdStr);
       socket.off("driver-location");
       socket.off("booking-updated");
     };

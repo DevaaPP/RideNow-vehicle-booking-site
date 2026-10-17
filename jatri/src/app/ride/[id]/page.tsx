@@ -10,7 +10,7 @@ import {
   CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
   ShieldAlert, Siren, PhoneCall, Share2, Navigation, KeyRound
 } from "lucide-react";
-import { getSocket } from "@/lib/socket";
+import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -164,6 +164,7 @@ export default function RidePage() {
   const [deviationDistance, setDeviationDistance] = useState<number | null>(null);
   const [safetyLoading, setSafetyLoading] = useState(false);
   const [routePolyline, setRoutePolyline] = useState<[number, number][]>([]);
+  const [isSocketConnected, setIsSocketConnected] = useState<boolean>(true);
 
   const handleConfirmSafe = async () => {
     try {
@@ -373,23 +374,108 @@ export default function RidePage() {
     }
   };
 
+  /* ── FAST POLLING FALLBACK VIA /api/booking/[id]/status ── */
+  const pollBookingStatus = async () => {
+    if (!id) return;
+    try {
+      const res = await fetch(`/api/booking/${id}/status`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data?.status) return;
+
+      // 1. Update driver coordinates dynamically
+      if (data.driverLocation && Array.isArray(data.driverLocation) && data.driverLocation.length >= 2) {
+        setDriverPos(data.driverLocation);
+      }
+
+      // 2. Sync booking status, driver & payment updates
+      setBooking((prev) => {
+        if (!prev) return null;
+        let hasChanges = false;
+        const updated = { ...prev };
+
+        if (data.status && prev.status !== data.status) {
+          updated.status = data.status;
+          hasChanges = true;
+        }
+        if (data.paymentStatus && prev.paymentStatus !== data.paymentStatus) {
+          updated.paymentStatus = data.paymentStatus;
+          hasChanges = true;
+        }
+        if (data.driver && (!prev.driver || prev.driver._id !== data.driver._id)) {
+          updated.driver = data.driver;
+          hasChanges = true;
+        }
+        if (data.vehicle && !prev.vehicle) {
+          updated.vehicle = data.vehicle;
+          hasChanges = true;
+        }
+        if (data.pickupOtp && !prev.pickupOtp) {
+          updated.pickupOtp = data.pickupOtp;
+          hasChanges = true;
+        }
+        if (data.dropOtp && !prev.dropOtp) {
+          updated.dropOtp = data.dropOtp;
+          hasChanges = true;
+        }
+        if (typeof data.isPanicActive === "boolean" && prev.isPanicActive !== data.isPanicActive) {
+          updated.isPanicActive = data.isPanicActive;
+          hasChanges = true;
+        }
+
+        return hasChanges ? updated : prev;
+      });
+
+      if (data.safetyStatus) {
+        setSafetyStatus(data.safetyStatus);
+      }
+    } catch (err) {
+      console.debug("Status polling fallback error:", err);
+    }
+  };
+
   useEffect(() => { 
     fetchBooking(); 
 
-    // Poll ride details, OTPs, and driver location every 8 seconds as safety net
+    // Dynamic adaptive polling:
+    // If socket connection stutters or drops, automatically poll /api/booking/[id]/status
+    // every 6 seconds so passenger never gets stuck with a stale map.
+    // When socket is healthy, poll every 12 seconds as a background heartbeat.
+    const pollInterval = isSocketConnected ? 12000 : 6000;
     const interval = setInterval(() => {
-      fetchBooking(true);
-    }, 8000);
+      pollBookingStatus();
+    }, pollInterval);
 
     return () => clearInterval(interval);
-  }, [id]);
+  }, [id, isSocketConnected]);
 
-  /* ── SOCKET ── */
+  /* ── SOCKET & ROOM LIFECYCLE ── */
   useEffect(() => {
-    if (!id || !booking) return;
+    if (!id) return;
+    const bookingIdStr = String(id);
     const socket = getSocket();
-    socket.emit("join-booking", id);
-    socket.on("driver-location", (data: any) => setDriverPos([data.latitude, data.longitude]));
+
+    // Register room with auto-rejoin on reconnect
+    joinBookingRoom(bookingIdStr);
+
+    setIsSocketConnected(socket.connected);
+
+    const onConnect = () => setIsSocketConnected(true);
+    const onDisconnect = () => setIsSocketConnected(false);
+    const onConnectError = () => setIsSocketConnected(false);
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("connect_error", onConnectError);
+
+    socket.on("driver-location", (data: any) => {
+      if (data?.latitude && data?.longitude) {
+        setDriverPos([data.latitude, data.longitude]);
+      }
+    });
     socket.on("booking-updated", (data: any) => {
       setBooking(prev => prev ? { ...prev, ...data } : null);
       /* close chat if ride moves past confirmed */
@@ -433,6 +519,10 @@ export default function RidePage() {
     socket.on("call-ended", handleCallEnded);
 
     return () => {
+      leaveBookingRoom(bookingIdStr);
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("connect_error", onConnectError);
       socket.off("driver-location");
       socket.off("booking-updated");
       socket.off("driver-assigned");
@@ -444,7 +534,7 @@ export default function RidePage() {
       socket.off("call-rejected", handleCallRejected);
       socket.off("call-ended", handleCallEnded);
     };
-  }, [id, booking?._id]);
+  }, [id]);
 
   /* ── ROUTE DEVIATION MONITORING EFFECT ── */
   useEffect(() => {
@@ -676,12 +766,18 @@ export default function RidePage() {
         <motion.div
           initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.3 }}
-          className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] pointer-events-none"
+          className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] pointer-events-none flex flex-col items-center gap-1.5"
         >
           <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-none shadow-md border border-zinc-300">
             <span className={`w-2 h-2 rounded-none ${cfg.dot}`} />
             <span className="text-xs font-black uppercase tracking-wider text-zinc-900">{cfg.label}</span>
           </div>
+          {!isSocketConnected && (
+            <div className="flex items-center gap-1.5 bg-amber-500 text-zinc-950 px-2.5 py-1 rounded-none shadow-sm border border-amber-600 font-mono text-[10px] font-bold uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 animate-pulse" />
+              <span>Cellular Stutter &bull; 6s Polling Active</span>
+            </div>
+          )}
         </motion.div>
       </div>
 
@@ -692,7 +788,15 @@ export default function RidePage() {
         className="hidden md:flex w-full md:w-[45%] lg:w-[40%] xl:w-[40%] 2xl:w-[40%] min-w-[380px] max-w-[580px] bg-white border-l border-zinc-200 flex-col overflow-hidden flex-shrink-0 z-10"
       >
         <div className="bg-zinc-950 px-6 py-5 flex-shrink-0">
-          <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold mb-1">Live Tracking</p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold">Live Tracking</p>
+            {!isSocketConnected && (
+              <span className="flex items-center gap-1 text-[9px] font-mono font-bold uppercase text-amber-400 bg-amber-950/80 px-2 py-0.5 border border-amber-700/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                6s Polling Backup
+              </span>
+            )}
+          </div>
           <div className="flex items-center justify-between">
             <h1 className="text-white text-xl font-black uppercase tracking-tight">Your Ride</h1>
             {isActive && (
@@ -737,7 +841,14 @@ export default function RidePage() {
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className={`w-2 h-2 rounded-none flex-shrink-0 ${cfg.dot}`} />
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-wider text-zinc-950 leading-tight truncate">{cfg.label}</p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="text-xs font-black uppercase tracking-wider text-zinc-950 leading-tight truncate">{cfg.label}</p>
+                    {!isSocketConnected && (
+                      <span className="text-[8px] font-mono font-bold uppercase bg-amber-500 text-zinc-950 px-1.5 py-0.5 border border-amber-600">
+                        6s Polling
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[11px] text-zinc-500 font-medium leading-tight truncate">{cfg.sublabel}</p>
                 </div>
               </div>

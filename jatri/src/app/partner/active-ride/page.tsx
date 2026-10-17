@@ -12,7 +12,7 @@ import {
   Mic, MicOff, Volume2, PhoneOff, PhoneCall, Siren, ShieldAlert,
   ExternalLink
 } from "lucide-react";
-import { getSocket } from "@/lib/socket";
+import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IUser } from "@/models/user.model";
@@ -135,6 +135,7 @@ export default function DriverRidePage() {
   // Keep driver mobile screen awake during active trip navigation
   const isRideActive = Boolean(booking?._id && !TERMINAL.includes(booking.status));
   const { isLocked: isWakeLockActive } = useWakeLock(isRideActive);
+  const [isSocketConnected, setIsSocketConnected] = useState<boolean>(true);
 
   /* Pickup OTP */
   const [otpMode,     setOtpMode]     = useState(false);
@@ -320,10 +321,11 @@ export default function DriverRidePage() {
       );
     }
 
-    // Poll active ride details every 8 seconds as safety net
-    const interval = setInterval(fetchBookingDetails, 8000);
+    // Adaptive polling: poll every 6s on cellular stutter/socket disconnect, 12s when healthy
+    const pollInterval = isSocketConnected ? 12000 : 6000;
+    const interval = setInterval(fetchBookingDetails, pollInterval);
     return () => clearInterval(interval);
-  }, []);
+  }, [isSocketConnected]);
 
   /* ── GPS — only for active rides, uses ref to avoid stale closure ── */
   useEffect(() => {
@@ -366,7 +368,19 @@ export default function DriverRidePage() {
     if (!booking?._id) return;
     if (TERMINAL.includes(booking.status)) return;
     const socket = getSocket();
-    socket.emit("join-booking", booking._id);
+    const bookingIdStr = String(booking._id);
+
+    joinBookingRoom(bookingIdStr);
+    setIsSocketConnected(socket.connected);
+
+    const onConnect = () => setIsSocketConnected(true);
+    const onDisconnect = () => setIsSocketConnected(false);
+    const onConnectError = () => setIsSocketConnected(false);
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("connect_error", onConnectError);
+
     socket.on("driver-location", (d: any) => setDriverPos([d.latitude, d.longitude]));
     socket.on("booking-updated", (data: any) => {
       setBooking(prev => prev ? { ...prev, ...data } : null);
@@ -399,6 +413,10 @@ export default function DriverRidePage() {
     socket.on("call-ended", handleCallEnded);
 
     return () => {
+      leaveBookingRoom(bookingIdStr);
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("connect_error", onConnectError);
       socket.off("driver-location");
       socket.off("booking-updated");
       socket.off("incoming-call", handleIncomingCall);
@@ -676,6 +694,12 @@ export default function DriverRidePage() {
                 AWAKE
               </span>
             )}
+            {!isSocketConnected && (
+              <span className="flex items-center gap-1 text-[10px] font-mono text-amber-800 bg-amber-100 px-1.5 py-0.5 border border-amber-300">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                6s POLLING
+              </span>
+            )}
           </div>
         </motion.div>
       </div>
@@ -695,6 +719,12 @@ export default function DriverRidePage() {
                 <div className="flex items-center gap-1 bg-emerald-950/80 border border-emerald-600/40 px-2 py-1 text-[10px] font-mono font-bold text-emerald-400">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   AWAKE
+                </div>
+              )}
+              {!isSocketConnected && (
+                <div className="flex items-center gap-1 bg-amber-950/80 border border-amber-600/40 px-2 py-1 text-[10px] font-mono font-bold text-amber-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  6s POLLING
                 </div>
               )}
               {isActive && (
