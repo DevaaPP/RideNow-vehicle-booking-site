@@ -15,7 +15,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import useGetMe from "@/shared/hooks/useGetMe";
 import AuthModal from "@/features/auth/components/AuthModal";
-import { getSocket } from "@/lib/socket";
+import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { DEFAULT_ROAD_TORTUOSITY_FACTOR } from "@/lib/routeUtils";
 import GroupRideCard from "@/features/booking/components/GroupRideCard";
@@ -567,7 +567,7 @@ export default function CheckoutContent() {
   useEffect(() => {
     if (!bookingId) return;
     const socket = getSocket();
-    socket.emit("join-booking", bookingId);
+    joinBookingRoom(bookingId);
 
     socket.on("booking-updated", (data: any) => {
       if (data.status === "awaiting_payment") {
@@ -592,6 +592,7 @@ export default function CheckoutContent() {
     });
 
     return () => {
+      leaveBookingRoom(bookingId);
       socket.off("booking-updated");
       socket.off("auto-rematch-started");
       socket.off("auto-rematch-searching");

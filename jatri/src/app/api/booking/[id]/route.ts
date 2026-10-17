@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
+import Vehicle from "@/models/vehicle.model";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -13,6 +14,7 @@ export async function GET(
 ) {
   try {
     await connectDb();
+    void Vehicle;
 
     const session = await auth();
     const user = session?.user;

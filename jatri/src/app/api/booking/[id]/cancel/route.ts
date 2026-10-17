@@ -137,8 +137,8 @@ export async function POST(
 
   if (["completed", "cancelled", "rejected", "expired"].includes(booking.status)) {
     return NextResponse.json(
-      { message: `Booking is already ${booking.status}` },
-      { status: 400 }
+      { success: true, alreadyCancelled: true, message: `Booking is already ${booking.status}`, status: booking.status },
+      { status: 200 }
     );
   }
 

@@ -6,10 +6,13 @@ import { Types } from "mongoose";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
+import Vehicle from "@/models/vehicle.model";
 import { auth } from "@/auth";
 
 export async function GET() {
-  await connectDb();
+  try {
+    await connectDb();
+    void Vehicle;
 
   const session = await auth();
   const user = session?.user;
@@ -79,4 +82,8 @@ export async function GET() {
   }
 
   return NextResponse.json(bookingObj);
+  } catch (err) {
+    console.error("Partner active booking error:", err);
+    return NextResponse.json(null);
+  }
 }

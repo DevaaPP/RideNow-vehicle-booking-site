@@ -35,7 +35,7 @@ export async function GET() {
       );
     }
 
-    if (session.user.role !== "vendor") {
+    if (session.user.role !== "vendor" && session.user.role !== "driver") {
       return NextResponse.json(
         { message: "Forbidden" },
         { status: 403 }

@@ -1199,13 +1199,18 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           (err2) => {
             setIsLocating(false);
             console.error("Standard geolocation failed:", err2);
+            const fallbackLat = coords?.latitude ?? (userData?.location?.coordinates ? userData.location.coordinates[1] : undefined);
+            const fallbackLng = coords?.longitude ?? (userData?.location?.coordinates ? userData.location.coordinates[0] : undefined);
+            if (typeof fallbackLat === "number" && typeof fallbackLng === "number") {
+              performSync(fallbackLat, fallbackLng);
+            }
           },
           { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 }
         );
       },
       { enableHighAccuracy: true, timeout: 6000, maximumAge: 5000 }
     );
-  }, [isOnline, userData?._id]);
+  }, [isOnline, userData?._id, userData?.location?.coordinates, coords?.latitude, coords?.longitude]);
 
   // 1. Initial location fix on mount
   useEffect(() => {
@@ -1276,7 +1281,22 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             });
           }
         },
-        (err) => console.debug("Stationary ping note:", err.message),
+        (err) => {
+          console.debug("Stationary ping note:", err.message);
+          if (isOnline) {
+            const fallbackLat = coords?.latitude ?? (userData?.location?.coordinates ? userData.location.coordinates[1] : undefined);
+            const fallbackLng = coords?.longitude ?? (userData?.location?.coordinates ? userData.location.coordinates[0] : undefined);
+            if (typeof fallbackLat === "number" && typeof fallbackLng === "number") {
+              axios.patch("/api/partner/status", { isOnline: true, latitude: fallbackLat, longitude: fallbackLng })
+                .catch(() => {});
+              const socket = getSocket();
+              if (userData?._id) {
+                socket.emit("identity", userData._id);
+                socket.emit("update-location", { userId: userData._id, latitude: fallbackLat, longitude: fallbackLng });
+              }
+            }
+          }
+        },
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 }
       );
     }, 15000);
@@ -1311,7 +1331,23 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         let currentLng = coords?.longitude;
 
         if (!currentLat || !currentLng) {
+          if (userData?.location?.coordinates && userData.location.coordinates.length >= 2) {
+            const uLng = userData.location.coordinates[0];
+            const uLat = userData.location.coordinates[1];
+            if (typeof uLat === "number" && typeof uLng === "number") {
+              currentLng = uLng;
+              currentLat = uLat;
+              setCoords({ latitude: uLat, longitude: uLng });
+            }
+          }
+        }
+
+        if (!currentLat || !currentLng) {
           await new Promise<void>((resolve) => {
+            if (!navigator.geolocation) {
+              resolve();
+              return;
+            }
             navigator.geolocation.getCurrentPosition(
               (position) => {
                 currentLat = position.coords.latitude;
@@ -1320,8 +1356,29 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 resolve();
               },
               (error) => {
-                console.error("Geolocation check error:", error);
-                resolve();
+                console.warn("High accuracy geolocation timed out, attempting standard accuracy:", error);
+                navigator.geolocation.getCurrentPosition(
+                  (pos2) => {
+                    currentLat = pos2.coords.latitude;
+                    currentLng = pos2.coords.longitude;
+                    setCoords({ latitude: currentLat, longitude: currentLng });
+                    resolve();
+                  },
+                  (err2) => {
+                    console.warn("Standard geolocation failed, falling back to profile coordinates:", err2);
+                    if (userData?.location?.coordinates && userData.location.coordinates.length >= 2) {
+                      const uLng = userData.location.coordinates[0];
+                      const uLat = userData.location.coordinates[1];
+                      if (typeof uLat === "number" && typeof uLng === "number") {
+                        currentLng = uLng;
+                        currentLat = uLat;
+                        setCoords({ latitude: uLat, longitude: uLng });
+                      }
+                    }
+                    resolve();
+                  },
+                  { enableHighAccuracy: false, timeout: 8000 }
+                );
               },
               { enableHighAccuracy: true, timeout: 6000 }
             );
