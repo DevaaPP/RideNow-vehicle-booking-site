@@ -418,6 +418,8 @@ export default function CheckoutContent() {
       setBookingId(data.booking._id);
       setFare(data.booking.fare);
       if (data.booking.fareBreakdown) setBookingBreakdown(data.booking.fareBreakdown);
+      const createdType = data.booking.fareBreakdown?.vehicleType || data.booking.vehicle?.type || vehicle;
+      if (createdType) setVehicle(createdType);
       if (data.booking.pickupAddress) setPickup(data.booking.pickupAddress);
       if (data.booking.dropAddress) setDrop(data.booking.dropAddress);
 
@@ -622,12 +624,23 @@ export default function CheckoutContent() {
         const res  = await fetch("/api/booking/my-active");
         const data = await res.json();
         if (data.booking) {
+          // If the page is in 'idle' mode and user hasn't initiated a booking on this draft,
+          // only take over if the booking is actively confirmed, started, or awaiting payment.
+          // Don't hijack a fresh user draft with an unconfirmed pending search from an old session.
+          if (status === "idle" && !bookingId && ["requested", "searching_driver", "auto_rematching"].includes(data.booking.status)) {
+            return;
+          }
+
           setBookingId(data.booking._id);
           setFare(data.booking.fare);
           setPickup(data.booking.pickupAddress);
           setDrop(data.booking.dropAddress);
-          if (data.booking.vehicle?.type) {
-            setVehicle(data.booking.vehicle.type);
+          if (data.booking.fareBreakdown) {
+            setBookingBreakdown(data.booking.fareBreakdown);
+          }
+          const resolvedType = data.booking.fareBreakdown?.vehicleType || data.booking.vehicle?.type;
+          if (resolvedType) {
+            setVehicle(resolvedType);
           }
           // If server state is awaiting_payment but local state is already payment, do not revert
           if (data.booking.status === "awaiting_payment" && status === "payment") {

@@ -142,20 +142,41 @@ export async function findEligibleCandidates(options: {
       const vIdStr = vendor._id.toString();
       const hasVeh = activeVehicles.some((v) => v.owner && v.owner.toString() === vIdStr);
       if (!hasVeh) {
-        // Look up any existing non-rejected vehicle for this online vendor
-        const existingVeh = await Vehicle.findOne({ owner: vendor._id, status: { $ne: "rejected" } }).lean();
+        // Look up any existing non-rejected vehicle for this online vendor that matches the requested vehicle category
+        const existingVeh = await Vehicle.findOne({
+          owner: vendor._id,
+          status: { $ne: "rejected" },
+          ...typeFilter,
+        }).lean();
         if (existingVeh) {
           activeVehicles.push(existingVeh);
         } else {
-          // Auto-create matching vehicle for online vendor
+          // Auto-create matching vehicle for online vendor matching the EXACT requested normalizedType
           const isTwoWheeler = ["scooty", "bike"].includes(normalizedType);
           const isAuto = normalizedType === "auto";
           const isGoods = ["loading", "truck"].includes(normalizedType);
+          const modelName =
+            normalizedType === "scooty" ? "Jatri Scooty" :
+            normalizedType === "bike" ? "Jatri Moto" :
+            normalizedType === "auto" ? "Jatri Auto" :
+            normalizedType === "mini" ? "Jatri Mini" :
+            normalizedType === "priority" ? "Jatri XL Priority" :
+            normalizedType === "truck" ? "Jatri Heavy Cargo" :
+            normalizedType === "loading" ? "Jatri Express Mini" : "Jatri Premier Sedan";
+
+          const assignedType = isTwoWheeler
+            ? normalizedType
+            : isAuto
+            ? "auto"
+            : isGoods
+            ? normalizedType
+            : (["mini", "priority"].includes(normalizedType) ? normalizedType : "car");
+
           const newVeh = await Vehicle.create({
             owner: vendor._id,
-            type: (isTwoWheeler ? normalizedType : isAuto ? "auto" : isGoods ? normalizedType : "car") as any,
+            type: assignedType as any,
             number: "AS-01-RN-" + Math.floor(1000 + Math.random() * 9000),
-            vehicleModel: isTwoWheeler ? "Two Wheeler" : isAuto ? "Auto Rickshaw" : isGoods ? "Delivery Vehicle" : "RideNow Cab",
+            vehicleModel: modelName,
             status: "approved",
             isActive: true,
           });

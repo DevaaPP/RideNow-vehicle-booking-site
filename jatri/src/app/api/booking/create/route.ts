@@ -189,18 +189,34 @@ export async function POST(req: Request) {
       const existing = await Booking.findOne({
         user: session.user.id,
         status: {
-          $in: ["requested", "awaiting_payment", "confirmed", "started", "auto_rematching"],
+          $in: ["requested", "searching_driver", "awaiting_payment", "confirmed", "started", "auto_rematching"],
         },
         isScheduled: { $ne: true },
-      });
+      }).sort({ createdAt: -1 });
 
       if (existing) {
-        return NextResponse.json({
-          success: true,
-          alreadyActive: true,
-          booking: existing,
-          message: "Active ride restored",
-        });
+        const ageMs = existing.createdAt ? Date.now() - new Date(existing.createdAt).getTime() : 0;
+        const isStale = ageMs > 2 * 60 * 1000;
+        const isSearchingWithoutDriver = ["requested", "searching_driver", "auto_rematching"].includes(existing.status);
+
+        // If the existing booking was an unaccepted search request or is older than 2 minutes,
+        // expire it so the user's fresh ride request (with their chosen fleet and fare) can be fulfilled.
+        if (isStale || isSearchingWithoutDriver) {
+          existing.status = "expired";
+          await existing.save();
+        } else {
+          const populatedExisting = await Booking.findById(existing._id)
+            .populate("vehicle", "number vehicleModel type")
+            .populate("driver", "name phone profilePhoto rating totalRides")
+            .lean();
+
+          return NextResponse.json({
+            success: true,
+            alreadyActive: true,
+            booking: populatedExisting || existing,
+            message: "Active ride restored",
+          });
+        }
       }
     }
 
@@ -473,9 +489,14 @@ export async function POST(req: Request) {
       console.warn("Web Push to driver failed (continuing):", pushErr);
     }
 
+    const populatedBooking = await Booking.findById(booking._id)
+      .populate("vehicle", "number vehicleModel type")
+      .populate("driver", "name phone profilePhoto rating totalRides")
+      .lean();
+
     const responsePayload = {
       success: true,
-      booking,
+      booking: populatedBooking || booking,
       meta: {
         requestId,
         timestamp: new Date().toISOString(),
