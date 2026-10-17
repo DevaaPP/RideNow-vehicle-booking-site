@@ -277,7 +277,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
   return (
     <>
       {/* ================= UBER / RAPIDO FLUSH RECTANGULAR NAVBAR ================= */}
-      <header className="fixed top-0 left-0 w-full z-50 rounded-none bg-black text-white border-b border-zinc-900 transition-colors shadow-lg">
+      <header
+        className="fixed top-0 left-0 w-full z-50 rounded-none bg-black text-white border-b border-zinc-900 transition-colors shadow-lg"
+        style={{ backgroundColor: "var(--theme-nav-bg, #000000)" }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
           {/* LEFT: BRAND LOGO + DESKTOP LINKS */}
           <div className="flex items-center gap-8 lg:gap-10">
