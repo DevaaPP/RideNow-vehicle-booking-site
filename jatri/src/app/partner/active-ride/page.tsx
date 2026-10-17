@@ -10,8 +10,9 @@ import {
   MapPin, Navigation, MessageCircle,
   AlertCircle, XCircle, AlertTriangle,
   Mic, MicOff, Volume2, PhoneOff, PhoneCall, Siren, ShieldAlert,
-  ExternalLink
+  ExternalLink, Home
 } from "lucide-react";
+import Link from "next/link";
 import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -680,6 +681,25 @@ export default function DriverRidePage() {
             setDistanceToDrop(distanceToDrop);     setEtaToDrop(durationToDrop);
           }}
         />
+        {/* Floating Top-Left Home & Dashboard CTA */}
+        <div className="absolute top-4 left-4 z-[500] flex items-center gap-2 pointer-events-auto">
+          <Link
+            href="/"
+            className="h-9 px-3 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-md flex items-center gap-1.5 text-xs font-black uppercase tracking-wider backdrop-blur-sm transition"
+            title="Home"
+          >
+            <Home size={14} />
+            <span>Home</span>
+          </Link>
+          <Link
+            href="/partner/dashboard"
+            className="h-9 px-3 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-md flex items-center gap-1.5 text-xs font-black uppercase tracking-wider backdrop-blur-sm transition"
+            title="Vendor Dashboard"
+          >
+            <span>Dashboard</span>
+          </Link>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
@@ -711,7 +731,27 @@ export default function DriverRidePage() {
         className="hidden lg:flex w-[420px] xl:w-[460px] bg-white border-l border-zinc-200 flex-col overflow-hidden"
       >
         <div className="bg-zinc-950 px-6 py-5 flex-shrink-0">
-          <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold mb-1">Driver Panel</p>
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.15em] uppercase text-zinc-400 hover:text-white transition"
+                title="Go to Home"
+              >
+                <Home size={11} />
+                <span>Home</span>
+              </Link>
+              <span className="text-zinc-700 text-xs">•</span>
+              <Link
+                href="/partner/dashboard"
+                className="inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.15em] uppercase text-zinc-400 hover:text-white transition"
+                title="Partner Dashboard"
+              >
+                <span>Dashboard</span>
+              </Link>
+            </div>
+            <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold">Driver Panel</p>
+          </div>
           <div className="flex items-center justify-between">
             <h1 className="text-white text-xl font-black uppercase tracking-tight">Active Ride</h1>
             <div className="flex items-center gap-2">

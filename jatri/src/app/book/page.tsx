@@ -11,8 +11,10 @@ import {
   Search, Edit2, Info, ChevronDown, ChevronUp,
   User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2,
   Plane, Train, Building2, HeartPulse, AlertCircle, RotateCcw,
-  Zap, ArrowDownUp, Settings, FileText, GripVertical
+  Zap, ArrowDownUp, Settings, FileText, GripVertical,
+  Home
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
 import nextDynamic from "next/dynamic";
@@ -962,17 +964,61 @@ export default function BookPage() {
     locateCurrentLocation();
   };
 
-  /* ── INITIAL MOUNT: FRESH SESSION VS CHECKOUT EDIT ── */
+  /* ── HELPER: GEOCODE TEXT ADDRESS TO COORDINATES ── */
+  const geocodeAddressText = async (addressText: string) => {
+    try {
+      const res = await fetch(`/api/places?action=autocomplete&input=${encodeURIComponent(addressText)}&country=in`);
+      const data = await res.json();
+      if (data?.predictions && data.predictions.length > 0) {
+        const first = data.predictions[0];
+        let lat = first.lat;
+        let lng = first.lng;
+        let formatted = first.subtitle ? `${first.title || first.name || addressText}, ${first.subtitle}` : (first.title || first.name || first.description || addressText);
+        if ((lat === undefined || lng === undefined) && first.place_id) {
+          const dRes = await fetch(`/api/places?action=details&placeId=${first.place_id}`);
+          const dData = await dRes.json();
+          if (dData?.result?.geometry?.location) {
+            lat = dData.result.geometry.location.lat;
+            lng = dData.result.geometry.location.lng;
+            if (dData.result.formatted_address) formatted = dData.result.formatted_address;
+          }
+        }
+        if (typeof lat === "number" && typeof lng === "number") {
+          return {
+            lat,
+            lng,
+            formatted,
+            name: first.title || first.name || addressText,
+          };
+        }
+      }
+    } catch (err) {
+      console.warn("Could not geocode address string:", addressText, err);
+    }
+    return null;
+  };
+
+  /* ── INITIAL MOUNT: FRESH SESSION VS CHECKOUT EDIT VS HERO SEARCH ── */
   useEffect(() => {
     try {
       if (typeof window === "undefined") return;
 
       const urlParams = new URLSearchParams(window.location.search);
       const isFresh = urlParams.get("fresh") === "true";
-      const isEdit = urlParams.get("edit") === "true";
 
-      // If fresh requested explicitly, clear stale draft and start fresh!
-      if (isFresh) {
+      const raw = sessionStorage.getItem("ridenow_booking_draft") || localStorage.getItem("ridenow_booking_draft");
+      let draft: any = null;
+      if (raw) {
+        try {
+          draft = JSON.parse(raw);
+        } catch (_) {}
+      }
+
+      const rawPickup = (draft?.pickup && draft.pickup !== "Pickup Location") ? draft.pickup : urlParams.get("pickup");
+      const rawDrop = (draft?.drop && draft.drop !== "Drop Location") ? draft.drop : urlParams.get("drop");
+
+      // Only clear draft if fresh was explicitly requested AND no location parameters were passed
+      if (isFresh && !rawPickup && !rawDrop) {
         try {
           sessionStorage.removeItem("ridenow_booking_draft");
           localStorage.removeItem("ridenow_booking_draft");
@@ -984,17 +1030,8 @@ export default function BookPage() {
         return;
       }
 
-      // Explicit edit returning from checkout or active session fallback
-      const raw = sessionStorage.getItem("ridenow_booking_draft") || localStorage.getItem("ridenow_booking_draft");
-      let draft: any = null;
-      if (raw) {
-        try {
-          draft = JSON.parse(raw);
-        } catch (_) {}
-      }
-
-      const p = (draft?.pickup && draft.pickup !== "Pickup Location") ? draft.pickup : urlParams.get("pickup");
-      const d = (draft?.drop && draft.drop !== "Drop Location") ? draft.drop : urlParams.get("drop");
+      const p = rawPickup;
+      const d = rawDrop;
       const v = draft?.vehicle || urlParams.get("vehicle");
       const m = draft?.mobileNumber || draft?.mobile || urlParams.get("mobileNumber");
       const pLat = typeof draft?.pickupLat === "number" ? draft.pickupLat : urlParams.get("pickupLat") ? Number(urlParams.get("pickupLat")) : null;
@@ -1002,21 +1039,13 @@ export default function BookPage() {
       const dLat = typeof draft?.dropLat === "number" ? draft.dropLat : urlParams.get("dropLat") ? Number(urlParams.get("dropLat")) : null;
       const dLng = typeof draft?.dropLng === "number" ? draft.dropLng : urlParams.get("dropLng") ? Number(urlParams.get("dropLng")) : null;
 
-      const hasValidDraftOrParams = Boolean((p && d) || (pLat && dLat) || isEdit);
-
-      if (!hasValidDraftOrParams) {
-        locateCurrentLocation();
-        return;
-      }
-
-      if (p) setPickup(p);
-      if (d) setDrop(d);
       if (v) setVehicle(v);
       if (m) setMobile(m);
-      if (typeof pLat === "number" && !isNaN(pLat)) setPickupLat(pLat);
-      if (typeof pLng === "number" && !isNaN(pLng)) setPickupLng(pLng);
-      if (typeof dLat === "number" && !isNaN(dLat)) setDropLat(dLat);
-      if (typeof dLng === "number" && !isNaN(dLng)) setDropLng(dLng);
+
+      const category = draft?.category || urlParams.get("category");
+      if (category === "trucks") {
+        setServiceMode("logistics");
+      }
 
       if (Array.isArray(draft?.stops) && draft.stops.length > 0) {
         setStops(
@@ -1033,10 +1062,67 @@ export default function BookPage() {
       if (draft?.familyMemberDetails) setSelectedFamilyMember(draft.familyMemberDetails);
       if (draft?.pickupDetails) setPickupDetails(draft.pickupDetails);
       if (draft?.dropDetails) setDropDetails(draft.dropDetails);
-      if (draft?.isScheduled || urlParams.get("isScheduled") === "true") {
+      if (draft?.isScheduled || urlParams.get("isScheduled") === "true" || urlParams.get("reserve") === "true") {
         setBookingMode("schedule");
         const sched = draft?.scheduledTime || urlParams.get("scheduledTime");
         if (sched) setScheduledDateTime(sched);
+      }
+
+      // 1. Populate pickup if provided
+      if (p) {
+        setPickup(p);
+        if (typeof pLat === "number" && !isNaN(pLat) && typeof pLng === "number" && !isNaN(pLng)) {
+          setPickupLat(pLat);
+          setPickupLng(pLng);
+        } else {
+          // Asynchronously resolve coordinates for pickup text
+          geocodeAddressText(p).then((res) => {
+            if (res) {
+              setPickupLat(res.lat);
+              setPickupLng(res.lng);
+              setPickupDetails({
+                name: res.name,
+                formattedAddress: res.formatted,
+                coordinates: [res.lat, res.lng],
+              });
+            }
+          });
+        }
+      }
+
+      // 2. Populate drop if provided
+      if (d) {
+        setDrop(d);
+        if (typeof dLat === "number" && !isNaN(dLat) && typeof dLng === "number" && !isNaN(dLng)) {
+          setDropLat(dLat);
+          setDropLng(dLng);
+        } else {
+          // Asynchronously resolve coordinates for drop text
+          geocodeAddressText(d).then((res) => {
+            if (res) {
+              setDropLat(res.lat);
+              setDropLng(res.lng);
+              setDropDetails({
+                name: res.name,
+                formattedAddress: res.formatted,
+                coordinates: [res.lat, res.lng],
+              });
+            }
+          });
+        }
+      }
+
+      // 3. Complete route based on what was provided:
+      if (!p && d) {
+        // Drop was provided but no pickup -> auto-complete pickup with user's current GPS location
+        locateCurrentLocation();
+      } else if (!p && !d) {
+        // Neither was provided -> locate user GPS
+        locateCurrentLocation();
+      } else if (p && !d) {
+        // Pickup provided but no drop -> prompt drop input
+        setActiveSearchField("drop");
+        setIsEditingRoute(true);
       }
 
       if (typeof window !== "undefined" && window.location.search) {
@@ -2401,26 +2487,41 @@ export default function BookPage() {
         {/* Pinned Card Header */}
         <div className="flex-shrink-0 p-4 border-b border-zinc-200 bg-white space-y-3 relative z-30">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-900 transition cursor-pointer shrink-0"
+                aria-label="Go Home"
+                title="Go Home"
+              >
+                <Home size={15} />
+              </Link>
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-900 transition cursor-pointer"
+                className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-900 transition cursor-pointer shrink-0"
                 aria-label="Go back"
+                title="Go back"
               >
                 <ArrowLeft size={16} />
               </button>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h1 className="text-base sm:text-lg font-black text-zinc-950 leading-none tracking-tight font-sans">RideNow</h1>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-none bg-zinc-950 text-white text-[9px] font-black uppercase tracking-wider">
-                    भारत
-                  </span>
-                </div>
-              </div>
+              <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition cursor-pointer">
+                <h1 className="text-base sm:text-lg font-black text-zinc-950 leading-none tracking-tight font-sans">RideNow</h1>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-none bg-zinc-950 text-white text-[9px] font-black uppercase tracking-wider">
+                  भारत
+                </span>
+              </Link>
             </div>
 
             <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                className="hidden lg:inline-flex items-center gap-1 px-2.5 py-1 text-xs font-black uppercase tracking-wider text-zinc-700 hover:text-black hover:bg-zinc-100 border border-zinc-300 transition"
+                title="Return to Home"
+              >
+                <Home size={12} />
+                <span>Home</span>
+              </Link>
               {hasRoute && (
                 <span className="text-[11px] font-black uppercase tracking-wider bg-zinc-950 text-white border border-zinc-950 px-2.5 py-1 rounded-none tabular-nums">
                   {effectiveDistance} km
@@ -2546,22 +2647,36 @@ export default function BookPage() {
             <div className="p-3.5 bg-white border-b border-zinc-200 z-10 space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
+                  <Link
+                    href="/"
+                    className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-100 flex items-center justify-center text-zinc-900 transition shrink-0"
+                    aria-label="Go Home"
+                    title="Go Home"
+                  >
+                    <Home size={14} />
+                  </Link>
                   <button
                     type="button"
                     onClick={() => router.back()}
-                    className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-100 flex items-center justify-center text-zinc-900"
+                    className="w-8 h-8 rounded-none border border-zinc-300 bg-zinc-100 flex items-center justify-center text-zinc-900 shrink-0"
+                    aria-label="Go back"
+                    title="Go back"
                   >
                     <ArrowLeft size={15} />
                   </button>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <h1 className="text-sm font-extrabold text-zinc-900">RideNow</h1>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-none bg-zinc-950 text-white text-[8px] font-black uppercase">
-                        भारत
-                      </span>
-                    </div>
-                  </div>
+                  <Link href="/" className="flex items-center gap-1.5">
+                    <h1 className="text-sm font-extrabold text-zinc-900">RideNow</h1>
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-none bg-zinc-950 text-white text-[8px] font-black uppercase">
+                      भारत
+                    </span>
+                  </Link>
                 </div>
+                <Link
+                  href="/"
+                  className="px-2 py-0.5 text-[11px] font-black uppercase tracking-wider text-zinc-700 bg-zinc-100 border border-zinc-300"
+                >
+                  Home
+                </Link>
               </div>
               <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
               {renderLocationInputs()}
@@ -2591,6 +2706,26 @@ export default function BookPage() {
         ) : (
           /* Mobile Dynamic Full Split View with Tactile Sliding Sheet */
           <div className="flex flex-col w-full h-full overflow-hidden relative">
+            {/* Floating Top-Left Home / Back CTA over Mobile Map */}
+            <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 pointer-events-auto">
+              <Link
+                href="/"
+                className="h-8 px-2.5 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-sm flex items-center gap-1.5 text-xs font-black uppercase tracking-wider backdrop-blur-sm transition"
+                title="Home"
+              >
+                <Home size={13} />
+                <span>Home</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="w-8 h-8 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-sm flex items-center justify-center backdrop-blur-sm transition"
+                title="Back"
+              >
+                <ArrowLeft size={14} />
+              </button>
+            </div>
+
             {/* Dynamic Map: Seamlessly transitions between Full Map, Half Split (36dvh), and Peek (14dvh) */}
             <div className={`w-full relative z-0 border-b border-zinc-300 bg-zinc-100 transition-all duration-300 ease-in-out flex-shrink-0 ${
               mobileSheetState === "up"

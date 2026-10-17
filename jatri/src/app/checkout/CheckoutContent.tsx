@@ -7,7 +7,8 @@ import {
   Bike, Car, Truck, Loader2, CheckCircle2,
   XCircle, Clock, CreditCard, Banknote,
   ArrowRight, ArrowLeft, RotateCcw, AlertCircle, Wallet,
-  Users, UserPlus, Share2, IndianRupee, Package, Edit2
+  Users, UserPlus, Share2, IndianRupee, Package, Edit2,
+  Home
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -779,14 +780,24 @@ export default function CheckoutContent() {
             </div>
           </div>
 
-          <Link
-            href={editBookUrl}
-            onClick={handleReturnToBook}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-900 text-xs font-bold transition shadow-none cursor-pointer"
-          >
-            <Edit2 size={12} />
-            <span>Edit Route</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-900 text-xs font-bold transition shadow-none cursor-pointer"
+              title="Go to Home"
+            >
+              <Home size={13} />
+              <span className="hidden sm:inline">Home</span>
+            </Link>
+            <Link
+              href={editBookUrl}
+              onClick={handleReturnToBook}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-900 text-xs font-bold transition shadow-none cursor-pointer"
+            >
+              <Edit2 size={12} />
+              <span>Edit Route</span>
+            </Link>
+          </div>
         </motion.div>
 
         {/* Missing locations warning banner */}

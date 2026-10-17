@@ -37,10 +37,22 @@ export interface BookingDetailsData {
   paymentStatus?: string;
   tipAmount?: number;
   rating?: number;
+  customerRating?: number;
+  user?: {
+    _id?: string;
+    name?: string;
+    phone?: string;
+    mobileNumber?: string;
+    image?: string;
+    profilePicture?: string;
+  };
+  userMobileNumber?: string;
   driver?: {
     _id?: string;
     name?: string;
     mobileNumber?: string;
+    phone?: string;
+    image?: string;
     profilePicture?: string;
   };
   driverMobileNumber?: string;
@@ -57,6 +69,7 @@ interface TripDetailsModalProps {
   onClose: () => void;
   booking: BookingDetailsData | null;
   onOpenInvoice?: (booking: BookingDetailsData) => void;
+  perspective?: "rider" | "vendor";
 }
 
 export default function TripDetailsModal({
@@ -64,17 +77,37 @@ export default function TripDetailsModal({
   onClose,
   booking,
   onOpenInvoice,
+  perspective = "rider",
 }: TripDetailsModalProps) {
-  const [selectedTip, setSelectedTip] = useState<number | null>(booking?.tipAmount || null);
-  const [userRating, setUserRating] = useState<number>(booking?.rating || 5);
-  const [rated, setRated] = useState(Boolean(booking?.rating));
+  const isVendor = perspective === "vendor";
+  const initialRating = isVendor ? (booking?.customerRating || 5) : (booking?.rating || 5);
+  const initialRated = isVendor ? Boolean(booking?.customerRating) : Boolean(booking?.rating);
+  const [userRating, setUserRating] = useState<number>(initialRating);
+  const [rated, setRated] = useState(initialRated);
   const [showReceiptDetails, setShowReceiptDetails] = useState(false);
-  const [isSubmittingTip, setIsSubmittingTip] = useState(false);
-  const [tipSuccess, setTipSuccess] = useState(false);
+
+  // Sync state when booking changes
+  React.useEffect(() => {
+    if (booking) {
+      const initial = isVendor ? (booking.customerRating || 5) : (booking.rating || 5);
+      const hasRated = isVendor ? Boolean(booking.customerRating) : Boolean(booking.rating);
+      setUserRating(initial);
+      setRated(hasRated);
+    }
+  }, [booking?._id, isVendor, booking?.rating, booking?.customerRating]);
 
   if (!isOpen || !booking) return null;
 
-  const driverName = booking.driver?.name || "RideNow Partner";
+  const counterpartName = isVendor
+    ? (booking.user?.name || "Customer")
+    : (booking.driver?.name || "RideNow Partner");
+  const counterpartPhone = isVendor
+    ? (booking.user?.phone || booking.user?.mobileNumber || booking.userMobileNumber)
+    : (booking.driver?.phone || booking.driver?.mobileNumber || booking.driverMobileNumber);
+  const counterpartImage = isVendor
+    ? (booking.user?.image || booking.user?.profilePicture)
+    : (booking.driver?.image || booking.driver?.profilePicture);
+
   const vehicleModel = booking.vehicle?.vehicleModel || "Economy Vehicle";
   const vehicleNumber = booking.vehicle?.number || "";
   const vehicleType = booking.vehicle?.type
@@ -150,24 +183,6 @@ export default function TripDetailsModal({
 
   const startPoint = projectedPoints[0] || [padding, svgHeight - padding];
   const endPoint = projectedPoints[projectedPoints.length - 1] || [svgWidth - padding, padding];
-
-  const handleAddTip = async (amount: number) => {
-    setSelectedTip(amount);
-    setIsSubmittingTip(true);
-    try {
-      await fetch(`/api/booking/${booking._id}/tip`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipAmount: amount }),
-      });
-      setTipSuccess(true);
-    } catch (e) {
-      // Local fallback
-      setTipSuccess(true);
-    } finally {
-      setIsSubmittingTip(false);
-    }
-  };
 
   const handleRate = async (stars: number) => {
     setUserRating(stars);
@@ -290,11 +305,11 @@ export default function TripDetailsModal({
             </div>
           </div>
 
-          {/* 3. DRIVER & RIDE CARD */}
+          {/* 3. PARTICIPANT & RIDE CARD */}
           <div className="p-4 bg-white flex items-center justify-between">
             <div className="min-w-0 pr-2">
               <h3 className="text-base sm:text-lg font-black text-zinc-950 tracking-tight leading-snug">
-                {vehicleType} ride with {driverName}
+                {isVendor ? `${vehicleType} trip with ${counterpartName}` : `${vehicleType} ride with ${counterpartName}`}
               </h3>
               <p className="text-xs text-zinc-500 font-medium mt-0.5">
                 {formattedDate}, {pickupTimeStr}
@@ -307,20 +322,28 @@ export default function TripDetailsModal({
                 <span className="text-xs text-zinc-600 font-semibold truncate">
                   {vehicleModel} {vehicleNumber ? `(${vehicleNumber})` : ""}
                 </span>
+                {counterpartPhone && (
+                  <>
+                    <span className="text-xs text-zinc-400">•</span>
+                    <span className="text-xs text-zinc-500 font-mono font-medium">
+                      {counterpartPhone}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Driver Avatar */}
+            {/* Avatar */}
             <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-zinc-100 border-2 border-zinc-900 flex-shrink-0 flex items-center justify-center overflow-hidden">
-              {booking.driver?.profilePicture ? (
+              {counterpartImage ? (
                 <img
-                  src={booking.driver.profilePicture}
-                  alt={driverName}
+                  src={counterpartImage}
+                  alt={counterpartName}
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <span className="text-base font-black text-zinc-800">
-                  {driverName.charAt(0).toUpperCase()}
+                  {counterpartName.charAt(0).toUpperCase()}
                 </span>
               )}
             </div>
@@ -362,15 +385,9 @@ export default function TripDetailsModal({
                   <span>5% GST (CGST 2.5% + SGST 2.5%)</span>
                   <span>₹{(booking.fare * 0.048).toFixed(2)}</span>
                 </div>
-                {selectedTip ? (
-                  <div className="flex justify-between text-emerald-700 font-semibold">
-                    <span>Driver Tip</span>
-                    <span>₹{selectedTip}</span>
-                  </div>
-                ) : null}
                 <div className="pt-2 border-t border-zinc-200 flex justify-between font-black text-zinc-950 text-sm">
                   <span>Total Paid ({booking.paymentStatus || "cash"})</span>
-                  <span>₹{booking.fare + (selectedTip || 0)}</span>
+                  <span>₹{booking.fare}</span>
                 </div>
               </motion.div>
             )}
@@ -418,58 +435,14 @@ export default function TripDetailsModal({
             </div>
           </div>
 
-          {/* 6. TIP YOUR DRIVER SECTION */}
-          <div className="p-4 bg-zinc-50 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-black text-zinc-950 uppercase tracking-tight flex items-center gap-1.5">
-                  <Heart size={14} className="text-red-500 fill-red-500" />
-                  <span>Tip {driverName}</span>
-                </h4>
-                <p className="text-[11px] text-zinc-500 font-medium">
-                  100% of your tip goes directly to your driver
-                </p>
-              </div>
-              {selectedTip && (
-                <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2.5 py-1">
-                  ₹{selectedTip} Tipped
-                </span>
-              )}
-            </div>
-
-            <div className="grid grid-cols-4 gap-2">
-              {[20, 30, 50, 100].map((amt) => (
-                <button
-                  key={amt}
-                  type="button"
-                  onClick={() => handleAddTip(amt)}
-                  className={`py-2 text-xs font-black border transition-all ${
-                    selectedTip === amt
-                      ? "bg-zinc-950 text-white border-zinc-950 shadow-sm"
-                      : "bg-white text-zinc-800 border-zinc-300 hover:bg-zinc-100"
-                  }`}
-                >
-                  ₹{amt}
-                </button>
-              ))}
-            </div>
-
-            {tipSuccess && (
-              <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-                <CheckCircle2 size={13} />
-                <span>Thank you! Your driver has been tipped.</span>
-              </p>
-            )}
-          </div>
-
-          {/* 7. RATE YOUR TRIP */}
-          <div className="p-4 bg-white flex items-center justify-between">
+          {/* 6. RATE TRIP / PASSENGER SECTION */}
+          <div className="p-4 bg-white flex items-center justify-between border-t border-zinc-200">
             <div>
               <p className="text-sm font-black text-zinc-950 uppercase tracking-tight">
-                Rate your trip
+                {isVendor ? "Rate your passenger" : "Rate your trip"}
               </p>
               <p className="text-[11px] text-zinc-500 font-medium">
-                {rated ? "Feedback submitted" : "How was your driver?"}
+                {rated ? "Feedback submitted" : isVendor ? `How was ${counterpartName}?` : "How was your driver?"}
               </p>
             </div>
             <div className="flex items-center gap-1">
@@ -494,11 +467,13 @@ export default function TripDetailsModal({
             </div>
           </div>
 
-          {/* 8. DRIVER PRIVACY NOTE */}
-          <div className="p-4 bg-zinc-100 flex items-start gap-3 text-zinc-600">
+          {/* 7. PRIVACY NOTE */}
+          <div className="p-4 bg-zinc-100 flex items-start gap-3 text-zinc-600 border-t border-zinc-200">
             <ShieldCheck size={18} className="text-zinc-700 flex-shrink-0 mt-0.5" />
             <p className="text-[11px] leading-relaxed">
-              After your trip, the driver cannot see your exact pick-up or drop-off address details. Your personal location data is strictly protected under RideNow privacy safeguards.
+              {isVendor
+                ? "Trip record is archived in your partner dashboard. Rider personal details are protected under RideNow privacy safeguards."
+                : "After your trip, the driver cannot see your exact pick-up or drop-off address details. Your personal location data is strictly protected under RideNow privacy safeguards."}
             </p>
           </div>
 

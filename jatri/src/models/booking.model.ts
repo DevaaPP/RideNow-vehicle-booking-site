@@ -187,6 +187,9 @@ export interface IBooking extends Document {
   feedback?: string;
   ratingTags?: string[];
   ratedAt?: Date;
+  customerRating?: number;
+  customerFeedback?: string;
+  customerRatedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -493,6 +496,9 @@ partnerAmount: {
     feedback: { type: String, trim: true, maxlength: 500 },
     ratingTags: { type: [String], default: [] },
     ratedAt: { type: Date },
+    customerRating: { type: Number, min: 1, max: 5 },
+    customerFeedback: { type: String, trim: true, maxlength: 500 },
+    customerRatedAt: { type: Date },
   },
   { timestamps: true }
 );

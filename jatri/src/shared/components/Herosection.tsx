@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -11,6 +11,9 @@ import {
   ArrowRight,
   Car,
   Truck,
+  MapPin,
+  X,
+  Loader2,
 } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 
@@ -28,8 +31,95 @@ export default function HeroSection({
   const [tripMode, setTripMode] = useState<TripMode>("ride");
   const [pickup, setPickup] = useState("");
   const [drop, setDrop] = useState("");
+  const [pickupLat, setPickupLat] = useState<number | null>(null);
+  const [pickupLng, setPickupLng] = useState<number | null>(null);
+  const [dropLat, setDropLat] = useState<number | null>(null);
+  const [dropLng, setDropLng] = useState<number | null>(null);
+
+  const [activeField, setActiveField] = useState<"pickup" | "drop" | null>(null);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setActiveField(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch suggestions for active input with debounce
+  useEffect(() => {
+    const query = activeField === "pickup" ? pickup : activeField === "drop" ? drop : "";
+    if (!activeField || !query.trim() || query.trim().length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsLoadingSuggestions(true);
+      try {
+        const res = await fetch(`/api/places?action=autocomplete&input=${encodeURIComponent(query.trim())}&country=in`);
+        const data = await res.json();
+        if (data?.predictions && Array.isArray(data.predictions)) {
+          setSuggestions(data.predictions);
+        } else {
+          setSuggestions([]);
+        }
+      } catch (err) {
+        console.warn("Hero places autocomplete error:", err);
+        setSuggestions([]);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 280);
+
+    return () => clearTimeout(timer);
+  }, [pickup, drop, activeField]);
+
+  // Handle selecting a place suggestion
+  const handleSelectSuggestion = async (item: any, field: "pickup" | "drop") => {
+    const formatted = item.subtitle ? `${item.title || item.name || item.description}, ${item.subtitle}` : (item.title || item.name || item.description);
+    let lat = item.lat;
+    let lng = item.lng;
+
+    if ((lat === undefined || lng === undefined) && item.place_id) {
+      try {
+        const res = await fetch(`/api/places?action=details&placeId=${item.place_id}`);
+        const data = await res.json();
+        if (data?.result?.geometry?.location) {
+          lat = data.result.geometry.location.lat;
+          lng = data.result.geometry.location.lng;
+        }
+      } catch (err) {
+        console.warn("Could not fetch details for place", err);
+      }
+    }
+
+    if (field === "pickup") {
+      setPickup(formatted);
+      if (typeof lat === "number" && typeof lng === "number") {
+        setPickupLat(lat);
+        setPickupLng(lng);
+      }
+    } else {
+      setDrop(formatted);
+      if (typeof lat === "number" && typeof lng === "number") {
+        setDropLat(lat);
+        setDropLng(lng);
+      }
+    }
+
+    setSuggestions([]);
+    setActiveField(null);
+  };
 
   /* Quick auto-detect current location */
   const handleDetectLocation = () => {
@@ -41,9 +131,11 @@ export default function HeroSection({
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         try {
-          const res = await fetch(
-            `/api/places?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`
-          );
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setPickupLat(lat);
+          setPickupLng(lng);
+          const res = await fetch(`/api/places?lat=${lat}&lng=${lng}`);
           if (res.ok) {
             const data = await res.json();
             setPickup(data?.address || "Current Location");
@@ -73,17 +165,37 @@ export default function HeroSection({
       return;
     }
 
+    const trimmedPickup = pickup.trim();
+    const trimmedDrop = drop.trim();
+
+    // Prepare draft to persist in storage so /book always remembers it
+    const draftData: any = {
+      pickup: trimmedPickup || undefined,
+      drop: trimmedDrop || undefined,
+      pickupLat: pickupLat ?? undefined,
+      pickupLng: pickupLng ?? undefined,
+      dropLat: dropLat ?? undefined,
+      dropLng: dropLng ?? undefined,
+      vehicle: tripMode === "cargo" ? "trucks" : "car",
+      category: tripMode === "cargo" ? "trucks" : (tripMode === "rental" ? "rentals" : "cars"),
+      isRental: tripMode === "rental",
+      isScheduled,
+    };
+
     if (typeof window !== "undefined") {
       try {
-        sessionStorage.removeItem("ridenow_booking_draft");
-        localStorage.removeItem("ridenow_booking_draft");
+        sessionStorage.setItem("ridenow_booking_draft", JSON.stringify(draftData));
+        localStorage.setItem("ridenow_booking_draft", JSON.stringify(draftData));
       } catch (_) {}
     }
 
     const params = new URLSearchParams();
-    params.set("fresh", "true");
-    if (pickup.trim()) params.set("pickup", pickup.trim());
-    if (drop.trim()) params.set("drop", drop.trim());
+    if (trimmedPickup) params.set("pickup", trimmedPickup);
+    if (trimmedDrop) params.set("drop", trimmedDrop);
+    if (pickupLat !== null) params.set("pickupLat", String(pickupLat));
+    if (pickupLng !== null) params.set("pickupLng", String(pickupLng));
+    if (dropLat !== null) params.set("dropLat", String(dropLat));
+    if (dropLng !== null) params.set("dropLng", String(dropLng));
 
     if (tripMode === "cargo") {
       params.set("category", "trucks");
@@ -181,52 +293,139 @@ export default function HeroSection({
 
               {/* STREAMLINED LOCATION FORM (UBER/RAPIDO UNIFIED CONTAINER) */}
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-                <div className="relative bg-white border border-stone-200/90 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-600/20 transition">
-                  {/* Left Transit Icons & Continuous Connector */}
-                  <div className="absolute left-3.5 sm:left-5 top-0 bottom-0 w-4 sm:w-5 flex flex-col items-center pointer-events-none">
-                    <div className="h-[54px] sm:h-[76px] flex items-center justify-center">
-                      <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-[3px] sm:border-[3.5px] border-emerald-600 bg-white shadow-xs" />
+                <div ref={containerRef} className="relative z-30">
+                  <div className="relative bg-white border border-stone-200/90 rounded-xl sm:rounded-2xl shadow-2xl focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-600/20 transition">
+                    {/* Left Transit Icons & Continuous Connector */}
+                    <div className="absolute left-3.5 sm:left-5 top-0 bottom-0 w-4 sm:w-5 flex flex-col items-center pointer-events-none">
+                      <div className="h-[54px] sm:h-[76px] flex items-center justify-center">
+                        <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-[3px] sm:border-[3.5px] border-emerald-600 bg-white shadow-xs" />
+                      </div>
+                      <div className="w-[2px] sm:w-[2.5px] flex-1 -my-1.5 sm:-my-2 bg-gradient-to-b from-emerald-600 via-amber-500 to-amber-600 rounded-full" />
+                      <div className="h-[54px] sm:h-[76px] flex items-center justify-center">
+                        <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-amber-600 rounded-xs shadow-xs" />
+                      </div>
                     </div>
-                    <div className="w-[2px] sm:w-[2.5px] flex-1 -my-1.5 sm:-my-2 bg-gradient-to-b from-emerald-600 via-amber-500 to-amber-600 rounded-full" />
-                    <div className="h-[54px] sm:h-[76px] flex items-center justify-center">
-                      <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-amber-600 rounded-xs shadow-xs" />
-                    </div>
-                  </div>
 
-                  {/* Input Rows */}
-                  <div className="pl-10 sm:pl-15 pr-3 sm:pr-4">
-                    {/* Pickup Input Row */}
-                    <div className="h-[54px] sm:h-[76px] flex items-center border-b border-stone-200/90">
-                      <input
-                        type="text"
-                        value={pickup}
-                        onChange={(e) => setPickup(e.target.value)}
-                        placeholder={t("hero.enterPickup", "Enter pickup point")}
-                        className="w-full py-2.5 sm:py-3 text-base sm:text-xl md:text-2xl font-bold sm:font-black text-stone-900 placeholder:text-stone-400 placeholder:font-semibold sm:placeholder:font-bold focus:outline-none bg-transparent"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleDetectLocation}
-                        title="Use current GPS location"
-                        className="p-2 sm:p-2.5 text-stone-500 hover:text-emerald-700 transition flex-shrink-0 active:scale-90"
-                      >
-                        <Navigation
-                          className={`w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 ${isLocating ? "animate-spin text-emerald-600" : ""}`}
+                    {/* Input Rows */}
+                    <div className="pl-10 sm:pl-15 pr-3 sm:pr-4">
+                      {/* Pickup Input Row */}
+                      <div className="h-[54px] sm:h-[76px] flex items-center border-b border-stone-200/90 gap-1">
+                        <input
+                          type="text"
+                          value={pickup}
+                          onFocus={() => setActiveField("pickup")}
+                          onChange={(e) => {
+                            setPickup(e.target.value);
+                            setPickupLat(null);
+                            setPickupLng(null);
+                            setActiveField("pickup");
+                          }}
+                          placeholder={t("hero.enterPickup", "Enter pickup point")}
+                          className="w-full py-2.5 sm:py-3 text-base sm:text-xl md:text-2xl font-bold sm:font-black text-stone-900 placeholder:text-stone-400 placeholder:font-semibold sm:placeholder:font-bold focus:outline-none bg-transparent"
                         />
-                      </button>
-                    </div>
+                        {pickup && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPickup("");
+                              setPickupLat(null);
+                              setPickupLng(null);
+                              setSuggestions([]);
+                            }}
+                            className="p-1.5 text-stone-400 hover:text-stone-700 transition"
+                            title="Clear pickup"
+                          >
+                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleDetectLocation}
+                          title="Use current GPS location"
+                          className="p-2 sm:p-2.5 text-stone-500 hover:text-emerald-700 transition flex-shrink-0 active:scale-90"
+                        >
+                          <Navigation
+                            className={`w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 ${isLocating ? "animate-spin text-emerald-600" : ""}`}
+                          />
+                        </button>
+                      </div>
 
-                    {/* Dropoff Input Row */}
-                    <div className="h-[54px] sm:h-[76px] flex items-center">
-                      <input
-                        type="text"
-                        value={drop}
-                        onChange={(e) => setDrop(e.target.value)}
-                        placeholder={t("hero.enterDrop", "Enter drop destination")}
-                        className="w-full py-2.5 sm:py-3 text-base sm:text-xl md:text-2xl font-bold sm:font-black text-stone-900 placeholder:text-stone-400 placeholder:font-semibold sm:placeholder:font-bold focus:outline-none bg-transparent"
-                      />
+                      {/* Dropoff Input Row */}
+                      <div className="h-[54px] sm:h-[76px] flex items-center gap-1">
+                        <input
+                          type="text"
+                          value={drop}
+                          onFocus={() => setActiveField("drop")}
+                          onChange={(e) => {
+                            setDrop(e.target.value);
+                            setDropLat(null);
+                            setDropLng(null);
+                            setActiveField("drop");
+                          }}
+                          placeholder={t("hero.enterDrop", "Enter drop destination")}
+                          className="w-full py-2.5 sm:py-3 text-base sm:text-xl md:text-2xl font-bold sm:font-black text-stone-900 placeholder:text-stone-400 placeholder:font-semibold sm:placeholder:font-bold focus:outline-none bg-transparent"
+                        />
+                        {drop && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDrop("");
+                              setDropLat(null);
+                              setDropLng(null);
+                              setSuggestions([]);
+                            }}
+                            className="p-1.5 text-stone-400 hover:text-stone-700 transition"
+                            title="Clear destination"
+                          >
+                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
+
+                  {/* AUTOCOMPLETE SUGGESTIONS DROPDOWN */}
+                  {activeField && suggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-stone-200 z-50 overflow-hidden max-h-72 overflow-y-auto">
+                      <div className="px-4 py-2 border-b border-stone-100 flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-stone-500 bg-stone-50">
+                        <span>Suggestions for {activeField === "pickup" ? "Pickup Point" : "Drop Destination"}</span>
+                        {isLoadingSuggestions && (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+                        )}
+                      </div>
+                      <div className="divide-y divide-stone-100">
+                        {suggestions.map((item, idx) => {
+                          const title = item.title || item.name || item.description?.split(",")[0] || "Location";
+                          const subtitle = item.subtitle || item.description?.split(",").slice(1).join(",").trim() || "";
+                          return (
+                            <button
+                              key={item.place_id || item.id || idx}
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleSelectSuggestion(item, activeField);
+                              }}
+                              className="w-full text-left px-4 py-3 hover:bg-emerald-50/80 transition flex items-start gap-3 cursor-pointer group"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-emerald-100/80 group-hover:bg-emerald-600 text-emerald-700 group-hover:text-white flex items-center justify-center shrink-0 mt-0.5 transition">
+                                <MapPin size={15} />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-bold text-sm text-stone-900 group-hover:text-emerald-950 truncate">
+                                  {title}
+                                </p>
+                                {subtitle && (
+                                  <p className="text-xs text-stone-500 group-hover:text-emerald-800/80 truncate mt-0.5">
+                                    {subtitle}
+                                  </p>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* TIMING SELECTOR */}

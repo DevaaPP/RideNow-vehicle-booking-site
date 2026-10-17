@@ -370,6 +370,7 @@ export default function PartnerBookingsPage() {
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
         booking={selectedBookingForDetails}
+        perspective="vendor"
         onOpenInvoice={(b) => {
           setSelectedBookingForInvoice(b);
           setShowInvoiceModal(true);

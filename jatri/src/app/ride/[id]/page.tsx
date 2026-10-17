@@ -8,8 +8,10 @@ import {
   Star, MessageCircle, Clock, Zap,
   IndianRupee, XCircle, AlertCircle, AlertTriangle,
   CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
-  ShieldAlert, Siren, PhoneCall, Share2, Navigation, KeyRound
+  ShieldAlert, Siren, PhoneCall, Share2, Navigation, KeyRound,
+  Home
 } from "lucide-react";
+import Link from "next/link";
 import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -763,6 +765,19 @@ export default function RidePage() {
             setDistanceToDrop(distanceToDrop);     setEtaToDrop(durationToDrop);
           }}
         />
+
+        {/* Floating Top-Left Home CTA */}
+        <div className="absolute top-4 left-4 z-[500] flex items-center gap-2 pointer-events-auto">
+          <Link
+            href="/"
+            className="h-9 px-3 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-md flex items-center gap-1.5 text-xs font-black uppercase tracking-wider backdrop-blur-sm transition"
+            title="Back to Home"
+          >
+            <Home size={14} />
+            <span>Home</span>
+          </Link>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.3 }}
@@ -789,7 +804,18 @@ export default function RidePage() {
       >
         <div className="bg-zinc-950 px-6 py-5 flex-shrink-0">
           <div className="flex items-center justify-between mb-1">
-            <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold">Live Tracking</p>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.15em] uppercase text-zinc-400 hover:text-white transition"
+                title="Go to Home"
+              >
+                <Home size={11} />
+                <span>Home</span>
+              </Link>
+              <span className="text-zinc-700 text-xs">•</span>
+              <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold">Live Tracking</p>
+            </div>
             {!isSocketConnected && (
               <span className="flex items-center gap-1 text-[9px] font-mono font-bold uppercase text-amber-400 bg-amber-950/80 px-2 py-0.5 border border-amber-700/60">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
