@@ -114,9 +114,9 @@ export default function HeroSection({
         sizes="100vw"
         className="object-cover object-center pointer-events-none opacity-90 sm:opacity-95"
       />
-      {/* Atmospheric directional overlays: Left gives solid contrast for the form, Right reveals golden temple & sunset sky */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/85 via-[#0B0F19]/40 to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/80 via-transparent to-black/25 pointer-events-none" />
+      {/* Atmospheric directional overlays: Softened so sunset sky, golden temple & city lights shine through clearly */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none" />
 
       {/* ================= HERO CONTENT CONTAINER ================= */}
       <div className="relative z-10 max-w-7xl mx-auto">
@@ -132,21 +132,21 @@ export default function HeroSection({
           </p>
         </div>
 
-        {/* 2-COLUMN BALANCED LAYOUT: WARM IVORY BOOKING PANEL + REFINED PARTNER HERO */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
+        {/* 2-COLUMN BALANCED LAYOUT: DIRECT FLOATING BOOKING PANEL + PARTNER HERO (NO BOXES) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
           
-          {/* ================= LEFT: REFINED WARM IVORY BOOKING PANEL ================= */}
-          <div className="lg:col-span-7 flex flex-col justify-between bg-[#FCFBF7] text-zinc-900 rounded-xl p-5 sm:p-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] border border-amber-200/60">
+          {/* ================= LEFT: DIRECT BOOKING PANEL (NO BOXES) ================= */}
+          <div className="lg:col-span-7 flex flex-col justify-between text-white">
             <div>
-              {/* TRIP MODE SELECTOR TABS (EMERALD & WARM IVORY ACCENTS) */}
-              <div className="flex items-center gap-1.5 p-1.5 bg-stone-200/60 rounded-lg mb-5 border border-stone-300/40">
+              {/* TRIP MODE SELECTOR TABS */}
+              <div className="inline-flex items-center gap-1.5 p-1 bg-black/50 rounded-xl mb-5 border border-white/10 backdrop-blur-md">
                 <button
                   type="button"
                   onClick={() => setTripMode("ride")}
-                  className={`flex-1 py-3 px-3 rounded-md text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
                     tripMode === "ride"
-                      ? "bg-emerald-700 text-white shadow-xs"
-                      : "text-stone-700 hover:text-black hover:bg-stone-300/50"
+                      ? "bg-emerald-600 text-white shadow-xs"
+                      : "text-zinc-300 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   <Car size={17} />
@@ -156,10 +156,10 @@ export default function HeroSection({
                 <button
                   type="button"
                   onClick={() => setTripMode("cargo")}
-                  className={`flex-1 py-3 px-3 rounded-md text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
                     tripMode === "cargo"
-                      ? "bg-emerald-700 text-white shadow-xs"
-                      : "text-stone-700 hover:text-black hover:bg-stone-300/50"
+                      ? "bg-emerald-600 text-white shadow-xs"
+                      : "text-zinc-300 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   <Truck size={17} />
@@ -169,10 +169,10 @@ export default function HeroSection({
                 <button
                   type="button"
                   onClick={() => setTripMode("rental")}
-                  className={`flex-1 py-3 px-3 rounded-md text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
                     tripMode === "rental"
-                      ? "bg-emerald-700 text-white shadow-xs"
-                      : "text-stone-700 hover:text-black hover:bg-stone-300/50"
+                      ? "bg-emerald-600 text-white shadow-xs"
+                      : "text-zinc-300 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   <Clock size={17} />
@@ -182,7 +182,7 @@ export default function HeroSection({
 
               {/* STREAMLINED LOCATION FORM (UBER/RAPIDO UNIFIED CONTAINER) */}
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="relative bg-white border border-stone-200/90 rounded-xl overflow-hidden shadow-xs focus-within:border-emerald-600 focus-within:ring-1 focus-within:ring-emerald-600/20 transition">
+                <div className="relative bg-white border border-stone-200/90 rounded-xl overflow-hidden shadow-2xl focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-600/20 transition">
                   {/* Left Transit Icons & Continuous Connector */}
                   <div className="absolute left-4 top-0 bottom-0 w-4 flex flex-col items-center pointer-events-none">
                     <div className="h-[58px] flex items-center justify-center">
@@ -236,10 +236,10 @@ export default function HeroSection({
                   <button
                     type="button"
                     onClick={() => setIsScheduled(false)}
-                    className={`px-4 py-2 rounded-md text-xs sm:text-sm font-bold transition active:scale-95 ${
+                    className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition active:scale-95 ${
                       !isScheduled
-                        ? "bg-emerald-700 text-white shadow-xs"
-                        : "bg-stone-200/80 text-stone-700 hover:bg-stone-300"
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "bg-black/50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                     }`}
                   >
                     Leave Now
@@ -247,10 +247,10 @@ export default function HeroSection({
                   <button
                     type="button"
                     onClick={() => setIsScheduled(true)}
-                    className={`px-4 py-2 rounded-md text-xs sm:text-sm font-bold transition active:scale-95 ${
+                    className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition active:scale-95 ${
                       isScheduled
-                        ? "bg-emerald-700 text-white shadow-xs"
-                        : "bg-stone-200/80 text-stone-700 hover:bg-stone-300"
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "bg-black/50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                     }`}
                   >
                     Schedule Later
@@ -260,7 +260,7 @@ export default function HeroSection({
                 {/* PRIMARY ACTION BUTTON (RICH EMERALD & GOLD ACCENTS) */}
                 <button
                   type="submit"
-                  className="w-full py-4 sm:py-4.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg rounded-lg active:scale-[0.98] transition shadow-lg flex items-center justify-center gap-2.5 cursor-pointer mt-2"
+                  className="w-full py-4 sm:py-4.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg rounded-xl active:scale-[0.98] transition shadow-xl flex items-center justify-center gap-2.5 cursor-pointer mt-2"
                 >
                   <span>Search Available Rides</span>
                   <ArrowRight size={20} strokeWidth={2.5} className="text-amber-300" />
@@ -269,40 +269,40 @@ export default function HeroSection({
             </div>
           </div>
 
-          {/* ================= RIGHT: SUBTLE REFINED PARTNER SHOWCASE (REVEALS GOLDEN TEMPLE) ================= */}
-          <div className="lg:col-span-5 hidden lg:flex flex-col justify-between bg-black/55 backdrop-blur-md border border-amber-500/25 rounded-xl p-6 sm:p-7 shadow-2xl text-white">
+          {/* ================= RIGHT: SUBTLE REFINED PARTNER SHOWCASE (DIRECT ON BACKGROUND) ================= */}
+          <div className="lg:col-span-5 hidden lg:flex flex-col justify-between text-white pl-0 lg:pl-4">
             <div className="space-y-4">
               <div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+                <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
                   Drive & Earn <br />
                   with RideNow
                 </h3>
-                <p className="text-sm text-zinc-300 font-medium mt-1 leading-relaxed">
+                <p className="text-sm sm:text-base text-zinc-200 font-medium mt-2 leading-relaxed drop-shadow-sm max-w-md">
                   Join hundreds of drivers across Assam, Meghalaya & Arunachal. Keep 100% of your earnings with zero middleman commissions.
                 </p>
               </div>
 
-              {/* 2 HIGH-IMPACT REGIONAL VALUE CARDS */}
-              <div className="space-y-3 pt-2 border-t border-white/10">
-                <div className="flex items-start gap-3.5 p-3 rounded-lg bg-white/5 border border-white/10">
-                  <div className="w-9 h-9 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-                    <ShieldCheck size={20} />
+              {/* 2 HIGH-IMPACT REGIONAL VALUE ROWS (NO BOXES) */}
+              <div className="space-y-4 pt-3">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 backdrop-blur-xs border border-emerald-500/30">
+                    <ShieldCheck size={22} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-extrabold text-white">Zero Platform Commission</h4>
-                    <p className="text-xs text-zinc-300 mt-0.5">
+                    <h4 className="text-sm sm:text-base font-extrabold text-white drop-shadow-sm">Zero Platform Commission</h4>
+                    <p className="text-xs sm:text-sm text-zinc-300 mt-0.5 leading-relaxed">
                       Keep every rupee of customer fares. No platform cuts.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3.5 p-3 rounded-lg bg-white/5 border border-white/10">
-                  <div className="w-9 h-9 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
-                    <Zap size={20} />
+                <div className="flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 backdrop-blur-xs border border-amber-500/30">
+                    <Zap size={22} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-extrabold text-white">Daily Bank Settlement</h4>
-                    <p className="text-xs text-zinc-300 mt-0.5">
+                    <h4 className="text-sm sm:text-base font-extrabold text-white drop-shadow-sm">Daily Bank Settlement</h4>
+                    <p className="text-xs sm:text-sm text-zinc-300 mt-0.5 leading-relaxed">
                       Instant daily UPI transfers directly into your bank account.
                     </p>
                   </div>
@@ -311,11 +311,11 @@ export default function HeroSection({
             </div>
 
             {/* ENLARGED FULL-WIDTH MUTED GOLD BUTTON */}
-            <div className="pt-4 border-t border-white/10 mt-5">
+            <div className="pt-6 mt-6">
               <button
                 type="button"
                 onClick={() => router.push("/partner/onboard/vehicle")}
-                className="w-full py-4 rounded-lg bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-base transition active:scale-[0.98] shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-base transition active:scale-[0.98] shadow-xl flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Partner With Us</span>
                 <ArrowRight size={18} strokeWidth={2.5} />
