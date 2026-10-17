@@ -122,20 +122,20 @@ export default function HeroSection({
       <div className="relative z-10 max-w-7xl mx-auto">
         
         {/* HERO HEADLINE */}
-        <div className="mb-10 sm:mb-14 text-left max-w-3xl">
+        <div className="mb-8 sm:mb-10 text-left max-w-3xl">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-md">
             Move anything, <br className="hidden sm:inline" />
             go anywhere.
           </h1>
-          <p className="mt-3 text-base sm:text-lg lg:text-xl text-zinc-200 font-medium leading-relaxed drop-shadow-sm max-w-2xl">
-            Daily city rides, parcel deliveries, and truck rentals at honest, upfront fares with 100% direct driver pay.
+          <p className="mt-2.5 text-base sm:text-lg lg:text-xl text-zinc-200 font-bold drop-shadow-sm">
+            Honest upfront fares. 100% direct driver pay.
           </p>
         </div>
 
-        {/* 2-COLUMN BALANCED LAYOUT: DIRECT FLOATING BOOKING PANEL + PARTNER HERO (NO BOXES) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-stretch pt-2 sm:pt-4">
+        {/* 2-COLUMN BALANCED LAYOUT: DIRECT FLOATING BOOKING PANEL + PARTNER HERO (PERFECTLY BALANCED) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-stretch pt-1 sm:pt-2">
           
-          {/* ================= LEFT: DIRECT BOOKING PANEL (NO BOXES) ================= */}
+          {/* ================= LEFT: DIRECT BOOKING PANEL ================= */}
           <div className="lg:col-span-7 flex flex-col justify-between text-white">
             <div>
               {/* TRIP MODE SELECTOR TABS */}
@@ -257,7 +257,7 @@ export default function HeroSection({
                   </button>
                 </div>
 
-                {/* PRIMARY ACTION BUTTON (RICH EMERALD & GOLD ACCENTS) */}
+                {/* PRIMARY ACTION BUTTON */}
                 <button
                   type="submit"
                   className="w-full py-4.5 sm:py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg sm:text-xl md:text-2xl rounded-2xl active:scale-[0.98] transition shadow-2xl flex items-center justify-center gap-3 cursor-pointer mt-3"
@@ -269,56 +269,49 @@ export default function HeroSection({
             </div>
           </div>
 
-          {/* ================= RIGHT: SUBTLE REFINED PARTNER SHOWCASE (DIRECT ON BACKGROUND) ================= */}
+          {/* ================= RIGHT: SUBTLE REFINED PARTNER SHOWCASE (BALANCED WITH LEFT) ================= */}
           <div className="lg:col-span-5 hidden lg:flex flex-col justify-between text-white pl-0 lg:pl-4">
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                  Drive & Earn <br />
-                  with RideNow
-                </h3>
-                <p className="text-sm sm:text-base text-zinc-200 font-medium mt-2 leading-relaxed drop-shadow-sm max-w-md">
-                  Join hundreds of drivers across Assam, Meghalaya & Arunachal. Keep 100% of your earnings with zero middleman commissions.
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+                  Drive & Earn
+                </h2>
+                <p className="text-base sm:text-lg text-zinc-200 font-bold mt-2 drop-shadow-sm">
+                  Keep 100% of what riders pay.
                 </p>
               </div>
 
-              {/* 2 HIGH-IMPACT REGIONAL VALUE ROWS (NO BOXES) */}
-              <div className="space-y-4 pt-3">
-                <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 backdrop-blur-xs border border-emerald-500/30">
-                    <ShieldCheck size={22} />
+              {/* 2 CLEAN BULLET POINTS (SIMPLIFIED & HIGH-IMPACT) */}
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 backdrop-blur-xs border border-emerald-500/30">
+                    <ShieldCheck size={24} />
                   </div>
-                  <div>
-                    <h4 className="text-sm sm:text-base font-extrabold text-white drop-shadow-sm">Zero Platform Commission</h4>
-                    <p className="text-xs sm:text-sm text-zinc-300 mt-0.5 leading-relaxed">
-                      Keep every rupee of customer fares. No platform cuts.
-                    </p>
-                  </div>
+                  <span className="text-lg sm:text-xl font-black text-white drop-shadow-sm">
+                    0% Platform Commission
+                  </span>
                 </div>
 
-                <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 backdrop-blur-xs border border-amber-500/30">
-                    <Zap size={22} />
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 backdrop-blur-xs border border-amber-500/30">
+                    <Zap size={24} />
                   </div>
-                  <div>
-                    <h4 className="text-sm sm:text-base font-extrabold text-white drop-shadow-sm">Daily Bank Settlement</h4>
-                    <p className="text-xs sm:text-sm text-zinc-300 mt-0.5 leading-relaxed">
-                      Instant daily UPI transfers directly into your bank account.
-                    </p>
-                  </div>
+                  <span className="text-lg sm:text-xl font-black text-white drop-shadow-sm">
+                    Daily Bank Payouts
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* ENLARGED FULL-WIDTH MUTED GOLD BUTTON */}
-            <div className="pt-6 mt-6">
+            {/* MATCHING ACTION BUTTON (PERFECTLY ALIGNED WITH LEFT SEARCH BUTTON) */}
+            <div className="mt-3">
               <button
                 type="button"
                 onClick={() => router.push("/partner/onboard/vehicle")}
-                className="w-full py-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-base transition active:scale-[0.98] shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-4.5 sm:py-5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-lg sm:text-xl md:text-2xl rounded-2xl active:scale-[0.98] transition shadow-2xl flex items-center justify-center gap-3 cursor-pointer"
               >
                 <span>Partner With Us</span>
-                <ArrowRight size={18} strokeWidth={2.5} />
+                <ArrowRight size={24} strokeWidth={3} />
               </button>
             </div>
           </div>
