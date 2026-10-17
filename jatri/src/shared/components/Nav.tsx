@@ -167,7 +167,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-zinc-300 hover:text-white hover:bg-white/10"
             }`}
           >
-            Dashboard
+            {t("nav.dashboard", "Dashboard")}
           </Link>
 
           <Link
@@ -178,7 +178,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-zinc-300 hover:text-white hover:bg-white/10"
             }`}
           >
-            Active Ride
+            {t("nav.activeRide", "Active Ride")}
             {pendingCount > 0 && (
               <span className="absolute -top-1 -right-2 w-5 h-5 bg-red-600 text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
@@ -194,7 +194,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-zinc-300 hover:text-white hover:bg-white/10"
             }`}
           >
-            Requests
+            {t("nav.requests", "Requests")}
             {pendingCount > 0 && (
               <span className="absolute -top-1 -right-2 w-5 h-5 bg-red-600 text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
@@ -210,7 +210,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-zinc-300 hover:text-white hover:bg-white/10"
             }`}
           >
-            Bookings
+            {t("nav.bookings", "Bookings")}
             {activeCount > 0 && (
               <span className="absolute -top-1 -right-2 w-5 h-5 bg-emerald-500 text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {activeCount}
@@ -226,7 +226,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-zinc-300 hover:text-white hover:bg-white/10"
             }`}
           >
-            Wallet
+            {t("nav.wallet", "Wallet")}
           </Link>
         </nav>
       );
@@ -463,7 +463,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partners/dashboard" ? "text-white" : "text-zinc-400"
                       }`}
                     >
-                      Dashboard
+                      {t("nav.dashboard", "Dashboard")}
                     </Link>
 
                     <Link
@@ -473,7 +473,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partner/active-ride" ? "text-white" : "text-zinc-400"
                       }`}
                     >
-                      <span>Active Ride</span>
+                      <span>{t("nav.activeRide", "Active Ride")}</span>
                       {pendingCount > 0 && (
                         <span className="px-3 py-1 rounded-full bg-red-600 text-white text-base font-extrabold">
                           {pendingCount}
@@ -488,7 +488,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partner/pending-requests" ? "text-white" : "text-zinc-400"
                       }`}
                     >
-                      <span>Requests</span>
+                      <span>{t("nav.requests", "Requests")}</span>
                       {pendingCount > 0 && (
                         <span className="px-3 py-1 rounded-full bg-red-600 text-white text-base font-extrabold">
                           {pendingCount}
@@ -503,7 +503,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partner/bookings" ? "text-white" : "text-zinc-400"
                       }`}
                     >
-                      <span>My Bookings</span>
+                      <span>{t("nav.bookings", "Bookings")}</span>
                       {activeCount > 0 && (
                         <span className="px-3 py-1 rounded-full bg-emerald-500 text-white text-base font-extrabold">
                           {activeCount}
@@ -518,7 +518,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partner/wallet" ? "text-white" : "text-zinc-400"
                       }`}
                     >
-                      Wallet & Earnings
+                      {t("nav.walletEarnings", "Wallet & Earnings")}
                     </Link>
                   </>
                 ) : (
@@ -528,7 +528,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       onClick={() => setMenuOpen(false)}
                       className="text-3xl sm:text-4xl font-black tracking-tight py-3 text-white hover:text-zinc-300 transition active:scale-98"
                     >
-                      Ride
+                      {t("nav.ride", "Ride")}
                     </Link>
 
                     <Link
@@ -538,7 +538,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/bookings" ? "text-white" : "text-zinc-400 hover:text-white"
                       }`}
                     >
-                      My Bookings
+                      {t("nav.bookings", "Bookings")}
                     </Link>
 
                     <Link
@@ -546,7 +546,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       onClick={() => setMenuOpen(false)}
                       className="text-3xl sm:text-4xl font-black tracking-tight py-3 text-zinc-400 hover:text-white transition active:scale-98"
                     >
-                      Drive
+                      {t("nav.drive", "Drive")}
                     </Link>
 
                     <Link
@@ -556,7 +556,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/fleet" ? "text-white" : "text-zinc-400 hover:text-white"
                       }`}
                     >
-                      Fleet
+                      {t("nav.fleet", "Fleet")}
                     </Link>
 
                     <Link
@@ -566,7 +566,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/faq" ? "text-white" : "text-zinc-400 hover:text-white"
                       }`}
                     >
-                      Help
+                      {t("nav.help", "Help")}
                     </Link>
 
                     <Link
@@ -576,7 +576,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/contact" ? "text-white" : "text-zinc-400 hover:text-white"
                       }`}
                     >
-                      Contact
+                      {t("nav.contact", "Contact")}
                     </Link>
 
                     {currentUser?.role === "admin" && (

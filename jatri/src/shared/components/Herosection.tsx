@@ -122,11 +122,12 @@ export default function HeroSection({
         {/* HERO HEADLINE */}
         <div className="mb-6 sm:mb-10 text-left max-w-3xl">
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-md">
-            Move anything, <br className="hidden sm:inline" />
-            go anywhere.
+            {t("hero.headlinePart1", "Move anything,")}{" "}
+            <br className="hidden sm:inline" />
+            {t("hero.headlinePart2", "go anywhere.")}
           </h1>
           <p className="mt-2 text-sm sm:text-lg lg:text-xl text-zinc-200 font-bold drop-shadow-sm">
-            Honest upfront fares. 100% direct driver pay.
+            {t("hero.tagline", "Honest upfront fares. 100% direct driver pay.")}
           </p>
         </div>
 
@@ -148,7 +149,7 @@ export default function HeroSection({
                   }`}
                 >
                   <Car className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
-                  <span>Daily Rides</span>
+                  <span>{t("hero.dailyRides", "Daily Rides")}</span>
                 </button>
 
                 <button
@@ -161,7 +162,7 @@ export default function HeroSection({
                   }`}
                 >
                   <Truck className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
-                  <span>Parcel & Cargo</span>
+                  <span>{t("hero.parcelCargo", "Parcel & Cargo")}</span>
                 </button>
 
                 <button
@@ -174,7 +175,7 @@ export default function HeroSection({
                   }`}
                 >
                   <Clock className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
-                  <span>Rentals</span>
+                  <span>{t("hero.rentals", "Rentals")}</span>
                 </button>
               </div>
 
@@ -200,7 +201,7 @@ export default function HeroSection({
                         type="text"
                         value={pickup}
                         onChange={(e) => setPickup(e.target.value)}
-                        placeholder="Enter pickup point"
+                        placeholder={t("hero.enterPickup", "Enter pickup point")}
                         className="w-full py-2.5 sm:py-3 text-base sm:text-xl md:text-2xl font-bold sm:font-black text-stone-900 placeholder:text-stone-400 placeholder:font-semibold sm:placeholder:font-bold focus:outline-none bg-transparent"
                       />
                       <button
@@ -221,7 +222,7 @@ export default function HeroSection({
                         type="text"
                         value={drop}
                         onChange={(e) => setDrop(e.target.value)}
-                        placeholder="Enter drop destination"
+                        placeholder={t("hero.enterDrop", "Enter drop destination")}
                         className="w-full py-2.5 sm:py-3 text-base sm:text-xl md:text-2xl font-bold sm:font-black text-stone-900 placeholder:text-stone-400 placeholder:font-semibold sm:placeholder:font-bold focus:outline-none bg-transparent"
                       />
                     </div>
@@ -239,7 +240,7 @@ export default function HeroSection({
                         : "bg-black/50 border border-white/15 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                     }`}
                   >
-                    Leave Now
+                    {t("hero.leaveNow", "Leave Now")}
                   </button>
                   <button
                     type="button"
@@ -250,7 +251,7 @@ export default function HeroSection({
                         : "bg-black/50 border border-white/15 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                     }`}
                   >
-                    Schedule Later
+                    {t("hero.scheduleLater", "Schedule Later")}
                   </button>
                 </div>
 
@@ -259,7 +260,7 @@ export default function HeroSection({
                   type="submit"
                   className="w-full py-3.5 sm:py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-xl md:text-2xl rounded-xl sm:rounded-2xl active:scale-[0.98] transition shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 cursor-pointer mt-2.5 sm:mt-3"
                 >
-                  <span>Search Available Rides</span>
+                  <span>{t("hero.searchRides", "Search Available Rides")}</span>
                   <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300" strokeWidth={3} />
                 </button>
               </form>
@@ -271,10 +272,10 @@ export default function HeroSection({
             <div className="space-y-6">
               <div>
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                  Drive & Earn
+                  {t("hero.partnerTitle", "Drive & Earn")}
                 </h2>
                 <p className="text-base sm:text-lg text-zinc-200 font-bold mt-2 drop-shadow-sm">
-                  Transparent earnings with direct payouts.
+                  {t("hero.partnerSubtitle", "Transparent earnings with direct payouts.")}
                 </p>
               </div>
 
@@ -283,21 +284,21 @@ export default function HeroSection({
                 <div className="flex items-center gap-3">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 shadow-sm" />
                   <span className="text-lg sm:text-xl lg:text-2xl font-black text-white drop-shadow-sm">
-                    Direct Cash & UPI Earnings
+                    {t("hero.partnerPoint1", "Direct Cash & UPI Earnings")}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 shadow-sm" />
                   <span className="text-lg sm:text-xl lg:text-2xl font-black text-white drop-shadow-sm">
-                    Fast Daily Bank Payouts
+                    {t("hero.partnerPoint2", "Fast Daily Bank Payouts")}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 shadow-sm" />
                   <span className="text-lg sm:text-xl lg:text-2xl font-black text-white drop-shadow-sm">
-                    Drive On Your Own Schedule
+                    {t("hero.partnerPoint3", "Drive On Your Own Schedule")}
                   </span>
                 </div>
               </div>
@@ -310,7 +311,7 @@ export default function HeroSection({
                 onClick={() => router.push("/partner/onboard/vehicle")}
                 className="w-full py-3.5 sm:py-5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-base sm:text-xl md:text-2xl rounded-xl sm:rounded-2xl active:scale-[0.98] transition shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 cursor-pointer"
               >
-                <span>Partner With Us</span>
+                <span>{t("hero.partnerCta", "Partner With Us")}</span>
                 <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3} />
               </button>
             </div>
