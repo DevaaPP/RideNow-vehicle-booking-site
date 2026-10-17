@@ -112,7 +112,16 @@ export default function CheckoutContent() {
   const [distanceKm,    setDistanceKm]    = useState<number | null>(null);
 
   const computedBreakdown = useMemo(() => {
+    const userOutstanding = Number((userData as any)?.outstandingAmount || 0);
+
     if (bookingBreakdown && (!vehicle || bookingBreakdown.vehicleType?.toLowerCase() === vehicle?.toLowerCase())) {
+      if (userOutstanding > 0 && (!bookingBreakdown.cancellationDues || bookingBreakdown.cancellationDues !== userOutstanding)) {
+        return {
+          ...bookingBreakdown,
+          cancellationDues: userOutstanding,
+          totalFare: (bookingBreakdown.totalFare - (bookingBreakdown.cancellationDues || 0)) + userOutstanding,
+        };
+      }
       return bookingBreakdown;
     }
     if (!pickupLat || !pickupLng || !dropLat || !dropLng) return null;
@@ -160,7 +169,10 @@ export default function CheckoutContent() {
       rates,
       undefined,
       0,
-      Boolean(userData?.isStudent)
+      Boolean(userData?.isStudent),
+      undefined,
+      undefined,
+      userOutstanding
     );
   }, [
     bookingBreakdown,
@@ -173,6 +185,7 @@ export default function CheckoutContent() {
     vehicle,
     rates,
     userData?.isStudent,
+    (userData as any)?.outstandingAmount,
   ]);
 
   const effectiveFare = computedBreakdown?.totalFare ?? fare;
@@ -361,6 +374,7 @@ export default function CheckoutContent() {
           vehicle,
           vehicleId,
           fare: effectiveFare,
+          cancellationDues: Number((userData as any)?.outstandingAmount || 0),
           mobileNumber: mobileNumber || userData?.mobileNumber || "",
           driverId,
           pickupLat,
@@ -1007,10 +1021,10 @@ export default function CheckoutContent() {
                       <span>-₹{computedBreakdown.studentDiscount}</span>
                     </div>
                   )}
-                  {Number((userData as any)?.outstandingAmount || 0) > 0 && (
+                  {(computedBreakdown.cancellationDues ? computedBreakdown.cancellationDues > 0 : Number((userData as any)?.outstandingAmount || 0) > 0) && (
                     <div className="flex justify-between text-[11px] text-rose-700 font-bold pt-1 border-t border-zinc-200">
                       <span>Unsettled Cancellation Dues</span>
-                      <span>+₹{Number((userData as any)?.outstandingAmount)}</span>
+                      <span>+₹{computedBreakdown.cancellationDues || Number((userData as any)?.outstandingAmount || 0)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm font-black text-zinc-950 pt-2 border-t border-zinc-200">

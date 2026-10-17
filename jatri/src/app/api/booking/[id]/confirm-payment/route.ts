@@ -3,6 +3,7 @@ import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import { auth } from "@/auth";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { recoverCustomerOutstandingDues } from "@/lib/cancellationEngine";
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -48,6 +49,18 @@ export async function POST(
   }
 
   await booking.save();
+
+  if (booking.paymentStatus === "paid" && booking.user && booking.cancellationDuesIncluded && booking.cancellationDuesIncluded > 0) {
+    try {
+      await recoverCustomerOutstandingDues({
+        userId: booking.user,
+        paidAmount: booking.cancellationDuesIncluded,
+        bookingId: booking._id,
+      });
+    } catch (err) {
+      console.error("Failed to recover customer outstanding dues in confirm-payment:", err);
+    }
+  }
 
   try {
     // Notify driver: confirm payment without leaking pickup OTP

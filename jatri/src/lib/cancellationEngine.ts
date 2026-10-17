@@ -121,28 +121,37 @@ export function calculateDynamicCancellationFee(params: {
     Boolean(booking.pickupOtp) || (distanceToPickupKm !== null && distanceToPickupKm <= 0.2);
 
   const lowerReason = reason.toLowerCase();
-  const isDriverDelayedClaim =
-    lowerReason.includes("taking too long") ||
-    lowerReason.includes("wrong direction") ||
-    lowerReason.includes("delayed");
 
-  // 3. Condition A: Driver arrived at pickup location
-  if (isDriverArrived) {
-    const fee = Math.min(tier.arrivedFee, booking.fare || tier.arrivedFee);
-    const driverComp = Math.round(fee * driverCompensationShare);
+  // 3. Driver fault reasons: 100% Free / Penalty strictly waived
+  // e.g. driver asked rider to cancel, driver refused duty, driver demanded extra, delayed, wrong direction
+  const isDriverFault =
+    lowerReason.includes("driver asked") ||
+    lowerReason.includes("asked to cancel") ||
+    lowerReason.includes("refuse") ||
+    lowerReason.includes("denied") ||
+    lowerReason.includes("taking too long") ||
+    lowerReason.includes("delayed") ||
+    lowerReason.includes("wrong direction") ||
+    lowerReason.includes("not moving") ||
+    lowerReason.includes("extra cash") ||
+    lowerReason.includes("demanded") ||
+    lowerReason.includes("breakdown") ||
+    lowerReason.includes("unreachable");
+
+  if (isDriverFault) {
     return {
-      fee,
-      feeApplied: true,
-      reason: `Cancellation after driver reached pickup location (${vType.toUpperCase()} fee applied)`,
+      fee: 0,
+      feeApplied: false,
+      reason: "Penalty waived: Driver requested cancellation, refused ride, or was delayed / off-route",
       elapsedSeconds,
-      driverArrived: true,
-      driverCompensation: driverComp,
-      platformShare: fee - driverComp,
-      policyCategory: "DRIVER_ARRIVED",
+      driverArrived: false,
+      driverCompensation: 0,
+      platformShare: 0,
+      policyCategory: "DRIVER_DELAY_WAIVED",
     };
   }
 
-  // 4. Condition B: Within 120 seconds (2 minutes grace period)
+  // 4. Free Grace Window: Within 120 seconds (2 minutes)
   if (elapsedSeconds <= 120) {
     return {
       fee: 0,
@@ -156,12 +165,12 @@ export function calculateDynamicCancellationFee(params: {
     };
   }
 
-  // 5. Condition C: Driver en-route, but significantly delayed or off-route
-  if (isDriverDelayedClaim && distanceToPickupKm !== null && distanceToPickupKm > 3.0) {
+  // 5. Driver significantly far away (> 3.5 km) and not close to pickup
+  if (distanceToPickupKm !== null && distanceToPickupKm > 3.5) {
     return {
       fee: 0,
       feeApplied: false,
-      reason: "Penalty waived: Driver is delayed or over 3 km away from pickup",
+      reason: "Penalty waived: Driver is still over 3.5 km away from pickup location",
       elapsedSeconds,
       driverArrived: false,
       driverCompensation: 0,
@@ -170,13 +179,49 @@ export function calculateDynamicCancellationFee(params: {
     };
   }
 
-  // 6. Condition D: Driver en-route after grace window
-  const fee = Math.min(tier.enRouteFee, booking.fare || tier.enRouteFee);
+  // 6. Driver arrived at pickup location
+  if (isDriverArrived) {
+    const fee = Math.min(tier.arrivedFee, booking.fare || tier.arrivedFee);
+    const driverComp = Math.round(fee * driverCompensationShare);
+    return {
+      fee,
+      feeApplied: true,
+      reason: `Cancellation after driver reached pickup location (${vType.toUpperCase()} arrived compensation)`,
+      elapsedSeconds,
+      driverArrived: true,
+      driverCompensation: driverComp,
+      platformShare: fee - driverComp,
+      policyCategory: "DRIVER_ARRIVED",
+    };
+  }
+
+  // 7. Driver en-route after grace window: scaled dynamically by duration active & distance to pickup
+  // Time factor:
+  // - 2 to 5 mins: 0.50 (minimal compensation)
+  // - 5 to 10 mins: 0.75
+  // - > 10 mins: 1.00
+  const timeFactor = elapsedSeconds <= 300 ? 0.5 : elapsedSeconds <= 600 ? 0.75 : 1.0;
+
+  // Distance / Proximity factor:
+  let distFactor = 0.75;
+  if (distanceToPickupKm !== null) {
+    if (distanceToPickupKm <= 1.0) distFactor = 1.0;
+    else if (distanceToPickupKm <= 2.5) distFactor = 0.75;
+    else distFactor = 0.5;
+  }
+
+  const combinedFactor = Math.min(1.0, Math.max(0.4, (timeFactor + distFactor) / 2));
+  const dynamicFee = Math.max(15, Math.round(tier.enRouteFee * combinedFactor));
+  const fee = Math.min(dynamicFee, booking.fare || dynamicFee);
   const driverComp = Math.round(fee * driverCompensationShare);
+
+  const durationMin = Math.max(1, Math.round(elapsedSeconds / 60));
+  const distText = distanceToPickupKm !== null ? `${distanceToPickupKm.toFixed(1)} km away` : "en route";
+
   return {
     fee,
     feeApplied: true,
-    reason: `Cancelled after 2-minute grace period with driver en route (${vType.toUpperCase()} fuel & travel compensation)`,
+    reason: `Cancelled after ${durationMin} min with driver ${distText} (${vType.toUpperCase()} transit compensation)`,
     elapsedSeconds,
     driverArrived: false,
     driverCompensation: driverComp,

@@ -145,7 +145,9 @@ export interface IBooking extends Document {
     isStudentDiscountApplied?: boolean;
     studentDiscount?: number;
     totalFare: number;
+    cancellationDues?: number;
   };
+  cancellationDuesIncluded?: number;
   isFamilyRide?: boolean;
   familyMemberDetails?: {
     name: string;
@@ -406,7 +408,9 @@ partnerAmount: {
       isStudentDiscountApplied: { type: Boolean, default: false },
       studentDiscount: { type: Number, default: 0 },
       totalFare: { type: Number },
+      cancellationDues: { type: Number, default: 0 },
     },
+    cancellationDuesIncluded: { type: Number, default: 0 },
     isMultiStop: {
       type: Boolean,
       default: false,

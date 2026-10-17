@@ -70,10 +70,13 @@ export async function POST(req: NextRequest) {
     const riderWallet = await getOrCreateWallet(user._id);
 
     const userDoc = await User.findById(user._id).select("outstandingAmount walletBalance").lean();
-    const outstandingDues = Math.max(0, Number((userDoc as any)?.outstandingAmount || 0));
-    const totalRequired = fare + outstandingDues;
+    const currentOutstanding = Math.max(0, Number((userDoc as any)?.outstandingAmount || 0));
+    const includedDues = Math.max(0, Number(booking.cancellationDuesIncluded || 0));
+    const extraOutstanding = Math.max(0, currentOutstanding - includedDues);
+    const totalRequired = fare + extraOutstanding;
+    const totalRecoveredDues = Math.min(currentOutstanding, includedDues + extraOutstanding);
 
-    // Atomic deduction: ensure rider's wallet balance >= totalRequired (fare + outstanding dues)
+    // Atomic deduction: ensure rider's wallet balance >= totalRequired (fare + any extra outstanding dues)
     const updatedWallet = await Wallet.findOneAndUpdate(
       {
         _id: riderWallet._id,
@@ -81,7 +84,7 @@ export async function POST(req: NextRequest) {
       },
       {
         $inc: { balance: -totalRequired },
-        outstandingAmount: 0,
+        outstandingAmount: Math.max(0, currentOutstanding - totalRecoveredDues),
       },
       { new: true }
     );
@@ -96,20 +99,21 @@ export async function POST(req: NextRequest) {
           required: totalRequired,
           shortfall: totalRequired - currentBalance,
           rideFare: fare,
-          outstandingDues,
+          outstandingDues: currentOutstanding,
         },
         { status: 400 }
       );
     }
 
-    // Sync User balance & clear outstanding amount
+    // Sync User balance & clear recovered outstanding amount
     await User.findByIdAndUpdate(user._id, {
       $inc: { walletBalance: -totalRequired },
-      outstandingAmount: 0,
+      outstandingAmount: Math.max(0, currentOutstanding - totalRecoveredDues),
     });
 
     const balanceBefore = riderWallet.balance || 0;
-    const balanceAfterRide = balanceBefore - fare;
+    const pureRideFare = Math.max(0, fare - includedDues);
+    const balanceAfterRide = balanceBefore - pureRideFare;
     const finalBalanceAfter = updatedWallet.balance || 0;
     const txnId = generateTransactionId("TXN_PAY");
 
@@ -122,16 +126,16 @@ export async function POST(req: NextRequest) {
       type: "debit",
       transactionType: "RIDE_PAYMENT",
       category: "ride_payment",
-      amount: fare,
+      amount: pureRideFare,
       balanceBefore,
       balanceAfter: balanceAfterRide,
       bookingId: booking._id,
-      description: `Ride fare for ${booking.vehicle?.toUpperCase() || "Ride"} to ${booking.drop?.slice(0, 25) || "destination"}`,
+      description: `Ride fare for ${booking.vehicle?.toUpperCase() || "Ride"} to ${booking.dropAddress?.slice(0, 25) || booking.drop?.slice(0, 25) || "destination"}`,
       status: "success",
     });
 
     // Record outstanding recovery transaction if dues were recovered
-    if (outstandingDues > 0) {
+    if (totalRecoveredDues > 0) {
       await WalletTransaction.create({
         transactionId: generateTransactionId("TXN_REC"),
         walletId: updatedWallet._id,
@@ -139,21 +143,21 @@ export async function POST(req: NextRequest) {
         type: "debit",
         transactionType: "OUTSTANDING_RECOVERY",
         category: "outstanding_recovery",
-        amount: outstandingDues,
+        amount: totalRecoveredDues,
         balanceBefore: balanceAfterRide,
         balanceAfter: finalBalanceAfter,
         bookingId: booking._id,
-        description: `Auto-recovered previous outstanding cancellation dues (₹${outstandingDues})`,
+        description: `Auto-recovered previous outstanding cancellation dues (₹${totalRecoveredDues})`,
         status: "success",
         metadata: {
-          recoveredAmount: outstandingDues,
+          recoveredAmount: totalRecoveredDues,
           rideId: booking._id,
         },
       });
     }
 
-    // Authoritative 15% platform commission split
-    const { adminCommission, partnerAmount } = calculateCommissionSplit(fare);
+    // Authoritative 15% platform commission split on pure ride fare
+    const { adminCommission, partnerAmount } = calculateCommissionSplit(pureRideFare);
 
     booking.paymentStatus = "paid";
     booking.status = "confirmed";
@@ -163,7 +167,7 @@ export async function POST(req: NextRequest) {
       booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
     }
 
-    booking.adminCommission = adminCommission;
+    booking.adminCommission = adminCommission + totalRecoveredDues;
     booking.partnerAmount = partnerAmount;
     await booking.save();
 

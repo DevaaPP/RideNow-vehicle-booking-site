@@ -26,6 +26,7 @@ export interface IFareBreakdown {
   studentDiscount?: number;
   totalFare: number;
   cancellationFee: number;
+  cancellationDues?: number;
 }
 
 export interface VehicleRateConfig {
@@ -225,7 +226,8 @@ export function calculateFareBreakdown(
   discountAmount: number = 0,
   isStudent: boolean = false,
   waitingDetails?: { arrivedAt?: Date | string | null; startedAt?: Date | string | null },
-  studentSettings?: StudentProgramEconomics
+  studentSettings?: StudentProgramEconomics,
+  cancellationDues: number = 0
 ): IFareBreakdown {
   const vType = (vehicleType || "car").toLowerCase();
   const defaultRate = DEFAULT_VEHICLE_RATES[vType] || DEFAULT_VEHICLE_RATES.car;
@@ -307,8 +309,9 @@ export function calculateFareBreakdown(
     }
   }
 
+  const dues = cancellationDues ? Math.max(0, Math.round(cancellationDues)) : 0;
   const totalBeforeDiscount = subtotalWithSurge + platformFee + taxes;
-  const totalFare = Math.max(0, Math.round(totalBeforeDiscount - effectiveDiscount));
+  const totalFare = Math.max(0, Math.round(totalBeforeDiscount - effectiveDiscount)) + dues;
 
   return {
     vehicleType: vType,
@@ -332,6 +335,7 @@ export function calculateFareBreakdown(
     studentDiscount: studentDiscountApplied,
     totalFare,
     cancellationFee,
+    cancellationDues: dues,
   };
 }
 

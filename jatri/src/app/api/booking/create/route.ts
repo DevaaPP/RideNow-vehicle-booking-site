@@ -349,9 +349,21 @@ export async function POST(req: Request) {
       );
     }
 
-    // Authoritative distance-only pricing calculation
-    const breakdown = calculateFareBreakdown(vehicleKey, routeDistance, ratesMap, undefined, 0, isStudent);
+    // Authoritative distance-only pricing calculation (including any unsettled cancellation dues)
+    const breakdown = calculateFareBreakdown(
+      vehicleKey,
+      routeDistance,
+      ratesMap,
+      undefined,
+      0,
+      isStudent,
+      undefined,
+      undefined,
+      userOutstanding
+    );
     const calculatedFare = breakdown.totalFare;
+    const rideFareOnly = Math.max(0, calculatedFare - userOutstanding);
+    const commissionSplit = calculateCommissionSplit(rideFareOnly);
 
     const estimatedDurationMin = Math.max(
       5,
@@ -424,12 +436,13 @@ export async function POST(req: Request) {
           : undefined,
       fare: calculatedFare,
       fareBreakdown: breakdown,
+      cancellationDuesIncluded: userOutstanding,
       routeCoordinates,
       routeDistanceKm: routeDistance,
       tripDurationMinutes: estimatedDurationMin,
       estimatedDropoffTime,
-      adminCommission: calculateCommissionSplit(calculatedFare).adminCommission,
-      partnerAmount: calculateCommissionSplit(calculatedFare).partnerAmount,
+      adminCommission: commissionSplit.adminCommission + userOutstanding,
+      partnerAmount: commissionSplit.partnerAmount,
       userMobileNumber: effectiveUserMobile,
       driverMobileNumber: effectiveDriverMobile,
       candidateDrivers: sortedCandidates.map((c) => c._id),

@@ -5,6 +5,7 @@ import {
   debitDriverCashCommission,
 } from "@/lib/walletLedger";
 import { calculateCommissionSplit } from "@/lib/commission";
+import { recoverCustomerOutstandingDues } from "@/lib/cancellationEngine";
 import { Types } from "mongoose";
 
 /**
@@ -73,6 +74,19 @@ export async function settleCompletedRidePayment(bookingId: string | Types.Objec
         partnerAmount: driverEarning,
         paymentMethod: booking.paymentStatus,
       });
+    }
+
+    // Recover customer outstanding cancellation dues if included in this ride
+    if (booking.user && booking.cancellationDuesIncluded && booking.cancellationDuesIncluded > 0) {
+      try {
+        await recoverCustomerOutstandingDues({
+          userId: booking.user,
+          paidAmount: booking.cancellationDuesIncluded,
+          bookingId: booking._id,
+        });
+      } catch (recErr) {
+        console.error("Failed to recover customer outstanding dues in settleCompletedRidePayment:", recErr);
+      }
     }
   } catch (err) {
     console.error("Error in settleCompletedRidePayment:", err);

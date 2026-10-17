@@ -15,6 +15,7 @@ import Payment, { IPayment } from "@/models/payment.model";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { calculateCommissionSplit } from "@/lib/commission";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { recoverCustomerOutstandingDues } from "@/lib/cancellationEngine";
 import { Types } from "mongoose";
 
 export interface CreateOrderParams {
@@ -112,9 +113,11 @@ export async function createPaymentOrder(params: CreateOrderParams) {
 
   // Calculate revenue separation (Platform Revenue vs Driver Earnings)
   const platformFee = booking.fareBreakdown?.platformFee || 15;
-  const { adminCommission, partnerAmount } = calculateCommissionSplit(booking.fare);
-  const platformRevenue = adminCommission + platformFee;
-  const driverEarnings = Math.max(0, booking.fare - platformRevenue);
+  const dues = booking.cancellationDuesIncluded || 0;
+  const rideFareOnly = Math.max(0, booking.fare - dues);
+  const { adminCommission, partnerAmount } = calculateCommissionSplit(rideFareOnly);
+  const platformRevenue = adminCommission + platformFee + dues;
+  const driverEarnings = partnerAmount;
 
   await Payment.create({
     booking: booking._id,
@@ -222,6 +225,19 @@ export async function verifyPayment(params: VerifyPaymentParams) {
       partnerAmount: payment.driverEarnings,
     },
   });
+
+  // 5. Recover customer outstanding cancellation dues if included in this ride
+  if (booking.user && booking.cancellationDuesIncluded && booking.cancellationDuesIncluded > 0) {
+    try {
+      await recoverCustomerOutstandingDues({
+        userId: booking.user,
+        paidAmount: booking.cancellationDuesIncluded,
+        bookingId: booking._id,
+      });
+    } catch (recErr) {
+      console.error("Failed to recover customer outstanding dues on payment verification:", recErr);
+    }
+  }
 
   return {
     success: true,
