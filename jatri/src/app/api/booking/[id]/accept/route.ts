@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
 import Booking from "@/models/booking.model";
+import Wallet from "@/models/wallet.model";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { MAX_ALLOWED_PLATFORM_DUES } from "@/lib/driverMatchingEngine";
 
 export async function POST(
   req: Request,
@@ -65,6 +67,21 @@ export async function POST(
           activeRideId: activeRide._id,
         },
         { status: 409 }
+      );
+    }
+
+    // 3. Platform Dues Enforcement: Check if driver has excessive unpaid platform commission from cash rides
+    const driverWallet = await Wallet.findOne({ userId: actorId }).select("platformDues");
+    if (driverWallet && (driverWallet.platformDues || 0) > MAX_ALLOWED_PLATFORM_DUES) {
+      return NextResponse.json(
+        {
+          success: false,
+          errorCode: "EXCESSIVE_PLATFORM_DUES",
+          message: `Your account has ₹${driverWallet.platformDues} in unpaid platform commission. Please settle dues in your Driver Wallet to accept new rides.`,
+          platformDues: driverWallet.platformDues,
+          settleUrl: "/partner/wallet",
+        },
+        { status: 403 }
       );
     }
   }

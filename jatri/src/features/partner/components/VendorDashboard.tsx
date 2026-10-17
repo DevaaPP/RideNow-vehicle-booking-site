@@ -27,7 +27,9 @@ import {
   Truck,
   Bike,
   Camera,
+  Wallet as WalletIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { getSocket } from "@/lib/socket";
@@ -984,6 +986,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   const [shiftSummary, setShiftSummary] = useState<any>(null);
   const [recentTrips, setRecentTrips] = useState<any[]>([]);
   const [expiryAlerts, setExpiryAlerts] = useState<any[]>([]);
+  const [platformDues, setPlatformDues] = useState<number>(0);
+  const [maxAllowedPlatformDues, setMaxAllowedPlatformDues] = useState<number>(300);
+  const [isDebtBlocked, setIsDebtBlocked] = useState<boolean>(false);
 
   const fetchShiftSummary = async () => {
     try {
@@ -1136,6 +1141,15 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           if (Array.isArray(res.data.expiryAlerts)) {
             setExpiryAlerts(res.data.expiryAlerts);
           }
+          if (typeof res.data.platformDues === "number") {
+            setPlatformDues(res.data.platformDues);
+          }
+          if (typeof res.data.maxAllowedPlatformDues === "number") {
+            setMaxAllowedPlatformDues(res.data.maxAllowedPlatformDues);
+          }
+          if (typeof res.data.isDebtBlocked === "boolean") {
+            setIsDebtBlocked(res.data.isDebtBlocked);
+          }
         }
       })
       .catch((err) => console.error("Error loading partner status:", err));
@@ -1280,6 +1294,13 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       const updatePayload: any = { isOnline: nextOnline };
 
       if (nextOnline) {
+        if (isDebtBlocked) {
+          alert(`Dispatch blocked: You have ₹${platformDues.toFixed(2)} in unpaid platform dues (threshold is ₹${maxAllowedPlatformDues}). Please settle your dues in the Driver Wallet to go online.`);
+          router.push("/partner/wallet");
+          setLoading(false);
+          return;
+        }
+
         if (!navigator.geolocation) {
           alert("Geolocation is not supported by your browser. Please use a location-enabled browser to receive rides.");
           setLoading(false);
@@ -1336,11 +1357,20 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       }
     } catch (err: any) {
       console.error(err);
+      if (err?.response?.data?.errorCode === "EXCESSIVE_PLATFORM_DUES") {
+        setIsDebtBlocked(true);
+        if (typeof err.response.data.platformDues === "number") {
+          setPlatformDues(err.response.data.platformDues);
+        }
+      }
       const errorMsg =
         err?.response?.data?.error ||
         err?.response?.data?.message ||
         "Failed to update status. Please ensure your driver and vehicle documents are verified.";
       alert(errorMsg);
+      if (err?.response?.data?.errorCode === "EXCESSIVE_PLATFORM_DUES") {
+        router.push("/partner/wallet");
+      }
     } finally {
       setLoading(false);
     }
@@ -1455,6 +1485,36 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               className="px-4 py-2 bg-white text-zinc-950 hover:bg-zinc-200 text-xs font-mono font-bold uppercase tracking-wider transition-colors shrink-0"
             >
               {uploadingPhoto ? "Uploading..." : "Upload Profile Photo"}
+            </button>
+          </div>
+        )}
+
+        {/* Cash Ride Debt Threshold Alert Banner */}
+        {isDebtBlocked && (
+          <div className="bg-red-950 text-white border-2 border-red-600 rounded-none p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-none bg-red-600 text-white flex items-center justify-center font-bold shrink-0">
+                <AlertTriangle size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-xs font-mono font-bold uppercase tracking-wider text-red-200">
+                    Dispatch Blocked &bull; Platform Commission Dues Limit Exceeded
+                  </p>
+                  <span className="bg-red-800 text-white text-[10px] font-mono px-2 py-0.5 font-bold uppercase">
+                    ₹{platformDues.toFixed(2)} Dues
+                  </span>
+                </div>
+                <p className="text-xs text-red-200/90 mt-1 font-body">
+                  You have exceeded the maximum allowed cash ride commission threshold of ₹{maxAllowedPlatformDues}. Settle your platform dues instantly via UPI or card in your Driver Wallet to resume receiving ride assignments.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push("/partner/wallet")}
+              className="w-full sm:w-auto px-5 py-2.5 bg-white text-red-950 hover:bg-red-50 text-xs font-mono font-bold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-2 border border-white cursor-pointer font-sans"
+            >
+              <WalletIcon size={14} /> Settle Dues Now
             </button>
           </div>
         )}
@@ -1625,6 +1685,15 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   : "Toggle online to start receiving ride dispatch assignments and passenger bookings."}
               </p>
             </div>
+
+            {isDebtBlocked && (
+              <div className="mt-2 p-2.5 bg-red-50 border border-red-300 text-red-900 text-xs font-medium flex items-center justify-between gap-2">
+                <span className="truncate font-mono text-[11px]">Dues limit reached (₹{platformDues.toFixed(2)} / ₹{maxAllowedPlatformDues})</span>
+                <Link href="/partner/wallet" className="underline font-bold text-red-950 shrink-0 text-xs font-mono uppercase">
+                  Settle
+                </Link>
+              </div>
+            )}
 
             <div className="bg-zinc-50 rounded-none p-4 border border-zinc-200 flex items-center justify-between my-4">
               <div>

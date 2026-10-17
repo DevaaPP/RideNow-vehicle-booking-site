@@ -6,7 +6,9 @@ import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import VehicleDocument from "@/models/vehicleDocument.model";
 import Vehicle from "@/models/vehicle.model";
+import Wallet from "@/models/wallet.model";
 import { evaluateDocumentExpirations } from "@/lib/documentExpiryEngine";
+import { MAX_ALLOWED_PLATFORM_DUES } from "@/lib/driverMatchingEngine";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -31,6 +33,10 @@ export async function GET() {
     const doc = await VehicleDocument.findOne({ owner: session.user.id }).lean();
     const expiryEvaluation = evaluateDocumentExpirations(doc);
 
+    const wallet = await Wallet.findOne({ userId: session.user.id }).select("platformDues").lean();
+    const platformDues = wallet?.platformDues || 0;
+    const isDebtBlocked = platformDues > MAX_ALLOWED_PLATFORM_DUES;
+
     return NextResponse.json({
       success: true,
       isOnline: user.isOnline,
@@ -43,6 +49,9 @@ export async function GET() {
       driverVerificationStatus: user.driverVerificationStatus || null,
       dispatchBlockedUntil: user.dispatchBlockedUntil || null,
       dailyCancellationCount: user.dailyCancellationCount || 0,
+      platformDues,
+      maxAllowedPlatformDues: MAX_ALLOWED_PLATFORM_DUES,
+      isDebtBlocked,
       expiryAlerts: expiryEvaluation.alerts,
       hasCriticalExpiry: expiryEvaluation.hasCriticalExpiry,
       hasUrgentWarning: expiryEvaluation.hasUrgentWarning,
@@ -130,6 +139,22 @@ export async function PATCH(req: Request) {
           {
             error: expiryEvaluation.blockingReasons[0] || "Critical vehicle compliance documents have expired.",
             expiredAlerts: expiryEvaluation.alerts.filter((a) => a.status === "expired"),
+          },
+          { status: 403 }
+        );
+      }
+
+      // Platform Dues Debt Threshold Check
+      const driverWallet = await Wallet.findOne({ userId: driver._id }).select("platformDues").lean();
+      const currentDues = driverWallet?.platformDues || 0;
+      if (currentDues > MAX_ALLOWED_PLATFORM_DUES) {
+        return NextResponse.json(
+          {
+            error: `You have ₹${currentDues.toFixed(2)} in unpaid platform commission from cash rides. Please settle dues in your Driver Wallet to go online.`,
+            errorCode: "EXCESSIVE_PLATFORM_DUES",
+            platformDues: currentDues,
+            maxAllowedPlatformDues: MAX_ALLOWED_PLATFORM_DUES,
+            settleUrl: "/partner/wallet",
           },
           { status: 403 }
         );

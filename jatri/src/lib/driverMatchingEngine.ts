@@ -7,10 +7,13 @@ import { Types } from "mongoose";
 import User, { IUser } from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 import Booking, { IBooking } from "@/models/booking.model";
+import Wallet from "@/models/wallet.model";
 import { haversineDistance } from "@/lib/routeUtils";
 import { validateServiceArea } from "@/lib/serviceArea";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
+
+export const MAX_ALLOWED_PLATFORM_DUES = 300;
 
 export interface CandidateDriver {
   driverId: Types.ObjectId;
@@ -107,14 +110,26 @@ export async function findEligibleCandidates(options: {
       }
     : { type: { $in: typeRegexes } };
 
-  // Fetch online vendors first to ensure live drivers are always matched
+  // Query wallets with excessive platform dues (e.g. > ₹300) to exclude from dispatch queue
+  const delinquentWallets = await Wallet.find({
+    platformDues: { $gt: MAX_ALLOWED_PLATFORM_DUES },
+  })
+    .select("userId")
+    .lean();
+  const delinquentUserIds = delinquentWallets.map((w) => w.userId);
+
+  // Fetch online vendors first, excluding blocked and debt-delinquent drivers
   const onlineVendors = await User.find({
+    _id: { $nin: delinquentUserIds },
     isOnline: { $in: [true, "true"] },
     isVendorBlocked: { $ne: true },
     location: { $exists: true },
   }).lean();
 
-  logs.push(`Found ${onlineVendors.length} online vendors currently active in system.`);
+  if (delinquentUserIds.length > 0) {
+    logs.push(`Excluded ${delinquentUserIds.length} driver(s) due to unpaid platform dues exceeding ₹${MAX_ALLOWED_PLATFORM_DUES}.`);
+  }
+  logs.push(`Found ${onlineVendors.length} eligible online vendors currently active in system.`);
 
   const activeVehicles = await Vehicle.find({
     ...typeFilter,
