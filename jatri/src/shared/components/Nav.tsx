@@ -288,11 +288,11 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               aria-label="RideNow Home"
             >
               <Image
-                src="/logo.webp"
+                src="/logo-clean.webp"
                 alt="RideNow"
                 width={150}
-                height={46}
-                className="h-9 sm:h-10 md:h-11 w-auto object-contain"
+                height={55}
+                className="h-9 sm:h-10 md:h-11 w-auto object-contain transition-transform group-hover:scale-105"
                 priority
               />
             </Link>
@@ -417,10 +417,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   className="flex items-center active:scale-95 transition"
                 >
                   <Image
-                    src="/logo.webp"
+                    src="/logo-clean.webp"
                     alt="RideNow"
                     width={140}
-                    height={44}
+                    height={50}
                     className="h-10 w-auto object-contain"
                   />
                 </Link>

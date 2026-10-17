@@ -13,6 +13,8 @@ import {
   Truck,
   ShieldCheck,
   Zap,
+  MapPin,
+  CheckCircle2,
 } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 
@@ -103,52 +105,55 @@ export default function HeroSection({
   };
 
   return (
-    <section className="relative w-full bg-zinc-950 text-white px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 overflow-hidden">
-      {/* ================= CRISP CINEMATIC VEHICLE / TRANSIT BACKDROP (LIKE ORIGINAL) ================= */}
+    <section className="relative w-full bg-[#0B0F19] text-white px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 overflow-hidden">
+      {/* ================= GORGEOUS SUNSET CITY SKYLINE (GUWAHATI / ASSAM) ================= */}
       <Image
-        src="/heroImage.webp"
-        alt="RideNow Mobility Background"
+        src="/hero-city.webp"
+        alt="Northeast Indian Transit Skyline at Sunset"
         fill
         priority
         quality={90}
         sizes="100vw"
-        className="object-cover object-center pointer-events-none opacity-70 sm:opacity-75"
+        className="object-cover object-center pointer-events-none opacity-90 sm:opacity-95"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/45 pointer-events-none" />
+      {/* Atmospheric directional overlays: Left gives solid contrast for the form, Right reveals golden temple & sunset sky */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/85 via-[#0B0F19]/40 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19]/80 via-transparent to-black/25 pointer-events-none" />
 
       {/* ================= HERO CONTENT CONTAINER ================= */}
       <div className="relative z-10 max-w-7xl mx-auto">
         
-        {/* HERO HEADLINE & INTRO (LEFT ALIGNED) */}
+        {/* HERO HEADLINE & REGIONAL ANCHOR */}
         <div className="mb-8 sm:mb-10 text-left max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-black uppercase tracking-wider mb-3 backdrop-blur-xs">
+            <MapPin size={13} className="text-amber-400" />
+            <span>Northeast India&apos;s Trusted Ride Platform</span>
+          </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-md">
             Move anything, <br className="hidden sm:inline" />
             go anywhere.
           </h1>
-          <p className="mt-3 text-base sm:text-lg lg:text-xl text-zinc-200 font-medium leading-relaxed drop-shadow-sm">
-            Daily city rides, parcel deliveries, and truck rentals at honest, upfront fares.
+          <p className="mt-3 text-base sm:text-lg lg:text-xl text-zinc-200 font-medium leading-relaxed drop-shadow-sm max-w-2xl">
+            Daily city rides, parcel deliveries, and truck rentals at honest, upfront fares with 100% direct driver pay.
           </p>
         </div>
 
-        {/* 2-COLUMN BALANCED LAYOUT: FUNCTIONAL BOOKING CARD + ENHANCED PARTNER SECTION */}
+        {/* 2-COLUMN BALANCED LAYOUT: WARM IVORY BOOKING PANEL + REFINED PARTNER HERO */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           
-          {/* ================= LEFT: ACCESSIBLE, HIGH-CONVERSION BOOKING CARD ================= */}
-          <div className="lg:col-span-7 flex flex-col justify-between bg-white text-zinc-950 rounded-xl p-5 sm:p-7 shadow-2xl border border-zinc-200/80">
+          {/* ================= LEFT: REFINED WARM IVORY BOOKING PANEL ================= */}
+          <div className="lg:col-span-7 flex flex-col justify-between bg-[#FCFBF7] text-zinc-900 rounded-xl p-5 sm:p-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] border border-amber-200/60">
             <div>
-              {/* TRIP MODE SELECTOR TABS */}
-              <div className="flex items-center gap-1.5 p-1.5 bg-zinc-100 rounded-lg mb-5 border border-zinc-200/50">
+              {/* TRIP MODE SELECTOR TABS (EMERALD & WARM IVORY ACCENTS) */}
+              <div className="flex items-center gap-1.5 p-1.5 bg-stone-200/60 rounded-lg mb-5 border border-stone-300/40">
                 <button
                   type="button"
                   onClick={() => setTripMode("ride")}
                   className={`flex-1 py-3 px-3 rounded-md text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
                     tripMode === "ride"
-                      ? "text-white shadow-xs"
-                      : "text-zinc-600 hover:text-black hover:bg-zinc-200/60"
+                      ? "bg-emerald-700 text-white shadow-xs"
+                      : "text-stone-700 hover:text-black hover:bg-stone-300/50"
                   }`}
-                  style={{
-                    backgroundColor: tripMode === "ride" ? "var(--theme-primary, #000000)" : undefined,
-                  }}
                 >
                   <Car size={17} />
                   <span>Daily Rides</span>
@@ -159,12 +164,9 @@ export default function HeroSection({
                   onClick={() => setTripMode("cargo")}
                   className={`flex-1 py-3 px-3 rounded-md text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
                     tripMode === "cargo"
-                      ? "text-white shadow-xs"
-                      : "text-zinc-600 hover:text-black hover:bg-zinc-200/60"
+                      ? "bg-emerald-700 text-white shadow-xs"
+                      : "text-stone-700 hover:text-black hover:bg-stone-300/50"
                   }`}
-                  style={{
-                    backgroundColor: tripMode === "cargo" ? "var(--theme-primary, #000000)" : undefined,
-                  }}
                 >
                   <Truck size={17} />
                   <span>Parcel & Cargo</span>
@@ -175,45 +177,42 @@ export default function HeroSection({
                   onClick={() => setTripMode("rental")}
                   className={`flex-1 py-3 px-3 rounded-md text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
                     tripMode === "rental"
-                      ? "text-white shadow-xs"
-                      : "text-zinc-600 hover:text-black hover:bg-zinc-200/60"
+                      ? "bg-emerald-700 text-white shadow-xs"
+                      : "text-stone-700 hover:text-black hover:bg-stone-300/50"
                   }`}
-                  style={{
-                    backgroundColor: tripMode === "rental" ? "var(--theme-primary, #000000)" : undefined,
-                  }}
                 >
                   <Clock size={17} />
                   <span>Rentals</span>
                 </button>
               </div>
 
-              {/* CONNECTED LOCATION FORM (SOFTER BORDERS, CONSISTENT PADDING) */}
+              {/* CONNECTED LOCATION FORM (EMERALD TO GOLD TRANSIT LINE) */}
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="relative bg-zinc-50 border border-zinc-200 rounded-lg p-3 sm:p-3.5 shadow-2xs">
+                <div className="relative bg-white border border-stone-200 rounded-lg p-3 sm:p-3.5 shadow-xs">
                   {/* Transit line connecting pickup and drop */}
-                  <div className="absolute left-[26px] sm:left-[28px] top-[34px] bottom-[34px] w-[2px] bg-zinc-400 pointer-events-none" />
+                  <div className="absolute left-[26px] sm:left-[28px] top-[34px] bottom-[34px] w-[2px] bg-gradient-to-b from-emerald-600 via-amber-500 to-amber-600 pointer-events-none" />
 
                   {/* PICKUP INPUT */}
-                  <div className="relative flex items-center bg-white rounded-md border border-zinc-200 px-3 py-1.5 focus-within:border-zinc-900 transition shadow-2xs">
+                  <div className="relative flex items-center bg-stone-50/80 rounded-md border border-stone-200 px-3 py-1.5 focus-within:border-emerald-600 focus-within:ring-1 focus-within:ring-emerald-600/30 transition shadow-2xs">
                     <div className="w-9 flex items-center justify-center flex-shrink-0">
-                      <span className="w-3.5 h-3.5 rounded-full border-[3px] border-black bg-white" />
+                      <span className="w-3.5 h-3.5 rounded-full border-[3px] border-emerald-600 bg-white" />
                     </div>
                     <input
                       type="text"
                       value={pickup}
                       onChange={(e) => setPickup(e.target.value)}
                       placeholder="Enter pickup point"
-                      className="w-full py-3.5 text-base sm:text-lg font-bold text-zinc-950 placeholder:text-zinc-400 focus:outline-none bg-transparent"
+                      className="w-full py-3.5 text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none bg-transparent"
                     />
                     <button
                       type="button"
                       onClick={handleDetectLocation}
-                      title="Use current location"
-                      className="p-2 text-zinc-500 hover:text-black transition flex-shrink-0 active:scale-90"
+                      title="Use current GPS location"
+                      className="p-2 text-stone-500 hover:text-emerald-700 transition flex-shrink-0 active:scale-90"
                     >
                       <Navigation
                         size={19}
-                        className={isLocating ? "animate-spin text-black" : ""}
+                        className={isLocating ? "animate-spin text-emerald-600" : ""}
                       />
                     </button>
                   </div>
@@ -221,16 +220,16 @@ export default function HeroSection({
                   <div className="my-2" />
 
                   {/* DROPOFF INPUT */}
-                  <div className="relative flex items-center bg-white rounded-md border border-zinc-200 px-3 py-1.5 focus-within:border-zinc-900 transition shadow-2xs">
+                  <div className="relative flex items-center bg-stone-50/80 rounded-md border border-stone-200 px-3 py-1.5 focus-within:border-amber-600 focus-within:ring-1 focus-within:ring-amber-600/30 transition shadow-2xs">
                     <div className="w-9 flex items-center justify-center flex-shrink-0">
-                      <span className="w-3 h-3 bg-black" />
+                      <span className="w-3 h-3 bg-amber-600 rounded-xs" />
                     </div>
                     <input
                       type="text"
                       value={drop}
                       onChange={(e) => setDrop(e.target.value)}
                       placeholder="Enter drop destination"
-                      className="w-full py-3.5 text-base sm:text-lg font-bold text-zinc-950 placeholder:text-zinc-400 focus:outline-none bg-transparent"
+                      className="w-full py-3.5 text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none bg-transparent"
                     />
                   </div>
                 </div>
@@ -242,12 +241,9 @@ export default function HeroSection({
                     onClick={() => setIsScheduled(false)}
                     className={`px-4 py-2 rounded-md text-xs sm:text-sm font-bold transition active:scale-95 ${
                       !isScheduled
-                        ? "text-white"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                        ? "bg-emerald-700 text-white shadow-xs"
+                        : "bg-stone-200/80 text-stone-700 hover:bg-stone-300"
                     }`}
-                    style={{
-                      backgroundColor: !isScheduled ? "var(--theme-primary, #000000)" : undefined,
-                    }}
                   >
                     Leave Now
                   </button>
@@ -256,80 +252,93 @@ export default function HeroSection({
                     onClick={() => setIsScheduled(true)}
                     className={`px-4 py-2 rounded-md text-xs sm:text-sm font-bold transition active:scale-95 ${
                       isScheduled
-                        ? "text-white"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                        ? "bg-emerald-700 text-white shadow-xs"
+                        : "bg-stone-200/80 text-stone-700 hover:bg-stone-300"
                     }`}
-                    style={{
-                      backgroundColor: isScheduled ? "var(--theme-primary, #000000)" : undefined,
-                    }}
                   >
                     Schedule Later
                   </button>
                 </div>
 
-                {/* PRIMARY ACTION BUTTON */}
+                {/* PRIMARY ACTION BUTTON (RICH EMERALD & GOLD ACCENTS) */}
                 <button
                   type="submit"
-                  className="w-full py-4 sm:py-4.5 text-white font-black text-base sm:text-lg rounded-lg active:scale-[0.98] transition shadow-md flex items-center justify-center gap-2.5 cursor-pointer mt-2"
-                  style={{ backgroundColor: "var(--theme-primary, #000000)" }}
+                  className="w-full py-4 sm:py-4.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg rounded-lg active:scale-[0.98] transition shadow-lg flex items-center justify-center gap-2.5 cursor-pointer mt-2"
                 >
                   <span>Search Available Rides</span>
-                  <ArrowRight size={20} strokeWidth={2.5} />
+                  <ArrowRight size={20} strokeWidth={2.5} className="text-amber-300" />
                 </button>
               </form>
+
+              {/* LOCAL INDIAN TRUST & PAYMENT CUES */}
+              <div className="pt-3.5 border-t border-stone-200/80 mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-600 font-semibold">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-extrabold text-stone-800 uppercase tracking-wider text-[10px]">Payment:</span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-[11px]">UPI</span>
+                  <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 font-bold text-[11px]">Cash</span>
+                  <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-bold text-[11px]">GPay / PhonePe / Paytm</span>
+                </div>
+                <div className="flex items-center gap-1 text-emerald-700 font-bold text-[11px]">
+                  <CheckCircle2 size={13} />
+                  <span>100% Upfront Price Guarantee</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* ================= RIGHT: ENHANCED DRIVER & PARTNER CARD (ENLARGED BUTTON) ================= */}
-          <div className="lg:col-span-5 hidden lg:flex flex-col justify-between bg-zinc-900/85 backdrop-blur-md border border-white/15 rounded-xl p-6 sm:p-7 shadow-2xl">
-            <div className="space-y-5">
+          {/* ================= RIGHT: SUBTLE REFINED PARTNER SHOWCASE (REVEALS GOLDEN TEMPLE) ================= */}
+          <div className="lg:col-span-5 hidden lg:flex flex-col justify-between bg-black/55 backdrop-blur-md border border-amber-500/25 rounded-xl p-6 sm:p-7 shadow-2xl text-white">
+            <div className="space-y-4">
               <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-black uppercase tracking-wider mb-2">
+                  <span>Local Driver Freedom</span>
+                </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
                   Drive & Earn <br />
                   with RideNow
                 </h3>
-                <p className="text-sm text-zinc-300 font-medium mt-2 leading-relaxed">
-                  Turn your car, bike, auto, or truck into daily income with guaranteed upfront fares and complete schedule flexibility.
+                <p className="text-sm text-zinc-300 font-medium mt-1 leading-relaxed">
+                  Join hundreds of drivers across Assam, Meghalaya & Arunachal. Keep 100% of your earnings with zero middleman commissions.
                 </p>
               </div>
 
-              {/* 2 CLEAN, HIGH-IMPACT VALUE ROWS */}
-              <div className="space-y-3 pt-3 border-t border-white/10">
-                <div className="flex items-start gap-3.5 p-2 rounded-lg bg-white/5 border border-white/5">
-                  <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 text-white">
+              {/* 2 HIGH-IMPACT REGIONAL VALUE CARDS */}
+              <div className="space-y-3 pt-2 border-t border-white/10">
+                <div className="flex items-start gap-3.5 p-3 rounded-lg bg-white/5 border border-white/10">
+                  <div className="w-9 h-9 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
                     <ShieldCheck size={20} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">100% Direct Driver Fares</h4>
+                    <h4 className="text-sm font-extrabold text-white">Zero Platform Commission</h4>
                     <p className="text-xs text-zinc-300 mt-0.5">
-                      Keep what customers pay. No surprise platform commission cuts.
+                      Keep every rupee of customer fares. No platform cuts.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3.5 p-2 rounded-lg bg-white/5 border border-white/5">
-                  <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 text-white">
+                <div className="flex items-start gap-3.5 p-3 rounded-lg bg-white/5 border border-white/10">
+                  <div className="w-9 h-9 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
                     <Zap size={20} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">Instant Daily Settlements</h4>
+                    <h4 className="text-sm font-extrabold text-white">Daily Bank Settlement</h4>
                     <p className="text-xs text-zinc-300 mt-0.5">
-                      Cash out your ride earnings anytime directly to your UPI or bank.
+                      Instant daily UPI transfers directly into your bank account.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ENLARGED FULL-WIDTH PROMINENT PARTNER WITH US BUTTON */}
-            <div className="pt-5 border-t border-white/10 mt-6">
+            {/* ENLARGED FULL-WIDTH MUTED GOLD BUTTON */}
+            <div className="pt-4 border-t border-white/10 mt-5">
               <button
                 type="button"
                 onClick={() => router.push("/partner/onboard/vehicle")}
-                className="w-full py-4 rounded-lg bg-white text-zinc-950 font-black text-base hover:bg-zinc-200 transition active:scale-[0.98] shadow-xl flex items-center justify-center gap-2.5 cursor-pointer"
+                className="w-full py-4 rounded-lg bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-base transition active:scale-[0.98] shadow-xl flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Partner With Us</span>
-                <ArrowRight size={20} strokeWidth={2.5} />
+                <ArrowRight size={18} strokeWidth={2.5} />
               </button>
             </div>
           </div>
