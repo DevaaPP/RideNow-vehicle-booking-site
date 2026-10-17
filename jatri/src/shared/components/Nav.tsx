@@ -709,12 +709,12 @@ function UberProfileDropdown({
       <div className="flex items-center justify-between pb-4 border-b border-zinc-100">
         <div className="min-w-0 pr-3">
           <p className="font-extrabold text-xl text-zinc-900 truncate">
-            {userData?.name || "Debapratim Pathak"}
+            {userData?.name || "RideNow Member"}
           </p>
           <div className="flex items-center gap-1.5 mt-1">
             <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-800 text-xs font-bold">
               <Star size={12} className="fill-amber-400 text-amber-400" />
-              <span>4.92</span>
+              <span>{userData?.rating ? Number(userData.rating).toFixed(1) : "5.0"}</span>
             </div>
             <span className="text-xs uppercase font-extrabold text-zinc-400 tracking-wider">
               {userData?.role === "vendor" ? "Partner" : "Rider"}
@@ -723,7 +723,7 @@ function UberProfileDropdown({
         </div>
 
         <div className="w-12 h-12 rounded-full bg-zinc-900 text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-sm">
-          {userData?.name?.charAt(0).toUpperCase() || "P"}
+          {userData?.name?.charAt(0).toUpperCase() || "R"}
         </div>
       </div>
 
@@ -772,7 +772,7 @@ function UberProfileDropdown({
         className="mt-3.5 p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex items-center justify-between cursor-pointer hover:bg-zinc-100 transition active:scale-98"
       >
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">RideNow Cash</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">RideNow Wallet</p>
           <p className="text-sm font-semibold text-zinc-700 mt-0.5">Available Balance</p>
         </div>
         <p className="text-2xl font-black text-zinc-950">₹{userData?.walletBalance || 0}</p>
