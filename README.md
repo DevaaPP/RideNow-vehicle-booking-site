@@ -1,7 +1,7 @@
 # 🚗 RideNow – Next-Generation Urban Mobility & Vehicle Booking Platform
 
 <p align="center">
-  <a href="https://github.com/niyar18/RideNow-vehicle-booking-site">
+  <a href="https://ride-now-vehicle-booking-site.vercel.app" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/🚀%20Live%20Web%20App-Launch%20RideNow-10b981?style=for-the-badge&logo=safari&logoColor=white" alt="Live Demo" />
   </a>
   <a href="https://github.com/niyar18/RideNow-vehicle-booking-site">
@@ -13,8 +13,8 @@
 ---
 
 ### 🌐 Live Application Link
-> **Experience RideNow Live**: [**https://ridenow-mobility.vercel.app**](#-live-application-link) *(or update with your live deployment URL)*  
-> Anyone visiting this repository can click the button above to directly explore instant vehicle bookings, WhatsApp OTP authentication, live driver dispatch, and the driver wallet.
+> **Experience RideNow Live**: [**https://ride-now-vehicle-booking-site.vercel.app**](https://ride-now-vehicle-booking-site.vercel.app)  
+> Anyone visiting this repository can click the button or link above to directly explore instant vehicle bookings, WhatsApp & SMS OTP authentication, live driver dispatch, and the driver wallet.
 
 ---
 
@@ -68,6 +68,26 @@
 - Comprehensive multi-step driver partner registration with vehicle inspection and document uploads.
 - Real-time WebRTC Video KYC powered by ZegoCloud with live audio/video test and admin verification room.
 - Role-based admin approval and rejection workflows.
+
+### 11. 🔐 Dual-Stage OTP Trip Verification
+- Dynamic 4-digit pickup PIN for ride commencement and cryptographically secure (CSPRNG) drop PIN for trip finalization.
+- Integrated anti-brute force protection with automated 5-minute lockout on repeated failures.
+- Direct passenger-driver socket notification on OTP verification with instant state progression.
+
+### 12. ⚡ Resilient Telemetry & Adaptive Polling Fallback
+- Reconnection-resilient WebSocket architecture with automatic booking room rejoining upon network reconnects.
+- Adaptive 6-second polling fallback activating whenever cellular data stutters in underground or remote routes.
+- Mobile wake-lock engagement preventing driver screen dimming during active turn-by-turn navigation.
+
+### 13. 💰 Driver Wallet & Platform Dues Enforcement
+- Built-in Driver Wallet with automated 20% platform commission deductions.
+- Strict platform dues ceiling (₹300 cap) on cash trips with warning banners and duty toggle lock preventing debt accumulation.
+- 1-Tap UPI / Razorpay dues settlement restoring immediate driver dispatch eligibility.
+
+### 14. 📲 WhatsApp & SMS Authentication Engine
+- Passwordless mobile login supporting both Meta WhatsApp Cloud API and SMS OTP channels.
+- Full clipboard paste support, auto-focus digit progression, and automatic dev/simulated fallback.
+- NextAuth v5 session integration linking phone accounts with Google OAuth identities seamlessly.
 
 ---
 
