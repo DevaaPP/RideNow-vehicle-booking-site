@@ -13,8 +13,6 @@ import {
   Truck,
   ShieldCheck,
   Zap,
-  MapPin,
-  CheckCircle2,
 } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 
@@ -123,12 +121,8 @@ export default function HeroSection({
       {/* ================= HERO CONTENT CONTAINER ================= */}
       <div className="relative z-10 max-w-7xl mx-auto">
         
-        {/* HERO HEADLINE & REGIONAL ANCHOR */}
+        {/* HERO HEADLINE */}
         <div className="mb-8 sm:mb-10 text-left max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-black uppercase tracking-wider mb-3 backdrop-blur-xs">
-            <MapPin size={13} className="text-amber-400" />
-            <span>Northeast India&apos;s Trusted Ride Platform</span>
-          </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-md">
             Move anything, <br className="hidden sm:inline" />
             go anywhere.
@@ -186,51 +180,54 @@ export default function HeroSection({
                 </button>
               </div>
 
-              {/* CONNECTED LOCATION FORM (EMERALD TO GOLD TRANSIT LINE) */}
+              {/* STREAMLINED LOCATION FORM (UBER/RAPIDO UNIFIED CONTAINER) */}
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="relative bg-white border border-stone-200 rounded-lg p-3 sm:p-3.5 shadow-xs">
-                  {/* Transit line connecting pickup and drop */}
-                  <div className="absolute left-[26px] sm:left-[28px] top-[34px] bottom-[34px] w-[2px] bg-gradient-to-b from-emerald-600 via-amber-500 to-amber-600 pointer-events-none" />
-
-                  {/* PICKUP INPUT */}
-                  <div className="relative flex items-center bg-stone-50/80 rounded-md border border-stone-200 px-3 py-1.5 focus-within:border-emerald-600 focus-within:ring-1 focus-within:ring-emerald-600/30 transition shadow-2xs">
-                    <div className="w-9 flex items-center justify-center flex-shrink-0">
+                <div className="relative bg-white border border-stone-200/90 rounded-xl overflow-hidden shadow-xs focus-within:border-emerald-600 focus-within:ring-1 focus-within:ring-emerald-600/20 transition">
+                  {/* Left Transit Icons & Continuous Connector */}
+                  <div className="absolute left-4 top-0 bottom-0 w-4 flex flex-col items-center pointer-events-none">
+                    <div className="h-[58px] flex items-center justify-center">
                       <span className="w-3.5 h-3.5 rounded-full border-[3px] border-emerald-600 bg-white" />
                     </div>
-                    <input
-                      type="text"
-                      value={pickup}
-                      onChange={(e) => setPickup(e.target.value)}
-                      placeholder="Enter pickup point"
-                      className="w-full py-3.5 text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none bg-transparent"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleDetectLocation}
-                      title="Use current GPS location"
-                      className="p-2 text-stone-500 hover:text-emerald-700 transition flex-shrink-0 active:scale-90"
-                    >
-                      <Navigation
-                        size={19}
-                        className={isLocating ? "animate-spin text-emerald-600" : ""}
-                      />
-                    </button>
-                  </div>
-
-                  <div className="my-2" />
-
-                  {/* DROPOFF INPUT */}
-                  <div className="relative flex items-center bg-stone-50/80 rounded-md border border-stone-200 px-3 py-1.5 focus-within:border-amber-600 focus-within:ring-1 focus-within:ring-amber-600/30 transition shadow-2xs">
-                    <div className="w-9 flex items-center justify-center flex-shrink-0">
+                    <div className="w-[2px] flex-1 -my-1.5 bg-gradient-to-b from-emerald-600 to-amber-500 rounded-full" />
+                    <div className="h-[58px] flex items-center justify-center">
                       <span className="w-3 h-3 bg-amber-600 rounded-xs" />
                     </div>
-                    <input
-                      type="text"
-                      value={drop}
-                      onChange={(e) => setDrop(e.target.value)}
-                      placeholder="Enter drop destination"
-                      className="w-full py-3.5 text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none bg-transparent"
-                    />
+                  </div>
+
+                  {/* Input Rows */}
+                  <div className="pl-11 pr-3.5">
+                    {/* Pickup Input Row */}
+                    <div className="h-[58px] flex items-center border-b border-stone-200/80">
+                      <input
+                        type="text"
+                        value={pickup}
+                        onChange={(e) => setPickup(e.target.value)}
+                        placeholder="Enter pickup point"
+                        className="w-full py-3 text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none bg-transparent"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleDetectLocation}
+                        title="Use current GPS location"
+                        className="p-2 text-stone-500 hover:text-emerald-700 transition flex-shrink-0 active:scale-90"
+                      >
+                        <Navigation
+                          size={19}
+                          className={isLocating ? "animate-spin text-emerald-600" : ""}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Dropoff Input Row */}
+                    <div className="h-[58px] flex items-center">
+                      <input
+                        type="text"
+                        value={drop}
+                        onChange={(e) => setDrop(e.target.value)}
+                        placeholder="Enter drop destination"
+                        className="w-full py-3 text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none bg-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -269,20 +266,6 @@ export default function HeroSection({
                   <ArrowRight size={20} strokeWidth={2.5} className="text-amber-300" />
                 </button>
               </form>
-
-              {/* LOCAL INDIAN TRUST & PAYMENT CUES */}
-              <div className="pt-3.5 border-t border-stone-200/80 mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-600 font-semibold">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-extrabold text-stone-800 uppercase tracking-wider text-[10px]">Payment:</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-[11px]">UPI</span>
-                  <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 font-bold text-[11px]">Cash</span>
-                  <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-bold text-[11px]">GPay / PhonePe / Paytm</span>
-                </div>
-                <div className="flex items-center gap-1 text-emerald-700 font-bold text-[11px]">
-                  <CheckCircle2 size={13} />
-                  <span>100% Upfront Price Guarantee</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -290,9 +273,6 @@ export default function HeroSection({
           <div className="lg:col-span-5 hidden lg:flex flex-col justify-between bg-black/55 backdrop-blur-md border border-amber-500/25 rounded-xl p-6 sm:p-7 shadow-2xl text-white">
             <div className="space-y-4">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-black uppercase tracking-wider mb-2">
-                  <span>Local Driver Freedom</span>
-                </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
                   Drive & Earn <br />
                   with RideNow
