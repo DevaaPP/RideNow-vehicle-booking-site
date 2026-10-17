@@ -58,7 +58,9 @@ export function useWakeLock(enabled = true) {
       return;
     }
 
-    request();
+    const timer = setTimeout(() => {
+      request();
+    }, 0);
 
     // Re-acquire lock if page becomes visible again (e.g. driver switched back from Google Maps)
     const handleVisibilityChange = () => {
@@ -70,6 +72,7 @@ export function useWakeLock(enabled = true) {
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
+      clearTimeout(timer);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       release();
     };

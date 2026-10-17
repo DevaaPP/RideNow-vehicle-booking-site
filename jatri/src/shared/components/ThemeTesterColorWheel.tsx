@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Palette, X, RotateCcw, Check } from "lucide-react";
 
 interface ColorPreset {
@@ -62,18 +62,7 @@ export default function ThemeTesterColorWheel() {
   const [navColor, setNavColor] = useState("#000000");
   const [activePreset, setActivePreset] = useState("Uber Pure Black");
 
-  // Load persisted theme on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("ridenow_test_theme");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        applyTheme(parsed.primary, parsed.navBg, parsed.name);
-      }
-    } catch {}
-  }, []);
-
-  const applyTheme = (primary: string, nav: string, name?: string) => {
+  const applyTheme = useCallback((primary: string, nav: string, name?: string) => {
     setCurrentColor(primary);
     setNavColor(nav);
     if (name) setActivePreset(name);
@@ -89,7 +78,21 @@ export default function ThemeTesterColorWheel() {
         JSON.stringify({ primary, navBg: nav, name: name || "Custom" })
       );
     } catch {}
-  };
+  }, []);
+
+  // Load persisted theme on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const saved = localStorage.getItem("ridenow_test_theme");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          applyTheme(parsed.primary, parsed.navBg, parsed.name);
+        }
+      } catch {}
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [applyTheme]);
 
   const handleCustomPrimary = (color: string) => {
     applyTheme(color, navColor, "Custom");
