@@ -103,7 +103,7 @@ export default function HeroSection({
   };
 
   return (
-    <section className="relative w-full bg-[#0B0F19] text-white px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 overflow-hidden">
+    <section className="relative w-full bg-[#0B0F19] text-white px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 lg:pt-24 pb-14 sm:pb-20 lg:pb-28 overflow-hidden">
       {/* ================= GORGEOUS SUNSET CITY SKYLINE (GUWAHATI / ASSAM) ================= */}
       <Image
         src="/hero-city.webp"
@@ -122,7 +122,7 @@ export default function HeroSection({
       <div className="relative z-10 max-w-7xl mx-auto">
         
         {/* HERO HEADLINE */}
-        <div className="mb-8 sm:mb-10 text-left max-w-3xl">
+        <div className="mb-10 sm:mb-14 text-left max-w-3xl">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-md">
             Move anything, <br className="hidden sm:inline" />
             go anywhere.
@@ -133,113 +133,113 @@ export default function HeroSection({
         </div>
 
         {/* 2-COLUMN BALANCED LAYOUT: DIRECT FLOATING BOOKING PANEL + PARTNER HERO (NO BOXES) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-stretch pt-2 sm:pt-4">
           
           {/* ================= LEFT: DIRECT BOOKING PANEL (NO BOXES) ================= */}
           <div className="lg:col-span-7 flex flex-col justify-between text-white">
             <div>
               {/* TRIP MODE SELECTOR TABS */}
-              <div className="inline-flex items-center gap-1.5 p-1 bg-black/50 rounded-xl mb-5 border border-white/10 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2 p-1.5 bg-black/50 rounded-2xl mb-6 border border-white/15 backdrop-blur-md">
                 <button
                   type="button"
                   onClick={() => setTripMode("ride")}
-                  className={`py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`py-3 sm:py-3.5 px-5 sm:px-6 rounded-xl text-sm sm:text-base lg:text-lg font-black transition active:scale-95 flex items-center justify-center gap-2.5 ${
                     tripMode === "ride"
-                      ? "bg-emerald-600 text-white shadow-xs"
+                      ? "bg-emerald-600 text-white shadow-md"
                       : "text-zinc-300 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  <Car size={17} />
+                  <Car size={21} strokeWidth={2.5} />
                   <span>Daily Rides</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setTripMode("cargo")}
-                  className={`py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`py-3 sm:py-3.5 px-5 sm:px-6 rounded-xl text-sm sm:text-base lg:text-lg font-black transition active:scale-95 flex items-center justify-center gap-2.5 ${
                     tripMode === "cargo"
-                      ? "bg-emerald-600 text-white shadow-xs"
+                      ? "bg-emerald-600 text-white shadow-md"
                       : "text-zinc-300 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  <Truck size={17} />
+                  <Truck size={21} strokeWidth={2.5} />
                   <span>Parcel & Cargo</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setTripMode("rental")}
-                  className={`py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`py-3 sm:py-3.5 px-5 sm:px-6 rounded-xl text-sm sm:text-base lg:text-lg font-black transition active:scale-95 flex items-center justify-center gap-2.5 ${
                     tripMode === "rental"
-                      ? "bg-emerald-600 text-white shadow-xs"
+                      ? "bg-emerald-600 text-white shadow-md"
                       : "text-zinc-300 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  <Clock size={17} />
+                  <Clock size={21} strokeWidth={2.5} />
                   <span>Rentals</span>
                 </button>
               </div>
 
               {/* STREAMLINED LOCATION FORM (UBER/RAPIDO UNIFIED CONTAINER) */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="relative bg-white border border-stone-200/90 rounded-xl overflow-hidden shadow-2xl focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-600/20 transition">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="relative bg-white border border-stone-200/90 rounded-2xl overflow-hidden shadow-2xl focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-600/20 transition">
                   {/* Left Transit Icons & Continuous Connector */}
-                  <div className="absolute left-4 top-0 bottom-0 w-4 flex flex-col items-center pointer-events-none">
-                    <div className="h-[58px] flex items-center justify-center">
-                      <span className="w-3.5 h-3.5 rounded-full border-[3px] border-emerald-600 bg-white" />
+                  <div className="absolute left-4 sm:left-5 top-0 bottom-0 w-5 flex flex-col items-center pointer-events-none">
+                    <div className="h-[68px] sm:h-[76px] flex items-center justify-center">
+                      <span className="w-4 h-4 rounded-full border-[3.5px] border-emerald-600 bg-white shadow-xs" />
                     </div>
-                    <div className="w-[2px] flex-1 -my-1.5 bg-gradient-to-b from-emerald-600 to-amber-500 rounded-full" />
-                    <div className="h-[58px] flex items-center justify-center">
-                      <span className="w-3 h-3 bg-amber-600 rounded-xs" />
+                    <div className="w-[2.5px] flex-1 -my-2 bg-gradient-to-b from-emerald-600 via-amber-500 to-amber-600 rounded-full" />
+                    <div className="h-[68px] sm:h-[76px] flex items-center justify-center">
+                      <span className="w-3.5 h-3.5 bg-amber-600 rounded-xs shadow-xs" />
                     </div>
                   </div>
 
                   {/* Input Rows */}
-                  <div className="pl-11 pr-3.5">
+                  <div className="pl-13 sm:pl-15 pr-4">
                     {/* Pickup Input Row */}
-                    <div className="h-[58px] flex items-center border-b border-stone-200/80">
+                    <div className="h-[68px] sm:h-[76px] flex items-center border-b border-stone-200/90">
                       <input
                         type="text"
                         value={pickup}
                         onChange={(e) => setPickup(e.target.value)}
                         placeholder="Enter pickup point"
-                        className="w-full py-3 text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none bg-transparent"
+                        className="w-full py-3 text-lg sm:text-xl md:text-2xl font-black text-stone-900 placeholder:text-stone-400 placeholder:font-bold focus:outline-none bg-transparent"
                       />
                       <button
                         type="button"
                         onClick={handleDetectLocation}
                         title="Use current GPS location"
-                        className="p-2 text-stone-500 hover:text-emerald-700 transition flex-shrink-0 active:scale-90"
+                        className="p-2.5 text-stone-500 hover:text-emerald-700 transition flex-shrink-0 active:scale-90"
                       >
                         <Navigation
-                          size={19}
+                          size={22}
                           className={isLocating ? "animate-spin text-emerald-600" : ""}
                         />
                       </button>
                     </div>
 
                     {/* Dropoff Input Row */}
-                    <div className="h-[58px] flex items-center">
+                    <div className="h-[68px] sm:h-[76px] flex items-center">
                       <input
                         type="text"
                         value={drop}
                         onChange={(e) => setDrop(e.target.value)}
                         placeholder="Enter drop destination"
-                        className="w-full py-3 text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-400 focus:outline-none bg-transparent"
+                        className="w-full py-3 text-lg sm:text-xl md:text-2xl font-black text-stone-900 placeholder:text-stone-400 placeholder:font-bold focus:outline-none bg-transparent"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* TIMING SELECTOR */}
-                <div className="flex items-center gap-2 pt-0.5">
+                <div className="flex items-center gap-3 pt-1">
                   <button
                     type="button"
                     onClick={() => setIsScheduled(false)}
-                    className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition active:scale-95 ${
+                    className={`px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base md:text-lg font-black transition active:scale-95 ${
                       !isScheduled
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "bg-black/50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
+                        ? "bg-emerald-600 text-white shadow-md"
+                        : "bg-black/50 border border-white/15 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                     }`}
                   >
                     Leave Now
@@ -247,10 +247,10 @@ export default function HeroSection({
                   <button
                     type="button"
                     onClick={() => setIsScheduled(true)}
-                    className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition active:scale-95 ${
+                    className={`px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base md:text-lg font-black transition active:scale-95 ${
                       isScheduled
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "bg-black/50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
+                        ? "bg-emerald-600 text-white shadow-md"
+                        : "bg-black/50 border border-white/15 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                     }`}
                   >
                     Schedule Later
@@ -260,10 +260,10 @@ export default function HeroSection({
                 {/* PRIMARY ACTION BUTTON (RICH EMERALD & GOLD ACCENTS) */}
                 <button
                   type="submit"
-                  className="w-full py-4 sm:py-4.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg rounded-xl active:scale-[0.98] transition shadow-xl flex items-center justify-center gap-2.5 cursor-pointer mt-2"
+                  className="w-full py-4.5 sm:py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg sm:text-xl md:text-2xl rounded-2xl active:scale-[0.98] transition shadow-2xl flex items-center justify-center gap-3 cursor-pointer mt-3"
                 >
                   <span>Search Available Rides</span>
-                  <ArrowRight size={20} strokeWidth={2.5} className="text-amber-300" />
+                  <ArrowRight size={24} strokeWidth={3} className="text-amber-300" />
                 </button>
               </form>
             </div>
