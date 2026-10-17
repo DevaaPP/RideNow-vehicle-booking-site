@@ -164,6 +164,9 @@ export function MiniTruckIcon({ size = 56, className = "", ...props }: VehicleIc
 }
 
 export const ExpressMiniIcon = MiniTruckIcon;
+export const AutoIcon = AutoRickshawIcon;
+export const CarIcon = CarPremierIcon;
+export const TruckIcon = FreightTruckIcon;
 
 export const VEHICLE_SVG_ICONS: Record<string, React.ComponentType<VehicleIconProps>> = {
   scooty: ScootyIcon,

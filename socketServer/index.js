@@ -1,6 +1,7 @@
 import express from "express"
 import http from "http"
 import dotenv from "dotenv"
+import cors from "cors"
 import { Server } from "socket.io"
 import axios from "axios"
 
@@ -24,11 +25,44 @@ try {
 }
 
 const app = express()
-app.use(express.json())
 const server = http.createServer(app)
 const port = process.env.PORT || 5000
 
-const nextBaseUrl = process.env.NEXT_BASE_URL ? process.env.NEXT_BASE_URL.replace(/\/$/, "") : "http://localhost:3000";
+// Multi-origin CORS support: accommodates custom domains, comma-separated lists, Vercel preview URLs, and localhost
+const configuredOrigins = (process.env.NEXT_BASE_URL || "")
+  .split(",")
+  .map((o) => o.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true; // Server-to-server or non-browser request
+  if (configuredOrigins.length === 0) return true;
+  if (configuredOrigins.includes(origin)) return true;
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return true;
+  if (/^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(origin)) return true;
+  return false;
+};
+
+const corsDelegate = (origin, callback) => {
+  if (isOriginAllowed(origin)) {
+    return callback(null, true);
+  }
+  return callback(new Error(`[SocketCORS] Blocked request from origin: ${origin}`));
+};
+
+app.use(cors({ origin: corsDelegate, credentials: true }));
+app.use(express.json());
+
+// Public health check routes for cloud container runners (Render, Railway, Fly.io, etc.)
+app.get(["/", "/health"], (req, res) => {
+  res.json({
+    status: "ok",
+    service: "RideNow Realtime Socket Gateway",
+    uptimeSeconds: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 const INTERNAL_SECRET = process.env.SOCKET_INTERNAL_SECRET;
 
 if (!INTERNAL_SECRET) {
@@ -37,7 +71,9 @@ if (!INTERNAL_SECRET) {
 
 const io = new Server(server, {
   cors: {
-    origin: nextBaseUrl,
+    origin: (origin, callback) => callback(null, isOriginAllowed(origin)),
+    credentials: true,
+    methods: ["GET", "POST"],
   },
 })
 

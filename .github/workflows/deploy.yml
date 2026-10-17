@@ -33,6 +33,7 @@ jobs:
         env:
           NEXTAUTH_SECRET: "github-actions-build-secret-32-chars-long"
           NEXTAUTH_URL: "http://localhost:3000"
+          NEXT_PUBLIC_SOCKET_SERVER: "https://socket.ridenow.com"
           NEXT_PUBLIC_SOCKET_SERVER_URL: "https://socket.ridenow.com"
 
       - name: Trigger Vercel Deploy Hook (Optional)

@@ -2,7 +2,7 @@
 
 import { RootState } from "@/redux/store";
 import { motion } from "framer-motion";
-import { Bike, Car, Bus, Truck } from "lucide-react";
+import { BikeIcon, ScootyIcon, AutoIcon, CarIcon, TruckIcon } from "@/shared/components/VehicleIcons";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import Image from "next/image";
@@ -72,12 +72,28 @@ export default function HeroSection({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.35 }}
-          className="mt-8 flex gap-8 text-gray-300"
+          className="mt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-gray-300"
         >
-          <Bike size={30} />
-          <Car size={30} />
-          <Bus size={30} />
-          <Truck size={30} />
+          <div className="flex flex-col items-center gap-1.5 opacity-85 hover:opacity-100 transition">
+            <BikeIcon size={34} />
+            <span className="text-xs text-zinc-300 font-medium">{t("fleet.bike", "Moto")}</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 opacity-85 hover:opacity-100 transition">
+            <ScootyIcon size={34} />
+            <span className="text-xs text-zinc-300 font-medium">{t("fleet.scooty", "Scooty")}</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 opacity-85 hover:opacity-100 transition">
+            <AutoIcon size={34} />
+            <span className="text-xs text-zinc-300 font-medium">{t("fleet.auto", "Auto")}</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 opacity-85 hover:opacity-100 transition">
+            <CarIcon size={34} />
+            <span className="text-xs text-zinc-300 font-medium">{t("fleet.car", "Premier")}</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 opacity-85 hover:opacity-100 transition">
+            <TruckIcon size={34} />
+            <span className="text-xs text-zinc-300 font-medium">{t("fleet.truck", "Freight")}</span>
+          </div>
         </motion.div>
 
         <button
