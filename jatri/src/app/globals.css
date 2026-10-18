@@ -346,3 +346,14 @@ a, button, select, option, [role="button"] {
   }
 }
 
+/* Brand Logo Monochrome Treatment for Dark Theme (matches footer) */
+.dark-logo-invert {
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+:is(.dark, html.dark, .dark *) .dark-logo-invert {
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.95 !important;
+}
+
+

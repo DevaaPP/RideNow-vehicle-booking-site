@@ -160,7 +160,7 @@ export default function PublicTrackPage() {
               alt="Jaatri"
               width={120}
               height={38}
-              className="h-8 w-auto object-contain"
+              className="h-8 w-auto object-contain dark-logo-invert dark:brightness-0 dark:invert dark:opacity-95"
               priority
             />
             <div>

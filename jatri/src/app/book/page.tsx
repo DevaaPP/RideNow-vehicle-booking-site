@@ -2513,7 +2513,7 @@ export default function BookPage() {
                   width={140}
                   height={44}
                   priority
-                  className="h-8 sm:h-9 w-auto object-contain"
+                  className="h-8 sm:h-9 w-auto object-contain dark-logo-invert dark:brightness-0 dark:invert dark:opacity-95"
                 />
               </Link>
             </div>
@@ -2668,7 +2668,7 @@ export default function BookPage() {
                       width={120}
                       height={38}
                       priority
-                      className="h-7 sm:h-8 w-auto object-contain"
+                      className="h-7 sm:h-8 w-auto object-contain dark-logo-invert dark:brightness-0 dark:invert dark:opacity-95"
                     />
                   </Link>
                 </div>

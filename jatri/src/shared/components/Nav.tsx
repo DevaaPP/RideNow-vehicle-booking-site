@@ -309,7 +309,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 alt="Jaatri by RideNow"
                 width={260}
                 height={82}
-                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105"
+                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105 dark-logo-invert dark:brightness-0 dark:invert dark:opacity-95"
                 priority
               />
             </Link>
@@ -439,7 +439,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     alt="Jaatri"
                     width={180}
                     height={66}
-                    className="h-10 w-auto object-contain"
+                    className="h-10 w-auto object-contain dark-logo-invert dark:brightness-0 dark:invert dark:opacity-95"
                   />
                 </Link>
 
