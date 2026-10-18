@@ -50,9 +50,9 @@ export default function Footer() {
                 <Image
                   src="/logojatri.png"
                   alt="Jaatri by RideNow"
-                  width={280}
-                  height={88}
-                  className="h-14 sm:h-16 lg:h-18 w-auto object-contain brightness-0 invert opacity-95"
+                  width={360}
+                  height={114}
+                  className="h-16 sm:h-20 lg:h-24 w-auto object-contain brightness-0 invert opacity-95"
                   priority
                 />
               </Link>
