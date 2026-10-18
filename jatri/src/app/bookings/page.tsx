@@ -211,7 +211,11 @@ export default function MyBookingsPage() {
                           </span>
                         </div>
                         <p className="text-xs sm:text-sm text-[#696B64] mt-0.5 truncate">
-                          {booking.driver?.name ? `Driver: ${booking.driver.name}` : 'Driver assigning...'}
+                          {booking.driver?.name && !["requested", "searching_driver", "no_drivers_available", "expired"].includes(booking.status)
+                            ? `Driver: ${booking.driver.name}`
+                            : booking.status === "cancelled" || booking.status === "expired"
+                            ? "No driver assigned"
+                            : "Searching for nearby driver..."}
                         </p>
                         {booking.isScheduled && booking.scheduledPickupTime && (
                           <div className="inline-flex items-center gap-1.5 bg-[#E5EBDD] text-[#123D32] border border-[#DED7CA] text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-[6px] mt-1.5">
@@ -266,8 +270,8 @@ export default function MyBookingsPage() {
                           </div>
                         )}
 
-                        {/* DRIVER MOBILE NUMBER */}
-                        {booking.driverMobileNumber && (
+                        {/* DRIVER MOBILE NUMBER (ONLY SHOWN FOR CONFIRMED/ACTIVE ASSIGNED RIDES) */}
+                        {booking.driverMobileNumber && !["requested", "searching_driver", "no_drivers_available", "expired", "cancelled"].includes(booking.status) && (
                           <div className="flex items-start gap-2.5 sm:gap-3">
                             <div className="flex-shrink-0 w-6 h-6 bg-[#FAF7F0] border border-[#DED7CA] rounded-full flex items-center justify-center">
                               <Phone className="w-3 h-3 text-[#696B64]" />

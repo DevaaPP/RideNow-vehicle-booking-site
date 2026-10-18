@@ -107,5 +107,11 @@ export async function POST(
     console.error("Socket confirmation payment emit failed:", err);
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    success: true,
+    status: "confirmed",
+    paymentStatus: booking.paymentStatus,
+    pickupOtp: booking.pickupOtp,
+    booking,
+  });
 }

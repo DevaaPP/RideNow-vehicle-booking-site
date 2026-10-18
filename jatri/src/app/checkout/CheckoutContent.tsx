@@ -685,6 +685,8 @@ export default function CheckoutContent() {
           }
           if (["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "started", "ride_started", "ride_in_progress"].includes(data.booking.status)) {
             setStatus("confirmed");
+            window.location.href = `/ride/${data.booking._id}`;
+            return;
           } else {
             setStatus(data.booking.status);
           }

@@ -222,13 +222,14 @@ export async function POST(req: Request) {
       }
     }
 
-    // 1️⃣ Find eligible candidate drivers using DriverMatchingEngine
+    // 1️⃣ Find eligible candidate drivers using DriverMatchingEngine (strictly excluding the requesting passenger)
     const matchResult = await findEligibleCandidates({
       pickupLng: pLng,
       pickupLat: pLat,
       vehicleType: vehicleKey,
       maxRadiusKm: 10,
-      maxCandidates: 5,
+      maxCandidates: 10,
+      excludeDriverIds: session.user.id ? [session.user.id] : [],
     });
 
     let nearestVendor: any = null;
@@ -386,12 +387,10 @@ export async function POST(req: Request) {
           }))
         : undefined;
 
-    const effectiveDriverMobile = nearestVendor.mobileNumber || "9876543210";
-
     const booking = await Booking.create({
       user: session.user.id,
-      driver: nearestVendor._id,
-      vehicle: nearestVehicle?._id,
+      driver: undefined,
+      vehicle: undefined,
       pickupAddress: pickupDetails?.formattedAddress || pickup,
       dropAddress: dropDetails?.formattedAddress || drop,
       pickupDetails: pickupDetails
@@ -445,7 +444,7 @@ export async function POST(req: Request) {
       adminCommission: commissionSplit.adminCommission + userOutstanding,
       partnerAmount: commissionSplit.partnerAmount,
       userMobileNumber: effectiveUserMobile,
-      driverMobileNumber: effectiveDriverMobile,
+      driverMobileNumber: "",
       candidateDrivers: sortedCandidates.map((c) => c._id),
       currentDriverIndex: 0,
       shareToken: `rt_${Math.random().toString(36).substring(2, 10)}${Date.now().toString(36)}`,
@@ -476,28 +475,29 @@ export async function POST(req: Request) {
       status: isScheduled ? "scheduled" : "requested",
     });
 
-    // 4️⃣ Safely emit socket event to driver and booking room
-    try {
-      const eventName = isScheduled ? "new-scheduled-booking" : "new-booking";
-      await emitSocketEvent({
-        userId: nearestVendor._id.toString(),
-        event: eventName,
-        data: booking,
-      });
-    } catch (err) {
-      console.warn("Socket emission error (booking still active):", err);
-    }
+    // 4️⃣ Safely broadcast socket events and Web Push to ALL candidate drivers simultaneously
+    const eventName = isScheduled ? "new-scheduled-booking" : "new-booking";
+    for (const candidate of sortedCandidates) {
+      try {
+        await emitSocketEvent({
+          userId: candidate._id.toString(),
+          event: eventName,
+          data: booking,
+        });
+      } catch (err) {
+        console.warn(`Socket emission error to candidate ${candidate._id}:`, err);
+      }
 
-    // 5️⃣ Send Web Push notification to candidate driver
-    try {
-      await sendPushToUser(nearestVendor._id.toString(), {
-        title: isScheduled ? "New Scheduled Ride Request! 📅" : "New Ride Request! 🚨",
-        body: `Pickup: ${pickup.length > 35 ? pickup.slice(0, 32) + "..." : pickup} | Fare: ₹${calculatedFare}. Tap to view.`,
-        url: "/partner",
-        tag: `booking-new-${booking._id.toString()}`,
-      });
-    } catch (pushErr) {
-      console.warn("Web Push to driver failed (continuing):", pushErr);
+      try {
+        await sendPushToUser(candidate._id.toString(), {
+          title: isScheduled ? "New Scheduled Ride Request! 📅" : "New Ride Request! 🚨",
+          body: `Pickup: ${pickup.length > 35 ? pickup.slice(0, 32) + "..." : pickup} | Fare: ₹${calculatedFare}. Tap to view.`,
+          url: "/partner",
+          tag: `booking-new-${booking._id.toString()}`,
+        });
+      } catch (pushErr) {
+        console.warn(`Web Push to candidate ${candidate._id} failed (continuing):`, pushErr);
+      }
     }
 
     const populatedBooking = await Booking.findById(booking._id)

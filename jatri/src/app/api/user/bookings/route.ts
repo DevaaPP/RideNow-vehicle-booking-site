@@ -52,11 +52,26 @@ export async function GET(req: NextRequest) {
 
     const totalPages = Math.max(1, Math.ceil(total / limit));
 
+    const sanitizedBookings = (bookings || []).map((b: any) => {
+      const isUnconfirmed = ["requested", "searching_driver", "no_drivers_available", "expired"].includes(b.status);
+      const isSelfDriver = b.driver && (b.driver._id?.toString() === session.user.id || b.driver.toString() === session.user.id);
+      const isCancelledWithoutAcceptedDriver = b.status === "cancelled" && !b.acceptedAt;
+
+      if (isUnconfirmed || isSelfDriver || isCancelledWithoutAcceptedDriver) {
+        return {
+          ...b,
+          driver: null,
+          driverMobileNumber: "",
+        };
+      }
+      return b;
+    });
+
     // 5️⃣ Success Response
     return NextResponse.json(
       {
         success: true,
-        bookings: bookings || [],
+        bookings: sanitizedBookings,
         pagination: {
           page,
           limit,

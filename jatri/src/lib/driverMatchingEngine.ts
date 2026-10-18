@@ -118,9 +118,19 @@ export async function findEligibleCandidates(options: {
     .lean();
   const delinquentUserIds = delinquentWallets.map((w) => w.userId);
 
-  // Fetch online vendors first, excluding blocked and debt-delinquent drivers
+  const rawExcluded: any[] = [
+    ...delinquentUserIds,
+    ...excludeDriverIds.map((id) => id.toString()),
+  ];
+  for (const id of excludeDriverIds) {
+    try {
+      rawExcluded.push(typeof id === "string" ? new Types.ObjectId(id) : id);
+    } catch (_) {}
+  }
+
+  // Fetch online vendors first, excluding blocked, debt-delinquent, and explicitly excluded drivers (e.g. the passenger)
   const onlineVendors = await User.find({
-    _id: { $nin: delinquentUserIds },
+    _id: { $nin: rawExcluded },
     isOnline: { $in: [true, "true"] },
     isVendorBlocked: { $ne: true },
     location: { $exists: true },

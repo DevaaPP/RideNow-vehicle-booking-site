@@ -857,7 +857,13 @@ export default function RidePage() {
   const isCompleted = status === "completed";
   /* chat only when driver heading to pickup, not yet started */
   const canChat     = status === "confirmed";
-  const showDriver  = ["confirmed", "started", "completed"].includes(status) && !!booking.driver;
+  const riderIdStr  = (booking.user?._id || booking.user)?.toString();
+  const driverIdStr = (booking.driver?._id || booking.driver)?.toString();
+  const riderPhone  = booking.userMobileNumber?.replace(/\D/g, "");
+  const driverPhone = booking.driverMobileNumber?.replace(/\D/g, "");
+  const isSamePhone = Boolean(riderPhone && driverPhone && riderPhone.length >= 10 && riderPhone === driverPhone);
+  const isSelfDriver = Boolean((driverIdStr && riderIdStr && driverIdStr === riderIdStr) || isSamePhone);
+  const showDriver  = ["confirmed", "started", "completed"].includes(status) && Boolean(booking.driver) && !isSelfDriver;
 
   const initialTripEta = (pickupPos && dropPos)
     ? Math.max(3, Math.round((haversineKm(pickupPos[0], pickupPos[1], dropPos[0], dropPos[1]) / 25) * 60))
@@ -986,15 +992,18 @@ export default function RidePage() {
             )}
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto scrollbar-hide">
-          <PanelContent {...panelProps} />
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F7F1E5]">
+          <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <PanelContent {...panelProps} />
+          </div>
+          <ActionBar {...panelProps} />
         </div>
       </motion.div>
 
       {/* ══ SWIPE BOTTOM SHEET (< lg) ══ */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
-          className="bg-[#F7F1E5] rounded-t-[16px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] flex flex-col"
+          className="bg-[#FAF7F0] rounded-t-[16px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] flex flex-col"
           animate={{ height: expanded ? "82vh" : PEEK_H }}
           transition={{ type: "spring", stiffness: 340, damping: 34 }}
         >
@@ -1048,9 +1057,10 @@ export default function RidePage() {
               </div>
             </div>
           </motion.div>
-          <div className="flex-1 overflow-y-auto min-h-0 pb-10">
+          <div className="flex-1 overflow-y-auto min-h-0 bg-[#F7F1E5]">
             <PanelContent {...panelProps} />
           </div>
+          <ActionBar {...panelProps} />
         </motion.div>
       </div>
       {/* Custom Confirm Cancel Modal with Reason & Penalty Warning */}
@@ -1535,6 +1545,75 @@ export default function RidePage() {
 
 
 /* ══════════════════════════════════════════════════════════════════════
+   ACTION BAR (Pinned persistent footer matching /partner/active-ride)
+══════════════════════════════════════════════════════════════════════ */
+function ActionBar({
+  booking, status, onCancel, onPanicClick, paymentProcessing, onPayNow, paymentMethod,
+}: any) {
+  if (status === "awaiting_payment") {
+    return (
+      <div className="flex-shrink-0 border-t border-[#DED7CA] bg-[#FAF7F0] p-3 sm:p-4 shadow-md">
+        <button
+          type="button"
+          onClick={onPayNow}
+          disabled={paymentProcessing}
+          className="w-full bg-[#123D32] hover:bg-[#0D3027] disabled:opacity-50 text-white py-3.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] shadow-sm"
+        >
+          {paymentProcessing ? (
+            <>
+              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>Processing Payment...</span>
+            </>
+          ) : (
+            <span>Confirm Ride &bull; {paymentMethod === "cash" ? "Pay Cash" : paymentMethod === "wallet" ? "Pay Wallet" : "Pay UPI/Card"}</span>
+          )}
+        </button>
+      </div>
+    );
+  }
+
+  if (status === "requested" || status === "scheduled") {
+    return (
+      <div className="flex-shrink-0 border-t border-[#DED7CA] bg-[#FAF7F0] p-3 sm:p-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="w-full bg-white hover:bg-[#B83A24]/10 text-[#B83A24] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+        >
+          {status === "scheduled" ? "Cancel Scheduled Ride" : "Cancel Ride Request"}
+        </button>
+      </div>
+    );
+  }
+
+  if (["confirmed", "started"].includes(status)) {
+    return (
+      <div className="flex-shrink-0 border-t border-[#DED7CA] bg-[#FAF7F0] p-3 sm:p-4 flex gap-2">
+        {!booking?.isPanicActive && (
+          <button
+            type="button"
+            onClick={onPanicClick}
+            className="flex-1 bg-[#B83A24] hover:bg-[#a0321e] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition flex items-center justify-center gap-1.5 active:scale-[0.99] cursor-pointer shadow-xs"
+          >
+            <Siren size={15} className="animate-pulse" />
+            <span>Emergency SOS</span>
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 bg-white hover:bg-[#B83A24]/10 text-[#B83A24] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+        >
+          Cancel Ride
+        </button>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
    PANEL CONTENT
 ══════════════════════════════════════════════════════════════════════ */
 function PanelContent({
@@ -1650,11 +1729,18 @@ function PanelContent({
       {/* SEARCHING (requested) */}
       {status === "requested" && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[12px] p-4 flex items-center gap-3 shadow-xs">
-            <div className="w-8 h-8 rounded-full border-2 border-[#123D32]/20 border-t-[#123D32] animate-spin flex-shrink-0" />
-            <div>
+          <div className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[12px] p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="relative flex items-center justify-center flex-shrink-0">
+              <span className="w-10 h-10 rounded-full bg-[#123D32]/10 animate-ping absolute" />
+              <div className="w-10 h-10 rounded-full bg-[#123D32] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                <Car size={18} className="animate-pulse" />
+              </div>
+            </div>
+            <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-wider text-[#10251C]">Finding your driver</p>
-              <p className="text-xs text-[#696B64] mt-0.5 font-medium">Scanning nearby verified partners within radius</p>
+              <p className="text-xs text-[#696B64] mt-0.5 font-medium leading-relaxed">
+                Broadcasting request to all nearby verified drivers. First to accept will confirm your ride.
+              </p>
             </div>
           </div>
         </div>
@@ -2047,30 +2133,6 @@ function PanelContent({
               )}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* CANCEL BUTTON */}
-      {["requested", "awaiting_payment", "confirmed", "scheduled"].includes(status) && (
-        <div className="mx-4 lg:mx-6 mt-1">
-          <button
-            onClick={onCancel}
-            className="w-full bg-white hover:bg-[#B83A24]/10 text-[#B83A24] py-3.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition-all border border-[#DED7CA] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
-          >
-            {status === "scheduled" ? "Cancel Scheduled Ride" : "Cancel Ride"}
-          </button>
-        </div>
-      )}
-
-      {/* EMERGENCY SOS BUTTON */}
-      {["confirmed", "started"].includes(status) && !booking?.isPanicActive && (
-        <div className="mx-4 lg:mx-6 mt-1">
-          <button
-            onClick={onPanicClick}
-            className="w-full bg-[#B83A24] hover:bg-[#a0321e] text-white font-bold py-3.5 rounded-[8px] text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer shadow-sm"
-          >
-            <Siren size={16} className="animate-pulse" /> Emergency SOS Alert
-          </button>
         </div>
       )}
 

@@ -62,8 +62,8 @@ export interface IAddressDetails {
 
 export interface IBooking extends Document {
   user: Types.ObjectId;
-  driver: Types.ObjectId;
-  vehicle: Types.ObjectId;
+  driver?: Types.ObjectId;
+  vehicle?: Types.ObjectId;
 
   pickupAddress: string;
   dropAddress: string;
@@ -197,8 +197,8 @@ export interface IBooking extends Document {
 const BookingSchema = new Schema<IBooking>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    driver: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    vehicle: { type: Schema.Types.ObjectId, ref: "Vehicle", required: true },
+    driver: { type: Schema.Types.ObjectId, ref: "User", required: false, index: true },
+    vehicle: { type: Schema.Types.ObjectId, ref: "Vehicle", required: false },
 
     pickupAddress: { type: String, required: true },
     dropAddress: { type: String, required: true },

@@ -57,7 +57,12 @@ export async function GET() {
     // Match recent unaccepted requests within active dispatch horizon (last 5 minutes)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     const bookings = await Booking.find({
-      driver: { $in: driverIds },
+      $or: [
+        { candidateDrivers: { $in: driverIds } },
+        { driver: { $in: driverIds } },
+        { driver: null },
+        { driver: { $exists: false } },
+      ],
       status: { $in: ["requested", "searching_driver"] },
       createdAt: { $gte: fiveMinutesAgo },
     })

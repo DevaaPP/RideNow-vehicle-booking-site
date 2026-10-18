@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
 import Booking from "@/models/booking.model";
+import User from "@/models/user.model";
+import Vehicle from "@/models/vehicle.model";
 import Wallet from "@/models/wallet.model";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
@@ -108,8 +110,25 @@ export async function POST(
   const duration = 15;
   const now = new Date();
 
+  let driverPhone = "";
+  let driverVehicleId: any = undefined;
+  if (actorId) {
+    const [driverUser, driverVehicle] = await Promise.all([
+      User.findById(actorId).select("mobileNumber name").lean(),
+      Vehicle.findOne({ owner: actorId, status: { $ne: "rejected" } }).select("_id").lean(),
+    ]);
+    if (driverUser?.mobileNumber) {
+      driverPhone = driverUser.mobileNumber;
+    }
+    if (driverVehicle?._id) {
+      driverVehicleId = driverVehicle._id;
+    }
+  }
+
   const payload: any = {
     driver: actorId || undefined,
+    vehicle: driverVehicleId || undefined,
+    driverMobileNumber: driverPhone || "",
     acceptedAt: now,
     paymentDeadline: new Date(Date.now() + 5 * 60 * 1000),
     estimatedDropoffTime: new Date(Date.now() + duration * 60 * 1000),
