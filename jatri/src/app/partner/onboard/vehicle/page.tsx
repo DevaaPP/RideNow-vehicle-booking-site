@@ -128,47 +128,47 @@ export default function PartnerVehiclePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
+    <div className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="w-full max-w-xl mx-auto bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 sm:p-10 shadow-sm"
+        className="w-full max-w-xl mx-auto bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 sm:p-10 shadow-sm"
       >
         {/* ================= HEADER ================= */}
-        <div className="relative border-b border-[#DED7CA]/70 pb-6 mb-6">
+        <div className="relative border-b border-[#DED7CA]/70 dark:border-[#29372E] pb-6 mb-6">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
               aria-label="Go back"
-              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] bg-white flex items-center justify-center hover:bg-[#FAF7F0] text-[#10251C] transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] bg-white dark:bg-[#1E2B23] flex items-center justify-center hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
 
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64]">
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#929D93]">
               Step 01 / 03
             </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C]">
+          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
             Vehicle Fleet Details
           </h1>
 
-          <p className="text-xs sm:text-sm text-[#696B64] mt-1 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B8C2B8] mt-1 leading-relaxed">
             Select your fleet classification and specify registered vehicle identity.
           </p>
 
           {completed && !editMode && (
-            <div className="mt-4 p-3 bg-white border border-[#DED7CA] rounded-[8px] flex items-center justify-between shadow-xs">
-              <div className="flex items-center gap-2 text-[#10251C] text-xs font-semibold">
-                <CheckCircle size={15} className="text-[#123D32]" />
+            <div className="mt-4 p-3 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2 text-[#10251C] dark:text-[#F3F1E8] text-xs font-semibold">
+                <CheckCircle size={15} className="text-[#123D32] dark:text-[#347858]" />
                 <span>Vehicle details recorded on file</span>
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-mono font-bold text-[#123D32] underline flex items-center gap-1 hover:text-[#0D3027] uppercase tracking-wider cursor-pointer"
+                className="text-xs font-mono font-bold text-[#123D32] dark:text-[#347858] underline flex items-center gap-1 hover:text-[#0D3027] dark:hover:text-[#28664D] uppercase tracking-wider cursor-pointer"
               >
                 <Pencil size={12} />
                 Edit
@@ -185,7 +185,7 @@ export default function PartnerVehiclePage() {
         >
           {/* VEHICLE TYPE */}
           <div>
-            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] block mb-2.5">
+            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#929D93] block mb-2.5">
               Vehicle Classification
             </label>
 
@@ -202,8 +202,8 @@ export default function PartnerVehiclePage() {
                     className={`rounded-[10px] border p-3.5 flex flex-col items-start gap-2 transition-colors text-left cursor-pointer
                       ${
                         active
-                          ? "bg-[#123D32] text-white border-[#123D32] shadow-xs"
-                          : "border-[#DED7CA] hover:border-[#123D32]/40 bg-white text-[#10251C]"
+                          ? "bg-[#123D32] dark:bg-[#28664D] text-white border-[#123D32] dark:border-[#28664D] shadow-xs"
+                          : "border-[#DED7CA] dark:border-[#29372E] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/50 bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]"
                       }`}
                   >
                     <div
@@ -211,7 +211,7 @@ export default function PartnerVehiclePage() {
                         ${
                           active
                             ? "bg-white/20 text-white"
-                            : "bg-[#E5EBDD] text-[#123D32]"
+                            : "bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858]"
                         }`}
                     >
                       <Icon size={15} />
@@ -223,7 +223,7 @@ export default function PartnerVehiclePage() {
                       </p>
                       <p
                         className={`text-[10px] leading-tight mt-0.5 font-mono ${
-                          active ? "text-[#E5EBDD]/80" : "text-[#696B64]"
+                          active ? "text-[#E5EBDD]/80" : "text-[#696B64] dark:text-[#929D93]"
                         }`}
                       >
                         {v.desc}
@@ -237,7 +237,7 @@ export default function PartnerVehiclePage() {
 
           {/* VEHICLE NUMBER */}
           <div>
-            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] block mb-1.5">
+            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#929D93] block mb-1.5">
               Registration Certificate (RC) Number
             </label>
             <input
@@ -246,30 +246,30 @@ export default function PartnerVehiclePage() {
                 setVehicleNumber(e.target.value.toUpperCase())
               }
               placeholder="e.g. AS01AB1234"
-              className="w-full border border-[#DED7CA] rounded-[8px] p-3 text-sm focus:outline-none focus:border-[#123D32] transition-colors bg-white text-[#10251C] uppercase font-mono tracking-wider"
+              className="w-full border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] p-3 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] transition-colors bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] uppercase font-mono tracking-wider"
             />
-            <p className="text-[10px] font-mono text-[#696B64] mt-1">
+            <p className="text-[10px] font-mono text-[#696B64] dark:text-[#929D93] mt-1">
               Must match the vehicle RC document uploaded in Step 2.
             </p>
           </div>
 
           {/* VEHICLE MODEL */}
           <div>
-            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] block mb-1.5">
+            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#929D93] block mb-1.5">
               Vehicle Model & Manufacturer Specs
             </label>
             <input
               value={vehicleModel}
               onChange={(e) => setVehicleModel(e.target.value)}
               placeholder="e.g. Maruti Suzuki WagonR 2023 / Tata Ace 1.5T"
-              className="w-full border border-[#DED7CA] rounded-[8px] p-3 text-sm focus:outline-none focus:border-[#123D32] transition-colors bg-white text-[#10251C]"
+              className="w-full border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] p-3 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] transition-colors bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]"
             />
           </div>
         </div>
 
         {/* ERROR */}
         {error && (
-          <div className="mt-4 p-3 rounded-[8px] bg-[#B83A24]/10 border border-[#B83A24] text-xs text-[#B83A24] font-mono">
+          <div className="mt-4 p-3 rounded-[8px] bg-[#B83A24]/10 dark:bg-red-950/30 border border-[#B83A24] dark:border-red-900/50 text-xs text-[#B83A24] dark:text-[#E06A50] font-mono">
             {error}
           </div>
         )}
@@ -279,7 +279,7 @@ export default function PartnerVehiclePage() {
           whileTap={{ scale: 0.99 }}
           disabled={loading}
           onClick={submitVehicle}
-          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] text-white font-bold text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
         >
           <span>
             {completed && !editMode

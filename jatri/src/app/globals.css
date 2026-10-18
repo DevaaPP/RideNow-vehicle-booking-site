@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "maplibre-gl/dist/maplibre-gl.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: var(--font-inter), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-heading: var(--font-serif), 'DM Serif Display', Georgia, serif;
@@ -33,6 +35,30 @@
   --color-warm-border: #DED7CA;
   --color-muted-text: #696B64;
 
+  /* Semantic Theme Tokens - Light Mode Default */
+  --background: #F7F1E5;
+  --surface: #FAF7F0;
+  --surface-raised: #FFFFFF;
+  --surface-subtle: #E5EBDD;
+  --surface-inverse: #101713;
+
+  --text-primary: #10251C;
+  --text-secondary: #4A554E;
+  --text-muted: #696B64;
+  --text-inverse: #F3F1E8;
+
+  --brand-primary: #123D32;
+  --brand-strong: #0D3027;
+  --brand-hover: #0D3027;
+  --brand-subtle: #E5EBDD;
+  --accent-vermilion: #B83A24;
+  --accent-gold: #C28B38;
+
+  --border-default: #DED7CA;
+  --border-subtle: #E8E2D8;
+  --focus-ring: #123D32;
+  --overlay: rgba(16, 37, 28, 0.45);
+
   --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: 'DM Serif Display', Georgia, Cambria, serif;
   font-family: var(--font-inter);
@@ -52,6 +78,32 @@
   /* Apple-inspired physical response curves & spring parameters */
   --ease-apple-spring: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-apple-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark, html.dark {
+  /* Semantic Theme Tokens - Nighttime Forest Green Counterpart */
+  --background: #101713;
+  --surface: #17211B;
+  --surface-raised: #1E2B23;
+  --surface-subtle: #202B24;
+  --surface-inverse: #F7F1E5;
+
+  --text-primary: #F3F1E8;
+  --text-secondary: #B8C2B8;
+  --text-muted: #929D93;
+  --text-inverse: #10251C;
+
+  --brand-primary: #28664D;
+  --brand-strong: #347858;
+  --brand-hover: #388463;
+  --brand-subtle: #1D3428;
+  --accent-vermilion: #E06A50;
+  --accent-gold: #D7AC62;
+
+  --border-default: #34443A;
+  --border-subtle: #29372E;
+  --focus-ring: #347858;
+  --overlay: rgba(0, 0, 0, 0.75);
 }
 
 /* Accessibility & Zoom Optimization */
@@ -177,19 +229,12 @@ a, button, select, option, [role="button"] {
   filter: contrast(1.04) brightness(1.01);
 }
 
-/* ===== APPLE DESIGN SYSTEM FOUNDATIONS (WWDC FLUID INTERFACES) ===== */
-:root {
-  --font-apple-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", system-ui, sans-serif;
-  --font-apple-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
-  --apple-spring-curve: cubic-bezier(0.32, 0.72, 0, 1);
-  --apple-fast-curve: cubic-bezier(0.16, 1, 0.3, 1);
+.dark .maplibre-map-container {
+  background-color: #101713;
 }
 
-body {
-  font-family: var(--font-inter), var(--font-apple-system), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+.dark .maplibre-map-container .maplibregl-canvas {
+  filter: brightness(0.85) contrast(1.15) invert(0.9) hue-rotate(185deg);
 }
 
 /* Translucent Apple Materials (Frosted Glass & Depth) */
@@ -201,6 +246,12 @@ body {
   box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
 }
 
+.dark .apple-glass-panel {
+  background: rgba(23, 33, 27, 0.88);
+  border: 1px solid rgba(52, 68, 58, 0.7);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.25);
+}
+
 .apple-glass-card {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px) saturate(180%);
@@ -209,11 +260,22 @@ body {
   box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05);
 }
 
+.dark .apple-glass-card {
+  background: rgba(30, 43, 35, 0.75);
+  border: 1px solid rgba(52, 68, 58, 0.6);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.3);
+}
+
 .apple-glass-topbar {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dark .apple-glass-topbar {
+  background: rgba(16, 23, 19, 0.85);
+  border-bottom: 1px solid rgba(52, 68, 58, 0.4);
 }
 
 /* Apple Tap Feedback (Direct, Physical Spring Response) */

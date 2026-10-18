@@ -58,7 +58,7 @@ export default async function PartnersDashboardPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white">
+    <div className="w-full min-h-screen bg-[#F7F1E5] dark:bg-[#101713] transition-colors">
       <Nav user={initialUserData} />
       <GeoUpdater userId={session?.user?.id} />
       <VendorDashboard

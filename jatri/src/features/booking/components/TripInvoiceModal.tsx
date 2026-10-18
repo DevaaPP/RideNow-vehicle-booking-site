@@ -46,32 +46,32 @@ export default function TripInvoiceModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="w-full max-w-2xl bg-white rounded-none shadow-2xl border-2 border-zinc-950 overflow-hidden flex flex-col my-auto max-h-[95vh]"
+        className="w-full max-w-2xl bg-white rounded-[14px] shadow-2xl border border-[#DED7CA] dark:border-[#34443A] overflow-hidden flex flex-col my-auto max-h-[95vh]"
       >
         {/* Modal Controls Bar (Hidden during Print) */}
-        <div className="print:hidden bg-zinc-950 px-4 py-3 flex items-center justify-between text-white">
+        <div className="print:hidden bg-[#123D32] dark:bg-[#101713] border-b border-[#0D3027] dark:border-[#34443A] px-4 py-3 flex items-center justify-between text-white">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-none bg-emerald-400" />
-            <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider font-mono">
+            <span className="w-2 h-2 rounded-full bg-[#A3E635]" />
+            <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider font-mono">
               Tax Invoice Preview • {invoiceNumber}
             </h3>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="bg-white hover:bg-zinc-200 text-zinc-950 px-3 py-1.5 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition cursor-pointer"
+              className="bg-white hover:bg-[#F7F1E5] text-[#123D32] px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-[8px] flex items-center gap-1.5 transition cursor-pointer shadow-xs"
             >
               <Printer size={13} />
               <span>Print / Save PDF</span>
             </button>
             <button
               onClick={onClose}
-              className="w-7 h-7 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+              className="w-7 h-7 rounded-[8px] bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer"
               aria-label="Close"
             >
               <X size={15} />

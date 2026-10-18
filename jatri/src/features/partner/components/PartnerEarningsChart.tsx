@@ -36,11 +36,11 @@ const CustomTooltip = ({
 }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border border-zinc-300 rounded-none p-3 shadow-none min-w-[130px]">
-        <p className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest mb-1">
+      <div className="bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] p-3 shadow-md min-w-[130px]">
+        <p className="text-[10px] font-mono font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-widest mb-1">
           {label}
         </p>
-        <p className="text-lg font-bold text-zinc-950 font-mono">
+        <p className="text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] font-mono">
           ₹{payload[0].value.toLocaleString("en-IN")}
         </p>
       </div>
@@ -99,39 +99,39 @@ export default function PartnerEarningsChart() {
   ];
 
   return (
-    <div className="bg-white rounded-none border border-zinc-300 p-5 sm:p-7 shadow-none">
+    <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-5 sm:p-7 shadow-sm">
       {/* Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b border-zinc-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b border-[#DED7CA] dark:border-[#29372E]">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-none bg-zinc-950 inline-block" />
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500">
+            <span className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#347858] inline-block" />
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#929D93]">
               Revenue Analytics
             </span>
           </div>
-          <h2 className="text-lg sm:text-xl font-bold text-zinc-950 tracking-tight font-sans">
+          <h2 className="text-lg sm:text-xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
             7-Day Performance Ledger
           </h2>
-          <p className="text-xs text-zinc-500 mt-0.5 font-mono">
+          <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] mt-0.5 font-sans">
             Daily verified fare settlements
           </p>
         </div>
 
         <div className="sm:text-right">
-          <p className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest mb-0.5">
+          <p className="text-[10px] font-mono font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-widest mb-0.5">
             Trailing 7-Day Gross
           </p>
           <motion.p
             key={total}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl sm:text-3xl font-bold text-zinc-950 font-mono tracking-tight"
+            className="text-2xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] font-mono tracking-tight"
           >
             {fmt(total)}
           </motion.p>
           <div
             className={`flex items-center sm:justify-end gap-1 text-[11px] font-mono mt-0.5 ${
-              deltaPositive ? "text-zinc-900" : "text-zinc-600"
+              deltaPositive ? "text-[#123D32] dark:text-[#347858]" : "text-[#B83A24] dark:text-[#E06A50]"
             }`}
           >
             {deltaPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
@@ -148,17 +148,17 @@ export default function PartnerEarningsChart() {
             initial={{ opacity: 0, y: 6 }}
             animate={loaded ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: i * 0.05, duration: 0.3 }}
-            className="bg-zinc-50 rounded-none border border-zinc-200 p-3.5 flex flex-col justify-between"
+            className="bg-[#F7F1E5] dark:bg-[#101713] rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] p-3.5 flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between text-zinc-500 text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
               <span>{m.label}</span>
-              <span className="text-zinc-950">{m.icon}</span>
+              <span className="text-[#123D32] dark:text-[#347858]">{m.icon}</span>
             </div>
             <div>
-              <p className="text-base sm:text-lg font-bold text-zinc-950 font-mono leading-none">
+              <p className="text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] font-mono leading-none">
                 {m.value}
               </p>
-              <p className="text-[10px] font-mono text-zinc-400 mt-1">{m.sub}</p>
+              <p className="text-[10px] font-mono text-[#696B64] dark:text-[#929D93] mt-1">{m.sub}</p>
             </div>
           </motion.div>
         ))}
@@ -175,28 +175,28 @@ export default function PartnerEarningsChart() {
           >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} barCategoryGap="25%">
-                <CartesianGrid strokeDasharray="2 2" stroke="#e4e4e7" vertical={false} />
+                <CartesianGrid strokeDasharray="2 2" stroke="currentColor" className="text-[#DED7CA] dark:text-[#29372E]" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 10, fill: "#71717a", fontFamily: "monospace" }}
-                  axisLine={{ stroke: "#d4d4d8" }}
+                  tick={{ fontSize: 10, fill: "#929D93", fontFamily: "monospace" }}
+                  axisLine={{ stroke: "#DED7CA" }}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 10, fill: "#71717a", fontFamily: "monospace" }}
-                  axisLine={{ stroke: "#d4d4d8" }}
+                  tick={{ fontSize: 10, fill: "#929D93", fontFamily: "monospace" }}
+                  axisLine={{ stroke: "#DED7CA" }}
                   tickLine={false}
                   tickFormatter={(v) => "₹" + (v >= 1000 ? (v / 1000).toFixed(0) + "k" : v)}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f4f4f5" }} />
-                <Bar dataKey="earnings" radius={[0, 0, 0, 0]}>
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "currentColor", className: "text-[#123D32]/5 dark:text-[#FAF7F0]/5" }} />
+                <Bar dataKey="earnings" radius={[6, 6, 0, 0]}>
                   {data.map((entry, index) => {
                     const isToday = index === data.length - 1;
                     const isBest = entry.earnings === max && !isToday;
                     return (
                       <Cell
                         key={`cell-${index}`}
-                        fill={isToday ? "#18181b" : isBest ? "#3f3f46" : "#a1a1aa"}
+                        fill={isToday ? "#123D32" : isBest ? "#D7AC62" : "#929D93"}
                       />
                     );
                   })}

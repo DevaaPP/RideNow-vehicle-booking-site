@@ -26,7 +26,7 @@ export default function RideFailedView({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen w-full bg-zinc-950 flex flex-col items-center justify-center px-6 py-8"
+      className="min-h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex flex-col items-center justify-center px-6 py-8"
     >
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
@@ -38,18 +38,18 @@ export default function RideFailedView({
           className={`w-24 h-24 rounded-full flex items-center justify-center ${
             isExpired || isNoDriver
               ? "bg-amber-500/10 border border-amber-500/20"
-              : "bg-red-500/10 border border-red-500/20"
+              : "bg-[#B83A24]/10 border border-[#B83A24]/20"
           }`}
         >
           <div
             className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              isExpired || isNoDriver ? "bg-amber-500/20" : "bg-red-500/20"
+              isExpired || isNoDriver ? "bg-amber-500/20" : "bg-[#B83A24]/20"
             }`}
           >
             {isExpired || isNoDriver ? (
-              <AlertCircle size={36} className="text-amber-400" />
+              <AlertCircle size={36} className="text-amber-600 dark:text-amber-400" />
             ) : (
-              <XCircle size={36} className="text-red-400" />
+              <XCircle size={36} className="text-[#B83A24] dark:text-[#E06A50]" />
             )}
           </div>
         </div>
@@ -61,22 +61,22 @@ export default function RideFailedView({
         transition={{ delay: 0.15, duration: 0.4 }}
         className="w-full max-w-sm text-center"
       >
-        <h1 className="text-white text-2xl font-black mb-1">{label}</h1>
-        <p className="text-zinc-500 text-xs mb-6">{sublabel}</p>
+        <h1 className="text-[#10251C] dark:text-[#F3F1E8] text-2xl font-black mb-1">{label}</h1>
+        <p className="text-[#696B64] dark:text-[#929D93] text-xs mb-6">{sublabel}</p>
 
         {status === "cancelled" && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-6 text-left space-y-2.5">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-4 mb-6 text-left space-y-2.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-zinc-400 font-semibold">Reason</span>
-              <span className="text-zinc-200 font-bold max-w-[200px] truncate text-right">
+              <span className="text-[#696B64] dark:text-[#929D93] font-semibold">Reason</span>
+              <span className="text-[#10251C] dark:text-[#F3F1E8] font-bold max-w-[200px] truncate text-right">
                 {booking.cancellationReason || "Cancelled by passenger"}
               </span>
             </div>
-            <div className="flex items-center justify-between text-xs pt-2 border-t border-zinc-800">
-              <span className="text-zinc-400 font-semibold">Cancellation Fee</span>
+            <div className="flex items-center justify-between text-xs pt-2 border-t border-[#DED7CA] dark:border-[#34443A]">
+              <span className="text-[#696B64] dark:text-[#929D93] font-semibold">Cancellation Fee</span>
               <span
                 className={`font-bold ${
-                  booking.cancellationFeeApplied ? "text-amber-400" : "text-emerald-400"
+                  booking.cancellationFeeApplied ? "text-amber-600 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"
                 }`}
               >
                 {booking.cancellationFeeApplied && booking.cancellationFee
@@ -85,34 +85,34 @@ export default function RideFailedView({
               </span>
             </div>
             {booking.paymentStatus === "refunded" && (
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-zinc-800">
-                <span className="text-zinc-400 font-semibold">Refund Status</span>
-                <span className="text-emerald-400 font-bold">Processed to Wallet</span>
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-[#DED7CA] dark:border-[#34443A]">
+                <span className="text-[#696B64] dark:text-[#929D93] font-semibold">Refund Status</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-bold">Processed to Wallet</span>
               </div>
             )}
           </div>
         )}
 
         {/* Route recap */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden mb-6 text-left">
-          <div className="flex gap-3 p-4 border-b border-zinc-800">
+        <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] overflow-hidden mb-6 text-left">
+          <div className="flex gap-3 p-4 border-b border-[#DED7CA] dark:border-[#34443A]">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
-              <div className="w-px bg-zinc-700 mt-1" style={{ height: 18 }} />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#28664D]" />
+              <div className="w-px bg-[#DED7CA] dark:bg-[#34443A] mt-1" style={{ height: 18 }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Pickup</p>
-              <p className="text-xs text-zinc-300 leading-snug line-clamp-1">{booking.pickupAddress || "—"}</p>
+              <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider mb-0.5">Pickup</p>
+              <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] leading-snug line-clamp-1">{booking.pickupAddress || "—"}</p>
             </div>
           </div>
 
           <div className="flex gap-3 p-4">
             <div className="flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-sm bg-zinc-600" />
+              <div className="w-2.5 h-2.5 rounded-sm bg-[#B83A24] dark:bg-[#E06A50]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Drop</p>
-              <p className="text-xs text-zinc-300 leading-snug line-clamp-1">{booking.dropAddress || "—"}</p>
+              <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider mb-0.5">Drop</p>
+              <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] leading-snug line-clamp-1">{booking.dropAddress || "—"}</p>
             </div>
           </div>
         </div>
@@ -120,7 +120,7 @@ export default function RideFailedView({
         <button
           type="button"
           onClick={() => router.push("/")}
-          className="w-full bg-white text-zinc-900 font-bold py-3.5 rounded-2xl text-xs hover:bg-zinc-100 transition-colors"
+          className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white font-bold py-3.5 rounded-[8px] text-xs transition-colors cursor-pointer"
         >
           Book Another Ride
         </button>

@@ -75,10 +75,10 @@ export default function NotificationToggle({
       type="button"
       onClick={handleClick}
       disabled={loading}
-      className={`relative p-2 rounded-xl transition-all flex items-center justify-center active:scale-95 ${
+      className={`relative p-2 rounded-[8px] transition-all flex items-center justify-center active:scale-95 ${
         isSubscribed
-          ? "text-amber-400 bg-white/10 hover:bg-white/20"
-          : "text-zinc-400 hover:text-white hover:bg-white/10"
+          ? "text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+          : "text-[#10251C]/70 hover:text-[#10251C] hover:bg-black/5 dark:text-[#B8C2B8] dark:hover:text-[#F3F1E8] dark:hover:bg-white/5"
       } ${className}`}
       title={
         isSubscribed
@@ -91,7 +91,7 @@ export default function NotificationToggle({
       ) : isSubscribed ? (
         <>
           <BellRing size={16} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
         </>
       ) : (
         <Bell size={16} />

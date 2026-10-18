@@ -97,7 +97,7 @@ export default function ActiveRideBanner({
 
   if (variant === "inline") {
     return (
-      <div className="bg-emerald-50 border border-emerald-300/80 rounded-2xl p-4 shadow-xs">
+      <div className="bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-4 shadow-xs">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-3 w-3">
@@ -105,17 +105,17 @@ export default function ActiveRideBanner({
               <span className={`relative inline-flex rounded-full h-3 w-3 ${pulseColor}`} />
             </span>
             <div>
-              <p className="text-xs font-black text-emerald-950 uppercase tracking-wider">
+              <p className="text-xs font-black text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-wider">
                 {statusLabel}
               </p>
-              <p className="text-[11px] text-emerald-800 font-medium truncate max-w-[220px] sm:max-w-md mt-0.5">
+              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium truncate max-w-[220px] sm:max-w-md mt-0.5">
                 To: {activeBooking.dropAddress || "Destination"}
               </p>
             </div>
           </div>
           <Link
             href={targetUrl}
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-black text-white text-xs font-bold transition shadow-xs"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold transition shadow-xs"
           >
             <span>Resume Ride</span>
             <ArrowRight size={13} />
@@ -134,29 +134,29 @@ export default function ActiveRideBanner({
         exit={{ opacity: 0, y: 30 }}
         className="fixed bottom-5 right-5 left-5 sm:left-auto sm:w-96 z-50"
       >
-        <div className="bg-zinc-950 text-white border border-zinc-800 rounded-3xl p-4 shadow-2xl backdrop-blur-md">
+        <div className="bg-[#FAF7F0]/95 dark:bg-[#17211B]/95 text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[16px] p-4 shadow-2xl backdrop-blur-md">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
                 <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${pulseColor}`} />
                 <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${pulseColor}`} />
               </span>
-              <span className="text-[11px] font-black uppercase tracking-wider text-zinc-300">
+              <span className="text-[11px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">
                 {statusLabel}
               </span>
             </div>
-            <span className="text-[10px] text-zinc-400 font-bold">
+            <span className="text-[10px] text-[#696B64] dark:text-[#929D93] font-bold">
               Ride #{activeBooking._id.slice(-5)}
             </span>
           </div>
 
-          <div className="text-xs text-zinc-300 mb-3 space-y-1">
+          <div className="text-xs text-[#10251C] dark:text-[#F3F1E8] mb-3 space-y-1">
             <p className="truncate font-semibold">
               📍 {activeBooking.pickupAddress?.split(",")[0]} → {activeBooking.dropAddress?.split(",")[0]}
             </p>
             {activeBooking.driver?.name && (
-              <p className="text-[11px] text-zinc-400">
-                Driver: <span className="text-zinc-200 font-bold">{activeBooking.driver.name}</span>
+              <p className="text-[11px] text-[#696B64] dark:text-[#929D93]">
+                Driver: <span className="text-[#10251C] dark:text-[#F3F1E8] font-bold">{activeBooking.driver.name}</span>
                 {activeBooking.vehicle?.number && ` (${activeBooking.vehicle.number})`}
               </p>
             )}
@@ -164,7 +164,7 @@ export default function ActiveRideBanner({
 
           <Link
             href={targetUrl}
-            className="w-full flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-zinc-100 text-zinc-950 rounded-2xl font-black text-xs transition shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white rounded-[8px] font-bold text-xs transition shadow-sm"
           >
             <span>Track Live Ride</span>
             <ArrowRight size={14} />

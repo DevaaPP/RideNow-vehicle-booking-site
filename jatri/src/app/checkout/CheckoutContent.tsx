@@ -775,11 +775,11 @@ export default function CheckoutContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5] text-[#10251C] px-3 sm:px-4 py-5 sm:py-10">
+    <div className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] px-3 sm:px-4 py-5 sm:py-10">
 
       {/* subtle dot grid */}
-      <div className="fixed inset-0 pointer-events-none"
-        style={{ backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)", backgroundSize: "28px 28px", opacity: 0.6 }}
+      <div className="fixed inset-0 pointer-events-none opacity-60 dark:opacity-20"
+        style={{ backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)", backgroundSize: "28px 28px" }}
       />
 
       <div className="relative max-w-2xl mx-auto z-10 space-y-4 sm:space-y-6">
@@ -789,13 +789,13 @@ export default function CheckoutContent() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center justify-between gap-3 border-b border-[#DED7CA] pb-3"
+          className="flex items-center justify-between gap-3 border-b border-[#DED7CA] dark:border-[#34443A] pb-3"
         >
           <div className="flex items-center gap-2.5">
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="w-9 h-9 rounded-[8px] border border-[#DED7CA] bg-[#FAF7F0] hover:bg-white flex items-center justify-center text-[#10251C] transition shadow-none cursor-pointer shrink-0"
+              className="w-9 h-9 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-white dark:hover:bg-[#202B24] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] transition shadow-none cursor-pointer shrink-0"
               aria-label="Back to Map"
               title="Back to Map"
             >
@@ -805,7 +805,7 @@ export default function CheckoutContent() {
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B83A24]">Step 2 of 2</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#10251C]">
+              <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
                 Review & Confirm Ride
               </h1>
             </div>
@@ -814,7 +814,7 @@ export default function CheckoutContent() {
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#DED7CA] bg-[#FAF7F0] hover:bg-white text-[#10251C] text-xs font-bold transition shadow-none cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-white dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold transition shadow-none cursor-pointer"
               title="Go to Home"
             >
               <Home size={13} />
@@ -823,7 +823,7 @@ export default function CheckoutContent() {
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#DED7CA] bg-[#FAF7F0] hover:bg-white text-[#10251C] text-xs font-bold transition shadow-none cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-white dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold transition shadow-none cursor-pointer"
             >
               <Edit2 size={12} />
               <span>Edit Route</span>
@@ -833,18 +833,18 @@ export default function CheckoutContent() {
 
         {/* Missing locations warning banner */}
         {isHydrated && (!pickupLat || !dropLat || pickup === "Pickup Location" || drop === "Drop Location") && (
-          <div className="p-3.5 sm:p-4 bg-[#faebe8] border border-[#f0c8c1] rounded-[10px] flex items-center justify-between shadow-none gap-3">
+          <div className="p-3.5 sm:p-4 bg-[#faebe8] dark:bg-[#3A201A] border border-[#f0c8c1] dark:border-[#6B3A2C] rounded-[10px] flex items-center justify-between shadow-none gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <AlertCircle size={18} className="text-[#B83A24] flex-shrink-0" />
               <div>
-                <p className="text-xs font-bold text-[#782313] uppercase tracking-wide">No active route selected</p>
-                <p className="text-[11px] text-[#782313]/90 font-medium">Please choose your pickup and drop locations on the map.</p>
+                <p className="text-xs font-bold text-[#782313] dark:text-rose-200 uppercase tracking-wide">No active route selected</p>
+                <p className="text-[11px] text-[#782313]/90 dark:text-rose-300/90 font-medium">Please choose your pickup and drop locations on the map.</p>
               </div>
             </div>
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="px-3.5 py-1.5 bg-[#123D32] hover:bg-[#0D3027] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0"
+              className="px-3.5 py-1.5 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0"
             >
               Choose on Map
             </Link>
@@ -852,15 +852,15 @@ export default function CheckoutContent() {
         )}
 
         {/* ── UNIFIED BOOKING FLOW (ALL IN ONE TYPE) ── */}
-        <div className="bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] overflow-hidden shadow-sm">
+        <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] overflow-hidden shadow-sm">
           {/* Top accent bar */}
-          <div className="h-1 bg-[#123D32]" />
+          <div className="h-1 bg-[#123D32] dark:bg-[#28664D]" />
 
           {/* ══ 1. VEHICLE & TOTAL FARE SUMMARY ROW ══ */}
-          <div className="p-4 sm:p-6 border-b border-[#DED7CA] bg-white flex items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 border-b border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-12 h-12 bg-[#E5EBDD] text-[#123D32] rounded-[10px] flex items-center justify-center flex-shrink-0 shadow-2xs border border-[#cdd6c3]">
-                <VehicleIcon size={24} className="text-[#123D32]" />
+              <div className="w-12 h-12 bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] rounded-[10px] flex items-center justify-center flex-shrink-0 shadow-2xs border border-[#cdd6c3] dark:border-[#2D4E3A]">
+                <VehicleIcon size={24} className="text-[#123D32] dark:text-[#90C8A8]" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
@@ -868,23 +868,23 @@ export default function CheckoutContent() {
                     {opt?.categoryTitle || "Jaatri Fleet"}
                   </span>
                   {opt?.etaText && (
-                    <span className="text-[10px] font-mono text-[#123D32] bg-[#E5EBDD] px-2 py-0.5 rounded-full font-bold">
+                    <span className="text-[10px] font-mono text-[#123D32] dark:text-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] px-2 py-0.5 rounded-full font-bold">
                       {opt.etaText}
                     </span>
                   )}
                 </div>
-                <h2 className="text-lg sm:text-xl font-serif text-[#10251C] tracking-tight truncate">
+                <h2 className="text-lg sm:text-xl font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight truncate">
                   {vehicleLabel}
                 </h2>
-                <p className="text-[11px] text-[#696B64] font-medium truncate mt-0.5">
+                <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium truncate mt-0.5">
                   {opt?.tagline || opt?.description || "Verified drivers with upfront guaranteed pricing"}
                 </p>
               </div>
             </div>
 
             <div className="text-right flex-shrink-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64]">Total Upfront</p>
-              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[#10251C] font-mono">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">Total Upfront</p>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8] font-mono">
                 ₹{effectiveFare}
               </div>
             </div>
@@ -892,13 +892,13 @@ export default function CheckoutContent() {
 
           <div className="p-4 sm:p-6 space-y-5">
             {/* ══ 2. ROUTE TIMELINE (CLEAN MINIMALIST VERTICAL FLOW) ══ */}
-            <div className="bg-white border border-[#DED7CA] rounded-[10px] p-3.5 sm:p-4 space-y-3 shadow-2xs">
-              <div className="flex items-center justify-between border-b border-[#DED7CA]/60 pb-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#696B64]">Route Overview</span>
+            <div className="bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] p-3.5 sm:p-4 space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-[#DED7CA]/60 dark:border-[#34443A]/60 pb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">Route Overview</span>
                 <Link
                   href={editBookUrl}
                   onClick={handleReturnToBook}
-                  className="text-[11px] font-bold text-[#123D32] hover:underline flex items-center gap-1"
+                  className="text-[11px] font-bold text-[#123D32] dark:text-[#90C8A8] hover:underline flex items-center gap-1"
                 >
                   <MapPin size={11} />
                   <span>Change</span>
@@ -908,12 +908,12 @@ export default function CheckoutContent() {
               {/* Pickup Point */}
               <div className="flex items-start gap-3">
                 <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                  <span className="w-2.5 h-2.5 bg-[#123D32] rounded-full" />
-                  <span className="w-px h-6 bg-[#DED7CA] my-1" />
+                  <span className="w-2.5 h-2.5 bg-[#123D32] dark:bg-[#90C8A8] rounded-full" />
+                  <span className="w-px h-6 bg-[#DED7CA] dark:bg-[#34443A] my-1" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64]">Pickup</p>
-                  <p className="text-xs sm:text-sm font-bold text-[#10251C] leading-snug truncate">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">Pickup</p>
+                  <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug truncate">
                     {pickup}
                   </p>
                 </div>
@@ -923,12 +923,12 @@ export default function CheckoutContent() {
               {stops && stops.length > 0 && stops.map((stop, idx) => (
                 <div key={idx} className="flex items-start gap-3 pl-0.5">
                   <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                    <span className="w-2 h-2 border border-[#123D32] bg-[#E5EBDD] rounded-full" />
-                    <span className="w-px h-6 bg-[#DED7CA] my-1" />
+                    <span className="w-2 h-2 border border-[#123D32] dark:border-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] rounded-full" />
+                    <span className="w-px h-6 bg-[#DED7CA] dark:bg-[#34443A] my-1" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64]">Stop {idx + 1}</p>
-                    <p className="text-xs font-semibold text-[#10251C] leading-snug truncate">{stop.address}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">Stop {idx + 1}</p>
+                    <p className="text-xs font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug truncate">{stop.address}</p>
                   </div>
                 </div>
               ))}
@@ -936,37 +936,37 @@ export default function CheckoutContent() {
               {/* Drop Point */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 pt-1">
-                  <span className="w-2.5 h-2.5 bg-[#B83A24] rounded-full" />
+                  <span className="w-2.5 h-2.5 bg-[#B83A24] dark:bg-[#E06A50] rounded-full" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#B83A24]">Destination</p>
-                  <p className="text-xs sm:text-sm font-bold text-[#10251C] leading-snug truncate">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#B83A24] dark:text-[#E06A50]">Destination</p>
+                  <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug truncate">
                     {drop}
                   </p>
                 </div>
               </div>
 
               {/* Distance and Estimated Travel Time Stats */}
-              <div className="pt-2 border-t border-[#DED7CA]/60 flex items-center justify-between text-[11px] font-mono text-[#696B64]">
-                <span>Distance: <strong className="text-[#10251C]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
-                <span>Est. Time: <strong className="text-[#10251C]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
+              <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#34443A]/60 flex items-center justify-between text-[11px] font-mono text-[#696B64] dark:text-[#929D93]">
+                <span>Distance: <strong className="text-[#10251C] dark:text-[#F3F1E8]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
+                <span>Est. Time: <strong className="text-[#10251C] dark:text-[#F3F1E8]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
               </div>
             </div>
 
             {/* ══ CONTEXTUAL BADGES ══ */}
             {/* Smart Pickup Zone */}
             {isSmartPickup && smartPickupDetails && (
-              <div className="p-3 bg-zinc-50 border border-zinc-300 rounded-none flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 bg-zinc-950 text-white rounded-none flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+              <div className="p-3 bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   📍
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">
                     Designated Smart Pickup · {smartPickupDetails.walkingTimeText || "Short Walk"}
                   </p>
-                  <p className="font-extrabold text-zinc-900 mt-0.5">{smartPickupDetails.spotName} — {smartPickupDetails.venueName}</p>
+                  <p className="font-extrabold text-[#10251C] dark:text-[#F3F1E8] mt-0.5">{smartPickupDetails.spotName} — {smartPickupDetails.venueName}</p>
                   {smartPickupDetails.instructions && (
-                    <p className="text-[11px] text-zinc-600 italic mt-1">&quot;{smartPickupDetails.instructions}&quot;</p>
+                    <p className="text-[11px] text-[#696B64] dark:text-[#929D93] italic mt-1">&quot;{smartPickupDetails.instructions}&quot;</p>
                   )}
                 </div>
               </div>
@@ -974,13 +974,13 @@ export default function CheckoutContent() {
 
             {/* Family Ride Badge */}
             {isFamilyRide && familyMemberDetails && (
-              <div className="p-3 bg-zinc-50 border border-zinc-300 rounded-none flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 bg-zinc-950 text-white rounded-none flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+              <div className="p-3 bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   👨‍👩‍👧
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950">Family Account Ride</p>
-                  <p className="font-extrabold text-zinc-900 mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">Family Account Ride</p>
+                  <p className="font-extrabold text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
                     Booked for: {familyMemberDetails.name} ({familyMemberDetails.relation}) · {familyMemberDetails.phone || ""}
                   </p>
                 </div>
@@ -989,13 +989,13 @@ export default function CheckoutContent() {
 
             {/* Scheduled Ride Badge */}
             {isScheduled && scheduledPickupDate && (
-              <div className="p-3 bg-zinc-50 border border-zinc-300 rounded-none flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 bg-zinc-950 text-white rounded-none flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+              <div className="p-3 bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   ⏰
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950">Scheduled Advance Trip</p>
-                  <p className="font-extrabold text-zinc-900 mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">Scheduled Advance Trip</p>
+                  <p className="font-extrabold text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
                     Pickup: {scheduledPickupDate.toLocaleDateString("en-US", {
                       weekday: "short",
                       month: "short",
@@ -1004,24 +1004,24 @@ export default function CheckoutContent() {
                       minute: "2-digit",
                     })}
                   </p>
-                  <p className="text-[11px] text-zinc-500 mt-0.5">Driver assigned 15-30 mins prior to pickup time.</p>
+                  <p className="text-[11px] text-[#696B64] dark:text-[#929D93] mt-0.5">Driver assigned 15-30 mins prior to pickup time.</p>
                 </div>
               </div>
             )}
 
             {/* Logistics Cargo Details */}
             {serviceMode === "logistics" && cargoDetails && (
-              <div className="p-3 bg-zinc-50 border border-zinc-300 rounded-none flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 bg-zinc-950 text-white rounded-none flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+              <div className="p-3 bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] flex items-start gap-3 text-xs">
+                <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   <Package size={14} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950">Goods Transport Details</p>
-                  <p className="font-extrabold text-zinc-900 mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">Goods Transport Details</p>
+                  <p className="font-extrabold text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
                     {cargoDetails.cargoType || "General Cargo"} {cargoDetails.cargoWeightKg ? `· ~${cargoDetails.cargoWeightKg} kg` : ""}
                   </p>
                   {cargoDetails.receiverContact && (
-                    <p className="text-[11px] text-zinc-600">Receiver: {cargoDetails.receiverContact}</p>
+                    <p className="text-[11px] text-[#696B64] dark:text-[#929D93]">Receiver: {cargoDetails.receiverContact}</p>
                   )}
                 </div>
               </div>
@@ -1029,49 +1029,49 @@ export default function CheckoutContent() {
 
             {/* ══ 3. ITEMIZED FARE RECEIPT ══ */}
             {computedBreakdown && (
-              <div className="border border-zinc-200 rounded-none bg-zinc-50/60 p-3.5 sm:p-4">
-                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-950 pb-2 border-b border-zinc-200 flex items-center justify-between">
+              <div className="border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] bg-[#FAF7F0]/80 dark:bg-[#1E2B23]/70 p-3.5 sm:p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] pb-2 border-b border-[#DED7CA] dark:border-[#34443A] flex items-center justify-between">
                   <span>Guaranteed Upfront Pricing</span>
-                  <span className="font-mono text-zinc-500">No Hidden Costs</span>
+                  <span className="font-mono text-[#696B64] dark:text-[#929D93]">No Hidden Costs</span>
                 </p>
-                <div className="space-y-1.5 text-xs text-zinc-600 font-medium pt-2">
+                <div className="space-y-1.5 text-xs text-[#696B64] dark:text-[#929D93] font-medium pt-2">
                   <div className="flex justify-between">
                     <span>Base Flagdown Fare</span>
-                    <span className="font-bold text-zinc-950">₹{computedBreakdown.baseFare}</span>
+                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.baseFare}</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
                     <span>Distance Charge ({computedBreakdown.distanceKm} km × ₹{computedBreakdown.pricePerKm}/km)</span>
-                    <span className="font-bold text-zinc-950">₹{computedBreakdown.distanceFare}</span>
+                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.distanceFare}</span>
                   </div>
                   {computedBreakdown.surgeAmount > 0 && (
-                    <div className="flex justify-between text-[11px] text-amber-800 font-bold">
+                    <div className="flex justify-between text-[11px] text-[#B83A24] dark:text-[#E06A50] font-bold">
                       <span>High Demand Surge ({computedBreakdown.surgeMultiplier}x)</span>
                       <span>+₹{computedBreakdown.surgeAmount}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-[11px]">
                     <span>Platform Service Fee</span>
-                    <span className="font-bold text-zinc-950">₹{computedBreakdown.platformFee}</span>
+                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.platformFee}</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
                     <span>Govt GST / Taxes (5%)</span>
-                    <span className="font-bold text-zinc-950">₹{computedBreakdown.taxes}</span>
+                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.taxes}</span>
                   </div>
                   {computedBreakdown.isStudentDiscountApplied && (
-                    <div className="flex justify-between text-[11px] text-emerald-800 font-extrabold pt-1 border-t border-zinc-200">
+                    <div className="flex justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-extrabold pt-1 border-t border-[#DED7CA] dark:border-[#34443A]">
                       <span>🎓 Student Pass Discount (10% OFF)</span>
                       <span>-₹{computedBreakdown.studentDiscount}</span>
                     </div>
                   )}
                   {(computedBreakdown.cancellationDues ? computedBreakdown.cancellationDues > 0 : Number((userData as any)?.outstandingAmount || 0) > 0) && (
-                    <div className="flex justify-between text-[11px] text-rose-700 font-bold pt-1 border-t border-zinc-200">
+                    <div className="flex justify-between text-[11px] text-[#B83A24] dark:text-[#E06A50] font-bold pt-1 border-t border-[#DED7CA] dark:border-[#34443A]">
                       <span>Unsettled Cancellation Dues</span>
                       <span>+₹{computedBreakdown.cancellationDues || Number((userData as any)?.outstandingAmount || 0)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm font-black text-zinc-950 pt-2 border-t border-zinc-200">
+                  <div className="flex justify-between text-sm font-black text-[#10251C] dark:text-[#F3F1E8] pt-2 border-t border-[#DED7CA] dark:border-[#34443A]">
                     <span>Final Fare</span>
-                    <span className="font-mono">₹{effectiveFare}</span>
+                    <span className="font-mono text-[#123D32] dark:text-[#D7AC62]">₹{effectiveFare}</span>
                   </div>
                 </div>
               </div>
@@ -1110,15 +1110,15 @@ export default function CheckoutContent() {
                   >
                     {/* Error Banner */}
                     {bookingError && (
-                      <div className="p-3.5 bg-red-50 border border-red-300 rounded-none flex items-start gap-3 text-left">
-                        <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+                      <div className="p-3.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] flex items-start gap-3 text-left">
+                        <AlertCircle size={16} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-xs font-bold text-red-900">{bookingError}</p>
+                          <p className="text-xs font-bold text-red-900 dark:text-red-200">{bookingError}</p>
                           {bookingError.toLowerCase().includes("sign in") && (
                             <button
                               type="button"
                               onClick={() => setShowAuthModal(true)}
-                              className="mt-2 text-xs font-black text-white bg-zinc-950 hover:bg-black px-3.5 py-1.5 rounded-none transition cursor-pointer"
+                              className="mt-2 text-xs font-bold text-white bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] px-3.5 py-1.5 rounded-[6px] transition cursor-pointer"
                             >
                               Sign In Now
                             </button>
@@ -1132,7 +1132,7 @@ export default function CheckoutContent() {
                       type="button"
                       onClick={handleCreateBooking}
                       disabled={loading || !pickupLat || !dropLat}
-                      className="w-full h-13 py-3.5 bg-[#123D32] hover:bg-[#0D3027] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[50px] active:scale-[0.99]"
+                      className="w-full h-13 py-3.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[50px] active:scale-[0.99]"
                     >
                       {loading ? (
                         <>
@@ -1147,7 +1147,7 @@ export default function CheckoutContent() {
                       )}
                     </button>
 
-                    <div className="flex items-center justify-center gap-4 text-[10px] text-zinc-500 font-bold uppercase tracking-wider pt-1">
+                    <div className="flex items-center justify-center gap-4 text-[10px] text-[#696B64] dark:text-[#929D93] font-bold uppercase tracking-wider pt-1">
                       <span>• Driver answers in &lt; 2 min</span>
                       <span>• Pay after trip begins</span>
                       <span>• 100% verified fleet</span>
@@ -1186,22 +1186,22 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.35 }}
                     className="py-8 flex flex-col items-center justify-center gap-5 text-center"
                   >
-                    <div className="relative w-16 h-16 rounded-full bg-zinc-100 border-2 border-zinc-300 flex items-center justify-center">
-                      <RotateCcw size={26} className="text-zinc-950 animate-spin" />
+                    <div className="relative w-16 h-16 rounded-full bg-[#FAF7F0] dark:bg-[#1E2B23] border-2 border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center">
+                      <RotateCcw size={26} className="text-[#10251C] dark:text-[#F3F1E8] animate-spin" />
                     </div>
                     <div>
-                      <div className="inline-flex items-center gap-1.5 bg-zinc-100 px-3 py-1 rounded-none text-zinc-900 text-[10px] font-black uppercase tracking-wider mb-2 border border-zinc-300">
+                      <div className="inline-flex items-center gap-1.5 bg-[#FAF7F0] dark:bg-[#1E2B23] px-3 py-1 rounded-full text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-black uppercase tracking-wider mb-2 border border-[#DED7CA] dark:border-[#34443A]">
                         Auto Re-dispatch Active
                       </div>
-                      <h3 className="text-lg font-black text-zinc-950 font-heading">Re-matching New Driver</h3>
-                      <p className="text-zinc-500 text-xs font-medium max-w-xs mx-auto mt-1">
+                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Re-matching New Driver</h3>
+                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium max-w-xs mx-auto mt-1">
                         Scanning active drivers within 15 km to take over your ride request automatically.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={handleCancelBooking}
-                      className="flex items-center gap-2 text-xs font-bold text-zinc-500 hover:text-black transition border border-zinc-300 px-4 py-2 rounded-none cursor-pointer"
+                      className="flex items-center gap-2 text-xs font-bold text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition border border-[#DED7CA] dark:border-[#34443A] px-4 py-2 rounded-[8px] cursor-pointer"
                     >
                       <XCircle size={13} />
                       <span>Cancel Ride</span>
@@ -1219,21 +1219,21 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.35 }}
                     className="py-8 flex flex-col items-center justify-center gap-5 text-center"
                   >
-                    <div className="w-16 h-16 rounded-none bg-zinc-950 text-white flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-[12px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center">
                       <CheckCircle2 size={32} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-zinc-950 font-heading">Driver Accepted!</h3>
-                      <p className="text-zinc-500 text-xs font-medium mt-1">
+                      <h3 className="text-xl font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Driver Accepted!</h3>
+                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1">
                         Trip confirmed. Loading payment options…
                       </p>
                     </div>
-                    <div className="w-48 h-1.5 bg-zinc-200 rounded-none overflow-hidden">
+                    <div className="w-48 h-1.5 bg-[#E8E1D5] dark:bg-[#202B24] rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: "100%" }}
                         transition={{ duration: 2 }}
-                        className="h-full bg-zinc-950"
+                        className="h-full bg-[#123D32] dark:bg-[#28664D]"
                       />
                     </div>
                   </motion.div>
@@ -1260,7 +1260,7 @@ export default function CheckoutContent() {
                       type="button"
                       disabled={!paymentMethod || loading}
                       onClick={handlePaymentConfirm}
-                      className="w-full h-12 bg-zinc-950 hover:bg-black disabled:opacity-30 text-white font-black text-xs uppercase tracking-wider rounded-none flex items-center justify-center gap-2 transition cursor-pointer"
+                      className="w-full h-12 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-30 text-white font-bold text-xs uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
                     >
                       {loading ? (
                         <><Loader2 size={16} className="animate-spin" /><span>Processing…</span></>
@@ -1287,19 +1287,19 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-none bg-zinc-950 text-white flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-[12px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center">
                       <CheckCircle2 size={30} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-zinc-950 font-heading">Ride Confirmed!</h3>
-                      <p className="text-zinc-500 text-xs font-medium mt-1 max-w-xs">
+                      <h3 className="text-xl font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Ride Confirmed!</h3>
+                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1 max-w-xs">
                         Your driver is en route to pickup point. Live telemetry active.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { window.location.href = `/ride/${bookingId}`; }}
-                      className="mt-2 flex items-center gap-2 bg-zinc-950 hover:bg-black text-white font-black text-xs uppercase tracking-wider px-6 py-3.5 rounded-none transition cursor-pointer"
+                      className="mt-2 flex items-center gap-2 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-[8px] transition cursor-pointer"
                     >
                       <span>Track Your Ride</span>
                       <ArrowRight size={15} />
@@ -1317,17 +1317,17 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-none bg-zinc-100 border border-zinc-300 flex items-center justify-center text-zinc-900">
+                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8]">
                       <XCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-zinc-950 font-heading">Booking Cancelled</h3>
-                      <p className="text-zinc-500 text-xs font-medium mt-1">Your ride request has been cancelled.</p>
+                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Booking Cancelled</h3>
+                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1">Your ride request has been cancelled.</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-zinc-950 text-white font-black text-xs uppercase tracking-wider px-5 py-3 rounded-none hover:bg-black transition cursor-pointer"
+                      className="flex items-center gap-2 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
                     >
                       <RotateCcw size={13} />
                       <span>Book Again</span>
@@ -1345,17 +1345,17 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-none bg-zinc-100 border border-zinc-300 flex items-center justify-center text-zinc-900">
-                      <XCircle size={28} className="text-red-600" />
+                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#B83A24] dark:text-[#E06A50]">
+                      <XCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-zinc-950 font-heading">Request Declined</h3>
-                      <p className="text-zinc-500 text-xs font-medium mt-1">Nearby driver was unavailable. Try requesting again.</p>
+                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Request Declined</h3>
+                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1">Nearby driver was unavailable. Try requesting again.</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-zinc-950 text-white font-black text-xs uppercase tracking-wider px-5 py-3 rounded-none hover:bg-black transition cursor-pointer"
+                      className="flex items-center gap-2 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
                     >
                       <RotateCcw size={13} />
                       <span>Try Again</span>
@@ -1373,17 +1373,17 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-none bg-zinc-100 border border-zinc-300 flex items-center justify-center text-zinc-900">
-                      <AlertCircle size={28} className="text-amber-600" />
+                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-amber-600 dark:text-amber-400">
+                      <AlertCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-zinc-950 font-heading">Request Timed Out</h3>
-                      <p className="text-zinc-500 text-xs font-medium mt-1">No driver accepted within 2 minutes. Please try again.</p>
+                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Request Timed Out</h3>
+                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1">No driver accepted within 2 minutes. Please try again.</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-zinc-950 text-white font-black text-xs uppercase tracking-wider px-5 py-3 rounded-none hover:bg-black transition cursor-pointer"
+                      className="flex items-center gap-2 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
                     >
                       <RotateCcw size={13} />
                       <span>Try Again</span>
@@ -1396,9 +1396,9 @@ export default function CheckoutContent() {
           </div>
 
           {/* Footer trust badge */}
-          <div className="flex items-center justify-center gap-2 py-3 bg-zinc-50 border-t border-zinc-200">
-            <ShieldCheck size={13} className="text-zinc-500" />
-            <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-center gap-2 py-3 bg-[#FAF7F0] dark:bg-[#17211B] border-t border-[#DED7CA] dark:border-[#34443A]">
+            <ShieldCheck size={13} className="text-[#696B64] dark:text-[#929D93]" />
+            <span className="text-[#696B64] dark:text-[#929D93] text-[10px] font-bold uppercase tracking-wider">
               Secure & Verified Booking · GPS Tracked
             </span>
           </div>

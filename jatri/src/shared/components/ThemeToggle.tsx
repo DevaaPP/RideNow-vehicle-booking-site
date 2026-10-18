@@ -42,7 +42,7 @@ export default function ThemeToggle({
 
   if (variant === "footer") {
     return (
-      <div className={`inline-flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1 ${className}`}>
+      <div className={`inline-flex items-center gap-1 bg-[#0D3027]/70 dark:bg-[#1E2B23]/70 border border-[#426457]/80 dark:border-[#34443A] rounded-[8px] p-1 ${className}`}>
         {THEME_OPTIONS.map((opt) => {
           const isSelected = opt.id === theme;
           const Icon = opt.icon;
@@ -51,10 +51,10 @@ export default function ThemeToggle({
               key={opt.id}
               type="button"
               onClick={() => setTheme(opt.id)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition active:scale-95 ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-xs font-semibold transition active:scale-95 ${
                 isSelected
-                  ? "bg-white text-zinc-950 shadow-xs"
-                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+                  ? "bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F3F1E8] shadow-2xs font-bold"
+                  : "text-[#C4D2C8] dark:text-[#B8C2B8] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] hover:bg-[#123D32]/50 dark:hover:bg-[#17211B]"
               }`}
               title={opt.label}
             >
@@ -72,15 +72,15 @@ export default function ThemeToggle({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-xs font-bold transition-all shadow-xs active:scale-95"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-stone-200/90 dark:border-[#34443A] hover:border-stone-300 dark:hover:border-[#426457] bg-white/95 dark:bg-[#17211B] hover:bg-white dark:hover:bg-[#1E2B23] text-stone-800 dark:text-[#F3F1E8] text-xs font-bold transition-all shadow-xs active:scale-95"
         title="Toggle Theme (Device Auto / Light / Dark)"
         aria-expanded={open}
       >
-        <CurrentIcon size={13} className="text-zinc-500 dark:text-zinc-400 shrink-0" strokeWidth={2.5} />
+        <CurrentIcon size={13} className="text-stone-500 dark:text-[#B8C2B8] shrink-0" strokeWidth={2.5} />
         <span className="font-semibold">{currentOption.label}</span>
         <ChevronDown
           size={12}
-          className={`text-zinc-400 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`text-stone-400 dark:text-[#929D93] shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -91,9 +91,9 @@ export default function ThemeToggle({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-44 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden z-50 p-1.5"
+            className="absolute right-0 top-full mt-2 w-44 rounded-[12px] bg-white dark:bg-[#17211B] border border-zinc-200 dark:border-[#34443A] shadow-xl overflow-hidden z-50 p-1.5"
           >
-            <div className="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+            <div className="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-[#929D93]">
               Appearance
             </div>
             {THEME_OPTIONS.map((opt) => {
@@ -107,17 +107,17 @@ export default function ThemeToggle({
                     setTheme(opt.id);
                     setOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition text-left ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-[8px] text-xs font-bold transition text-left ${
                     isSelected
-                      ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-black"
-                      : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
+                      ? "bg-zinc-100 dark:bg-[#1E2B23] text-zinc-950 dark:text-[#F3F1E8] font-black"
+                      : "text-zinc-600 dark:text-[#B8C2B8] hover:bg-zinc-50 dark:hover:bg-[#1E2B23]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Icon size={14} className={isSelected ? "text-emerald-500" : "text-zinc-400"} />
+                    <Icon size={14} className={isSelected ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-400 dark:text-[#929D93]"} />
                     <span>{opt.label}</span>
                   </div>
-                  {isSelected && <Check size={14} className="text-emerald-500 shrink-0" strokeWidth={3} />}
+                  {isSelected && <Check size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={3} />}
                 </button>
               );
             })}

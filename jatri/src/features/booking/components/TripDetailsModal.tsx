@@ -199,31 +199,31 @@ export default function TripDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 12 }}
         transition={{ duration: 0.2 }}
-        className="w-full max-w-lg bg-white rounded-none shadow-2xl border border-zinc-200 overflow-hidden flex flex-col my-auto max-h-[94vh]"
+        className="w-full max-w-lg bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] shadow-2xl border border-[#DED7CA] dark:border-[#34443A] overflow-hidden flex flex-col my-auto max-h-[94vh]"
       >
         {/* ══ HEADER ══ */}
-        <div className="sticky top-0 bg-white border-b border-zinc-200 px-4 py-3.5 flex items-center justify-between z-20">
+        <div className="sticky top-0 bg-[#FAF7F0] dark:bg-[#17211B] border-b border-[#DED7CA] dark:border-[#34443A] px-4 py-3.5 flex items-center justify-between z-20">
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-none border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 flex items-center justify-center text-zinc-800 transition-colors"
+              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] transition-colors cursor-pointer"
               aria-label="Back"
             >
               <ArrowLeft size={16} />
             </button>
-            <h2 className="text-base sm:text-lg font-black text-zinc-950 uppercase tracking-tight">
-              Trip details
+            <h2 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+              Trip Details
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-none border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors"
+            className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center text-[#696B64] dark:text-[#B8C2B8] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X size={16} />
@@ -231,23 +231,23 @@ export default function TripDetailsModal({
         </div>
 
         {/* ══ SCROLLABLE CONTENT ══ */}
-        <div className="overflow-y-auto flex-1 divide-y divide-zinc-200">
+        <div className="overflow-y-auto flex-1 divide-y divide-[#DED7CA]/60 dark:divide-[#34443A]">
           
           {/* 1. TOP HELP BANNER */}
-          <div className="bg-zinc-50 px-4 py-3 flex items-center justify-between text-xs text-zinc-700">
-            <span className="font-medium text-zinc-700">
+          <div className="bg-[#F7F1E5] dark:bg-[#101713] px-4 py-3 flex items-center justify-between text-xs text-[#696B64] dark:text-[#B8C2B8]">
+            <span className="font-medium">
               Having an issue with this trip?
             </span>
             <button
               onClick={() => window.location.href = `mailto:support@ridenow.in?subject=Help with Trip ${booking._id}`}
-              className="bg-zinc-900 hover:bg-black text-white font-bold text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-none transition"
+              className="bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white font-bold text-[11px] px-3 py-1.5 rounded-[8px] transition cursor-pointer"
             >
-              Get help
+              Get Help
             </button>
           </div>
 
           {/* 2. VECTOR ROUTE PREVIEW MAP */}
-          <div className="relative bg-zinc-950 px-4 py-4 overflow-hidden">
+          <div className="relative bg-[#101713] px-4 py-4 overflow-hidden border-y border-[#34443A]/40">
             {/* Street Grid pattern background */}
             <div className="absolute inset-0 opacity-15 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:24px_24px]" />
             
@@ -260,11 +260,11 @@ export default function TripDetailsModal({
                 <path
                   d={pathD}
                   fill="none"
-                  stroke="#ffffff"
+                  stroke="#22c55e"
                   strokeWidth="6"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  opacity="0.3"
+                  opacity="0.25"
                 />
                 {/* Route core line */}
                 <path
@@ -276,56 +276,57 @@ export default function TripDetailsModal({
                   strokeLinejoin="round"
                 />
 
-                {/* Pickup marker: white circle with black ring */}
+                {/* Pickup marker */}
                 <circle
                   cx={startPoint[0]}
                   cy={startPoint[1]}
                   r="7"
-                  fill="#ffffff"
-                  stroke="#000000"
+                  fill="#FAF7F0"
+                  stroke="#123D32"
                   strokeWidth="3.5"
                 />
 
-                {/* Drop marker: solid black square with white border */}
+                {/* Drop marker */}
                 <rect
                   x={endPoint[0] - 6}
                   y={endPoint[1] - 6}
                   width="12"
                   height="12"
-                  fill="#000000"
-                  stroke="#ffffff"
+                  rx="3"
+                  fill="#B83A24"
+                  stroke="#FAF7F0"
                   strokeWidth="2"
                 />
               </svg>
 
               {/* Distance badge overlay */}
-              <div className="absolute bottom-2 right-2 bg-zinc-900/90 border border-zinc-700 px-2 py-0.5 text-[10px] font-mono font-bold text-zinc-300">
+              <div className="absolute bottom-2 right-2 bg-[#101713]/90 border border-[#34443A] px-2 py-0.5 text-[10px] font-mono font-bold text-[#B8C2B8] rounded-[4px]">
                 {booking.routeDistanceKm ? `${booking.routeDistanceKm.toFixed(1)} KM` : "ROUTE TRACKED"}
               </div>
             </div>
           </div>
 
           {/* 3. PARTICIPANT & RIDE CARD */}
-          <div className="p-4 bg-white flex items-center justify-between">
+          <div className="p-4 bg-[#FAF7F0] dark:bg-[#17211B] flex items-center justify-between">
             <div className="min-w-0 pr-2">
-              <h3 className="text-base sm:text-lg font-black text-zinc-950 tracking-tight leading-snug">
+              <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-snug">
                 {isVendor ? `${vehicleType} trip with ${counterpartName}` : `${vehicleType} ride with ${counterpartName}`}
               </h3>
-              <p className="text-xs text-zinc-500 font-medium mt-0.5">
+              <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] font-medium mt-0.5">
                 {formattedDate}, {pickupTimeStr}
               </p>
               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                <span className="text-sm font-black text-zinc-900">
+                <span className="text-sm font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">
                   ₹{booking.fare}
                 </span>
-                <span className="text-xs text-zinc-400">•</span>
-                <span className="text-xs text-zinc-600 font-semibold truncate">
+                <span className="text-xs text-[#696B64]/50 dark:text-[#B8C2B8]/40">•</span>
+                <span className="text-xs text-[#696B64] dark:text-[#B8C2B8] font-semibold truncate">
                   {vehicleModel} {vehicleNumber ? `(${vehicleNumber})` : ""}
                 </span>
                 {counterpartPhone && (
                   <>
-                    <span className="text-xs text-zinc-400">•</span>
-                    <span className="text-xs text-zinc-500 font-mono font-medium">
+                    <span className="text-xs text-[#696B64]/50 dark:text-[#B8C2B8]/40">•</span>
+                    <span className="text-xs text-[#696B64] dark:text-[#B8C2B8] font-mono font-medium">
                       {counterpartPhone}
                     </span>
                   </>
@@ -334,7 +335,7 @@ export default function TripDetailsModal({
             </div>
 
             {/* Avatar */}
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-zinc-100 border-2 border-zinc-900 flex-shrink-0 flex items-center justify-center overflow-hidden">
+            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-[10px] bg-[#E5EBDD] dark:bg-[#1D3428] border-2 border-[#123D32] dark:border-[#28664D] flex-shrink-0 flex items-center justify-center overflow-hidden">
               {counterpartImage ? (
                 <img
                   src={counterpartImage}
@@ -342,7 +343,7 @@ export default function TripDetailsModal({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-base font-black text-zinc-800">
+                <span className="text-base font-bold font-serif text-[#123D32] dark:text-[#A3E635]">
                   {counterpartName.charAt(0).toUpperCase()}
                 </span>
               )}
@@ -350,10 +351,10 @@ export default function TripDetailsModal({
           </div>
 
           {/* 4. ACTION BUTTONS: [Receipt] & [Invoice] */}
-          <div className="px-4 py-3 bg-zinc-50 flex items-center gap-2.5">
+          <div className="px-4 py-3 bg-[#F7F1E5] dark:bg-[#101713] flex items-center gap-2.5">
             <button
               onClick={() => setShowReceiptDetails(!showReceiptDetails)}
-              className="flex-1 py-2 px-3 border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-900 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition cursor-pointer"
+              className="flex-1 py-2 px-3 border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] font-bold text-xs rounded-[8px] flex items-center justify-center gap-1.5 transition cursor-pointer"
             >
               <Receipt size={14} />
               <span>{showReceiptDetails ? "Hide Receipt" : "Receipt"}</span>
@@ -361,7 +362,7 @@ export default function TripDetailsModal({
 
             <button
               onClick={() => onOpenInvoice && onOpenInvoice(booking)}
-              className="flex-1 py-2 px-3 bg-zinc-950 hover:bg-black text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition cursor-pointer"
+              className="flex-1 py-2 px-3 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white font-bold text-xs rounded-[8px] flex items-center justify-center gap-1.5 transition cursor-pointer"
             >
               <FileText size={14} />
               <span>Tax Invoice</span>
@@ -375,21 +376,21 @@ export default function TripDetailsModal({
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden bg-zinc-100 border-b border-zinc-200 px-4 py-3 space-y-2 text-xs"
+                className="overflow-hidden bg-[#FAF7F0] dark:bg-[#17211B] border-b border-[#DED7CA] dark:border-[#34443A] px-4 py-3 space-y-2 text-xs"
               >
-                <div className="flex justify-between text-zinc-600">
+                <div className="flex justify-between text-[#696B64] dark:text-[#B8C2B8]">
                   <span>Trip Fare</span>
                   <span>₹{(booking.fare * 0.952).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-zinc-600">
+                <div className="flex justify-between text-[#696B64] dark:text-[#B8C2B8]">
                   <span>5% GST (CGST 2.5% + SGST 2.5%)</span>
                   <span>₹{(booking.fare * 0.048).toFixed(2)}</span>
                 </div>
-                <div className="pt-2 border-t border-zinc-200 flex justify-between font-black text-zinc-950 text-sm">
+                <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#34443A] flex justify-between font-bold text-[#10251C] dark:text-[#F3F1E8] text-sm">
                   {["cancelled", "expired", "rejected"].includes(booking.status) ? (
                     <>
-                      <span className="text-zinc-500">Trip Status</span>
-                      <span className="capitalize text-red-600 font-bold">{booking.status} (No Charge)</span>
+                      <span className="text-[#696B64] dark:text-[#B8C2B8]">Trip Status</span>
+                      <span className="capitalize text-[#B83A24] dark:text-[#E06A50] font-bold">{booking.status} (No Charge)</span>
                     </>
                   ) : (
                     <>
@@ -403,55 +404,53 @@ export default function TripDetailsModal({
           </AnimatePresence>
 
           {/* 5. TRIP TIMELINE & WAYPOINTS */}
-          <div className="p-4 bg-white space-y-4">
+          <div className="p-4 bg-[#FAF7F0] dark:bg-[#17211B] space-y-4">
             {/* Pickup Node */}
             <div className="flex items-start gap-3">
               <div className="w-16 flex-shrink-0 text-right pt-0.5">
-                <span className="text-xs font-bold text-zinc-600 tabular-nums">
+                <span className="text-xs font-bold font-mono text-[#696B64] dark:text-[#B8C2B8] tabular-nums">
                   {pickupTimeStr}
                 </span>
               </div>
               <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                {/* Hollow circle marker */}
-                <div className="w-3.5 h-3.5 rounded-full border-2 border-zinc-950 bg-white" />
-                <div className="w-0.5 h-9 bg-zinc-300 my-0.5" />
+                <div className="w-3.5 h-3.5 rounded-full border-2 border-[#123D32] dark:border-[#A3E635] bg-white dark:bg-[#101713]" />
+                <div className="w-0.5 h-9 bg-[#DED7CA] dark:bg-[#34443A] my-0.5" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm font-black text-zinc-950 leading-tight">
+                <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-tight">
                   {booking.pickupAddress}
                 </p>
-                <p className="text-[11px] text-zinc-500 mt-0.5">Pick-up spot</p>
+                <p className="text-[11px] text-[#696B64] dark:text-[#B8C2B8] mt-0.5">Pick-up spot</p>
               </div>
             </div>
 
             {/* Drop Node */}
             <div className="flex items-start gap-3">
               <div className="w-16 flex-shrink-0 text-right pt-0.5">
-                <span className="text-xs font-bold text-zinc-600 tabular-nums">
+                <span className="text-xs font-bold font-mono text-[#696B64] dark:text-[#B8C2B8] tabular-nums">
                   {dropoffTimeStr}
                 </span>
               </div>
               <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                {/* Solid square marker */}
-                <div className="w-3.5 h-3.5 rounded-none bg-zinc-950 border border-zinc-950" />
+                <div className="w-3.5 h-3.5 rounded-[2px] bg-[#B83A24] dark:bg-[#E06A50] border border-[#B83A24] dark:border-[#E06A50]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm font-black text-zinc-950 leading-tight">
+                <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-tight">
                   {booking.dropAddress}
                 </p>
-                <p className="text-[11px] text-zinc-500 mt-0.5">Drop-off destination</p>
+                <p className="text-[11px] text-[#696B64] dark:text-[#B8C2B8] mt-0.5">Drop-off destination</p>
               </div>
             </div>
           </div>
 
           {/* 6. RATE TRIP / PASSENGER SECTION - ONLY FOR COMPLETED TRIPS */}
           {booking.status === "completed" && (
-            <div className="p-4 bg-white flex items-center justify-between border-t border-zinc-200">
+            <div className="p-4 bg-[#FAF7F0] dark:bg-[#17211B] flex items-center justify-between border-t border-[#DED7CA]/60 dark:border-[#34443A]">
               <div>
-                <p className="text-sm font-black text-zinc-950 uppercase tracking-tight">
+                <p className="text-sm font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">
                   {isVendor ? "Rate your passenger" : "Rate your trip"}
                 </p>
-                <p className="text-[11px] text-zinc-500 font-medium">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B8C2B8] font-medium">
                   {rated ? "Feedback submitted" : isVendor ? `How was ${counterpartName}?` : "How was your driver?"}
                 </p>
               </div>
@@ -468,8 +467,8 @@ export default function TripDetailsModal({
                       size={20}
                       className={`${
                         star <= userRating
-                          ? "text-amber-400 fill-amber-400"
-                          : "text-zinc-300"
+                          ? "text-[#D7AC62] fill-[#D7AC62]"
+                          : "text-[#DED7CA] dark:text-[#34443A]"
                       }`}
                     />
                   </button>
@@ -479,22 +478,22 @@ export default function TripDetailsModal({
           )}
 
           {/* 7. PRIVACY NOTE */}
-          <div className="p-4 bg-zinc-100 flex items-start gap-3 text-zinc-600 border-t border-zinc-200">
-            <ShieldCheck size={18} className="text-zinc-700 flex-shrink-0 mt-0.5" />
+          <div className="p-4 bg-[#F7F1E5] dark:bg-[#101713] flex items-start gap-3 text-[#696B64] dark:text-[#B8C2B8] border-t border-[#DED7CA]/60 dark:border-[#34443A]">
+            <ShieldCheck size={18} className="text-[#123D32] dark:text-[#A3E635] flex-shrink-0 mt-0.5" />
             <p className="text-[11px] leading-relaxed">
               {isVendor
-                ? "Trip record is archived in your partner dashboard. Rider personal details are protected under RideNow privacy safeguards."
-                : "After your trip, the driver cannot see your exact pick-up or drop-off address details. Your personal location data is strictly protected under RideNow privacy safeguards."}
+                ? "Trip record is archived in your partner dashboard. Rider personal details are protected under Jaatri privacy safeguards."
+                : "After your trip, the driver cannot see your exact pick-up or drop-off address details. Your personal location data is strictly protected under Jaatri privacy safeguards."}
             </p>
           </div>
 
         </div>
 
         {/* ══ FOOTER ══ */}
-        <div className="p-3 bg-white border-t border-zinc-200 flex items-center justify-end">
+        <div className="p-3 bg-[#FAF7F0] dark:bg-[#17211B] border-t border-[#DED7CA] dark:border-[#34443A] flex items-center justify-end">
           <button
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2 bg-zinc-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider rounded-none transition"
+            className="w-full sm:w-auto px-5 py-2 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold rounded-[8px] transition cursor-pointer"
           >
             Done
           </button>

@@ -334,21 +334,21 @@ export default function VendorDashboard({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-950 text-white rounded-none p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border border-zinc-950 shadow-none font-sans"
+            className="bg-[#FAF7F0] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] rounded-[16px] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border border-[#DED7CA] dark:border-[#34443A] shadow-sm font-sans"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-none bg-white text-zinc-950 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-[10px] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] flex items-center justify-center shrink-0">
                 <Video size={24} />
               </div>
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-zinc-400">Live Call Session Ready</span>
-                <h2 className="text-xl sm:text-2xl font-bold mt-0.5 tracking-tight font-sans">Video KYC Verification Active</h2>
-                <p className="text-xs text-zinc-400 mt-1 font-mono">Verification room is established. Connect now to finalize identity verification.</p>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-[#123D32] dark:text-emerald-400">Live Call Session Ready</span>
+                <h2 className="text-xl sm:text-2xl font-serif font-bold mt-0.5 tracking-tight">Video KYC Verification Active</h2>
+                <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-1 font-medium">Verification room is established. Connect now to finalize identity verification.</p>
               </div>
             </div>
             <button
               onClick={() => router.push(`/video-kyc/${roomId}`)}
-              className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-zinc-200 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold rounded-none transition-colors shrink-0 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] text-xs uppercase tracking-wider font-semibold rounded-[8px] transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
               <Video size={16} /> Join Video KYC Call
             </button>
@@ -407,24 +407,24 @@ export default function VendorDashboard({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-zinc-950 text-white rounded-none p-8 sm:p-10 border border-zinc-950 shadow-none font-sans"
+          className="bg-[#FAF7F0] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] rounded-[16px] p-8 sm:p-10 border border-[#DED7CA] dark:border-[#34443A] shadow-sm font-sans"
         >
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-none bg-emerald-400 inline-block" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+            <span className="text-[10px] uppercase tracking-widest text-[#123D32] dark:text-emerald-400 font-bold">
               Verification Approved
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight">
             Partner Account Activated
           </h2>
-          <p className="text-xs text-zinc-400 mt-1 font-mono max-w-md">
+          <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-1 max-w-md font-medium">
             All identity credentials and statutory vehicle inspections are verified. You can now toggle online duty and receive ride assignments.
           </p>
 
           <button
             onClick={() => router.push("/partner/bookings")}
-            className="mt-6 bg-white text-zinc-950 hover:bg-zinc-200 px-6 py-3 rounded-none font-mono text-xs uppercase tracking-wider font-bold flex items-center gap-2 transition-colors"
+            className="mt-6 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] px-6 py-3 rounded-[8px] text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
           >
             Access Dispatch Orders <ArrowRight size={15} />
           </button>
@@ -451,55 +451,55 @@ export default function VendorDashboard({
   /* Guard against flash while pricing is loading for onboarded or nearly onboarded partners */
   if ((activeStep >= 6 || vendorStep >= 6) && loadingPricing && !initialPricing) {
     return (
-      <section className="min-h-screen bg-zinc-50 pt-28 pb-20 px-4 md:px-8 font-sans">
+      <section className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] pt-28 pb-20 px-4 md:px-8 font-sans transition-colors">
         <div className="max-w-7xl mx-auto space-y-6 animate-pulse">
-          <div className="h-8 bg-zinc-200 rounded-none w-48 border border-zinc-300" />
+          <div className="h-8 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[8px] w-48 border border-[#DED7CA] dark:border-[#34443A]" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="h-40 bg-zinc-200 rounded-none border border-zinc-300" />
-            <div className="h-40 bg-zinc-200 rounded-none border border-zinc-300" />
-            <div className="h-40 bg-zinc-200 rounded-none border border-zinc-300" />
+            <div className="h-40 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A]" />
+            <div className="h-40 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A]" />
+            <div className="h-40 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A]" />
           </div>
-          <div className="h-80 bg-zinc-200 rounded-none border border-zinc-300" />
+          <div className="h-80 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A]" />
         </div>
       </section>
     );
   }
 
   return (
-    <section className="min-h-screen bg-[#F7F1E5] px-3 sm:px-6 pt-20 sm:pt-28 pb-16 font-sans">
+    <section className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] px-3 sm:px-6 pt-20 sm:pt-28 pb-16 font-sans transition-colors">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
-        <div className="border-b border-[#DED7CA] pb-5">
+        <div className="border-b border-[#DED7CA] dark:border-[#34443A] pb-5">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#123D32] inline-block" />
-            <span className="text-[10px] font-bold tracking-wider uppercase text-[#123D32]">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#28664D] inline-block" />
+            <span className="text-[10px] font-bold tracking-wider uppercase text-[#123D32] dark:text-[#347858]">
               Partner Verification
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
             Vendor Activation Steps
           </h1>
-          <p className="text-[#696B64] text-xs sm:text-sm mt-1">
+          <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1">
             Complete compliance onboarding to activate live dispatch and receive bookings.
           </p>
         </div>
 
         {/* MOBILE STEPPER */}
-        <div className="block md:hidden bg-[#FAF7F0] rounded-[14px] p-4 border border-[#DED7CA] space-y-3 shadow-xs">
+        <div className="block md:hidden bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] p-4 border border-[#DED7CA] dark:border-[#34443A] space-y-3 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-[#696B64] uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider">
               Step 0{activeStep} / 0{TOTAL_STEPS}
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-[#123D32] text-[#FAF7F0] rounded-[6px]">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] rounded-[6px]">
               {STEPS[activeStep - 1]?.title || "Onboarding"}
             </span>
           </div>
 
-          <div className="w-full h-1.5 bg-[#F7F1E5] rounded-full overflow-hidden border border-[#DED7CA]">
+          <div className="w-full h-1.5 bg-[#F7F1E5] dark:bg-[#101713] rounded-full overflow-hidden border border-[#DED7CA] dark:border-[#34443A]">
             <motion.div
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.3 }}
-              className="h-full bg-[#123D32]"
+              className="h-full bg-[#123D32] dark:bg-[#28664D]"
             />
           </div>
 
@@ -517,10 +517,10 @@ export default function VendorDashboard({
                   onClick={() => goToStep(step)}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-medium tracking-wide shrink-0 transition-colors ${
                     completed
-                      ? "bg-[#123D32]/10 text-[#123D32] border border-[#123D32]/30 font-semibold"
+                      ? "bg-[#123D32]/10 dark:bg-[#28664D]/25 text-[#123D32] dark:text-[#347858] border border-[#123D32]/30 dark:border-[#28664D]/50 font-semibold"
                       : active
-                      ? "bg-[#123D32] text-[#FAF7F0] font-bold shadow-xs"
-                      : "bg-[#FAF7F0] text-[#696B64] border border-[#DED7CA]"
+                      ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] font-bold shadow-xs"
+                      : "bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#696B64] dark:text-[#929D93] border border-[#DED7CA] dark:border-[#34443A]"
                   }`}
                 >
                   <span>{completed ? "✓" : `0${step.id}`}</span>
@@ -532,14 +532,14 @@ export default function VendorDashboard({
         </div>
 
         {/* DESKTOP STEPPER */}
-        <div className="hidden md:block bg-[#FAF7F0] rounded-[14px] p-6 sm:p-8 border border-[#DED7CA] shadow-xs overflow-x-auto">
+        <div className="hidden md:block bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] p-6 sm:p-8 border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-x-auto">
           <div className="relative min-w-[700px]">
-            <div className="absolute top-6 left-0 w-full h-[2px] bg-[#DED7CA]" />
+            <div className="absolute top-6 left-0 w-full h-[2px] bg-[#DED7CA] dark:bg-[#34443A]" />
 
             <motion.div
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.4 }}
-              className="absolute top-6 left-0 h-[2px] bg-[#123D32]"
+              className="absolute top-6 left-0 h-[2px] bg-[#123D32] dark:bg-[#28664D]"
             />
 
             <div className="relative flex justify-between">
@@ -558,10 +558,10 @@ export default function VendorDashboard({
                       className={`w-12 h-12 rounded-[10px] flex items-center justify-center border text-xs font-bold transition-all
                       ${
                         completed
-                          ? "bg-[#123D32] text-[#FAF7F0] border-[#123D32] shadow-xs"
+                          ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] border-[#123D32] dark:border-[#28664D] shadow-xs"
                           : active
-                          ? "border-[#123D32] bg-[#FAF7F0] text-[#123D32] ring-2 ring-[#123D32]/20 font-bold"
-                          : "border-[#DED7CA] text-[#696B64] bg-[#FAF7F0]"
+                          ? "border-[#123D32] dark:border-[#28664D] bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#123D32] dark:text-[#347858] ring-2 ring-[#123D32]/20 dark:ring-[#28664D]/30 font-bold"
+                          : "border-[#DED7CA] dark:border-[#34443A] text-[#696B64] dark:text-[#929D93] bg-[#FAF7F0] dark:bg-[#1E2B23]"
                       }`}
                     >
                       {completed ? (
@@ -574,7 +574,7 @@ export default function VendorDashboard({
                     </div>
 
                     <p className={`mt-2.5 text-xs font-medium uppercase tracking-wider text-center ${
-                      active ? "text-[#123D32] font-bold" : "text-[#696B64]"
+                      active ? "text-[#123D32] dark:text-[#347858] font-bold" : "text-[#696B64] dark:text-[#929D93]"
                     }`}>
                       {step.title}
                     </p>
@@ -663,18 +663,18 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-zinc-950/60 backdrop-blur-xs flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 px-4"
         >
           <motion.div
             initial={{ scale: 0.98 }}
             animate={{ scale: 1 }}
-            className="bg-white w-full max-w-lg rounded-none border border-zinc-300 shadow-none overflow-hidden p-6 font-sans"
+            className="bg-[#FAF7F0] dark:bg-[#17211B] w-full max-w-lg rounded-[16px] border border-[#DED7CA] dark:border-[#34443A] shadow-xl overflow-hidden p-6 font-sans"
           >
-            <div className="border-b border-zinc-200 pb-4 mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-bold">
+            <div className="border-b border-[#DED7CA] dark:border-[#34443A] pb-4 mb-4">
+              <span className="text-[10px] uppercase tracking-widest text-[#123D32] dark:text-[#347858] font-bold">
                 Vehicle Compliance & Fleet
               </span>
-              <h2 className="text-lg font-bold text-zinc-950 tracking-tight mt-0.5">
+              <h2 className="text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight mt-0.5">
                 Fleet Category & Exterior Inspection
               </h2>
             </div>
@@ -682,34 +682,34 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
             <div className="space-y-4">
               {/* Fleet Category Selector */}
               <div>
-                <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-wider block mb-1.5">
                   Select Fleet Specification
                 </label>
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full text-xs font-bold p-2.5 bg-zinc-50 border border-zinc-300 rounded-none text-zinc-900 focus:outline-none focus:border-zinc-950"
+                  className="w-full text-xs font-semibold p-2.5 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] text-[#10251C] dark:text-[#F3F1E8] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
                 >
                   {FLEET_CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
+                    <option key={cat.id} value={cat.id} className="dark:bg-[#17211B]">
                       {cat.label}
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-zinc-500 mt-1">
+                <p className="text-[10px] text-[#696B64] dark:text-[#929D93] mt-1 font-medium">
                   Ensure your vehicle matches the customer ride requests in your area.
                 </p>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-wider block mb-1.5">
                   Vehicle Exterior Photo
                 </label>
-                <label className="relative h-40 border border-zinc-300 rounded-none bg-zinc-50 flex items-center justify-center cursor-pointer hover:border-zinc-950 transition-colors">
+                <label className="relative h-40 border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] bg-white dark:bg-[#101713] flex items-center justify-center cursor-pointer hover:border-[#123D32] dark:hover:border-[#28664D] transition-colors overflow-hidden">
                   {!preview ? (
-                    <div className="flex flex-col items-center gap-1.5 text-zinc-400">
-                      <ImagePlus size={26} />
-                      <span className="text-[10px] font-mono uppercase tracking-wider">Select Vehicle Photo</span>
+                    <div className="flex flex-col items-center gap-1.5 text-[#696B64] dark:text-[#929D93]">
+                      <ImagePlus size={26} className="text-[#123D32] dark:text-[#347858]" />
+                      <span className="text-[10px] uppercase tracking-wider font-semibold">Select Vehicle Photo</span>
                     </div>
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -737,17 +737,17 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
               </div>
             </div>
 
-            <div className="pt-5 mt-5 border-t border-zinc-200 flex gap-3">
+            <div className="pt-5 mt-5 border-t border-[#DED7CA] dark:border-[#34443A] flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 py-2.5 border border-zinc-300 rounded-none font-mono text-xs uppercase font-bold text-zinc-700 hover:bg-zinc-100 transition-colors"
+                className="flex-1 py-2.5 border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] text-xs uppercase font-semibold text-[#10251C] dark:text-[#F3F1E8] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={submitPricing}
                 disabled={loading}
-                className="flex-1 py-2.5 bg-zinc-950 text-white font-mono text-xs uppercase tracking-wider font-bold rounded-none hover:bg-black transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 py-2.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] text-xs uppercase tracking-wider font-semibold rounded-[8px] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Fleet Details"}
               </button>
@@ -769,26 +769,26 @@ function StatusCard({ icon, title, desc }: any) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="
-        bg-white 
-        rounded-none 
-        border border-zinc-300 
+        bg-[#FAF7F0] dark:bg-[#17211B] 
+        rounded-[12px] 
+        border border-[#DED7CA] dark:border-[#34443A] 
         p-5 sm:p-7 
-        shadow-none 
+        shadow-sm 
         flex 
         flex-col sm:flex-row 
         gap-4 sm:gap-5
         items-start sm:items-center
       "
     >
-      <div className="bg-zinc-950 text-white p-3 rounded-none shrink-0 font-mono">
+      <div className="bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] p-3 rounded-[8px] shrink-0 font-mono">
         {icon}
       </div>
 
       <div className="flex-1">
-        <h3 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight">
+        <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
           {title}
         </h3>
-        <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-mono">
+        <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1 font-medium font-body">
           {desc}
         </p>
       </div>
@@ -803,11 +803,11 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
   return (
     <div
       className="
-        bg-white 
-        rounded-none 
-        border border-zinc-300 
+        bg-[#FAF7F0] dark:bg-[#17211B] 
+        rounded-[12px] 
+        border border-[#DED7CA] dark:border-[#34443A] 
         p-5 sm:p-7 
-        shadow-none 
+        shadow-sm 
         flex 
         flex-col sm:flex-row 
         justify-between 
@@ -816,16 +816,16 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
       "
     >
       <div className="flex items-center gap-4">
-        <div className="bg-zinc-950 text-white p-3 rounded-none shrink-0 font-mono">
+        <div className="bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] p-3 rounded-[8px] shrink-0 font-mono">
           {icon}
         </div>
 
         <div>
-          <h3 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight">
+          <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
             {title}
           </h3>
           {desc && (
-            <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-mono">
+            <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1 font-medium font-body">
               {desc}
             </p>
           )}
@@ -836,16 +836,17 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
         onClick={onClick}
         className="
           w-full sm:w-auto
-          bg-zinc-950 
-          text-white 
+          bg-[#123D32] hover:bg-[#0D3027] 
+          dark:bg-[#28664D] dark:hover:bg-[#347858] 
+          text-[#FAF7F0] 
           px-6 
           py-2.5 
-          rounded-none 
+          rounded-[8px] 
           text-xs 
-          font-mono font-bold uppercase tracking-wider
+          font-semibold uppercase tracking-wider
           transition-colors 
-          hover:bg-black
-          border border-zinc-950
+          shadow-sm
+          cursor-pointer
         "
       >
         {button}
@@ -866,19 +867,19 @@ function RejectionCard({
   return (
     <div
       className="
-        bg-zinc-50 
-        border border-zinc-300 
-        rounded-none 
+        bg-red-50/80 dark:bg-red-950/30 
+        border border-red-200 dark:border-red-900/50 
+        rounded-[12px] 
         p-5 sm:p-7 
         space-y-4
       "
     >
-      <div className="flex items-center gap-2 text-red-600 font-mono font-bold text-xs uppercase tracking-wider">
+      <div className="flex items-center gap-2 text-[#B83A24] dark:text-[#E06A50] font-bold text-xs uppercase tracking-wider">
         <AlertTriangle size={16} />
         {title}
       </div>
 
-      <div className="bg-white border border-zinc-200 rounded-none p-3.5 text-xs sm:text-sm font-mono text-zinc-900">
+      <div className="bg-[#FAF7F0] dark:bg-[#1E2B23] border border-red-200 dark:border-red-900/50 rounded-[8px] p-3.5 text-xs sm:text-sm font-medium text-[#10251C] dark:text-[#F3F1E8]">
         {reason || "No specification provided"}
       </div>
 
@@ -889,13 +890,13 @@ function RejectionCard({
             w-full sm:w-auto
             px-6 
             py-2.5 
-            bg-zinc-950 
-            text-white 
-            rounded-none 
-            text-xs font-mono uppercase tracking-wider font-bold
-            hover:bg-black 
+            bg-[#B83A24] hover:bg-[#9E2F1B] 
+            text-[#FAF7F0] 
+            rounded-[8px] 
+            text-xs uppercase tracking-wider font-semibold
             transition-colors
-            border border-zinc-950
+            shadow-sm
+            cursor-pointer
           "
         >
           {actionLabel || "Retry"}
@@ -909,13 +910,13 @@ function RejectionCard({
 function PriceInput({ label, value, onChange }: any) {
   return (
     <div>
-      <p className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-600 mb-1">{label}</p>
-      <div className="flex items-center gap-2 border border-zinc-300 rounded-none px-3.5 py-2.5 bg-white font-mono">
-        <IndianRupee size={15} className="text-zinc-400" />
+      <p className="text-xs font-semibold uppercase tracking-wider text-[#696B64] dark:text-[#929D93] mb-1">{label}</p>
+      <div className="flex items-center gap-2 border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] px-3.5 py-2.5 bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]">
+        <IndianRupee size={15} className="text-[#123D32] dark:text-[#347858]" />
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full outline-none bg-transparent text-sm"
+          className="w-full outline-none bg-transparent text-sm font-mono font-bold"
         />
       </div>
     </div>
@@ -1441,17 +1442,17 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   };
 
   return (
-    <section className="min-h-screen bg-zinc-50 px-3 sm:px-6 pt-20 sm:pt-28 pb-16 relative">
-      <div className="fixed inset-0 pointer-events-none"
-        style={{ backgroundImage: "radial-gradient(circle, #e4e4e7 1px, transparent 1px)", backgroundSize: "24px 24px", opacity: 0.5 }}
+    <section className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] px-3 sm:px-6 pt-20 sm:pt-28 pb-16 relative transition-colors">
+      <div className="fixed inset-0 pointer-events-none opacity-20 dark:opacity-10"
+        style={{ backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)", backgroundSize: "24px 24px" }}
       />
 
       <div className="relative max-w-7xl mx-auto space-y-5 sm:space-y-8 z-10">
         
         {/* Header Block */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#FAF7F0] rounded-[16px] p-5 sm:p-7 md:p-8 border border-[#DED7CA] shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] p-5 sm:p-7 md:p-8 border border-[#DED7CA] dark:border-[#34443A] shadow-sm">
           <div className="flex items-center gap-3.5 sm:gap-4">
-            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-[12px] border border-[#DED7CA] overflow-hidden bg-[#123D32]">
+            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-[12px] border border-[#DED7CA] dark:border-[#34443A] overflow-hidden bg-[#123D32] dark:bg-[#28664D]">
               {profilePicture ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -1460,7 +1461,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   className="w-full h-full object-cover rounded-[12px]"
                 />
               ) : (
-                <div className="w-full h-full text-white flex items-center justify-center font-bold text-xl sm:text-2xl font-serif">
+                <div className="w-full h-full text-[#FAF7F0] flex items-center justify-center font-bold text-xl sm:text-2xl font-serif">
                   {userData?.name?.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -1494,8 +1495,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] tracking-tight truncate">{userData?.name}</h1>
-                <span className="inline-flex items-center gap-1 bg-[#F7F1E5] text-[#123D32] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[6px] border border-[#DED7CA]">
+                <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight truncate">{userData?.name}</h1>
+                <span className="inline-flex items-center gap-1 bg-[#F7F1E5] dark:bg-[#1E2B23] text-[#123D32] dark:text-[#347858] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A]">
                   Verified Partner
                 </span>
                 {!profilePicture && (
@@ -1504,7 +1505,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   </span>
                 )}
               </div>
-              <p className="text-[#696B64] text-xs sm:text-sm mt-0.5 font-medium truncate font-body">
+              <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-0.5 font-medium truncate font-body">
                 Manage live duty status, real-time GPS telemetry, and fleet ride dispatching
               </p>
             </div>
@@ -1513,14 +1514,14 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => window.location.href = "/partner/pending-requests"}
-              className="flex items-center justify-center gap-2 bg-[#123D32] hover:bg-[#0D3027] text-[#FAF7F0] text-xs sm:text-sm font-semibold uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
+              className="flex items-center justify-center gap-2 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] text-xs sm:text-sm font-semibold uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
             >
               <span>Incoming Requests</span>
               <ArrowRight size={15} />
             </button>
             <button
               onClick={() => window.location.href = "/partner/bookings"}
-              className="flex items-center justify-center gap-2 border border-[#DED7CA] hover:bg-[#F7F1E5] bg-[#FAF7F0] text-[#10251C] text-xs sm:text-sm font-semibold uppercase tracking-wider px-4 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
+              className="flex items-center justify-center gap-2 border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#F7F1E5] dark:hover:bg-[#1E2B23] bg-[#FAF7F0] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-xs sm:text-sm font-semibold uppercase tracking-wider px-4 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
             >
               Ride History
             </button>
@@ -1529,16 +1530,16 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Mandatory Profile Picture Alert Banner */}
         {!profilePicture && (
-          <div className="bg-[#FAF7F0] text-[#10251C] border border-[#DED7CA] rounded-[12px] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans shadow-sm">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-[8px] bg-[#123D32] text-white flex items-center justify-center font-bold shrink-0">
+              <div className="w-8 h-8 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center font-bold shrink-0">
                 <Camera size={16} />
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#10251C]">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">
                   Mandatory Driver Face Photo Required
                 </p>
-                <p className="text-[11px] text-[#696B64] mt-0.5">
+                <p className="text-[11px] text-[#696B64] dark:text-[#929D93] mt-0.5">
                   You must upload a clear facial photograph to complete driver verification and remain active on dispatch.
                 </p>
               </div>
@@ -1546,7 +1547,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             <button
               onClick={() => photoInputRef.current?.click()}
               disabled={uploadingPhoto}
-              className="px-4 py-2 bg-[#123D32] text-[#FAF7F0] hover:bg-[#0D3027] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 rounded-[8px] cursor-pointer"
+              className="px-4 py-2 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 rounded-[8px] cursor-pointer"
             >
               {uploadingPhoto ? "Uploading..." : "Upload Profile Photo"}
             </button>
@@ -1555,28 +1556,28 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Cash Ride Debt Threshold Alert Banner */}
         {isDebtBlocked && (
-          <div className="bg-red-50 text-[#B83A24] border border-red-200 rounded-[12px] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans shadow-sm">
+          <div className="bg-red-50 dark:bg-red-950/30 text-[#B83A24] dark:text-[#E06A50] border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans shadow-sm">
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-[8px] bg-[#B83A24] text-white flex items-center justify-center font-bold shrink-0">
                 <AlertTriangle size={20} />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#B83A24]">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#B83A24] dark:text-[#E06A50]">
                     Dispatch Blocked &bull; Platform Commission Dues Limit Exceeded
                   </p>
-                  <span className="bg-red-200 text-red-900 text-[10px] font-mono px-2 py-0.5 font-bold uppercase rounded-[4px]">
+                  <span className="bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-200 text-[10px] font-mono px-2 py-0.5 font-bold uppercase rounded-[4px]">
                     ₹{platformDues.toFixed(2)} Dues
                   </span>
                 </div>
-                <p className="text-xs text-red-800/90 mt-1 font-body">
+                <p className="text-xs text-red-800/90 dark:text-red-300/90 mt-1 font-body">
                   You have exceeded the maximum allowed cash ride commission threshold of ₹{maxAllowedPlatformDues}. Settle your platform dues instantly via UPI or card in your Driver Wallet to resume receiving ride assignments.
                 </p>
               </div>
             </div>
             <button
               onClick={() => router.push("/partner/wallet")}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#B83A24] text-white hover:bg-[#9E2F1B] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-2 rounded-[8px] cursor-pointer shadow-sm"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#B83A24] hover:bg-[#9E2F1B] text-white text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-2 rounded-[8px] cursor-pointer shadow-sm"
             >
               <WalletIcon size={14} /> Settle Dues Now
             </button>
@@ -1585,74 +1586,74 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Today's Shift Performance Bar */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-[#FAF7F0] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[#696B64] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64]">{t("driver.todayEarnings", "Today's Earnings")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#929D93]">{t("driver.todayEarnings", "Today's Earnings")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
                 <IndianRupee size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-bold text-[#10251C] tracking-tight leading-none tabular-nums font-mono">
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-none tabular-nums font-mono">
                 ₹{shiftSummary?.todayEarnings ?? 0}
               </p>
-              <p className="text-[11px] text-[#696B64] font-medium mt-1">Net shift earnings</p>
+              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium mt-1">Net shift earnings</p>
             </div>
           </div>
 
-          <div className="bg-[#FAF7F0] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[#696B64] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64]">{t("driver.tripsCompleted", "Trips Completed")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#929D93]">{t("driver.tripsCompleted", "Trips Completed")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
                 <CheckCircle2 size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-bold text-[#10251C] tracking-tight leading-none tabular-nums font-mono">
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-none tabular-nums font-mono">
                 {shiftSummary?.todayTrips ?? 0}
               </p>
-              <p className="text-[11px] text-[#696B64] font-medium mt-1 truncate">
+              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium mt-1 truncate">
                 {shiftSummary?.totalCompleted ? `${shiftSummary.totalCompleted} all-time` : "Today's shift"}
               </p>
             </div>
           </div>
 
-          <div className="bg-[#FAF7F0] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[#696B64] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64]">{t("driver.onlineShift", "Online Shift")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#929D93]">{t("driver.onlineShift", "Online Shift")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
                 <Clock size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-bold text-[#10251C] tracking-tight leading-none tabular-nums font-mono">
-                {shiftSummary?.hoursOnline ?? 0}<span className="text-sm font-normal text-[#696B64] ml-0.5 font-sans">hrs</span>
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-none tabular-nums font-mono">
+                {shiftSummary?.hoursOnline ?? 0}<span className="text-sm font-normal text-[#696B64] dark:text-[#929D93] ml-0.5 font-sans">hrs</span>
               </p>
-              <p className="text-[11px] text-[#696B64] font-medium mt-1">Active duty shift</p>
+              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium mt-1">Active duty shift</p>
             </div>
           </div>
 
-          <div className="bg-[#FAF7F0] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[#696B64] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64]">{t("driver.rating", "Driver Rating")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#929D93]">{t("driver.rating", "Driver Rating")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
                 <Shield size={13} />
               </div>
             </div>
             <div>
               <div className="flex items-baseline gap-1.5 leading-none">
-                <p className="text-xl sm:text-3xl font-bold text-[#10251C] tracking-tight tabular-nums font-mono">
+                <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight tabular-nums font-mono">
                   ★ {shiftSummary?.rating ?? 5.0}
                 </p>
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] uppercase tracking-wider ${
                   (shiftSummary?.cancellationRate ?? 0) > 10
-                    ? "text-[#B83A24] bg-red-50 border border-red-200"
-                    : "text-[#123D32] bg-emerald-50 border border-emerald-200"
+                    ? "text-[#B83A24] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50"
+                    : "text-[#123D32] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60"
                 }`}>
                   {shiftSummary?.acceptanceRate ?? 100}% accept
                 </span>
               </div>
-              <p className="text-[11px] text-[#696B64] font-medium mt-1">
+              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium mt-1">
                 {shiftSummary?.dailyCancellations ? `${shiftSummary.dailyCancellations} cancelled today` : "Clean shift rating"}
               </p>
             </div>
@@ -1661,11 +1662,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Cooldown Alert Banner */}
         {shiftSummary?.isCooldownActive && shiftSummary?.dispatchBlockedUntil && (
-          <div className="bg-red-50 border border-red-300 rounded-none p-4 flex items-center gap-3">
-            <AlertTriangle className="text-red-600 flex-shrink-0" size={20} />
+          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 flex items-center gap-3">
+            <AlertTriangle className="text-[#B83A24] dark:text-[#E06A50] flex-shrink-0" size={20} />
             <div className="text-xs">
-              <p className="text-red-900 font-black uppercase tracking-wide">Dispatch Cooldown Active</p>
-              <p className="text-red-800 text-[11px] mt-0.5 font-medium">
+              <p className="text-red-900 dark:text-red-200 font-bold uppercase tracking-wide">Dispatch Cooldown Active</p>
+              <p className="text-red-800 dark:text-red-300 text-[11px] mt-0.5 font-medium">
                 Multiple ride cancellations today have placed new dispatch assignments on temporary cooldown until{" "}
                 {new Date(shiftSummary.dispatchBlockedUntil).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
               </p>
@@ -1681,35 +1682,35 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               return (
                 <div
                   key={idx}
-                  className={`rounded-none p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                  className={`rounded-[12px] p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                     isExpired
-                      ? "bg-red-50 border-red-300 text-red-950"
-                      : "bg-amber-50 border-amber-300 text-amber-950"
+                      ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-950 dark:text-red-200"
+                      : "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-950 dark:text-amber-200"
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <AlertTriangle
-                      className={isExpired ? "text-red-600 mt-0.5 flex-shrink-0" : "text-amber-600 mt-0.5 flex-shrink-0"}
+                      className={isExpired ? "text-[#B83A24] dark:text-[#E06A50] mt-0.5 flex-shrink-0" : "text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"}
                       size={18}
                     />
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-xs font-black uppercase tracking-wide">
+                        <p className="text-xs font-bold uppercase tracking-wide">
                           {isExpired ? "Document Expired — Service Restricted" : "Document Expiry Warning"}
                         </p>
                         <span
-                          className={`text-[9px] font-black px-2 py-0.5 rounded-none uppercase tracking-wider border ${
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded-[4px] uppercase tracking-wider border ${
                             isExpired
-                              ? "bg-red-200 text-red-950 border-red-400"
+                              ? "bg-red-200 dark:bg-red-900/60 text-red-950 dark:text-red-200 border-red-300 dark:border-red-800"
                               : alert.status === "urgent_7_days"
-                              ? "bg-amber-200 text-amber-950 border-amber-400"
-                              : "bg-amber-100 text-amber-900 border-amber-300"
+                              ? "bg-amber-200 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 border-amber-300 dark:border-amber-800"
+                              : "bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200 border-amber-200 dark:border-amber-700"
                           }`}
                         >
                           {isExpired ? "Expired" : `${alert.daysRemaining} days left`}
                         </span>
                       </div>
-                      <p className="text-[11px] text-zinc-700 mt-0.5 leading-snug font-medium">
+                      <p className="text-[11px] text-[#696B64] dark:text-[#929D93] mt-0.5 leading-snug font-medium">
                         {alert.message}
                       </p>
                     </div>
@@ -1717,10 +1718,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <button
                     type="button"
                     onClick={() => router.push("/partner/onboard/documents")}
-                    className={`text-xs font-black uppercase tracking-wider px-4 py-2 rounded-none transition whitespace-nowrap self-start sm:self-center cursor-pointer ${
+                    className={`text-xs font-semibold uppercase tracking-wider px-4 py-2 rounded-[8px] transition whitespace-nowrap self-start sm:self-center cursor-pointer shadow-sm ${
                       isExpired
-                        ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-amber-400 hover:bg-amber-500 text-zinc-950"
+                        ? "bg-[#B83A24] hover:bg-[#9E2F1B] text-white"
+                        : "bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0]"
                     }`}
                   >
                     Renew Document
@@ -1735,15 +1736,15 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
 
           {/* Card 1: Duty Status Command */}
-          <div className="bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] mb-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#929D93] mb-1">
                 Dispatch & Duty Status
               </p>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
                 {isOnline ? "Online — Accepting Trips" : "Offline — Duty Paused"}
               </h2>
-              <p className="text-[#696B64] text-xs font-medium mt-1 leading-relaxed font-body">
+              <p className="text-[#696B64] dark:text-[#B8C2B8] text-xs font-medium mt-1 leading-relaxed font-body">
                 {isOnline
                   ? "Live radar active. You will receive real-time ride dispatch assignments matching your registered fleet."
                   : "Toggle online to start receiving ride dispatch assignments and passenger bookings."}
@@ -1751,28 +1752,28 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
 
             {isDebtBlocked && (
-              <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-[8px] text-[#B83A24] text-xs font-medium flex items-center justify-between gap-2">
+              <div className="mt-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-[#B83A24] dark:text-[#E06A50] text-xs font-medium flex items-center justify-between gap-2">
                 <span className="truncate font-mono text-[11px]">Dues limit reached (₹{platformDues.toFixed(2)} / ₹{maxAllowedPlatformDues})</span>
-                <Link href="/partner/wallet" className="underline font-bold text-[#B83A24] shrink-0 text-xs uppercase">
+                <Link href="/partner/wallet" className="underline font-bold text-[#B83A24] dark:text-[#E06A50] shrink-0 text-xs uppercase">
                   Settle
                 </Link>
               </div>
             )}
 
-            <div className="bg-[#F7F1E5] rounded-[12px] p-4 border border-[#DED7CA] flex items-center justify-between my-4">
+            <div className="bg-[#F7F1E5] dark:bg-[#101713] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#29372E] flex items-center justify-between my-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-[#10251C] tracking-tight">
+                  <p className="text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
                     {isOnline ? "Duty: Online" : "Duty: Offline"}
                   </p>
                   {isOnline && isWakeLockActive && (
-                    <span className="flex items-center gap-1 text-[10px] font-mono text-[#123D32] bg-[#123D32]/10 px-1.5 py-0.5 rounded-[4px] border border-[#123D32]/20 font-bold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#123D32] animate-pulse" />
+                    <span className="flex items-center gap-1 text-[10px] font-mono text-[#123D32] dark:text-[#347858] bg-[#123D32]/10 dark:bg-[#28664D]/20 px-1.5 py-0.5 rounded-[4px] border border-[#123D32]/20 dark:border-[#28664D]/30 font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#123D32] dark:bg-[#347858] animate-pulse" />
                       SCREEN AWAKE
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-[#696B64] font-semibold uppercase tracking-wider">
+                <p className="text-[10px] text-[#696B64] dark:text-[#929D93] font-semibold uppercase tracking-wider">
                   {isOnline ? "Broadcasting live coordinates" : "Unavailable for dispatch"}
                 </p>
               </div>
@@ -1782,7 +1783,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 onClick={handleToggleOnline}
                 disabled={loading}
                 className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors cursor-pointer focus:outline-none ${
-                  isOnline ? "bg-[#123D32]" : "bg-zinc-300"
+                  isOnline ? "bg-[#123D32] dark:bg-[#28664D]" : "bg-zinc-300 dark:bg-zinc-700"
                 }`}
                 title={isOnline ? "Switch to Offline" : "Switch to Online"}
               >
@@ -1794,10 +1795,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               </button>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-[#DED7CA] text-xs text-[#696B64]">
+            <div className="flex items-center justify-between pt-2 border-t border-[#DED7CA] dark:border-[#29372E] text-xs text-[#696B64] dark:text-[#929D93]">
               <div className="flex items-center gap-1.5 min-w-0">
-                <MapPin size={13} className="text-[#123D32] shrink-0" />
-                <span className="truncate tabular-nums font-mono text-[11px] text-[#10251C]">
+                <MapPin size={13} className="text-[#123D32] dark:text-[#347858] shrink-0" />
+                <span className="truncate tabular-nums font-mono text-[11px] text-[#10251C] dark:text-[#F3F1E8]">
                   {coords
                     ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
                     : "Detecting GPS..."}
@@ -1807,62 +1808,62 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 type="button"
                 onClick={() => syncDriverLocation()}
                 disabled={isLocating}
-                className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#10251C] hover:text-[#123D32] border border-[#DED7CA] hover:border-[#123D32] px-2.5 py-1 rounded-[8px] bg-[#FAF7F0] transition cursor-pointer shrink-0 ml-2 shadow-xs"
+                className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] hover:text-[#123D32] dark:hover:text-[#347858] border border-[#DED7CA] dark:border-[#29372E] hover:border-[#123D32] dark:hover:border-[#28664D] px-2.5 py-1 rounded-[8px] bg-[#FAF7F0] dark:bg-[#17211B] transition cursor-pointer shrink-0 ml-2 shadow-xs"
                 title="Refresh and sync GPS location now"
               >
-                <RefreshCw size={11} className={isLocating ? "animate-spin text-[#123D32]" : "text-[#123D32]"} />
+                <RefreshCw size={11} className={isLocating ? "animate-spin text-[#123D32] dark:text-[#347858]" : "text-[#123D32] dark:text-[#347858]"} />
                 <span>{isLocating ? "Syncing..." : "Sync GPS"}</span>
               </button>
             </div>
           </div>
 
           {/* Card 2: Live Location Tracker & Radar */}
-          <div className="bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 flex flex-col justify-between min-h-[310px] shadow-sm">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#929D93] mb-1">
                   Live GPS Telemetry
                 </p>
-                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
                   Location Radar
                 </h2>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] text-[10px] font-semibold uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] text-[#123D32] dark:text-[#347858] text-[10px] font-semibold uppercase tracking-wider">
                 <span>Live GPS</span>
               </span>
             </div>
 
-            <div className="flex-1 w-full h-[155px] relative my-3 rounded-[12px] overflow-hidden border border-[#DED7CA]">
+            <div className="flex-1 w-full h-[155px] relative my-3 rounded-[12px] overflow-hidden border border-[#DED7CA] dark:border-[#29372E]">
               <DriverLocationMap coords={coords} vehicleType={vType} />
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-[#696B64] border-t border-[#DED7CA] pt-2">
+            <div className="flex items-center justify-between text-[11px] text-[#696B64] dark:text-[#929D93] border-t border-[#DED7CA] dark:border-[#29372E] pt-2">
               <span className="truncate">
                 {lastSyncedTime
                   ? `Synced ${lastSyncedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
                   : "Continuous device tracking active"}
               </span>
-              <span className="text-[10px] font-semibold uppercase text-[#123D32] bg-[#F7F1E5] px-2 py-0.5 rounded-[4px] border border-[#DED7CA] shrink-0 ml-2">
+              <span className="text-[10px] font-semibold uppercase text-[#123D32] dark:text-[#347858] bg-[#F7F1E5] dark:bg-[#101713] px-2 py-0.5 rounded-[4px] border border-[#DED7CA] dark:border-[#29372E] shrink-0 ml-2">
                 Active Radar
               </span>
             </div>
           </div>
 
           {/* Card 3: Fleet Vehicle Specifications */}
-          <div className="bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#929D93] mb-1">
                   Fleet Specifications
                 </p>
-                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] tracking-tight capitalize">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight capitalize">
                   {vType} Fleet
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowPricing(true)}
-                className="text-[#10251C] hover:text-[#123D32] p-2 rounded-[8px] border border-[#DED7CA] hover:border-[#123D32] hover:bg-[#F7F1E5] transition-all cursor-pointer shadow-xs"
+                className="text-[#10251C] dark:text-[#F3F1E8] hover:text-[#123D32] dark:hover:text-[#347858] p-2 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] hover:border-[#123D32] dark:hover:border-[#28664D] hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition-all cursor-pointer shadow-xs"
                 title="Edit pricing and vehicle details"
               >
                 <Edit3 size={15} />
@@ -1874,46 +1875,46 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 <img
                   src={pricing.imageUrl}
                   alt="Vehicle"
-                  className="w-20 h-20 rounded-[12px] object-cover border border-[#DED7CA] shrink-0"
+                  className="w-20 h-20 rounded-[12px] object-cover border border-[#DED7CA] dark:border-[#29372E] shrink-0"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-[12px] bg-[#F7F1E5] border border-[#DED7CA] flex flex-col items-center justify-center text-[#123D32] shrink-0 gap-1">
+                <div className="w-20 h-20 rounded-[12px] bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] flex flex-col items-center justify-center text-[#123D32] dark:text-[#347858] shrink-0 gap-1">
                   {vType === "auto" ? (
                     <Car size={26} className="text-amber-600" />
                   ) : vType === "bike" || vType === "scooty" ? (
-                    <Bike size={26} className="text-[#123D32]" />
+                    <Bike size={26} className="text-[#123D32] dark:text-[#347858]" />
                   ) : vType === "loading" || vType === "truck" ? (
-                    <Truck size={26} className="text-[#10251C]" />
+                    <Truck size={26} className="text-[#10251C] dark:text-[#F3F1E8]" />
                   ) : (
-                    <Car size={26} className="text-[#123D32]" />
+                    <Car size={26} className="text-[#123D32] dark:text-[#347858]" />
                   )}
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-[#696B64]">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">
                     {vType}
                   </span>
                 </div>
               )}
               <div className="space-y-1.5 flex-1 min-w-0">
-                <div className="flex items-center justify-between text-xs text-[#696B64]">
+                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
                   <span className="font-medium">Base Fare:</span>
-                  <span className="tabular-nums text-[#10251C] font-mono font-bold">₹{cfg.baseFare}</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F3F1E8] font-mono font-bold">₹{cfg.baseFare}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-[#696B64]">
+                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
                   <span className="font-medium">Distance Rate:</span>
-                  <span className="tabular-nums text-[#10251C] font-mono font-bold">₹{cfg.pricePerKm}/km</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F3F1E8] font-mono font-bold">₹{cfg.pricePerKm}/km</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-[#696B64]">
+                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
                   <span className="font-medium">Time Charge:</span>
-                  <span className="tabular-nums text-[#10251C] font-mono font-bold">₹{cfg.pricePerMinute}/min</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F3F1E8] font-mono font-bold">₹{cfg.pricePerMinute}/min</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-[#696B64]">
+                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
                   <span className="font-medium">Demand Multiplier:</span>
-                  <span className="tabular-nums text-[#10251C] font-mono font-bold">{cfg.multiplier}x</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F3F1E8] font-mono font-bold">{cfg.multiplier}x</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#123D32] bg-emerald-50 px-2.5 py-1 rounded-[6px] border border-emerald-200 mt-auto self-start uppercase tracking-wider">
-              <Check size={12} className="text-[#123D32]" />
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#123D32] dark:text-[#347858] bg-emerald-50 dark:bg-[#1D3428] px-2.5 py-1 rounded-[6px] border border-emerald-200 dark:border-[#28664D] mt-auto self-start uppercase tracking-wider">
+              <Check size={12} className="text-[#123D32] dark:text-[#347858]" />
               <span>Pricing Approved & Verified</span>
             </div>
           </div>
@@ -1926,19 +1927,19 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         </div>
 
         {/* Recent Trips & Drop-Off Ledger */}
-        <div className="bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 md:p-8 shadow-sm space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#DED7CA] pb-4">
+        <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 md:p-8 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#DED7CA] dark:border-[#29372E] pb-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64]">Shift Activity</p>
-              <h2 className="text-xl font-serif font-bold text-[#10251C] tracking-tight">Recent Trips & Drop-Off Ledger</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#929D93]">Shift Activity</p>
+              <h2 className="text-xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">Recent Trips & Drop-Off Ledger</h2>
             </div>
-            <p className="text-xs text-[#696B64] font-medium">Real-time trip records and drop-off arrival times</p>
+            <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] font-medium">Real-time trip records and drop-off arrival times</p>
           </div>
 
           {recentTrips.length === 0 ? (
-            <div className="text-center py-10 bg-[#F7F1E5] rounded-[12px] border border-dashed border-[#DED7CA]">
-              <p className="text-sm font-bold text-[#10251C]">No trips recorded for this shift yet</p>
-              <p className="text-xs text-[#696B64] mt-1">Toggle online above to start receiving passenger bookings</p>
+            <div className="text-center py-10 bg-[#F7F1E5] dark:bg-[#101713] rounded-[12px] border border-dashed border-[#DED7CA] dark:border-[#29372E]">
+              <p className="text-sm font-bold text-[#10251C] dark:text-[#F3F1E8]">No trips recorded for this shift yet</p>
+              <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-1">Toggle online above to start receiving passenger bookings</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -1965,26 +1966,26 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 return (
                   <div
                     key={trip.id}
-                    className="p-4 rounded-[12px] border border-[#DED7CA] bg-[#F7F1E5]/60 hover:bg-[#F7F1E5] transition flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs"
+                    className="p-4 rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] bg-[#F7F1E5]/60 dark:bg-[#101713]/60 hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs"
                   >
                     {/* Route Details */}
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold font-mono uppercase bg-[#F7F1E5] text-[#10251C] px-2 py-0.5 rounded-[4px] border border-[#DED7CA]">
+                        <span className="text-[10px] font-bold font-mono uppercase bg-[#F7F1E5] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] px-2 py-0.5 rounded-[4px] border border-[#DED7CA] dark:border-[#29372E]">
                           #{trip.id.slice(-6)}
                         </span>
                         <span
                           className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[4px] ${
                             isCompleted
-                              ? "bg-emerald-100 text-[#123D32]"
+                              ? "bg-emerald-100 dark:bg-[#1D3428] text-[#123D32] dark:text-[#347858]"
                               : isCancelled
-                              ? "bg-red-100 text-[#B83A24]"
-                              : "bg-blue-100 text-blue-800"
+                              ? "bg-red-100 dark:bg-red-950/40 text-[#B83A24] dark:text-[#E06A50]"
+                              : "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300"
                           }`}
                         >
                           {trip.status}
                         </span>
-                        <span className="text-[11px] text-[#696B64] font-medium">
+                        <span className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium">
                           {trip.createdAt
                             ? new Date(trip.createdAt).toLocaleDateString([], {
                                 month: "short",
@@ -1996,29 +1997,29 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
                       <div className="grid sm:grid-cols-2 gap-2 text-xs">
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-[#123D32] mt-1 flex-shrink-0" />
-                          <span className="text-[#696B64] truncate">{trip.pickupAddress}</span>
+                          <span className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#347858] mt-1 flex-shrink-0" />
+                          <span className="text-[#696B64] dark:text-[#929D93] truncate">{trip.pickupAddress}</span>
                         </div>
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full border border-[#123D32] bg-[#FAF7F0] mt-1 flex-shrink-0" />
-                          <span className="text-[#10251C] font-semibold truncate">{trip.dropAddress}</span>
+                          <span className="w-2 h-2 rounded-full border border-[#123D32] dark:border-[#347858] bg-[#FAF7F0] dark:bg-[#17211B] mt-1 flex-shrink-0" />
+                          <span className="text-[#10251C] dark:text-[#F3F1E8] font-semibold truncate">{trip.dropAddress}</span>
                         </div>
                       </div>
 
                       {/* Drop-off Time & Timing Info */}
-                      <div className="text-[11px] font-medium text-[#696B64] flex items-center gap-2 flex-wrap">
+                      <div className="text-[11px] font-medium text-[#696B64] dark:text-[#929D93] flex items-center gap-2 flex-wrap">
                         {isCompleted && dropTime && (
-                          <span className="text-[#123D32] bg-emerald-50 px-2 py-0.5 rounded-[4px] border border-emerald-200 flex items-center gap-1 font-semibold">
+                          <span className="text-[#123D32] dark:text-[#347858] bg-emerald-50 dark:bg-[#1D3428] px-2 py-0.5 rounded-[4px] border border-emerald-200 dark:border-[#28664D] flex items-center gap-1 font-semibold">
                             <CheckCircle2 size={12} /> Dropped off at {dropTime} ({trip.tripDurationMinutes} mins)
                           </span>
                         )}
                         {isInProgress && dropTime && (
-                          <span className="text-blue-800 bg-blue-50 px-2 py-0.5 rounded-[4px] border border-blue-200 flex items-center gap-1 font-semibold">
+                          <span className="text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 rounded-[4px] border border-blue-200 dark:border-blue-900/50 flex items-center gap-1 font-semibold">
                             <Clock size={12} /> Est. Drop-off by {dropTime} (~{trip.tripDurationMinutes} mins)
                           </span>
                         )}
                         {isCancelled && (
-                          <span className="text-[#B83A24] bg-red-50 px-2 py-0.5 rounded-[4px] border border-red-200 flex items-center gap-1 font-semibold">
+                          <span className="text-[#B83A24] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded-[4px] border border-red-200 dark:border-red-900/50 flex items-center gap-1 font-semibold">
                             ✕ {trip.cancellationReason || "Cancelled"}
                             {trip.cancellationFeeApplied ? " • ₹40 Driver Compensation" : " • Free cancel"}
                           </span>
@@ -2027,10 +2028,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     </div>
 
                     {/* Fare / Earnings */}
-                    <div className="text-left md:text-right flex-shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-[#DED7CA]">
-                      <p className="text-[10px] uppercase font-bold text-[#696B64]">Driver Share</p>
-                      <p className="text-lg font-bold text-[#10251C] font-mono">₹{trip.partnerAmount}</p>
-                      <p className="text-[10px] text-[#696B64] font-medium">Fare: ₹{trip.fare}</p>
+                    <div className="text-left md:text-right flex-shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-[#DED7CA] dark:border-[#29372E]">
+                      <p className="text-[10px] uppercase font-bold text-[#696B64] dark:text-[#929D93]">Driver Share</p>
+                      <p className="text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] font-mono">₹{trip.partnerAmount}</p>
+                      <p className="text-[10px] text-[#696B64] dark:text-[#929D93] font-medium">Fare: ₹{trip.fare}</p>
                     </div>
                   </div>
                 );
@@ -2065,57 +2066,57 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 350 }}
-                className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-zinc-100 overflow-hidden flex flex-col"
+                className="bg-[#FAF7F0] dark:bg-[#17211B] w-full max-w-md rounded-[16px] shadow-2xl border border-[#DED7CA] dark:border-[#29372E] overflow-hidden flex flex-col"
               >
                 {/* Header */}
-                <div className="bg-zinc-950 px-6 py-5 flex items-center justify-between text-white">
+                <div className="bg-[#123D32] dark:bg-[#0D3027] px-6 py-5 flex items-center justify-between text-white border-b border-[#DED7CA]/20 dark:border-[#29372E]">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-                    <h3 className="font-black text-sm uppercase tracking-widest text-zinc-300">{t("driver.incomingRequest", "Incoming Request")}</h3>
+                    <h3 className="font-bold text-xs uppercase tracking-widest text-[#FAF7F0]">{t("driver.incomingRequest", "Incoming Request")}</h3>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-xs font-semibold">
+                  <div className="flex items-center gap-1.5 bg-white/10 dark:bg-black/30 px-3 py-1 rounded-[8px] text-xs font-semibold text-[#FAF7F0]">
                     <Clock size={12} className="text-amber-400" />
                     <span>20s left</span>
                   </div>
                 </div>
 
                 {/* Ride Details */}
-                <div className="p-6 space-y-5">
+                <div className="p-6 space-y-4">
                   
                   {/* Locations */}
-                  <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 space-y-4">
+                  <div className="bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] p-4 space-y-3">
                     <div className="flex gap-3 items-start">
                       <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
-                        <div className="w-px bg-zinc-200 mt-1 h-8" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#347858] border-2 border-white dark:border-[#17211B] shadow-sm" />
+                        <div className="w-px bg-[#DED7CA] dark:bg-[#29372E] mt-1 h-8" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">{t("booking.pickup", "Pickup Location")}</p>
-                        <p className="text-xs text-zinc-800 font-bold leading-snug truncate">{pendingRequest.pickupAddress}</p>
+                        <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider mb-0.5">{t("booking.pickup", "Pickup Location")}</p>
+                        <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] font-bold leading-snug truncate">{pendingRequest.pickupAddress}</p>
                       </div>
                     </div>
                     <div className="flex gap-3 items-start">
                       <div className="flex-shrink-0 pt-1">
-                        <div className="w-2.5 h-2.5 rounded-sm bg-zinc-900 border-2 border-white shadow-sm" />
+                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#B83A24] dark:bg-[#E06A50] border-2 border-white dark:border-[#17211B] shadow-sm" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">{t("booking.drop", "Drop Location")}</p>
-                        <p className="text-xs text-zinc-800 font-bold leading-snug truncate">{pendingRequest.dropAddress}</p>
+                        <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider mb-0.5">{t("booking.drop", "Drop Location")}</p>
+                        <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] font-bold leading-snug truncate">{pendingRequest.dropAddress}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Estimated Trip Duration & Dropoff Time */}
-                  <div className="bg-zinc-50 border border-zinc-200/80 rounded-2xl p-3.5 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 text-zinc-600">
-                      <Clock size={13} className="text-zinc-500" />
+                  <div className="bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] p-3.5 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-[#696B64] dark:text-[#B8C2B8]">
+                      <Clock size={13} className="text-[#696B64] dark:text-[#929D93]" />
                       <span className="font-medium">{t("driver.estDuration", "Est. Duration")}:</span>
-                      <span className="font-bold text-zinc-900">~{pendingRequest.tripDurationMinutes || 15} mins</span>
+                      <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">~{pendingRequest.tripDurationMinutes || 15} mins</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-zinc-600">
-                      <Navigation size={13} className="text-emerald-600" />
+                    <div className="flex items-center gap-1.5 text-[#696B64] dark:text-[#B8C2B8]">
+                      <Navigation size={13} className="text-[#123D32] dark:text-[#347858]" />
                       <span className="font-medium">{t("driver.estDropoff", "Drop-off:")}</span>
-                      <span className="font-bold text-zinc-900">
+                      <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">
                         {pendingRequest.estimatedDropoffTime
                           ? new Date(pendingRequest.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
                           : "Shortly"}
@@ -2124,26 +2125,26 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   </div>
 
                   {/* Earnings Display: Upfront Net Payout (Commission already deducted) */}
-                  <div className="bg-zinc-950 rounded-2xl p-5 text-center border border-zinc-800 flex flex-col items-center justify-center">
-                    <p className="text-emerald-400 text-[10px] uppercase tracking-widest font-black mb-1">{t("driver.netFare", "Your Net Payout (Take-Home)")}</p>
-                    <div className="flex items-center gap-1.5 text-white text-4xl font-black tracking-tight leading-none">
-                      <IndianRupee size={24} className="text-emerald-400" />
+                  <div className="bg-[#123D32] dark:bg-[#0D3027] rounded-[12px] p-5 text-center border border-[#123D32]/30 dark:border-[#29372E] flex flex-col items-center justify-center">
+                    <p className="text-[#FAF7F0]/80 text-[10px] uppercase tracking-widest font-bold mb-1">{t("driver.netFare", "Your Net Payout (Take-Home)")}</p>
+                    <div className="flex items-center gap-1.5 text-[#FAF7F0] text-4xl font-serif font-black tracking-tight leading-none">
+                      <IndianRupee size={24} className="text-[#D7AC62]" />
                       <span>{pendingRequest.partnerAmount || Math.round((pendingRequest.fare || 0) * 0.9)}</span>
                     </div>
-                    <p className="text-[9px] text-zinc-400 mt-2 font-medium">Guaranteed driver earnings. Platform commission already deducted.</p>
+                    <p className="text-[10px] text-[#FAF7F0]/70 mt-2 font-medium">Guaranteed driver earnings. Platform commission already deducted.</p>
                   </div>
 
                 </div>
 
                 {/* Actions */}
-                <div className="px-6 pb-6 pt-2 border-t border-zinc-100 flex gap-3">
+                <div className="px-6 pb-6 pt-2 border-t border-[#DED7CA] dark:border-[#29372E] flex gap-3">
                   <button
                     onClick={() => handleRequestAction(pendingRequest._id, "reject")}
                     disabled={processingAction !== null}
-                    className="flex-1 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 py-3.5 rounded-2xl text-sm font-bold active:scale-[0.97] transition-all disabled:opacity-40"
+                    className="flex-1 border border-[#DED7CA] dark:border-[#29372E] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] py-3 rounded-[8px] text-xs uppercase tracking-wider font-bold active:scale-[0.98] transition-all disabled:opacity-40 cursor-pointer shadow-xs"
                   >
                     {processingAction === "reject" ? (
-                      <Loader2 className="animate-spin w-4 h-4 mx-auto text-zinc-500" />
+                      <Loader2 className="animate-spin w-4 h-4 mx-auto text-[#696B64] dark:text-[#929D93]" />
                     ) : (
                       t("driver.reject", "Reject")
                     )}
@@ -2151,7 +2152,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <button
                     onClick={() => handleRequestAction(pendingRequest._id, "accept")}
                     disabled={processingAction !== null}
-                    className="flex-1 bg-zinc-950 hover:bg-black text-white py-3.5 rounded-2xl text-sm font-black tracking-wide active:scale-[0.97] transition-all shadow-lg shadow-zinc-900/10 disabled:opacity-40"
+                    className="flex-1 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-[#FAF7F0] py-3 rounded-[8px] text-xs uppercase tracking-wider font-bold active:scale-[0.98] transition-all shadow-md disabled:opacity-40 cursor-pointer"
                   >
                     {processingAction === "accept" ? (
                       <Loader2 className="animate-spin w-4 h-4 mx-auto text-white" />

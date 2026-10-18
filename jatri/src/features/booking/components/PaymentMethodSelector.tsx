@@ -22,8 +22,8 @@ export default function PaymentMethodSelector({
   const isOnlineActive = selectedMethod === "online" || selectedMethod === "razorpay";
 
   return (
-    <div className="bg-white border border-zinc-200/80 rounded-3xl p-6 shadow-sm mb-6">
-      <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">
+    <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-5 sm:p-6 shadow-sm mb-6 transition-colors">
+      <h3 className="text-xs font-bold uppercase tracking-widest text-[#696B64] dark:text-[#929D93] mb-4">
         Payment Method
       </h3>
 
@@ -33,18 +33,20 @@ export default function PaymentMethodSelector({
           type="button"
           onClick={() => isWalletSufficient && onSelect("wallet")}
           disabled={!isWalletSufficient}
-          className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
+          className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
             selectedMethod === "wallet"
-              ? "border-zinc-900 bg-zinc-900 text-white shadow-md"
+              ? "border-[#123D32] dark:border-[#28664D] bg-[#123D32] dark:bg-[#28664D] text-white shadow-md"
               : isWalletSufficient
-              ? "border-zinc-200 hover:border-zinc-400 text-zinc-800"
-              : "border-zinc-100 bg-zinc-50 opacity-60 cursor-not-allowed text-zinc-400"
+              ? "border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8]"
+              : "border-[#DED7CA]/50 dark:border-[#34443A]/50 bg-white/50 dark:bg-[#1E2B23]/50 opacity-60 cursor-not-allowed text-[#696B64] dark:text-[#929D93]"
           }`}
         >
           <div className="flex items-center justify-between mb-3">
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                selectedMethod === "wallet" ? "bg-white/10 text-white" : "bg-zinc-100 text-zinc-800"
+              className={`w-9 h-9 rounded-[8px] flex items-center justify-center ${
+                selectedMethod === "wallet"
+                  ? "bg-white/20 text-white"
+                  : "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8]"
               }`}
             >
               <Wallet size={18} />
@@ -55,13 +57,13 @@ export default function PaymentMethodSelector({
             <p className="text-xs font-bold leading-tight">RideNow Wallet</p>
             <p
               className={`text-[11px] mt-0.5 ${
-                selectedMethod === "wallet" ? "text-zinc-300" : "text-zinc-500"
+                selectedMethod === "wallet" ? "text-white/80" : "text-[#696B64] dark:text-[#929D93]"
               }`}
             >
               {walletBalance !== null ? `Balance: ₹${walletBalance}` : "Loading..."}
             </p>
             {!isWalletSufficient && walletBalance !== null && (
-              <span className="text-[10px] text-amber-600 font-semibold block mt-1">
+              <span className="text-[10px] text-[#B83A24] dark:text-[#E06A50] font-semibold block mt-1">
                 Insufficient (needs ₹{fare})
               </span>
             )}
@@ -72,16 +74,18 @@ export default function PaymentMethodSelector({
         <button
           type="button"
           onClick={() => onSelect("cash")}
-          className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
+          className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
             selectedMethod === "cash"
-              ? "border-zinc-900 bg-zinc-900 text-white shadow-md"
-              : "border-zinc-200 hover:border-zinc-400 text-zinc-800"
+              ? "border-[#123D32] dark:border-[#28664D] bg-[#123D32] dark:bg-[#28664D] text-white shadow-md"
+              : "border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8]"
           }`}
         >
           <div className="flex items-center justify-between mb-3">
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                selectedMethod === "cash" ? "bg-white/10 text-white" : "bg-zinc-100 text-zinc-800"
+              className={`w-9 h-9 rounded-[8px] flex items-center justify-center ${
+                selectedMethod === "cash"
+                  ? "bg-white/20 text-white"
+                  : "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8]"
               }`}
             >
               <Banknote size={18} />
@@ -92,7 +96,7 @@ export default function PaymentMethodSelector({
             <p className="text-xs font-bold leading-tight">Cash to Driver</p>
             <p
               className={`text-[11px] mt-0.5 ${
-                selectedMethod === "cash" ? "text-zinc-300" : "text-zinc-500"
+                selectedMethod === "cash" ? "text-white/80" : "text-[#696B64] dark:text-[#929D93]"
               }`}
             >
               Pay upon dropoff
@@ -104,16 +108,18 @@ export default function PaymentMethodSelector({
         <button
           type="button"
           onClick={() => onSelect("online")}
-          className={`p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
+          className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
             isOnlineActive
-              ? "border-zinc-900 bg-zinc-900 text-white shadow-md"
-              : "border-zinc-200 hover:border-zinc-400 text-zinc-800"
+              ? "border-[#123D32] dark:border-[#28664D] bg-[#123D32] dark:bg-[#28664D] text-white shadow-md"
+              : "border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8]"
           }`}
         >
           <div className="flex items-center justify-between mb-3">
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                isOnlineActive ? "bg-white/10 text-white" : "bg-zinc-100 text-zinc-800"
+              className={`w-9 h-9 rounded-[8px] flex items-center justify-center ${
+                isOnlineActive
+                  ? "bg-white/20 text-white"
+                  : "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8]"
               }`}
             >
               <CreditCard size={18} />
@@ -124,7 +130,7 @@ export default function PaymentMethodSelector({
             <p className="text-xs font-bold leading-tight">UPI / Card / NetBanking</p>
             <p
               className={`text-[11px] mt-0.5 ${
-                isOnlineActive ? "text-zinc-300" : "text-zinc-500"
+                isOnlineActive ? "text-white/80" : "text-[#696B64] dark:text-[#929D93]"
               }`}
             >
               Instant Razorpay checkout

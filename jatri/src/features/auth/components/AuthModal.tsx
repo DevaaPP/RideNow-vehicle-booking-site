@@ -363,11 +363,11 @@ export default function AuthModal({ open, onClose }: Props) {
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-[100] flex items-center justify-center px-4"
           >
-            <div className="relative w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-xl p-6 sm:p-7 text-zinc-900">
+            <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-[#17211B] border border-zinc-200 dark:border-[#34443A] shadow-xl p-6 sm:p-7 text-zinc-900 dark:text-[#F3F1E8]">
               {/* CLOSE BUTTON */}
               <button
                 onClick={onClose}
-                className="absolute right-4 top-4 w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition"
+                className="absolute right-4 top-4 w-8 h-8 rounded-lg bg-zinc-100 dark:bg-[#1E2B23] hover:bg-zinc-200 dark:hover:bg-[#202B24] flex items-center justify-center text-zinc-500 dark:text-[#929D93] transition"
                 aria-label="Close"
               >
                 <X size={16} />
@@ -375,15 +375,15 @@ export default function AuthModal({ open, onClose }: Props) {
 
               {/* BRAND HEADER */}
               <div className="mb-6 text-center">
-                <h1 className="text-2xl font-black tracking-tight text-zinc-900">RideNow</h1>
-                <p className="text-xs text-zinc-500 font-medium mt-1">
+                <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-[#F3F1E8]">RideNow</h1>
+                <p className="text-xs text-zinc-500 dark:text-[#929D93] font-medium mt-1">
                   {t("auth.signInSubtitle", "Enter your mobile number to get started")}
                 </p>
               </div>
 
               {/* ERROR NOTIFICATION */}
               {errorMessage && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium flex items-center gap-2">
+                <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-xl text-xs text-red-600 dark:text-red-400 font-medium flex items-center gap-2">
                   <AlertCircle size={15} className="flex-shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
@@ -400,18 +400,18 @@ export default function AuthModal({ open, onClose }: Props) {
                     className="space-y-4"
                   >
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900">{t("auth.orPhone", "Enter your Mobile Number")}</h2>
-                      <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F3F1E8]">{t("auth.orPhone", "Enter your Mobile Number")}</h2>
+                      <p className="text-xs text-zinc-400 dark:text-[#929D93] font-medium mt-0.5">
                         {t("auth.sendOtpDesc", "We will send a 6-digit verification code to your WhatsApp.")}
                       </p>
                     </div>
 
                     <form onSubmit={handleSendPhoneOtp} className="space-y-3.5">
                       {/* Phone Input with +91 Indian Flag badge */}
-                      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-zinc-300 focus-within:border-zinc-900 transition">
-                        <div className="flex items-center gap-1.5 pr-2.5 border-r border-zinc-200 flex-shrink-0">
+                      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-[#34443A] focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#101713]/50 transition">
+                        <div className="flex items-center gap-1.5 pr-2.5 border-r border-zinc-200 dark:border-[#29372E] flex-shrink-0">
                           <span className="text-base leading-none">🇮🇳</span>
-                          <span className="text-xs font-bold text-zinc-800">+91</span>
+                          <span className="text-xs font-bold text-zinc-800 dark:text-[#F3F1E8]">+91</span>
                         </div>
                         <input
                           type="tel"
@@ -423,7 +423,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           onChange={(e) =>
                             setMobileNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
                           }
-                          className="w-full text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none bg-transparent"
+                          className="w-full text-sm font-semibold text-zinc-900 dark:text-[#F3F1E8] placeholder:text-zinc-400 dark:placeholder:text-[#929D93] outline-none bg-transparent"
                         />
                       </div>
 
@@ -433,7 +433,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           type="button"
                           onClick={(e) => handleSendPhoneOtp(e, "whatsapp")}
                           disabled={sendingPhoneOtp || mobileNumber.replace(/\D/g, "").length !== 10}
-                          className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-98"
+                          className="h-11 rounded-xl bg-emerald-600 dark:bg-[#28664D] hover:bg-emerald-500 dark:hover:bg-[#347858] disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-98"
                         >
                           {sendingPhoneOtp && selectedChannel === "whatsapp" ? (
                             <>
@@ -452,7 +452,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           type="button"
                           onClick={(e) => handleSendPhoneOtp(e, "sms")}
                           disabled={sendingPhoneOtp || mobileNumber.replace(/\D/g, "").length !== 10}
-                          className="h-11 rounded-xl bg-zinc-900 hover:bg-zinc-800 disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-98"
+                          className="h-11 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-[#1E2B23] dark:hover:bg-[#202B24] border border-transparent dark:border-[#34443A] disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-98"
                         >
                           {sendingPhoneOtp && selectedChannel === "sms" ? (
                             <>
@@ -471,17 +471,17 @@ export default function AuthModal({ open, onClose }: Props) {
 
                     {/* DIVIDER */}
                     <div className="flex items-center gap-4 my-3">
-                      <span className="flex-1 h-px bg-zinc-200" />
-                      <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                      <span className="flex-1 h-px bg-zinc-200 dark:bg-[#29372E]" />
+                      <span className="text-[11px] font-semibold text-zinc-400 dark:text-[#929D93] uppercase tracking-wider">
                         Or continue with
                       </span>
-                      <span className="flex-1 h-px bg-zinc-200" />
+                      <span className="flex-1 h-px bg-zinc-200 dark:bg-[#29372E]" />
                     </div>
 
                     {/* GOOGLE SIGN IN */}
                     <button
                       onClick={handleGoogleLogin}
-                      className="w-full h-11 rounded-xl border border-zinc-300 hover:border-zinc-900 flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 transition active:scale-98"
+                      className="w-full h-11 rounded-xl border border-zinc-300 dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:border-zinc-900 dark:hover:border-[#426457] flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 dark:text-[#F3F1E8] transition active:scale-98"
                     >
                       <Image src="/google.webp" alt="Google" width={18} height={18} />
                       <span>{t("auth.continueWithGoogle", "Continue with Google")}</span>
@@ -495,7 +495,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           setErrorMessage(null);
                           setStep("email_login");
                         }}
-                        className="text-xs font-bold text-zinc-500 hover:text-zinc-900 transition underline underline-offset-4"
+                        className="text-xs font-bold text-zinc-500 dark:text-[#929D93] hover:text-zinc-900 dark:hover:text-[#F3F1E8] transition underline underline-offset-4"
                       >
                         Login with Email & Password
                       </button>
@@ -515,37 +515,37 @@ export default function AuthModal({ open, onClose }: Props) {
                     <div className="flex items-center justify-between">
                       <button
                         onClick={() => setStep("phone")}
-                        className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-900"
+                        className="flex items-center gap-1 text-xs font-bold text-zinc-500 dark:text-[#929D93] hover:text-zinc-900 dark:hover:text-[#F3F1E8]"
                       >
                         <ArrowLeft size={14} /> Change Number
                       </button>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                         selectedChannel === "whatsapp"
-                          ? "text-emerald-700 bg-emerald-50 border-emerald-200"
-                          : "text-zinc-800 bg-zinc-100 border-zinc-200"
+                          ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800"
+                          : "text-zinc-800 dark:text-[#F3F1E8] bg-zinc-100 dark:bg-[#1E2B23] border-zinc-200 dark:border-[#34443A]"
                       }`}>
                         {selectedChannel === "whatsapp" ? "WhatsApp OTP Sent" : "SMS OTP Sent"}
                       </span>
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900">{t("auth.enterOtp", "Verify your Number")}</h2>
-                      <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F3F1E8]">{t("auth.enterOtp", "Verify your Number")}</h2>
+                      <p className="text-xs text-zinc-500 dark:text-[#929D93] font-medium mt-0.5">
                         Enter the 6-digit code sent via {selectedChannel === "whatsapp" ? "WhatsApp" : "SMS"} to{" "}
-                        <strong className="text-zinc-900">+91 {mobileNumber}</strong>
+                        <strong className="text-zinc-900 dark:text-[#F3F1E8]">+91 {mobileNumber}</strong>
                       </p>
                     </div>
 
                     {/* Dev OTP Helper */}
                     {devOtpHint && (
-                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-bold flex items-center justify-between">
+                      <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-300 font-bold flex items-center justify-between">
                         <span>Dev OTP: <span className="font-mono text-sm underline">{devOtpHint}</span></span>
                         <button
                           onClick={() => {
                             const digits = devOtpHint.split("");
                             setPhoneOtp(digits);
                           }}
-                          className="px-2 py-0.5 bg-amber-200 rounded-md text-[10px] font-black"
+                          className="px-2 py-0.5 bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 rounded-md text-[10px] font-black"
                         >
                           Auto-Fill
                         </button>
@@ -567,7 +567,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           onChange={(e) => handlePhoneOtpChange(i, e.target.value)}
                           onKeyDown={(e) => handlePhoneOtpKeyDown(i, e)}
                           onPaste={(e) => handlePhoneOtpPaste(i, e)}
-                          className="w-11 h-13 text-center text-lg font-bold rounded-xl bg-zinc-50 border border-zinc-300 focus:border-zinc-900 focus:bg-white outline-none transition"
+                          className="w-11 h-13 text-center text-lg font-bold rounded-xl bg-zinc-50 dark:bg-[#101713] border border-zinc-300 dark:border-[#34443A] text-zinc-900 dark:text-[#F3F1E8] focus:border-zinc-900 dark:focus:border-[#28664D] focus:bg-white dark:focus:bg-[#17211B] outline-none transition"
                         />
                       ))}
                     </div>
@@ -576,7 +576,7 @@ export default function AuthModal({ open, onClose }: Props) {
                     <button
                       onClick={handleVerifyPhoneOtp}
                       disabled={verifyingPhoneOtp || phoneOtp.join("").length !== 6}
-                      className="w-full h-11 rounded-xl bg-zinc-900 hover:bg-black disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center gap-2 transition active:scale-98"
+                      className="w-full h-11 rounded-xl bg-zinc-900 hover:bg-black dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center gap-2 transition active:scale-98"
                     >
                       {verifyingPhoneOtp ? (
                         <>
@@ -594,24 +594,24 @@ export default function AuthModal({ open, onClose }: Props) {
                     {/* Resend via WhatsApp or SMS */}
                     <div className="text-center pt-2 space-y-1.5">
                       {resendCountdown > 0 ? (
-                        <p className="text-xs text-zinc-400 font-medium">
-                          Resend code in <strong className="text-zinc-700">{resendCountdown}s</strong>
+                        <p className="text-xs text-zinc-400 dark:text-[#929D93] font-medium">
+                          Resend code in <strong className="text-zinc-700 dark:text-[#F3F1E8]">{resendCountdown}s</strong>
                         </p>
                       ) : (
                         <div className="flex items-center justify-center gap-3 text-xs font-bold">
                           <button
                             type="button"
                             onClick={() => handleSendPhoneOtp(undefined, "whatsapp")}
-                            className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                            className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 flex items-center gap-1"
                           >
                             <WhatsAppIcon className="w-3.5 h-3.5" />
                             <span>Resend on WhatsApp</span>
                           </button>
-                          <span className="text-zinc-300">•</span>
+                          <span className="text-zinc-300 dark:text-zinc-600">•</span>
                           <button
                             type="button"
                             onClick={() => handleSendPhoneOtp(undefined, "sms")}
-                            className="text-zinc-700 hover:text-zinc-900 flex items-center gap-1"
+                            className="text-zinc-700 dark:text-[#B8C2B8] hover:text-zinc-900 dark:hover:text-[#F3F1E8] flex items-center gap-1"
                           >
                             <Phone size={13} />
                             <span>Resend via SMS</span>
@@ -634,44 +634,44 @@ export default function AuthModal({ open, onClose }: Props) {
                     <div className="flex items-center justify-between">
                       <button
                         onClick={() => setStep("phone")}
-                        className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-900"
+                        className="flex items-center gap-1 text-xs font-bold text-zinc-500 dark:text-[#929D93] hover:text-zinc-900 dark:hover:text-[#F3F1E8]"
                       >
                         <ArrowLeft size={14} /> Back to Phone Login
                       </button>
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900">Email Login</h2>
-                      <p className="text-xs text-zinc-400 font-medium">
+                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F3F1E8]">Email Login</h2>
+                      <p className="text-xs text-zinc-400 dark:text-[#929D93] font-medium">
                         Log in with your email and password.
                       </p>
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
-                        <Mail size={16} className="text-zinc-400" />
+                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#34443A] rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#101713]/50 transition">
+                        <Mail size={16} className="text-zinc-400 dark:text-[#929D93]" />
                         <input
                           type="email"
                           placeholder="Email Address"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F3F1E8] placeholder:text-zinc-400 dark:placeholder:text-[#929D93]"
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
-                        <Lock size={16} className="text-zinc-400" />
+                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#34443A] rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#101713]/50 transition">
+                        <Lock size={16} className="text-zinc-400 dark:text-[#929D93]" />
                         <input
                           type={showPassword ? "text" : "password"}
                           placeholder="Password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F3F1E8] placeholder:text-zinc-400 dark:placeholder:text-[#929D93]"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="text-zinc-400 hover:text-zinc-600"
+                          className="text-zinc-400 dark:text-[#929D93] hover:text-zinc-600 dark:hover:text-[#F3F1E8]"
                         >
                           {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
@@ -679,17 +679,17 @@ export default function AuthModal({ open, onClose }: Props) {
 
                       <button
                         onClick={handleEmailLogin}
-                        className="w-full h-11 rounded-xl bg-zinc-900 text-white font-bold text-sm hover:bg-black transition active:scale-98"
+                        className="w-full h-11 rounded-xl bg-zinc-900 hover:bg-black dark:bg-[#28664D] dark:hover:bg-[#347858] text-white font-bold text-sm transition active:scale-98"
                       >
                         Log In
                       </button>
                     </div>
 
-                    <p className="mt-4 text-center text-xs text-zinc-500 font-medium">
+                    <p className="mt-4 text-center text-xs text-zinc-500 dark:text-[#929D93] font-medium">
                       Don’t have an account?{" "}
                       <button
                         onClick={() => setStep("email_signup")}
-                        className="text-zinc-900 font-bold hover:underline"
+                        className="text-zinc-900 dark:text-[#F3F1E8] font-bold hover:underline"
                       >
                         Sign up with Email
                       </button>
@@ -708,53 +708,53 @@ export default function AuthModal({ open, onClose }: Props) {
                   >
                     <button
                       onClick={() => setStep("email_login")}
-                      className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-900"
+                      className="flex items-center gap-1 text-xs font-bold text-zinc-500 dark:text-[#929D93] hover:text-zinc-900 dark:hover:text-[#F3F1E8]"
                     >
                       <ArrowLeft size={14} /> Back to Login
                     </button>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900">Create Account</h2>
-                      <p className="text-xs text-zinc-400 font-medium">
+                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F3F1E8]">Create Account</h2>
+                      <p className="text-xs text-zinc-400 dark:text-[#929D93] font-medium">
                         Register with your email to get started.
                       </p>
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
-                        <User size={16} className="text-zinc-400" />
+                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#34443A] rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#101713]/50 transition">
+                        <User size={16} className="text-zinc-400 dark:text-[#929D93]" />
                         <input
                           placeholder="Full Name"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F3F1E8] placeholder:text-zinc-400 dark:placeholder:text-[#929D93]"
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
-                        <Mail size={16} className="text-zinc-400" />
+                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#34443A] rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#101713]/50 transition">
+                        <Mail size={16} className="text-zinc-400 dark:text-[#929D93]" />
                         <input
                           placeholder="Email Address"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F3F1E8] placeholder:text-zinc-400 dark:placeholder:text-[#929D93]"
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border border-zinc-300 rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 transition">
-                        <Lock size={16} className="text-zinc-400" />
+                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#34443A] rounded-xl px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#101713]/50 transition">
+                        <Lock size={16} className="text-zinc-400 dark:text-[#929D93]" />
                         <input
                           type="password"
                           placeholder="Password (min 6 characters)"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F3F1E8] placeholder:text-zinc-400 dark:placeholder:text-[#929D93]"
                         />
                       </div>
 
                       <button
                         onClick={handleEmailSignUp}
-                        className="w-full h-11 rounded-xl bg-zinc-900 text-white font-bold text-sm hover:bg-black transition active:scale-98"
+                        className="w-full h-11 rounded-xl bg-zinc-900 hover:bg-black dark:bg-[#28664D] dark:hover:bg-[#347858] text-white font-bold text-sm transition active:scale-98"
                       >
                         Send Verification Code
                       </button>
@@ -778,25 +778,25 @@ export default function AuthModal({ open, onClose }: Props) {
                           setErrorMessage(null);
                           setStep("email_signup");
                         }}
-                        className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-900"
+                        className="flex items-center gap-1 text-xs font-bold text-zinc-500 dark:text-[#929D93] hover:text-zinc-900 dark:hover:text-[#F3F1E8]"
                       >
                         <ArrowLeft size={14} /> Back to Sign Up
                       </button>
-                      <span className="text-[10px] font-bold text-zinc-700 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200">
+                      <span className="text-[10px] font-bold text-zinc-700 dark:text-[#F3F1E8] bg-zinc-100 dark:bg-[#1E2B23] px-2 py-0.5 rounded-full border border-zinc-200 dark:border-[#34443A]">
                         Email OTP
                       </span>
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900">Verify Email</h2>
-                      <p className="text-xs text-zinc-500 font-medium mt-0.5">
-                        Enter the 6-digit verification code sent to <strong>{email}</strong>
+                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F3F1E8]">Verify Email</h2>
+                      <p className="text-xs text-zinc-500 dark:text-[#929D93] font-medium mt-0.5">
+                        Enter the 6-digit verification code sent to <strong className="text-zinc-900 dark:text-[#F3F1E8]">{email}</strong>
                       </p>
                     </div>
 
                     {/* Dev OTP Helper */}
                     {devOtpHint && (
-                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-bold flex items-center justify-between">
+                      <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-300 font-bold flex items-center justify-between">
                         <span>Dev OTP: <span className="font-mono text-sm underline">{devOtpHint}</span></span>
                         <button
                           type="button"
@@ -804,7 +804,7 @@ export default function AuthModal({ open, onClose }: Props) {
                             const digits = devOtpHint.split("");
                             setEmailOtp(digits);
                           }}
-                          className="px-2 py-0.5 bg-amber-200 rounded-md text-[10px] font-black"
+                          className="px-2 py-0.5 bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 rounded-md text-[10px] font-black"
                         >
                           Auto-Fill
                         </button>
@@ -833,7 +833,7 @@ export default function AuthModal({ open, onClose }: Props) {
                               document.getElementById(`email-otp-${i - 1}`)?.focus();
                             }
                           }}
-                          className="w-11 h-13 text-center text-lg font-bold rounded-xl bg-zinc-50 border border-zinc-300 focus:border-zinc-900 focus:bg-white outline-none transition"
+                          className="w-11 h-13 text-center text-lg font-bold rounded-xl bg-zinc-50 dark:bg-[#101713] border border-zinc-300 dark:border-[#34443A] text-zinc-900 dark:text-[#F3F1E8] focus:border-zinc-900 dark:focus:border-[#28664D] focus:bg-white dark:focus:bg-[#17211B] outline-none transition"
                         />
                       ))}
                     </div>
@@ -842,21 +842,21 @@ export default function AuthModal({ open, onClose }: Props) {
                       type="button"
                       onClick={handleVerifyEmailOtp}
                       disabled={emailOtp.join("").length !== 6}
-                      className="w-full h-11 rounded-xl bg-zinc-900 disabled:opacity-40 text-white font-bold text-sm hover:bg-black transition active:scale-98"
+                      className="w-full h-11 rounded-xl bg-zinc-900 hover:bg-black dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-40 text-white font-bold text-sm transition active:scale-98"
                     >
                       Verify & Complete Signup
                     </button>
 
                     <div className="text-center pt-2">
                       {resendCountdown > 0 ? (
-                        <p className="text-xs text-zinc-400 font-medium">
-                          Resend code in <strong className="text-zinc-700">{resendCountdown}s</strong>
+                        <p className="text-xs text-zinc-400 dark:text-[#929D93] font-medium">
+                          Resend code in <strong className="text-zinc-700 dark:text-[#F3F1E8]">{resendCountdown}s</strong>
                         </p>
                       ) : (
                         <button
                           type="button"
                           onClick={handleEmailSignUp}
-                          className="text-xs font-bold text-zinc-700 hover:text-black flex items-center justify-center gap-1.5 mx-auto underline underline-offset-2"
+                          className="text-xs font-bold text-zinc-700 dark:text-[#B8C2B8] hover:text-black dark:hover:text-[#F3F1E8] flex items-center justify-center gap-1.5 mx-auto underline underline-offset-2"
                         >
                           <Mail size={13} />
                           <span>Resend Email OTP</span>
@@ -868,12 +868,12 @@ export default function AuthModal({ open, onClose }: Props) {
               </AnimatePresence>
 
               {/* STATUTORY / DPDP ACT 2023 NOTICE */}
-              <p className="mt-5 text-[11px] leading-relaxed text-center text-zinc-400 font-medium">
+              <p className="mt-5 text-[11px] leading-relaxed text-center text-zinc-400 dark:text-[#929D93] font-medium">
                 By proceeding, you agree to RideNow&apos;s{" "}
                 <Link
                   href="/terms"
                   onClick={onClose}
-                  className="text-zinc-700 underline font-semibold hover:text-black transition"
+                  className="text-zinc-700 dark:text-[#B8C2B8] underline font-semibold hover:text-black dark:hover:text-[#F3F1E8] transition"
                 >
                   Terms of Service
                 </Link>
@@ -881,7 +881,7 @@ export default function AuthModal({ open, onClose }: Props) {
                 <Link
                   href="/privacy"
                   onClick={onClose}
-                  className="text-zinc-700 underline font-semibold hover:text-black transition"
+                  className="text-zinc-700 dark:text-[#B8C2B8] underline font-semibold hover:text-black dark:hover:text-[#F3F1E8] transition"
                 >
                   Privacy Policy
                 </Link>
@@ -889,7 +889,7 @@ export default function AuthModal({ open, onClose }: Props) {
                 <Link
                   href="/cancellation-refund"
                   onClick={onClose}
-                  className="text-zinc-700 underline font-semibold hover:text-black transition"
+                  className="text-zinc-700 dark:text-[#B8C2B8] underline font-semibold hover:text-black dark:hover:text-[#F3F1E8] transition"
                 >
                   Refund Terms
                 </Link>
