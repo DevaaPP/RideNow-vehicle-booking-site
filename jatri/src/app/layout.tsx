@@ -7,6 +7,7 @@ import Provider from "@/Provider";
 import PhoneLinkModal from "@/features/auth/components/PhoneLinkModal";
 import CookieConsent from "@/shared/components/CookieConsent";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -100,25 +101,46 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${outfit.variable} ${plusJakartaSans.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${outfit.variable} ${plusJakartaSans.variable}`}>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var stored = localStorage.getItem('ridenow_theme');
+                  var isDark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches) || (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.style.colorScheme = 'dark';
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.style.colorScheme = 'light';
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased bg-white w-full min-h-screen font-sans flex flex-col">
+      <body className="antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 w-full min-h-screen font-sans flex flex-col transition-colors duration-200">
         <Provider>
-          <LanguageProvider>
-            <StoreProvider>
-              <InitUser />
-              <PhoneLinkModal />
-              <CookieConsent />
-              <main id="main-content" className="flex-1 w-full flex flex-col">
-                {children}
-              </main>
-            </StoreProvider>
-          </LanguageProvider>
+          <ThemeProvider>
+            <LanguageProvider>
+              <StoreProvider>
+                <InitUser />
+                <PhoneLinkModal />
+                <CookieConsent />
+                <main id="main-content" className="flex-1 w-full flex flex-col">
+                  {children}
+                </main>
+              </StoreProvider>
+            </LanguageProvider>
+          </ThemeProvider>
         </Provider>
       </body>
     </html>

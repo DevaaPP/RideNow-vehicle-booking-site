@@ -10,6 +10,7 @@ import {
   Mail,
 } from "lucide-react";
 import LanguageSelector from "./LanguageSelector";
+import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "@/context/LanguageContext";
 
 export default function Footer() {
@@ -164,7 +165,10 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center sm:text-left">
             <p className="text-zinc-400">© {new Date().getFullYear()} RideNow Mobility Technologies Pvt. Ltd. All rights reserved.</p>
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
-            <LanguageSelector variant="footer" />
+            <div className="flex items-center gap-2">
+              <ThemeToggle variant="footer" />
+              <LanguageSelector variant="footer" />
+            </div>
           </div>
           <div className="flex flex-wrap gap-4 sm:gap-6 justify-center">
             <Link href="/privacy" className="hover:text-white transition">

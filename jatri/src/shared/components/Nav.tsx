@@ -28,6 +28,7 @@ import { setUserData } from "@/redux/userSlice";
 import axios from "axios";
 import LanguageSelector from "./LanguageSelector";
 import NotificationToggle from "./NotificationToggle";
+import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "@/context/LanguageContext";
 
 const NAV_ITEMS = ["Home", "Bookings", "Fleet", "FAQ", "Contact"];
@@ -314,9 +315,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               </Link>
             )}
 
-            {/* Desktop Notification & Language controls */}
+            {/* Desktop Notification, Language & Theme controls */}
             <div className="hidden md:flex items-center gap-2">
               <NotificationToggle />
+              <ThemeToggle variant="pill" />
               <LanguageSelector variant="pill" />
             </div>
 
@@ -636,8 +638,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 </button>
               )}
 
-              {/* Language and notifications in mobile drawer */}
-              <div className="flex items-center justify-between pt-2">
+              {/* Language, theme, and notifications in mobile drawer */}
+              <div className="flex items-center justify-between pt-2 gap-2">
+                <ThemeToggle variant="pill" />
                 <LanguageSelector variant="pill" />
                 <NotificationToggle />
               </div>
