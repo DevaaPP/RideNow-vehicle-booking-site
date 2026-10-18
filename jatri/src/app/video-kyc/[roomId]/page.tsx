@@ -295,14 +295,14 @@ const handleReject = async () => {
     <div className="min-h-screen bg-black text-white flex flex-col">
 
       {/* HEADER */}
-      <header className="px-3.5 py-2.5 sm:px-6 sm:py-3.5 border-b border-white/10 flex items-center justify-between gap-2 shrink-0 z-20">
+      <header className="px-3.5 py-2.5 sm:px-6 sm:py-3.5 border-b border-white/10 flex items-center justify-between gap-2 shrink-0 z-20 bg-[#0D3027]">
 
         <div className="min-w-0">
-          <p className="font-semibold tracking-wider text-sm sm:text-base truncate">
-            RideNow
+          <p className="font-serif font-bold tracking-wider text-sm sm:text-base truncate text-[#FAF7F0]">
+            যাত্ৰী Jaatri <span className="text-xs font-sans font-normal text-[#FAF7F0]/60">by RideNow</span>
           </p>
-          <p className="text-[10px] sm:text-xs text-gray-400 truncate">
-            {isAdmin ? "Admin Verification" : "Vendor Video KYC"}
+          <p className="text-[10px] sm:text-xs text-[#FAF7F0]/70 truncate font-sans">
+            {isAdmin ? "Admin Verification Console" : "Driver Statutory Video KYC"}
           </p>
         </div>
 

@@ -187,16 +187,16 @@ export default function WalletPage() {
   });
 
   return (
-    <div className="min-h-screen bg-zinc-100 flex flex-col">
+    <div className="min-h-screen bg-[#F7F1E5] flex flex-col font-sans">
       <Nav />
 
       {/* Subtle Dot Grid Background */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
-          backgroundImage: "radial-gradient(circle, #d4d4d8 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)",
           backgroundSize: "28px 28px",
-          opacity: 0.45,
+          opacity: 0.6,
         }}
       />
 
@@ -205,25 +205,25 @@ export default function WalletPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
-              <div className="h-px w-6 bg-zinc-900" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+              <div className="h-px w-6 bg-[#123D32]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#123D32]">
                 {t("wallet.paymentAndCredits", "Payment & Credits")}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 tracking-tight flex items-center gap-2 sm:gap-3 flex-wrap">
-              {t("wallet.rideNowCash", "RideNow Cash")}
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+            <h1 className="text-2xl sm:text-4xl font-bold font-serif text-[#10251C] tracking-tight flex items-center gap-2 sm:gap-3 flex-wrap">
+              {t("wallet.rideNowCash", "Jaatri Cash")}
+              <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-[#E5EBDD] text-[#123D32] border border-[#DED7CA]">
                 <Sparkles size={11} /> {t("wallet.oneTapCheckout", "1-Tap Checkout")}
               </span>
             </h1>
-            <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-medium">
+            <p className="text-[#696B64] text-xs sm:text-sm mt-1 font-medium">
               {t("wallet.zeroPaymentFailure", "Zero payment failure, instant ride dispatch, and immediate refunds.")}
             </p>
           </div>
 
           <button
             onClick={() => setShowTopupModal(true)}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-zinc-900 hover:bg-black text-white text-xs sm:text-sm font-black transition-all shadow-md active:scale-95"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] text-white text-xs sm:text-sm font-bold transition-all shadow-xs active:scale-95"
           >
             <Plus size={16} /> {t("wallet.addMoney", "Add Money")}
           </button>
@@ -279,36 +279,36 @@ export default function WalletPage() {
         {/* HERO WALLET CARD & QUICK STATS */}
         <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Main Card */}
-          <div className="md:col-span-2 relative overflow-hidden rounded-2xl sm:rounded-3xl bg-linear-to-br from-zinc-900 via-zinc-950 to-black text-white p-5 sm:p-9 shadow-xl sm:shadow-2xl border border-zinc-800 flex flex-col justify-between min-h-[190px] sm:min-h-[220px]">
+          <div className="md:col-span-2 relative overflow-hidden rounded-[14px] bg-linear-to-br from-[#123D32] via-[#0D3027] to-[#10251C] text-[#F7F1E5] p-5 sm:p-9 shadow-lg border border-[#123D32]/50 flex flex-col justify-between min-h-[190px] sm:min-h-[220px]">
             {/* Background design elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#E5EBDD]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#B83A24]/10 rounded-full blur-2xl pointer-events-none" />
 
             <div className="relative z-10 flex items-start justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E5EBDD]/80 mb-1">
                   {t("wallet.balance", "Available Balance")}
                 </p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  <span className="text-3xl sm:text-5xl font-bold font-serif text-[#F7F1E5] tracking-tight">
                     ₹{balance.toLocaleString("en-IN")}
                   </span>
-                  <span className="text-xs font-bold text-zinc-400">INR</span>
+                  <span className="text-xs font-bold text-[#E5EBDD]/80">INR</span>
                 </div>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-amber-400">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[10px] bg-white/10 border border-white/10 flex items-center justify-center text-[#E5EBDD]">
                 <Wallet size={20} className="sm:w-6 sm:h-6" />
               </div>
             </div>
 
-            <div className="relative z-10 pt-4 sm:pt-6 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-zinc-400">
+            <div className="relative z-10 pt-4 sm:pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-[#E5EBDD]/80">
               <div className="flex items-center gap-1.5 font-medium">
-                <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
+                <ShieldCheck size={14} className="text-[#E5EBDD] shrink-0" />
                 <span>{t("wallet.protectedEncryption", "Payments processed securely through our payment provider")}</span>
               </div>
               <button
                 onClick={() => setShowTopupModal(true)}
-                className="text-white hover:text-amber-300 font-bold flex items-center gap-1 transition"
+                className="text-white hover:text-[#E5EBDD] font-bold flex items-center gap-1 transition"
               >
                 {t("wallet.quickRecharge", "Quick Recharge")} <ChevronRight size={14} />
               </button>
@@ -317,35 +317,35 @@ export default function WalletPage() {
 
           {/* Quick Metrics */}
           <div className="flex flex-col gap-4">
-            <div className="bg-white rounded-3xl p-5 border border-zinc-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+            <div className="bg-[#FAF7F0] rounded-[12px] p-5 border border-[#DED7CA] shadow-xs flex items-center gap-4">
+              <div className="w-12 h-12 rounded-[8px] bg-[#E5EBDD] text-[#123D32] flex items-center justify-center flex-shrink-0">
                 <ArrowDownLeft size={22} />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("wallet.totalAdded", "Total Added")}</p>
-                <p className="text-xl font-black text-zinc-900 mt-0.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64]">{t("wallet.totalAdded", "Total Added")}</p>
+                <p className="text-xl font-bold font-serif text-[#10251C] mt-0.5">
                   ₹{summary.totalAdded.toLocaleString("en-IN")}
                 </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-5 border border-zinc-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-zinc-800 flex items-center justify-center flex-shrink-0">
+            <div className="bg-[#FAF7F0] rounded-[12px] p-5 border border-[#DED7CA] shadow-xs flex items-center gap-4">
+              <div className="w-12 h-12 rounded-[8px] bg-white border border-[#DED7CA] text-[#10251C] flex items-center justify-center flex-shrink-0">
                 <ArrowUpRight size={22} />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("wallet.totalSpent", "Total Spent")}</p>
-                <p className="text-xl font-black text-zinc-900 mt-0.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64]">{t("wallet.totalSpent", "Total Spent")}</p>
+                <p className="text-xl font-bold font-serif text-[#10251C] mt-0.5">
                   ₹{summary.totalSpent.toLocaleString("en-IN")}
                 </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-4 border border-zinc-200 shadow-sm flex items-center justify-between text-xs font-bold text-zinc-600">
-              <span className="flex items-center gap-1.5 text-zinc-500 font-medium">
+            <div className="bg-[#FAF7F0] rounded-[12px] p-4 border border-[#DED7CA] shadow-xs flex items-center justify-between text-xs font-bold text-[#696B64]">
+              <span className="flex items-center gap-1.5 text-[#696B64] font-medium">
                 <Clock size={14} /> {t("wallet.totalTransactions", "Total Transactions")}
               </span>
-              <span className="font-mono text-zinc-900 bg-zinc-100 px-2.5 py-1 rounded-xl">
+              <span className="font-mono text-[#10251C] bg-white border border-[#DED7CA] px-2.5 py-1 rounded-[6px]">
                 {summary.transactionCount}
               </span>
             </div>
@@ -353,17 +353,17 @@ export default function WalletPage() {
         </div>
 
         {/* PASSBOOK / LEDGER SECTION */}
-        <div className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden">
+        <div className="bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] shadow-xs overflow-hidden">
           {/* Header & Filter Tabs */}
-          <div className="p-6 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-6 border-b border-[#DED7CA] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-black text-zinc-900">{t("wallet.transactions", "Passbook & History")}</h2>
-              <p className="text-xs text-zinc-400 mt-0.5 font-medium">
+              <h2 className="text-lg font-bold font-serif text-[#10251C]">{t("wallet.transactions", "Passbook & History")}</h2>
+              <p className="text-xs text-[#696B64] mt-0.5 font-medium">
                 {t("wallet.ledgerEncrypted", "Every transaction is encrypted and ledger verified.")}
               </p>
             </div>
 
-            <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-2xl self-start sm:self-auto">
+            <div className="flex items-center gap-1 bg-white/80 border border-[#DED7CA] p-1 rounded-[8px] self-start sm:self-auto">
               {[
                 { id: "all", label: t("common.all", "All") },
                 { id: "credit", label: t("wallet.added", "Added") },
@@ -373,10 +373,10 @@ export default function WalletPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveFilter(tab.id as any)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                  className={`px-3 py-1.5 rounded-[6px] text-xs font-bold transition ${
                     activeFilter === tab.id
-                      ? "bg-white text-zinc-900 shadow-xs"
-                      : "text-zinc-500 hover:text-zinc-900"
+                      ? "bg-[#123D32] text-white shadow-xs"
+                      : "text-[#696B64] hover:text-[#10251C]"
                   }`}
                 >
                   {tab.label}
@@ -386,24 +386,24 @@ export default function WalletPage() {
           </div>
 
           {/* Transactions List */}
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-[#DED7CA]/60">
             {loading ? (
               <div className="py-16 text-center">
-                <Loader2 size={24} className="animate-spin text-zinc-400 mx-auto mb-2" />
-                <p className="text-xs text-zinc-400 font-medium">{t("common.loading", "Loading ledger records…")}</p>
+                <Loader2 size={24} className="animate-spin text-[#123D32] mx-auto mb-2" />
+                <p className="text-xs text-[#696B64] font-medium">{t("common.loading", "Loading ledger records…")}</p>
               </div>
             ) : filteredTransactions.length === 0 ? (
               <div className="py-16 text-center px-4">
-                <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-zinc-400 flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-[10px] bg-white border border-[#DED7CA] text-[#123D32] flex items-center justify-center mx-auto mb-3">
                   <Wallet size={20} />
                 </div>
-                <p className="text-sm font-bold text-zinc-700">{t("wallet.noTransactions", "No transactions recorded")}</p>
-                <p className="text-xs text-zinc-400 mt-0.5 max-w-xs mx-auto">
+                <p className="text-sm font-bold text-[#10251C]">{t("wallet.noTransactions", "No transactions recorded")}</p>
+                <p className="text-xs text-[#696B64] mt-0.5 max-w-xs mx-auto">
                   {t("wallet.addFundsPrompt", "Add funds to enjoy 1-tap booking or pay with cash on your next ride.")}
                 </p>
                 <button
                   onClick={() => setShowTopupModal(true)}
-                  className="mt-4 px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-black transition"
+                  className="mt-4 px-4 py-2 bg-[#123D32] hover:bg-[#0D3027] text-white rounded-[8px] text-xs font-bold transition shadow-xs"
                 >
                   {t("wallet.topup", "Top Up")} ₹500
                 </button>
@@ -416,16 +416,16 @@ export default function WalletPage() {
                 return (
                   <div
                     key={tx._id}
-                    className="p-4 sm:p-5 flex items-center justify-between hover:bg-zinc-50/80 transition"
+                    className="p-4 sm:p-5 flex items-center justify-between hover:bg-white/60 transition"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                        className={`w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 ${
                           isRefund
-                            ? "bg-amber-100 text-amber-800"
+                            ? "bg-[#faebe8] text-[#B83A24] border border-[#B83A24]/30"
                             : isCredit
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-zinc-100 text-zinc-700"
+                            ? "bg-[#E5EBDD] text-[#123D32] border border-[#DED7CA]"
+                            : "bg-white text-[#10251C] border border-[#DED7CA]"
                         }`}
                       >
                         {isRefund ? (
@@ -439,22 +439,22 @@ export default function WalletPage() {
 
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-zinc-900 truncate">
+                          <p className="text-sm font-bold text-[#10251C] truncate">
                             {tx.description}
                           </p>
                           <span
-                            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                            className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] border ${
                               isRefund
-                                ? "bg-amber-100 text-amber-800"
+                                ? "bg-[#faebe8] text-[#B83A24] border-[#B83A24]/30"
                                 : isCredit
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-zinc-100 text-zinc-600"
+                                ? "bg-[#E5EBDD] text-[#123D32] border-[#DED7CA]"
+                                : "bg-white text-[#696B64] border-[#DED7CA]"
                             }`}
                           >
                             {tx.category.replace("_", " ")}
                           </span>
                         </div>
-                        <p className="text-[11px] text-zinc-400 mt-0.5 font-medium">
+                        <p className="text-[11px] text-[#696B64] mt-0.5 font-medium">
                           {new Date(tx.createdAt).toLocaleDateString("en-IN", {
                             day: "2-digit",
                             month: "short",
@@ -468,13 +468,13 @@ export default function WalletPage() {
 
                     <div className="text-right flex-shrink-0 ml-4">
                       <p
-                        className={`text-sm sm:text-base font-black font-mono ${
-                          isCredit ? "text-emerald-600" : "text-zinc-900"
+                        className={`text-sm sm:text-base font-bold font-mono ${
+                          isCredit ? "text-[#123D32]" : "text-[#10251C]"
                         }`}
                       >
                         {isCredit ? "+" : "-"}₹{tx.amount.toLocaleString("en-IN")}
                       </p>
-                      <p className="text-[10px] text-zinc-400 font-medium">
+                      <p className="text-[10px] text-[#696B64] font-medium">
                         Bal: ₹{tx.balanceAfter.toLocaleString("en-IN")}
                       </p>
                     </div>
@@ -493,16 +493,16 @@ export default function WalletPage() {
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-zinc-100"
+                className="w-full max-w-sm bg-[#FAF7F0] rounded-[14px] p-6 shadow-2xl border border-[#DED7CA]"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
+                    <div className="w-8 h-8 rounded-[8px] bg-[#E5EBDD] text-[#123D32] flex items-center justify-center font-bold">
                       <Wallet size={16} />
                     </div>
                     <div>
-                      <h3 className="text-base font-black text-zinc-900">{t("wallet.topupModalTitle", "Add Money to Wallet")}</h3>
-                      <p className="text-[11px] text-zinc-400 font-medium">UPI · Card · Netbanking</p>
+                      <h3 className="text-base font-bold font-serif text-[#10251C]">{t("wallet.topupModalTitle", "Add Money to Wallet")}</h3>
+                      <p className="text-[11px] text-[#696B64] font-medium">UPI · Card · Netbanking</p>
                     </div>
                   </div>
                   <button
@@ -510,14 +510,14 @@ export default function WalletPage() {
                       setShowTopupModal(false);
                       setTopupError(null);
                     }}
-                    className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition"
+                    className="w-7 h-7 rounded-[6px] bg-white border border-[#DED7CA] hover:bg-[#F7F1E5] flex items-center justify-center text-[#10251C] transition cursor-pointer"
                   >
                     ✕
                   </button>
                 </div>
 
                 {topupError && (
-                  <div className="p-3 mb-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium flex items-center gap-2">
+                  <div className="p-3 mb-3 bg-[#faebe8] border border-[#B83A24]/30 rounded-[8px] text-xs text-[#B83A24] font-medium flex items-center gap-2">
                     <AlertCircle size={14} className="flex-shrink-0" />
                     <span>{topupError}</span>
                   </div>
@@ -525,11 +525,11 @@ export default function WalletPage() {
 
                 {/* Amount Input */}
                 <div className="mb-4">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1.5 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] mb-1.5 block">
                     {t("wallet.selectAmount", "Enter Amount")}
                   </label>
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border-2 border-zinc-200 focus-within:border-zinc-900 transition">
-                    <span className="text-lg font-black text-zinc-400">₹</span>
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-[8px] border-2 border-[#DED7CA] bg-white focus-within:border-[#123D32] transition">
+                    <span className="text-lg font-bold text-[#696B64]">₹</span>
                     <input
                       type="number"
                       min={10}
@@ -537,14 +537,14 @@ export default function WalletPage() {
                       value={customAmount}
                       onChange={(e) => setCustomAmount(e.target.value)}
                       placeholder="500"
-                      className="w-full text-xl font-black text-zinc-900 outline-none"
+                      className="w-full text-xl font-bold text-[#10251C] outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Preset Chips */}
                 <div className="mb-6">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] mb-2">
                     {t("wallet.quickAmounts", "Quick Amounts")}
                   </p>
                   <div className="grid grid-cols-3 gap-2">
@@ -553,10 +553,10 @@ export default function WalletPage() {
                         key={amt}
                         type="button"
                         onClick={() => setCustomAmount(amt.toString())}
-                        className={`py-2 rounded-xl text-xs font-bold transition ${
+                        className={`py-2 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
                           customAmount === amt.toString()
-                            ? "bg-zinc-900 text-white shadow-xs"
-                            : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                            ? "bg-[#123D32] text-white border-[#123D32] shadow-xs"
+                            : "bg-white text-[#10251C] border-[#DED7CA] hover:bg-[#F7F1E5]"
                         }`}
                       >
                         +₹{amt}
@@ -566,8 +566,8 @@ export default function WalletPage() {
                 </div>
 
                 {/* Security Note */}
-                <div className="p-3 bg-zinc-50 rounded-2xl border border-zinc-100 mb-4 text-[11px] text-zinc-500 flex items-center gap-2">
-                  <Zap size={14} className="text-amber-500 flex-shrink-0" />
+                <div className="p-3 bg-white/70 rounded-[8px] border border-[#DED7CA] mb-4 text-[11px] text-[#696B64] flex items-center gap-2">
+                  <Zap size={14} className="text-[#123D32] flex-shrink-0" />
                   <span>{t("wallet.topupSecurityNote", "Money added is immediately available for 1-tap bookings & refunds.")}</span>
                 </div>
 
@@ -576,7 +576,7 @@ export default function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setShowTopupModal(false)}
-                    className="flex-1 py-3 rounded-2xl border border-zinc-200 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition"
+                    className="flex-1 py-3 rounded-[8px] border border-[#DED7CA] text-xs font-bold text-[#10251C] bg-white hover:bg-[#FAF7F0] transition cursor-pointer"
                   >
                     {t("common.cancel", "Cancel")}
                   </button>
@@ -584,7 +584,7 @@ export default function WalletPage() {
                     type="button"
                     disabled={processingTopup || !customAmount}
                     onClick={handleInitiateTopup}
-                    className="flex-1 py-3 rounded-2xl bg-zinc-900 text-white text-xs font-black hover:bg-black transition flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
+                    className="flex-1 py-3 rounded-[8px] bg-[#123D32] text-white text-xs font-bold hover:bg-[#0D3027] transition flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer"
                   >
                     {processingTopup ? (
                       <>

@@ -1,198 +1,266 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Car, Zap, Shield, TrendingUp } from "lucide-react";
+import { ArrowRight, Car, Zap, Shield, TrendingUp, Sparkles, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import { VEHICLE_OPTIONS } from "@/lib/vehicleConfig";
-import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
 
 const FLEET_CATEGORIES = [
-  {
-    id: "bike",
-    name: VEHICLE_OPTIONS.bike.label,
-    description: VEHICLE_OPTIONS.bike.tagline,
-    price: "Starting from ₹8/km",
-    Icon: VEHICLE_SVG_ICONS.bike,
-    capacity: "1 Passenger",
-  },
   {
     id: "scooty",
     name: VEHICLE_OPTIONS.scooty.label,
     description: VEHICLE_OPTIONS.scooty.tagline,
     price: "Starting from ₹7/km",
-    Icon: VEHICLE_SVG_ICONS.scooty,
+    image: "/fleet/scooty.webp",
     capacity: "1 Passenger",
+    badge: "Eco City Glide",
+  },
+  {
+    id: "bike",
+    name: VEHICLE_OPTIONS.bike.label,
+    description: VEHICLE_OPTIONS.bike.tagline,
+    price: "Starting from ₹8/km",
+    image: "/fleet/moto.webp",
+    capacity: "1 Passenger",
+    badge: "Fast & Agile",
   },
   {
     id: "auto",
     name: VEHICLE_OPTIONS.auto.label,
     description: VEHICLE_OPTIONS.auto.tagline,
     price: "Starting from ₹11.5/km",
-    Icon: VEHICLE_SVG_ICONS.auto,
+    image: "/fleet/auto.webp",
     capacity: "3 Passengers",
+    badge: "Everyday Transit",
   },
   {
     id: "mini",
     name: VEHICLE_OPTIONS.mini.label,
     description: VEHICLE_OPTIONS.mini.tagline,
     price: "Starting from ₹13.5/km",
-    Icon: VEHICLE_SVG_ICONS.mini,
+    image: "/fleet/car-mini.webp",
     capacity: "4 Passengers (AC)",
+    badge: "Comfort Compact",
   },
   {
     id: "car",
     name: VEHICLE_OPTIONS.car.label,
     description: VEHICLE_OPTIONS.car.tagline,
     price: "Starting from ₹16.5/km",
-    Icon: VEHICLE_SVG_ICONS.car,
+    image: "/fleet/premier.webp",
     capacity: "4 Passengers (Sedan)",
+    badge: "Executive Sedan",
   },
   {
     id: "priority",
     name: VEHICLE_OPTIONS.priority.label,
     description: VEHICLE_OPTIONS.priority.tagline,
     price: "Starting from ₹21/km",
-    Icon: VEHICLE_SVG_ICONS.priority,
+    image: "/fleet/xl.webp",
     capacity: "6 Passengers (SUV)",
+    badge: "Spacious XL",
   },
   {
     id: "loading",
     name: VEHICLE_OPTIONS.loading.label,
     description: VEHICLE_OPTIONS.loading.tagline,
     price: "Starting from ₹20/km",
-    Icon: VEHICLE_SVG_ICONS.loading,
+    image: "/fleet/truck.webp",
     capacity: "Up to 500 kg Cargo",
+    badge: "Logistics Mini",
   },
   {
     id: "truck",
     name: VEHICLE_OPTIONS.truck.label,
     description: VEHICLE_OPTIONS.truck.tagline,
     price: "Starting from ₹35/km",
-    Icon: VEHICLE_SVG_ICONS.truck,
+    image: "/fleet/heavy.webp",
     capacity: "Up to 2,000 kg Freight",
+    badge: "Commercial Heavy",
+  },
+];
+
+const FLEET_STANDARDS = [
+  {
+    icon: Car,
+    title: "8 Dedicated Vehicle Classes",
+    description: "From micro-mobility two-wheelers to multi-ton commercial trucks, choose the right vehicle for every journey across Assam.",
+  },
+  {
+    icon: Zap,
+    title: "Instant Dispatch & Live GPS",
+    description: "Real-time dispatch algorithm pairs you with verified local driver partners in seconds with live telemetry.",
+  },
+  {
+    icon: Shield,
+    title: "Rigorous 100% Vetting",
+    description: "Commercial fitness certificates, valid insurance, driving licenses, and background checks verified on every vehicle.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Transparent Upfront Fares",
+    description: "No hidden surge surprises or arbitrary fees. Know your exact toll, distance, and base fare before confirmation.",
   },
 ];
 
 export default function FleetPage() {
-  const features = [
-    {
-      icon: Car,
-      title: "Diverse Vehicle Options",
-      description: "Choose from scooty, bikes, autos, compact cabs, premium SUVs, and freight trucks",
-    },
-    {
-      icon: Zap,
-      title: "Quick Booking",
-      description: "Reserve your vehicle in seconds with our easy-to-use platform",
-    },
-    {
-      icon: Shield,
-      title: "Safety First",
-      description: "All vehicles are inspected and verified for your safety",
-    },
-    {
-      icon: TrendingUp,
-      title: "Affordable Rates",
-      description: "Competitive pricing that fits your budget",
-    },
-  ];
-
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white justify-between">
+    <div className="min-h-screen flex flex-col bg-[#F7F1E5] text-[#10251C] justify-between">
       <Nav />
-      <div className="flex-1 pt-40">
-        {/* Hero Section */}
-        <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-6xl mx-auto px-4 mb-20"
-      >
-        <h1 className="text-5xl md:text-6xl font-bold mb-6">
-          Our Fleet
-        </h1>
-        <p className="text-xl text-gray-400 max-w-2xl">
-          Explore our wide range of vehicles designed to meet every transportation need. From quick city solo rides to heavy commercial freight, we have got you covered.
-        </p>
-      </motion.div>
 
-      {/* Features Grid */}
-      <div className="max-w-6xl mx-auto px-4 mb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {features.map((feature, idx) => {
-            const Icon = feature.icon;
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:border-white/20 transition"
-              >
-                <Icon className="w-12 h-12 mb-4 text-white" />
-                <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
-                <p className="text-gray-400">{feature.description}</p>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
+      <main className="flex-1 pt-28 sm:pt-36 pb-20">
+        {/* ================= HERO INTRO ================= */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 sm:mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-3xl"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5EBDD] text-[#123D32] border border-[#cdd6c3] text-xs font-bold uppercase tracking-wider mb-4">
+              <Sparkles size={13} className="text-[#B83A24]" />
+              <span>Verified Fleet Architecture</span>
+            </div>
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#10251C] tracking-tight leading-[1.08] mb-4">
+              Our Complete Fleet
+            </h1>
+            <p className="text-[#696B64] text-base sm:text-lg leading-relaxed max-w-2xl">
+              Engineered for Assam&apos;s diverse transit landscape. Whether navigating Guwahati&apos;s bustling city corridors or transporting cargo along national highways, Jaatri guarantees inspected vehicles, upfront fares, and professional driver partners.
+            </p>
+          </motion.div>
+        </section>
 
-      {/* Vehicle Categories */}
-      <div className="max-w-6xl mx-auto px-4 mb-20">
-        <h2 className="text-4xl font-bold mb-12">Vehicle Categories</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {FLEET_CATEGORIES.map((category, idx) => {
-            const Icon = category.Icon;
-            return (
+        {/* ================= FLEET STANDARDS GRID ================= */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 sm:mb-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {FLEET_STANDARDS.map((feature, idx) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.45, delay: idx * 0.08 }}
+                  className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[12px] p-6 shadow-2xs hover:border-[#123D32]/40 transition duration-200"
+                >
+                  <div className="w-11 h-11 rounded-[8px] bg-[#E5EBDD] text-[#123D32] flex items-center justify-center mb-4">
+                    <Icon size={22} />
+                  </div>
+                  <h3 className="font-bold text-base text-[#10251C] mb-2">{feature.title}</h3>
+                  <p className="text-[#696B64] text-xs sm:text-sm leading-relaxed">{feature.description}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ================= VEHICLE CATEGORIES SHOWCASE ================= */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-12">
+            <div>
+              <p className="text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#B83A24] mb-2">
+                TRANSIT TIERS
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] tracking-tight">
+                Choose Your Vehicle Class
+              </h2>
+            </div>
+            <Link
+              href="/book?fresh=true"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#123D32] hover:text-[#0D3027] group"
+            >
+              <span>Instant ride estimate</span>
+              <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            {FLEET_CATEGORIES.map((category, idx) => (
               <motion.div
                 key={category.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: idx * 0.05 }}
-                className="bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl p-6 flex flex-col justify-between group hover:border-white/30 transition select-none"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: idx * 0.05 }}
+                className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[14px] p-5 sm:p-6 flex flex-col justify-between group hover:border-[#123D32]/50 hover:shadow-md transition-all duration-200"
               >
                 <div>
-                  <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-4 p-2">
-                    <Icon size={40} className="w-full h-full object-contain" />
+                  {/* Category Image */}
+                  <div className="relative w-full h-36 sm:h-40 bg-[#F7F1E5] rounded-[10px] mb-4 overflow-hidden flex items-center justify-center p-2 border border-[#DED7CA]/60">
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                  <h3 className="text-xl font-bold mb-1 text-white">{category.name}</h3>
-                  <p className="text-[11px] font-bold text-amber-400 mb-2 uppercase tracking-wider">{category.capacity}</p>
-                  <p className="text-gray-400 text-xs mb-4 leading-relaxed">{category.description}</p>
+
+                  {/* Header info */}
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#B83A24]">
+                      {category.badge}
+                    </span>
+                    <span className="text-[11px] font-semibold text-[#123D32] bg-[#E5EBDD] px-2 py-0.5 rounded-full">
+                      {category.capacity}
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-xl text-[#10251C] font-normal mb-1.5">{category.name}</h3>
+                  <p className="text-[#696B64] text-xs leading-relaxed mb-4 min-h-[32px]">{category.description}</p>
                 </div>
-                <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                  <p className="text-white text-xs font-semibold">{category.price}</p>
+
+                {/* Pricing & CTA */}
+                <div className="pt-4 border-t border-[#DED7CA]/70 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-[#696B64] block">Transparent rate</span>
+                    <p className="text-[#10251C] text-sm font-bold">{category.price}</p>
+                  </div>
                   <Link
                     href={`/book?vehicle=${category.id}&fresh=true`}
-                    className="text-[11px] font-bold text-zinc-300 group-hover:text-white transition flex items-center gap-1"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] text-white text-xs font-bold transition active:scale-95 shadow-2xs"
                   >
-                    Book <ArrowRight size={12} />
+                    <span>Book</span>
+                    <ArrowRight size={13} />
                   </Link>
                 </div>
               </motion.div>
-            );
-          })}
-        </div>
-      </div>
+            ))}
+          </div>
+        </section>
 
-      {/* CTA */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="max-w-6xl mx-auto px-4 py-20 text-center"
-      >
-        <h2 className="text-4xl font-bold mb-6">Ready to ride?</h2>
-        <Link
-          href="/book?fresh=true"
-          className="inline-block px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition"
-        >
-          Book Now
-        </Link>
-      </motion.div>
-      </div>
+        {/* ================= BOTTOM CTA ================= */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[16px] p-8 sm:p-12 text-center shadow-xs">
+            <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#B83A24] mb-2 block">
+              READY TO COMMUTE?
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] max-w-xl mx-auto mb-4">
+              Fast, reliable rides at your fingertips across Assam.
+            </h2>
+            <p className="text-[#696B64] text-sm sm:text-base max-w-lg mx-auto mb-8">
+              Experience seamless booking with transparent upfront pricing, real-time vehicle dispatch, and verified local drivers.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link
+                href="/book?fresh=true"
+                className="px-8 py-3.5 bg-[#123D32] hover:bg-[#0D3027] text-white font-bold rounded-[8px] transition active:scale-95 shadow-xs text-sm sm:text-base"
+              >
+                Book a Ride Now
+              </Link>
+              <Link
+                href="/partner/onboard/vehicle"
+                className="px-6 py-3.5 bg-white border border-[#DED7CA] hover:border-[#123D32] text-[#10251C] font-bold rounded-[8px] transition active:scale-95 text-sm sm:text-base"
+              >
+                Drive with Jaatri
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+
       <Footer />
     </div>
   );

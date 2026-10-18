@@ -284,12 +284,12 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-zinc-50 flex flex-col justify-between">
+    <div className="w-full min-h-screen bg-[#F7F1E5] flex flex-col justify-between font-sans">
       <Nav />
 
       {/* Background dot grid pattern */}
       <div className="fixed inset-0 pointer-events-none"
-        style={{ backgroundImage: "radial-gradient(circle, #e4e4e7 1px, transparent 1px)", backgroundSize: "24px 24px", opacity: 0.5 }}
+        style={{ backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)", backgroundSize: "24px 24px", opacity: 0.6 }}
       />
 
       <main className="relative max-w-2xl mx-auto w-full px-3.5 sm:px-4 pt-24 sm:pt-28 pb-12 sm:pb-20 z-10 flex-1">
@@ -298,13 +298,13 @@ export default function ProfilePage() {
           <motion.button
             whileTap={{ scale: 0.88 }}
             onClick={() => router.back()}
-            className="w-10 h-10 rounded-xl bg-white border border-zinc-200 shadow-sm flex items-center justify-center hover:bg-zinc-50 transition-colors shrink-0"
+            className="w-10 h-10 rounded-[8px] bg-white border border-[#DED7CA] shadow-xs flex items-center justify-center hover:bg-[#FAF7F0] transition-colors shrink-0 cursor-pointer"
           >
-            <ArrowLeft size={16} className="text-zinc-900" />
+            <ArrowLeft size={16} className="text-[#10251C]" />
           </motion.button>
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight leading-none">Account Profile</h1>
-            <p className="text-zinc-400 text-[10px] font-bold mt-1 uppercase tracking-wider">Configure your credentials</p>
+            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] tracking-tight leading-none">Account Profile</h1>
+            <p className="text-[#696B64] text-xs font-bold mt-1 uppercase tracking-wider">Configure your credentials</p>
           </div>
         </div>
 
@@ -312,26 +312,26 @@ export default function ProfilePage() {
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden"
+          className="bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] shadow-xs overflow-hidden"
         >
           {/* Top banner strip */}
-          <div className="h-1.5 bg-zinc-950 w-full" />
+          <div className="h-1.5 bg-[#123D32] w-full" />
 
           <form onSubmit={handleSave} className="p-4 sm:p-8 space-y-5 sm:space-y-6">
             
             {/* Header Avatar info */}
-            <div className="flex items-center gap-3.5 sm:gap-4 pb-5 sm:pb-6 border-b border-zinc-100">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-zinc-950 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-lg shadow-zinc-950/20 shrink-0">
+            <div className="flex items-center gap-3.5 sm:gap-4 pb-5 sm:pb-6 border-b border-[#DED7CA]/60">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[10px] bg-[#123D32] text-white flex items-center justify-center font-bold font-serif text-xl sm:text-2xl shadow-xs shrink-0">
                 {userData?.name?.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
-                <h2 className="text-base sm:text-lg font-black text-zinc-900 leading-tight truncate">{userData?.name}</h2>
+                <h2 className="text-base sm:text-lg font-bold font-serif text-[#10251C] leading-tight truncate">{userData?.name}</h2>
                 <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center mt-1">
-                  <span className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-zinc-200">
+                  <span className="inline-flex items-center gap-1 bg-[#E5EBDD] text-[#123D32] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[4px] border border-[#DED7CA]">
                     {userData?.role}
                   </span>
                   {userData?.role === "vendor" && (
-                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-emerald-200">
+                    <span className="inline-flex items-center gap-1 bg-white text-[#123D32] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[4px] border border-[#DED7CA]">
                       {userData?.vendorStatus}
                     </span>
                   )}
@@ -343,58 +343,58 @@ export default function ProfilePage() {
             <div className="space-y-4">
               {/* Name field */}
               <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-2">Display Name</label>
-                <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 focus-within:bg-white transition-all">
-                  <User size={16} className="text-zinc-400 shrink-0" />
+                <label className="text-xs font-bold text-[#696B64] uppercase tracking-widest block mb-2">Display Name</label>
+                <div className="flex items-center gap-3 bg-white border border-[#DED7CA] rounded-[8px] px-4 py-3 focus-within:border-[#123D32] focus-within:ring-2 focus-within:ring-[#123D32]/10 transition-all">
+                  <User size={16} className="text-[#696B64] shrink-0" />
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
-                    className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
+                    className="flex-1 bg-transparent text-sm font-semibold text-[#10251C] placeholder:text-[#696B64]/60 outline-none"
                   />
                 </div>
               </div>
 
               {/* Mobile field */}
               <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-2">Mobile Number</label>
-                <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 focus-within:bg-white transition-all">
-                  <Phone size={16} className="text-zinc-400 shrink-0" />
+                <label className="text-xs font-bold text-[#696B64] uppercase tracking-widest block mb-2">Mobile Number</label>
+                <div className="flex items-center gap-3 bg-white border border-[#DED7CA] rounded-[8px] px-4 py-3 focus-within:border-[#123D32] focus-within:ring-2 focus-within:ring-[#123D32]/10 transition-all">
+                  <Phone size={16} className="text-[#696B64] shrink-0" />
                   <input
                     type="tel"
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ""))}
                     placeholder="Enter your phone number"
                     inputMode="numeric"
-                    className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
+                    className="flex-1 bg-transparent text-sm font-semibold text-[#10251C] placeholder:text-[#696B64]/60 outline-none"
                   />
                 </div>
               </div>
             </div>
 
             {/* Read-Only Meta Information */}
-            <div className="bg-zinc-50 border border-zinc-150 rounded-2xl p-4 sm:p-5 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-semibold text-zinc-500 gap-0.5 sm:gap-2">
+            <div className="bg-white/70 border border-[#DED7CA] rounded-[10px] p-4 sm:p-5 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-semibold text-[#696B64] gap-0.5 sm:gap-2">
                 <span className="flex items-center gap-2 shrink-0">
-                  <Mail size={14} className="text-zinc-400 shrink-0" /> Email Address
+                  <Mail size={14} className="text-[#696B64] shrink-0" /> Email Address
                 </span>
-                <span className="font-mono text-zinc-800 break-all sm:break-normal text-right sm:text-left">{userData?.email}</span>
+                <span className="font-mono text-[#10251C] break-all sm:break-normal text-right sm:text-left">{userData?.email}</span>
               </div>
 
-              <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
+              <div className="flex items-center justify-between text-xs font-semibold text-[#696B64]">
                 <span className="flex items-center gap-2">
-                  <Award size={14} className="text-zinc-400 shrink-0" /> Account Type
+                  <Award size={14} className="text-[#696B64] shrink-0" /> Account Type
                 </span>
-                <span className="text-zinc-800 uppercase tracking-wide">{userData?.role}</span>
+                <span className="text-[#10251C] uppercase tracking-wide">{userData?.role}</span>
               </div>
 
-              <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
+              <div className="flex items-center justify-between text-xs font-semibold text-[#696B64]">
                 <span className="flex items-center gap-2">
-                  <Calendar size={14} className="text-zinc-400 shrink-0" /> Created At
+                  <Calendar size={14} className="text-[#696B64] shrink-0" /> Created At
                 </span>
-                <span className="text-zinc-800">
+                <span className="text-[#10251C]">
                   {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString("en-IN", {
                     day: "2-digit",
                     month: "short",
@@ -412,7 +412,7 @@ export default function ProfilePage() {
                     initial={{ opacity: 0, x: 8 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0 }}
-                    className="text-xs font-bold text-emerald-600 flex items-center justify-center gap-1.5"
+                    className="text-xs font-bold text-[#123D32] flex items-center justify-center gap-1.5"
                   >
                     <Check size={14} /> Changes saved
                   </motion.span>
@@ -423,7 +423,7 @@ export default function ProfilePage() {
                 type="submit"
                 whileTap={{ scale: 0.97 }}
                 disabled={saving || !name.trim()}
-                className="w-full sm:w-auto bg-zinc-950 hover:bg-black disabled:opacity-40 text-white font-black text-sm px-6 py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-zinc-950/15 transition-all"
+                className="w-full sm:w-auto bg-[#123D32] hover:bg-[#0D3027] disabled:opacity-40 text-white font-bold text-sm px-6 py-3 rounded-[8px] flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
               >
                 {saving ? (
                   <>
@@ -447,25 +447,25 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="mt-6 sm:mt-8 bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden"
+          className="mt-6 sm:mt-8 bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] shadow-xs overflow-hidden"
         >
-          <div className="h-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 w-full" />
+          <div className="h-1.5 bg-[#123D32] w-full" />
           <div className="p-4 sm:p-8 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#DED7CA]/60">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shadow-inner shrink-0">
+                <div className="w-12 h-12 rounded-[10px] bg-[#E5EBDD] text-[#123D32] flex items-center justify-center font-bold shadow-xs shrink-0">
                   <GraduationCap size={24} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-black text-zinc-900 leading-tight">
-                      {t("student.programTitle", "RideNow Student Benefits")}
+                    <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] leading-tight">
+                      {t("student.programTitle", "Jaatri Student Benefits")}
                     </h3>
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[#E5EBDD] text-[#123D32] border border-[#DED7CA] px-2 py-0.5 rounded-[4px]">
                       10% OFF
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                  <p className="text-xs text-[#696B64] font-medium mt-0.5">
                     {t("student.bannerSubtitle", "Save 10% on eligible rides (up to ₹50 per ride) for 12 months.")}
                   </p>
                 </div>
@@ -474,17 +474,17 @@ export default function ProfilePage() {
               {/* Status Badge */}
               <div className="flex items-center gap-2">
                 {studentData?.status === "verified" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black">
-                    <Check size={14} className="text-emerald-600" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#E5EBDD] border border-[#DED7CA] text-[#123D32] text-xs font-bold">
+                    <Check size={14} className="text-[#123D32]" />
                     {t("student.verified", "Status: Verified")}
                   </span>
                 ) : studentData?.status === "expired" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-black">
-                    <AlertCircle size={14} className="text-rose-600" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] border border-[#B83A24]/30 text-[#B83A24] text-xs font-bold">
+                    <AlertCircle size={14} className="text-[#B83A24]" />
                     {t("student.expired", "Status: Expired")}
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-600 text-xs font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-white border border-[#DED7CA] text-[#696B64] text-xs font-bold">
                     {t("student.notVerified", "Not Verified")}
                   </span>
                 )}
@@ -494,13 +494,13 @@ export default function ProfilePage() {
             {/* Verified Active State */}
             {studentData?.status === "verified" ? (
               <div className="space-y-4">
-                <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-4 bg-white/70 border border-[#DED7CA] rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <div className="flex items-center gap-2 text-emerald-950 font-black text-sm">
-                      <Sparkles size={16} className="text-emerald-600" />
+                    <div className="flex items-center gap-2 text-[#123D32] font-bold text-sm">
+                      <Sparkles size={16} className="text-[#123D32]" />
                       10% Student Concession Active
                     </div>
-                    <p className="text-xs text-emerald-800 mt-1">
+                    <p className="text-xs text-[#123D32] mt-1">
                       {t("student.validUntil", "Verified until")}{" "}
                       <span className="font-bold underline">
                         {studentData.verification?.expiresAt
@@ -514,7 +514,7 @@ export default function ProfilePage() {
                       ({studentData.daysRemaining} {t("student.days", "days")} remaining)
                     </p>
                     {studentData.verification?.institutionName && (
-                      <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                      <p className="text-[11px] text-[#123D32] font-semibold mt-0.5">
                         🏛️ {studentData.verification.institutionName}
                       </p>
                     )}
@@ -527,7 +527,7 @@ export default function ProfilePage() {
                         setStudentStep(1);
                         setShowStudentModal(true);
                       }}
-                      className="shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition"
+                      className="shrink-0 bg-[#123D32] hover:bg-[#0D3027] text-white text-xs font-bold px-4 py-2.5 rounded-[8px] shadow-xs transition cursor-pointer"
                     >
                       {t("student.reverify", "Re-verify Student Status")}
                     </button>
@@ -535,7 +535,7 @@ export default function ProfilePage() {
                 </div>
 
                 {studentData.daysRemaining <= 30 && (
-                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-2.5 text-xs text-amber-900 font-medium">
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-[8px] flex items-center gap-2.5 text-xs text-amber-900 font-medium">
                     <Clock size={16} className="text-amber-600 shrink-0" />
                     <span>
                       {t("student.expiresIn", "Student status expires in")}{" "}
@@ -546,13 +546,13 @@ export default function ProfilePage() {
                 )}
               </div>
             ) : studentData?.status === "expired" ? (
-              <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 bg-[#faebe8] border border-[#B83A24]/30 rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2 text-rose-950 font-black text-sm">
-                    <AlertCircle size={16} className="text-rose-600" />
+                  <div className="flex items-center gap-2 text-[#B83A24] font-bold text-sm">
+                    <AlertCircle size={16} className="text-[#B83A24]" />
                     Student Status Expired
                   </div>
-                  <p className="text-xs text-rose-700 mt-1">
+                  <p className="text-xs text-[#B83A24] mt-1">
                     Your 12-month annual student discount has concluded. Re-verify your enrollment to resume 10% off on all eligible rides.
                   </p>
                 </div>
@@ -562,18 +562,18 @@ export default function ProfilePage() {
                     setStudentStep(1);
                     setShowStudentModal(true);
                   }}
-                  className="shrink-0 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-xs transition"
+                  className="shrink-0 bg-[#B83A24] hover:bg-[#B83A24]/90 text-white text-xs font-bold px-4 py-2.5 rounded-[8px] shadow-xs transition cursor-pointer"
                 >
                   {t("student.verifyAgain", "Verify Again")}
                 </button>
               </div>
             ) : (
-              <div className="p-4 sm:p-5 bg-zinc-50 border border-zinc-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="p-4 sm:p-5 bg-white/70 border border-[#DED7CA] rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <p className="text-xs text-zinc-700 font-medium">
+                  <p className="text-xs text-[#10251C] font-medium">
                     Verified university and college students receive an automatic <b>10% discount</b> (capped at ₹50) on every regular ride for 1 full year.
                   </p>
-                  <p className="text-[11px] text-zinc-400">
+                  <p className="text-[11px] text-[#696B64]">
                     {t("student.noStackingNotice", "Cannot be stacked with promo codes. Minimum ride fare ₹100.")}
                   </p>
                 </div>
@@ -583,7 +583,7 @@ export default function ProfilePage() {
                     setStudentStep(1);
                     setShowStudentModal(true);
                   }}
-                  className="shrink-0 bg-zinc-950 hover:bg-black text-white text-xs font-black px-5 py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2"
+                  className="shrink-0 bg-[#123D32] hover:bg-[#0D3027] text-white text-xs font-bold px-5 py-3 rounded-[8px] shadow-xs transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <GraduationCap size={16} />
                   {t("student.applyNow", "Apply for Student Discount")}
@@ -598,25 +598,25 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mt-6 sm:mt-8 bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden"
+          className="mt-6 sm:mt-8 bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] shadow-xs overflow-hidden"
         >
-          <div className="h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 w-full" />
+          <div className="h-1.5 bg-[#123D32] w-full" />
           <div className="p-4 sm:p-8 space-y-5 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-zinc-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-[#DED7CA]/60">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-inner shrink-0">
+                <div className="w-12 h-12 rounded-[10px] bg-[#E5EBDD] text-[#123D32] flex items-center justify-center font-bold shadow-xs shrink-0">
                   <Users size={22} />
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-black text-zinc-900 leading-tight">
+                    <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] leading-tight">
                       {family?.familyName || "Family Account"}
                     </h3>
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[#E5EBDD] text-[#123D32] border border-[#DED7CA] px-2 py-0.5 rounded-[4px]">
                       {family?.members?.length || 0}/5 Members
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                  <p className="text-xs text-[#696B64] font-medium mt-0.5">
                     Share rides, manage billing, and track loved ones in real-time
                   </p>
                 </div>
@@ -625,27 +625,27 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setShowAddMember(!showAddMember)}
-                className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-zinc-900 hover:bg-black px-4 py-2.5 rounded-xl shadow-md transition w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-[#123D32] hover:bg-[#0D3027] px-4 py-2.5 rounded-[8px] shadow-xs transition w-full sm:w-auto cursor-pointer"
               >
                 <UserPlus size={14} /> {showAddMember ? "Cancel" : "Add Member"}
               </button>
             </div>
 
             {/* Central Shared Billing Toggle */}
-            <div className="flex items-center justify-between p-4 bg-zinc-50 border border-zinc-200/80 rounded-2xl">
+            <div className="flex items-center justify-between p-4 bg-white/70 border border-[#DED7CA] rounded-[10px]">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-zinc-200 text-zinc-700 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-[6px] bg-[#FAF7F0] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
                   <ShieldCheck size={16} />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-zinc-900">Centralized Family Billing</h4>
-                  <p className="text-[11px] text-zinc-500">Allow family members to ride using organizer's payment</p>
+                  <h4 className="text-xs font-bold text-[#10251C]">Centralized Family Billing</h4>
+                  <p className="text-[11px] text-[#696B64]">Allow family members to ride using organizer's payment</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleToggleCentralBilling}
-                className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 ${family?.sharedPaymentEnabled ? "bg-emerald-500 justify-end" : "bg-zinc-300 justify-start"}`}
+                className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${family?.sharedPaymentEnabled ? "bg-[#123D32] justify-end" : "bg-[#DED7CA] justify-start"}`}
               >
                 <div className="w-5 h-5 rounded-full bg-white shadow-md" />
               </button>
@@ -659,9 +659,9 @@ export default function ProfilePage() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   onSubmit={handleAddMember}
-                  className="bg-blue-50/50 border border-blue-200 rounded-2xl p-5 space-y-3 overflow-hidden"
+                  className="bg-white/90 border border-[#DED7CA] rounded-[10px] p-5 space-y-3 overflow-hidden"
                 >
-                  <p className="text-xs font-black uppercase text-blue-900 tracking-wider">Add Family Member</p>
+                  <p className="text-xs font-bold uppercase text-[#10251C] tracking-wider">Add Family Member</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
                       type="text"
@@ -669,12 +669,12 @@ export default function ProfilePage() {
                       placeholder="Full Name *"
                       value={memberName}
                       onChange={e => setMemberName(e.target.value)}
-                      className="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-blue-500"
+                      className="w-full bg-white border border-[#DED7CA] rounded-[8px] px-3.5 py-2.5 text-xs text-[#10251C] placeholder:text-[#696B64]/60 outline-none focus:border-[#123D32]"
                     />
                     <select
                       value={memberRelation}
                       onChange={e => setMemberRelation(e.target.value)}
-                      className="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:border-blue-500 font-medium"
+                      className="w-full bg-white border border-[#DED7CA] rounded-[8px] px-3.5 py-2.5 text-xs text-[#10251C] outline-none focus:border-[#123D32] font-medium"
                     >
                       <option value="Spouse">Spouse</option>
                       <option value="Child">Child</option>
@@ -687,28 +687,28 @@ export default function ProfilePage() {
                       placeholder="Mobile Number (Optional)"
                       value={memberPhone}
                       onChange={e => setMemberPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      className="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-blue-500"
+                      className="w-full bg-white border border-[#DED7CA] rounded-[8px] px-3.5 py-2.5 text-xs text-[#10251C] placeholder:text-[#696B64]/60 outline-none focus:border-[#123D32]"
                     />
                     <input
                       type="email"
                       placeholder="Email Address (Optional)"
                       value={memberEmail}
                       onChange={e => setMemberEmail(e.target.value)}
-                      className="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-blue-500"
+                      className="w-full bg-white border border-[#DED7CA] rounded-[8px] px-3.5 py-2.5 text-xs text-[#10251C] placeholder:text-[#696B64]/60 outline-none focus:border-[#123D32]"
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-1">
                     <button
                       type="button"
                       onClick={() => setShowAddMember(false)}
-                      className="text-xs font-bold text-zinc-600 hover:text-zinc-800 px-4 py-2 rounded-xl transition"
+                      className="text-xs font-bold text-[#696B64] hover:text-[#10251C] px-4 py-2 rounded-[8px] transition cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={addingMember || !memberName.trim()}
-                      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs px-5 py-2 rounded-xl transition shadow"
+                      className="bg-[#123D32] hover:bg-[#0D3027] disabled:opacity-50 text-white font-bold text-xs px-5 py-2 rounded-[8px] transition shadow-xs cursor-pointer"
                     >
                       {addingMember ? "Adding..." : "Add to Family"}
                     </button>
@@ -719,25 +719,25 @@ export default function ProfilePage() {
 
             {/* Member List */}
             <div className="space-y-2">
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+              <p className="text-[10px] font-bold text-[#696B64] uppercase tracking-widest">
                 Active Family Members
               </p>
               {family?.members && family.members.length > 0 ? (
-                <div className="divide-y divide-zinc-100 border border-zinc-100 rounded-2xl overflow-hidden bg-zinc-50/50">
+                <div className="divide-y divide-[#DED7CA]/60 border border-[#DED7CA] rounded-[10px] overflow-hidden bg-white/70">
                   {family.members.map((m: any) => (
-                    <div key={m._id} className="p-4 flex items-center justify-between hover:bg-zinc-50 transition">
+                    <div key={m._id} className="p-4 flex items-center justify-between hover:bg-[#FAF7F0] transition">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-xs">
+                        <div className="w-9 h-9 rounded-full bg-[#123D32] text-white flex items-center justify-center font-bold text-xs">
                           {m.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="text-sm font-bold text-zinc-900">{m.name}</p>
-                            <span className="text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                            <p className="text-sm font-bold text-[#10251C]">{m.name}</p>
+                            <span className="text-[9px] font-bold uppercase tracking-wider bg-[#E5EBDD] text-[#123D32] border border-[#DED7CA] px-2 py-0.5 rounded-[4px]">
                               {m.relation}
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-400">
+                          <p className="text-[11px] text-[#696B64]">
                             {m.phone ? `Phone: ${m.phone}` : m.email || "Family Member"}
                           </p>
                         </div>
@@ -745,7 +745,7 @@ export default function ProfilePage() {
                       <button
                         type="button"
                         onClick={() => handleRemoveMember(m._id)}
-                        className="w-8 h-8 rounded-lg hover:bg-rose-50 text-zinc-400 hover:text-rose-600 flex items-center justify-center transition"
+                        className="w-8 h-8 rounded-[6px] hover:bg-[#faebe8] text-[#696B64] hover:text-[#B83A24] flex items-center justify-center transition cursor-pointer"
                       >
                         <Trash2 size={15} />
                       </button>
@@ -753,10 +753,10 @@ export default function ProfilePage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 border border-dashed border-zinc-200 rounded-2xl bg-zinc-50/50">
-                  <Users size={28} className="text-zinc-300 mx-auto mb-2" />
-                  <p className="text-xs font-bold text-zinc-600">No family members added yet</p>
-                  <p className="text-[10px] text-zinc-400 mt-0.5">Add your children, spouse, or parents to share rides</p>
+                <div className="text-center py-8 border border-dashed border-[#DED7CA] rounded-[10px] bg-white/50">
+                  <Users size={28} className="text-[#696B64]/50 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-[#10251C]">No family members added yet</p>
+                  <p className="text-[10px] text-[#696B64] mt-0.5">Add your children, spouse, or parents to share rides</p>
                 </div>
               )}
             </div>
@@ -768,20 +768,20 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="mt-6 sm:mt-8 bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden"
+          className="mt-6 sm:mt-8 bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] shadow-xs overflow-hidden"
         >
-          <div className="h-1.5 bg-zinc-300 w-full" />
+          <div className="h-1.5 bg-[#B83A24] w-full" />
           <div className="p-4 sm:p-8 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#DED7CA]/60">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-zinc-700 flex items-center justify-center font-bold shrink-0">
+                <div className="w-12 h-12 rounded-[10px] bg-white border border-[#DED7CA] text-[#10251C] flex items-center justify-center font-bold shrink-0">
                   <ShieldCheck size={22} />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-black text-zinc-900 leading-tight">
+                  <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] leading-tight">
                     Data Privacy & Account Erasure
                   </h3>
-                  <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                  <p className="text-xs text-[#696B64] font-medium mt-0.5">
                     Exercise your statutory rights under Section 12 of the Digital Personal Data Protection Act, 2023
                   </p>
                 </div>
@@ -794,19 +794,19 @@ export default function ProfilePage() {
                   setDeleteSuccess(false);
                   setShowDeleteModal(true);
                 }}
-                className="inline-flex items-center justify-center gap-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-4 py-2.5 rounded-xl transition w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 text-xs font-bold text-[#B83A24] bg-[#faebe8] hover:bg-[#faebe8]/80 border border-[#B83A24]/30 px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer"
               >
                 <Trash2 size={14} /> Request Account Deletion
               </button>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-3 text-xs text-zinc-500">
-              <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-                <span className="font-bold text-zinc-800 block mb-0.5">Instant Identity Scrubbing:</span>
+            <div className="grid sm:grid-cols-2 gap-3 text-xs text-[#696B64]">
+              <div className="p-3 bg-white/70 rounded-[8px] border border-[#DED7CA]">
+                <span className="font-bold text-[#10251C] block mb-0.5">Instant Identity Scrubbing:</span>
                 Your name, phone number, login credentials, and saved addresses are immediately anonymized.
               </div>
-              <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-                <span className="font-bold text-zinc-800 block mb-0.5">Statutory Retention:</span>
+              <div className="p-3 bg-white/70 rounded-[8px] border border-[#DED7CA]">
+                <span className="font-bold text-[#10251C] block mb-0.5">Statutory Retention:</span>
                 Past trip logs and tax receipts are archived in anonymized form for statutory audit periods under Motor Vehicle Guidelines.
               </div>
             </div>

@@ -694,7 +694,7 @@ export default function DriverRidePage() {
   };
 
   return (
-    <div className="h-screen w-full bg-zinc-100 flex flex-col lg:flex-row overflow-hidden">
+    <div className="h-screen w-full bg-[#F7F1E5] flex flex-col lg:flex-row overflow-hidden">
 
       {/* MAP */}
       <div className="relative flex-1 h-full z-0">
@@ -714,15 +714,15 @@ export default function DriverRidePage() {
         <div className="absolute top-4 left-4 z-[500] flex items-center gap-2 pointer-events-auto">
           <Link
             href="/"
-            className="h-9 px-3 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-md flex items-center gap-1.5 text-xs font-black uppercase tracking-wider backdrop-blur-sm transition"
+            className="h-9 px-3.5 bg-[#FAF7F0]/95 hover:bg-[#FAF7F0] text-[#10251C] border border-[#DED7CA] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-semibold backdrop-blur-sm transition"
             title="Home"
           >
-            <Home size={14} />
+            <Home size={14} className="text-[#123D32]" />
             <span>Home</span>
           </Link>
           <Link
             href="/partner/dashboard"
-            className="h-9 px-3 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-md flex items-center gap-1.5 text-xs font-black uppercase tracking-wider backdrop-blur-sm transition"
+            className="h-9 px-3.5 bg-[#FAF7F0]/95 hover:bg-[#FAF7F0] text-[#10251C] border border-[#DED7CA] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-semibold backdrop-blur-sm transition"
             title="Vendor Dashboard"
           >
             <span>Dashboard</span>
@@ -734,17 +734,17 @@ export default function DriverRidePage() {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] pointer-events-none"
         >
-          <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-none shadow-md border border-zinc-300">
-            <span className={`w-2 h-2 rounded-none ${cfg.dot}`} />
-            <span className="text-xs font-black uppercase tracking-wider text-zinc-900">{cfg.label}</span>
+          <div className="flex items-center gap-2 bg-[#FAF7F0] px-3.5 py-1.5 rounded-[8px] shadow-sm border border-[#DED7CA]">
+            <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+            <span className="text-xs font-semibold text-[#10251C]">{cfg.label}</span>
             {isWakeLockActive && (
-              <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="flex items-center gap-1 text-[10px] font-mono text-[#123D32] bg-[#123D32]/10 px-1.5 py-0.5 rounded-[4px] border border-[#123D32]/20 font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#123D32] animate-pulse" />
                 AWAKE
               </span>
             )}
             {!isSocketConnected && (
-              <span className="flex items-center gap-1 text-[10px] font-mono text-amber-800 bg-amber-100 px-1.5 py-0.5 border border-amber-300">
+              <span className="flex items-center gap-1 text-[10px] font-mono text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-[4px] border border-amber-300 font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                 6s POLLING
               </span>
@@ -757,55 +757,55 @@ export default function DriverRidePage() {
       <motion.div
         initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden lg:flex w-[420px] xl:w-[460px] bg-white border-l border-zinc-200 flex-col overflow-hidden"
+        className="hidden lg:flex w-[420px] xl:w-[460px] bg-[#FAF7F0] border-l border-[#DED7CA] flex-col overflow-hidden"
       >
-        <div className="bg-zinc-950 px-6 py-5 flex-shrink-0">
+        <div className="bg-[#123D32] px-6 py-5 flex-shrink-0">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <Link
                 href="/"
-                className="inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.15em] uppercase text-zinc-400 hover:text-white transition"
+                className="inline-flex items-center gap-1 text-[11px] font-medium text-[#FAF7F0]/80 hover:text-[#FAF7F0] transition"
                 title="Go to Home"
               >
                 <Home size={11} />
                 <span>Home</span>
               </Link>
-              <span className="text-zinc-700 text-xs">•</span>
+              <span className="text-[#FAF7F0]/40 text-xs">•</span>
               <Link
                 href="/partner/dashboard"
-                className="inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.15em] uppercase text-zinc-400 hover:text-white transition"
+                className="inline-flex items-center gap-1 text-[11px] font-medium text-[#FAF7F0]/80 hover:text-[#FAF7F0] transition"
                 title="Partner Dashboard"
               >
                 <span>Dashboard</span>
               </Link>
             </div>
-            <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-bold">Driver Panel</p>
+            <p className="text-[#FAF7F0]/70 text-[10px] tracking-[0.15em] uppercase font-bold">Driver Console</p>
           </div>
           <div className="flex items-center justify-between">
-            <h1 className="text-white text-xl font-black uppercase tracking-tight">Active Ride</h1>
+            <h1 className="text-[#FAF7F0] text-xl font-serif font-bold">Active Ride</h1>
             <div className="flex items-center gap-2">
               {isWakeLockActive && (
-                <div className="flex items-center gap-1 bg-emerald-950/80 border border-emerald-600/40 px-2 py-1 text-[10px] font-mono font-bold text-emerald-400">
+                <div className="flex items-center gap-1 bg-white/15 border border-white/25 px-2 py-1 rounded-[6px] text-[10px] font-mono font-bold text-[#FAF7F0]">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   AWAKE
                 </div>
               )}
               {!isSocketConnected && (
-                <div className="flex items-center gap-1 bg-amber-950/80 border border-amber-600/40 px-2 py-1 text-[10px] font-mono font-bold text-amber-400">
+                <div className="flex items-center gap-1 bg-amber-400/20 border border-amber-300/40 px-2 py-1 rounded-[6px] text-[10px] font-mono font-bold text-amber-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                   6s POLLING
                 </div>
               )}
               {isActive && (
-                <div className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-none">
+                <div className="flex items-center gap-1.5 bg-[#0D3027] border border-[#123D32] px-3 py-1.5 rounded-[8px]">
                   <Zap size={12} className="text-amber-400" />
-                  <span className="text-white text-xs font-mono font-bold">{Math.round(displayEta)} MIN</span>
+                  <span className="text-[#FAF7F0] text-xs font-mono font-bold">{Math.round(displayEta)} MIN</span>
                 </div>
               )}
             </div>
           </div>
         </div>
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F7F1E5]">
           <div className="flex-1 overflow-y-auto scrollbar-hide">
             <PanelContent {...panelProps} />
           </div>
@@ -816,7 +816,7 @@ export default function DriverRidePage() {
       {/* MOBILE BOTTOM SHEET */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
-          className="bg-white rounded-none shadow-2xl pointer-events-auto overflow-hidden border-t-2 border-zinc-950 flex flex-col"
+          className="bg-[#FAF7F0] rounded-t-[16px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] flex flex-col"
           animate={{ height: expanded ? "82vh" : PEEK_H }}
           transition={{ type: "spring", stiffness: 340, damping: 34 }}
         >
@@ -830,40 +830,40 @@ export default function DriverRidePage() {
               else if (info.offset.y > 35 || info.velocity.y > 250) setExpanded(false);
             }}
             onClick={() => setExpanded(v => !v)}
-            className="flex-shrink-0 cursor-grab active:cursor-grabbing select-none bg-white border-b border-zinc-200"
+            className="flex-shrink-0 cursor-grab active:cursor-grabbing select-none bg-[#FAF7F0] border-b border-[#DED7CA]"
           >
             <div className="pt-2 pb-1 flex flex-col items-center">
-              <div className="w-12 h-1 bg-zinc-300 rounded-none mb-1 cursor-pointer hover:bg-zinc-500 transition-colors" />
-              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">
+              <div className="w-12 h-1 bg-[#DED7CA] rounded-full mb-1 cursor-pointer hover:bg-[#696B64] transition-colors" />
+              <span className="text-[9px] font-bold text-[#696B64] uppercase tracking-wider">
                 {expanded ? "Swipe down for map" : "Swipe up for ride details"}
               </span>
             </div>
             <div className="px-4 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className={`w-2 h-2 rounded-none flex-shrink-0 ${cfg.dot}`} />
+                <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-wider text-zinc-950 leading-tight truncate">{cfg.label}</p>
-                  <p className="text-[11px] text-zinc-500 font-medium leading-tight truncate">{cfg.sublabel}</p>
+                  <p className="text-xs font-bold text-[#10251C] leading-tight truncate">{cfg.label}</p>
+                  <p className="text-[11px] text-[#696B64] font-medium leading-tight truncate">{cfg.sublabel}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 flex-shrink-0">
                 {isActive && (
                   <div className="text-right">
-                    <p className="text-xl font-black text-zinc-950 leading-none">{Math.round(displayEta)}</p>
-                    <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">min</p>
+                    <p className="text-xl font-bold text-[#123D32] leading-none">{Math.round(displayEta)}</p>
+                    <p className="text-[9px] font-bold text-[#696B64] uppercase tracking-wider">min</p>
                   </div>
                 )}
                 <motion.div
                   animate={{ rotate: expanded ? 180 : 0 }}
                   transition={{ duration: 0.25 }}
-                  className="w-7 h-7 rounded-none border border-zinc-300 bg-zinc-100 flex items-center justify-center text-zinc-700"
+                  className="w-7 h-7 rounded-[6px] border border-[#DED7CA] bg-[#F7F1E5] flex items-center justify-center text-[#10251C]"
                 >
                   <ChevronUp size={14} />
                 </motion.div>
               </div>
             </div>
           </motion.div>
-          <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="flex-1 overflow-y-auto min-h-0 bg-[#F7F1E5]">
             <PanelContent {...panelProps} />
           </div>
           <ActionBar {...panelProps} />

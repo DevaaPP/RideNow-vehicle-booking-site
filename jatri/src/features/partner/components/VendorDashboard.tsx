@@ -466,40 +466,40 @@ export default function VendorDashboard({
   }
 
   return (
-    <section className="min-h-screen bg-zinc-50 px-3 sm:px-6 pt-20 sm:pt-28 pb-16 font-sans">
+    <section className="min-h-screen bg-[#F7F1E5] px-3 sm:px-6 pt-20 sm:pt-28 pb-16 font-sans">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
-        <div className="border-b border-zinc-200 pb-5">
+        <div className="border-b border-[#DED7CA] pb-5">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="w-2 h-2 rounded-none bg-zinc-950 inline-block" />
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#123D32] inline-block" />
+            <span className="text-[10px] font-bold tracking-wider uppercase text-[#123D32]">
               Partner Verification
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight font-sans">
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] tracking-tight">
             Vendor Activation Steps
           </h1>
-          <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-mono">
+          <p className="text-[#696B64] text-xs sm:text-sm mt-1">
             Complete compliance onboarding to activate live dispatch and receive bookings.
           </p>
         </div>
 
         {/* MOBILE STEPPER */}
-        <div className="block md:hidden bg-white rounded-none p-4 border border-zinc-300 space-y-3">
+        <div className="block md:hidden bg-[#FAF7F0] rounded-[14px] p-4 border border-[#DED7CA] space-y-3 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-[#696B64] uppercase tracking-wider">
               Step 0{activeStep} / 0{TOTAL_STEPS}
             </span>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 bg-zinc-950 text-white border border-zinc-950">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-[#123D32] text-[#FAF7F0] rounded-[6px]">
               {STEPS[activeStep - 1]?.title || "Onboarding"}
             </span>
           </div>
 
-          <div className="w-full h-1.5 bg-zinc-100 rounded-none overflow-hidden border border-zinc-200">
+          <div className="w-full h-1.5 bg-[#F7F1E5] rounded-full overflow-hidden border border-[#DED7CA]">
             <motion.div
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.3 }}
-              className="h-full bg-zinc-950"
+              className="h-full bg-[#123D32]"
             />
           </div>
 
@@ -515,12 +515,12 @@ export default function VendorDashboard({
                   key={step.id}
                   disabled={locked}
                   onClick={() => goToStep(step)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[11px] font-mono font-bold uppercase tracking-wider shrink-0 transition-colors ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-medium tracking-wide shrink-0 transition-colors ${
                     completed
-                      ? "bg-zinc-100 text-zinc-900 border border-zinc-300"
+                      ? "bg-[#123D32]/10 text-[#123D32] border border-[#123D32]/30 font-semibold"
                       : active
-                      ? "bg-zinc-950 text-white border border-zinc-950"
-                      : "bg-zinc-50 text-zinc-400 border border-zinc-200"
+                      ? "bg-[#123D32] text-[#FAF7F0] font-bold shadow-xs"
+                      : "bg-[#FAF7F0] text-[#696B64] border border-[#DED7CA]"
                   }`}
                 >
                   <span>{completed ? "✓" : `0${step.id}`}</span>
@@ -532,14 +532,14 @@ export default function VendorDashboard({
         </div>
 
         {/* DESKTOP STEPPER */}
-        <div className="hidden md:block bg-white rounded-none p-6 sm:p-8 border border-zinc-300 overflow-x-auto">
+        <div className="hidden md:block bg-[#FAF7F0] rounded-[14px] p-6 sm:p-8 border border-[#DED7CA] shadow-xs overflow-x-auto">
           <div className="relative min-w-[700px]">
-            <div className="absolute top-6 left-0 w-full h-[2px] bg-zinc-200" />
+            <div className="absolute top-6 left-0 w-full h-[2px] bg-[#DED7CA]" />
 
             <motion.div
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.4 }}
-              className="absolute top-6 left-0 h-[2px] bg-zinc-950"
+              className="absolute top-6 left-0 h-[2px] bg-[#123D32]"
             />
 
             <div className="relative flex justify-between">
@@ -555,13 +555,13 @@ export default function VendorDashboard({
                     className="flex flex-col items-center z-10 cursor-pointer"
                   >
                     <div
-                      className={`w-12 h-12 rounded-none flex items-center justify-center border font-mono text-xs font-bold transition-colors
+                      className={`w-12 h-12 rounded-[10px] flex items-center justify-center border text-xs font-bold transition-all
                       ${
                         completed
-                          ? "bg-zinc-950 text-white border-zinc-950"
+                          ? "bg-[#123D32] text-[#FAF7F0] border-[#123D32] shadow-xs"
                           : active
-                          ? "border-zinc-950 bg-white text-zinc-950"
-                          : "border-zinc-300 text-zinc-400 bg-white"
+                          ? "border-[#123D32] bg-[#FAF7F0] text-[#123D32] ring-2 ring-[#123D32]/20 font-bold"
+                          : "border-[#DED7CA] text-[#696B64] bg-[#FAF7F0]"
                       }`}
                     >
                       {completed ? (
@@ -573,8 +573,8 @@ export default function VendorDashboard({
                       )}
                     </div>
 
-                    <p className={`mt-2.5 text-xs font-mono font-bold uppercase tracking-wider text-center ${
-                      active ? "text-zinc-950" : "text-zinc-500"
+                    <p className={`mt-2.5 text-xs font-medium uppercase tracking-wider text-center ${
+                      active ? "text-[#123D32] font-bold" : "text-[#696B64]"
                     }`}>
                       {step.title}
                     </p>

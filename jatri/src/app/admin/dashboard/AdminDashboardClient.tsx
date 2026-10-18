@@ -87,28 +87,33 @@ export default function AdminDashboardClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+    <div className="min-h-screen bg-[#F7F1E5]">
 
       {/* HEADER */}
-      <header className="sticky top-0 bg-white/80 backdrop-blur-lg border-b z-40">
+      <header className="sticky top-0 bg-[#FAF7F0]/90 backdrop-blur-md border-b border-[#DED7CA] z-40">
         <div className="max-w-7xl mx-auto h-14 sm:h-16 px-3 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-black text-white flex items-center justify-center font-bold text-sm sm:text-base">
-              R
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] bg-[#123D32] text-[#FAF7F0] flex items-center justify-center font-serif font-bold text-sm sm:text-base shadow-xs">
+              য
             </div>
-            <span className="font-bold text-sm sm:text-lg tracking-wide">
-              RideNow <span className="text-xs sm:text-sm text-gray-500 font-semibold">ADMIN</span>
-            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-serif font-bold text-sm sm:text-lg tracking-wide text-[#10251C]">
+                যাত্ৰী Jaatri
+              </span>
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-[#123D32] bg-[#123D32]/10 px-1.5 py-0.5 rounded-[4px] border border-[#123D32]/20">
+                ADMIN
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-green-100 text-green-700 font-semibold select-none">
+            <div className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-[#123D32]/10 text-[#123D32] border border-[#123D32]/25 font-semibold select-none">
               <ShieldCheck size={14} />
-              Secure Mode
+              Secure Console
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="text-xs font-bold text-gray-500 hover:text-red-600 transition-colors border px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-full bg-white hover:bg-zinc-50 shadow-sm active:scale-95"
+              className="text-xs font-semibold text-[#696B64] hover:text-[#B83A24] transition-colors border border-[#DED7CA] px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] shadow-xs active:scale-95"
             >
               Logout
             </button>

@@ -99,47 +99,47 @@ export default function PartnerBankPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 sm:bg-zinc-100/60 flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
+    <div className="min-h-screen bg-[#F7F1E5] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="w-full max-w-xl mx-auto bg-white rounded-none border border-zinc-300 p-6 sm:p-10"
+        className="w-full max-w-xl mx-auto bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 sm:p-10 shadow-sm"
       >
         {/* ================= HEADER ================= */}
-        <div className="relative border-b border-zinc-200 pb-6 mb-6">
+        <div className="relative border-b border-[#DED7CA]/70 pb-6 mb-6">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
               aria-label="Go back"
-              className="w-8 h-8 rounded-none border border-zinc-300 flex items-center justify-center hover:bg-zinc-100 transition-colors"
+              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] bg-white flex items-center justify-center hover:bg-[#FAF7F0] text-[#10251C] transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
 
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500">
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64]">
               Step 03 / 03
             </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold mt-4 tracking-tight text-zinc-950 font-sans">
+          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C]">
             Bank &amp; Automated Payout Setup
           </h1>
 
-          <p className="text-xs sm:text-sm text-zinc-500 mt-1 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#696B64] mt-1 leading-relaxed">
             Registered commercial account for immediate daily ride revenue disbursements.
           </p>
 
           {completed && !editMode && (
-            <div className="mt-4 p-3 bg-zinc-50 border border-zinc-200 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-zinc-900 text-xs font-semibold">
-                <CheckCircle size={15} className="text-zinc-900" />
+            <div className="mt-4 p-3 bg-white border border-[#DED7CA] rounded-[8px] flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2 text-[#10251C] text-xs font-semibold">
+                <CheckCircle size={15} className="text-[#123D32]" />
                 <span>Bank account details recorded</span>
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-mono font-semibold text-zinc-900 underline flex items-center gap-1 hover:text-black uppercase tracking-wider"
+                className="text-xs font-mono font-bold text-[#123D32] underline flex items-center gap-1 hover:text-[#0D3027] uppercase tracking-wider cursor-pointer"
               >
                 <Pencil size={12} />
                 Edit Account
@@ -211,8 +211,8 @@ export default function PartnerBankPage() {
 
         {/* ================= WHY DISABLED ================= */}
         {!canSubmit && editMode && (
-          <div className="mt-4 text-xs font-mono text-zinc-950 bg-zinc-50 p-3 rounded-none border border-zinc-300 space-y-1">
-            <p className="font-bold uppercase tracking-wider">
+          <div className="mt-4 text-xs font-mono text-[#10251C] bg-white p-3 rounded-[8px] border border-[#DED7CA] space-y-1">
+            <p className="font-bold uppercase tracking-wider text-[#B83A24]">
               Required Fields Missing:
             </p>
             {!isNameValid && <p>• Valid account holder name</p>}
@@ -223,8 +223,8 @@ export default function PartnerBankPage() {
         )}
 
         {/* ================= INFO ================= */}
-        <div className="mt-5 flex items-start gap-2.5 text-xs text-zinc-500 bg-zinc-50 p-3.5 rounded-none border border-zinc-200">
-          <CheckCircle size={15} className="mt-0.5 shrink-0 text-zinc-900" />
+        <div className="mt-5 flex items-start gap-2.5 text-xs text-[#696B64] bg-white p-3.5 rounded-[8px] border border-[#DED7CA] shadow-xs">
+          <CheckCircle size={15} className="mt-0.5 shrink-0 text-[#123D32]" />
           <p className="leading-relaxed">
             Direct IMPS/NEFT bank settlement verifies automatically upon first completed dispatch ride. Zero commission deductions on partner payout.
           </p>
@@ -232,7 +232,7 @@ export default function PartnerBankPage() {
 
         {/* ================= ERROR ================= */}
         {error && (
-          <div className="mt-4 p-3 rounded-none bg-zinc-50 border border-zinc-300 text-xs text-red-600 font-mono">
+          <div className="mt-4 p-3 rounded-[8px] bg-[#B83A24]/10 border border-[#B83A24] text-xs text-[#B83A24] font-mono">
             {error}
           </div>
         )}
@@ -242,7 +242,7 @@ export default function PartnerBankPage() {
           whileTap={{ scale: 0.99 }}
           disabled={!canSubmit || loading}
           onClick={handleSubmit}
-          className="mt-8 w-full h-12 sm:h-13 rounded-none bg-zinc-950 hover:bg-black text-white font-medium text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 border border-zinc-950 transition-colors disabled:opacity-50"
+          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] text-white font-bold text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
         >
           <span>
             {completed && !editMode
@@ -284,19 +284,19 @@ function InputFieldMinimal({
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-zinc-600">
+        <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64]">
           {label}
         </label>
         {optional && (
-          <span className="text-[10px] font-mono text-zinc-400">
+          <span className="text-[10px] font-mono text-[#696B64]/70">
             Optional
           </span>
         )}
       </div>
 
-      <div className="flex items-center rounded-none border border-zinc-300 bg-white focus-within:border-zinc-950 transition-colors">
+      <div className="flex items-center rounded-[8px] border border-[#DED7CA] bg-white focus-within:border-[#123D32] transition-colors">
         {icon && (
-          <div className="pl-3 pr-2 text-zinc-400 shrink-0">
+          <div className="pl-3 pr-2 text-[#696B64] shrink-0">
             {icon}
           </div>
         )}
@@ -305,12 +305,12 @@ function InputFieldMinimal({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
-          className="w-full h-10 px-2.5 text-xs sm:text-sm bg-transparent focus:outline-none font-mono placeholder:text-zinc-400"
+          className="w-full h-10 px-2.5 text-xs sm:text-sm bg-transparent focus:outline-none font-mono placeholder:text-[#696B64]/60 text-[#10251C]"
         />
       </div>
 
       {error && errorText && (
-        <p className="mt-1 text-[11px] font-mono text-red-600">
+        <p className="mt-1 text-[11px] font-mono text-[#B83A24]">
           {errorText}
         </p>
       )}

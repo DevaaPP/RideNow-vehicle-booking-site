@@ -119,30 +119,30 @@ export default function VendorPendingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f5f7]">
+    <div className="min-h-screen bg-[#F7F1E5]">
 
       {/* Top Section */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
-          <h1 className="text-2xl sm:text-4xl font-semibold text-gray-900">
+      <div className="bg-[#FAF7F0] border-b border-[#DED7CA]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+          <h1 className="text-2xl sm:text-4xl font-serif font-bold text-[#10251C]">
             Ride Requests
           </h1>
-          <p className="mt-1.5 sm:mt-3 text-gray-500 text-sm sm:text-lg">
+          <p className="mt-1.5 sm:mt-2 text-[#696B64] text-sm sm:text-base font-sans">
             Manage incoming ride requests and respond in real time.
           </p>
         </div>
       </div>
 
       {/* Content Section */}
-      <div className="max-w-6xl mx-auto px-3.5 sm:px-6 py-6 sm:py-12">
+      <div className="max-w-6xl mx-auto px-3.5 sm:px-6 py-6 sm:py-10">
 
         {loading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin w-8 h-8 text-gray-700" />
+            <Loader2 className="animate-spin w-8 h-8 text-[#123D32]" />
           </div>
         ) : bookings.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-200 p-8 sm:p-16 text-center shadow-sm">
-            <p className="text-gray-500 text-base sm:text-lg">
+          <div className="bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] p-8 sm:p-16 text-center shadow-xs">
+            <p className="text-[#696B64] text-base sm:text-lg font-medium">
               No pending ride requests.
             </p>
           </div>
@@ -155,43 +155,43 @@ export default function VendorPendingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.25 }}
-                className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-8 shadow-sm hover:shadow-md transition cursor-pointer select-none"
+                className="bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] p-4 sm:p-8 shadow-xs hover:shadow-md transition cursor-pointer select-none"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-8">
 
                   {/* Left Info */}
                   <div className="flex-1 space-y-4 sm:space-y-6">
                     <div className="flex gap-3 sm:gap-4">
-                      <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg flex items-center justify-center shrink-0">
-                        <MapPin size={18} />
+                      <div className="bg-[#123D32]/10 p-2.5 sm:p-3 rounded-[8px] flex items-center justify-center shrink-0 border border-[#123D32]/20">
+                        <MapPin size={18} className="text-[#123D32]" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] sm:text-xs uppercase text-gray-400 mb-0.5 sm:mb-1 font-bold">
+                        <p className="text-[10px] sm:text-xs uppercase text-[#123D32] mb-0.5 sm:mb-1 font-bold tracking-wider">
                           Pickup Location
                         </p>
-                        <p className="text-gray-900 font-medium text-xs sm:text-base leading-snug">
+                        <p className="text-[#10251C] font-semibold text-xs sm:text-base leading-snug">
                           {booking.pickupAddress}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex gap-3 sm:gap-4">
-                      <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg flex items-center justify-center shrink-0">
-                        <Navigation size={18} />
+                      <div className="bg-[#B83A24]/10 p-2.5 sm:p-3 rounded-[8px] flex items-center justify-center shrink-0 border border-[#B83A24]/20">
+                        <Navigation size={18} className="text-[#B83A24]" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] sm:text-xs uppercase text-gray-400 mb-0.5 sm:mb-1 font-bold">
+                        <p className="text-[10px] sm:text-xs uppercase text-[#B83A24] mb-0.5 sm:mb-1 font-bold tracking-wider">
                           Drop Location
                         </p>
-                        <p className="text-gray-900 font-medium text-xs sm:text-base leading-snug">
+                        <p className="text-[#10251C] font-semibold text-xs sm:text-base leading-snug">
                           {booking.dropAddress}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mt-2">
-                      <Clock size={14} className="opacity-70 shrink-0" />
-                      <span className="font-medium">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-[#696B64] mt-2 font-medium">
+                      <Clock size={14} className="opacity-70 shrink-0 text-[#696B64]" />
+                      <span>
                         {new Date(booking.createdAt).toLocaleString("en-IN", {
                           day: "2-digit",
                           month: "short",
@@ -204,13 +204,13 @@ export default function VendorPendingPage() {
                   </div>
 
                   {/* Right Side */}
-                  <div className="flex flex-col justify-between lg:items-end gap-4 sm:gap-6 w-full lg:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+                  <div className="flex flex-col justify-between lg:items-end gap-4 sm:gap-6 w-full lg:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-[#DED7CA]">
                     <div className="text-left lg:text-right">
-                      <p className="text-[10px] sm:text-xs tracking-wide text-gray-400 uppercase mb-0.5 sm:mb-1 font-bold">
+                      <p className="text-[10px] sm:text-xs tracking-wider text-[#696B64] uppercase mb-0.5 sm:mb-1 font-bold">
                         Estimated Fare
                       </p>
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-2xl sm:text-3xl font-bold text-gray-900 lg:justify-end">
-                        <IndianRupee size={20} />
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-2xl sm:text-3xl font-bold text-[#10251C] lg:justify-end">
+                        <IndianRupee size={20} className="text-[#123D32]" />
                         {booking.fare}
                       </div>
                     </div>
@@ -219,7 +219,7 @@ export default function VendorPendingPage() {
                       <button
                         onClick={() => handleDeclineOrTimeout(booking._id)}
                         disabled={processingId === booking._id}
-                        className="flex-1 lg:flex-none px-4 sm:px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-xs sm:text-sm font-semibold hover:bg-gray-100 transition-all duration-200 active:scale-[0.98] disabled:opacity-50"
+                        className="flex-1 lg:flex-none px-4 sm:px-6 py-2.5 rounded-[8px] border border-[#DED7CA] bg-[#FAF7F0] text-[#10251C] text-xs sm:text-sm font-semibold hover:bg-[#F7F1E5] transition-all duration-200 active:scale-[0.98] disabled:opacity-50"
                       >
                         Decline
                       </button>
@@ -227,10 +227,10 @@ export default function VendorPendingPage() {
                       <button
                         onClick={() => handleAccept(booking._id)}
                         disabled={processingId === booking._id}
-                        className="flex-1 lg:flex-none px-5 sm:px-8 py-3 rounded-xl bg-black text-white text-xs sm:text-sm font-semibold shadow-md hover:bg-gray-900 hover:shadow-lg transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 lg:flex-none px-5 sm:px-8 py-2.5 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] text-[#FAF7F0] text-xs sm:text-sm font-semibold shadow-xs transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {processingId === booking._id ? (
-                          <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" />
+                          <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         ) : (
                           "Accept Ride"
                         )}
@@ -253,63 +253,63 @@ export default function VendorPendingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-lg flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-3xl p-6 shadow-2xl text-white relative overflow-hidden"
+              className="bg-[#FAF7F0] border border-[#DED7CA] w-full max-w-md rounded-[16px] p-6 shadow-2xl text-[#10251C] relative overflow-hidden"
             >
               {/* Top Banner */}
-              <div className="flex items-center justify-between mb-6 border-b border-zinc-800 pb-4">
+              <div className="flex items-center justify-between mb-6 border-b border-[#DED7CA] pb-4">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="text-xs font-black uppercase tracking-widest text-emerald-400">Incoming Ride Offer</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#123D32] animate-ping" />
+                  <span className="text-xs font-serif font-bold uppercase tracking-wider text-[#123D32]">Incoming Ride Offer</span>
                 </div>
                 {/* 15s Circular Countdown Ring */}
                 <div className="relative w-12 h-12 flex items-center justify-center">
                   <svg className="w-12 h-12 -rotate-90">
-                    <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" className="text-zinc-800" fill="transparent" />
+                    <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" className="text-[#DED7CA]" fill="transparent" />
                     <circle
                       cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4"
-                      className="text-emerald-400 transition-all duration-1000"
+                      className="text-[#123D32] transition-all duration-1000"
                       fill="transparent"
                       strokeDasharray={125.6}
                       strokeDashoffset={125.6 * (1 - timeLeft / 45)}
                     />
                   </svg>
-                  <span className="absolute font-black text-sm text-white">{timeLeft}s</span>
+                  <span className="absolute font-bold text-sm text-[#10251C]">{timeLeft}s</span>
                 </div>
               </div>
 
               {/* Fare Banner */}
-              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 text-center mb-5">
-                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold mb-1">Estimated Fare</p>
-                <div className="text-4xl font-black text-white flex items-center justify-center gap-1">
-                  <IndianRupee size={28} /> {activeDispatch.fare}
+              <div className="bg-[#F7F1E5] border border-[#DED7CA] rounded-[12px] p-5 text-center mb-5">
+                <p className="text-[#696B64] text-[10px] uppercase tracking-wider font-bold mb-1">Estimated Fare</p>
+                <div className="text-4xl font-bold text-[#10251C] flex items-center justify-center gap-1">
+                  <IndianRupee size={28} className="text-[#123D32]" /> {activeDispatch.fare}
                 </div>
               </div>
 
               {/* Pickup & Drop Details */}
-              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 mb-6">
+              <div className="bg-[#F7F1E5] border border-[#DED7CA] rounded-[12px] p-4 space-y-3 mb-6">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <MapPin size={16} className="text-emerald-400" />
+                  <div className="w-8 h-8 rounded-[6px] bg-[#123D32]/10 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#123D32]/20">
+                    <MapPin size={16} className="text-[#123D32]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Pickup</p>
-                    <p className="text-sm font-semibold text-zinc-200 leading-snug">{activeDispatch.pickupAddress}</p>
+                    <p className="text-[10px] font-bold text-[#123D32] uppercase tracking-wider">Pickup</p>
+                    <p className="text-sm font-semibold text-[#10251C] leading-snug">{activeDispatch.pickupAddress}</p>
                   </div>
                 </div>
-                <div className="h-px bg-zinc-800 ml-11" />
+                <div className="h-px bg-[#DED7CA] ml-11" />
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Navigation size={16} className="text-white" />
+                  <div className="w-8 h-8 rounded-[6px] bg-[#B83A24]/10 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#B83A24]/20">
+                    <Navigation size={16} className="text-[#B83A24]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Drop</p>
-                    <p className="text-sm font-semibold text-zinc-200 leading-snug">{activeDispatch.dropAddress}</p>
+                    <p className="text-[10px] font-bold text-[#B83A24] uppercase tracking-wider">Drop</p>
+                    <p className="text-sm font-semibold text-[#10251C] leading-snug">{activeDispatch.dropAddress}</p>
                   </div>
                 </div>
               </div>
@@ -319,17 +319,17 @@ export default function VendorPendingPage() {
                 <button
                   onClick={() => handleDeclineOrTimeout(activeDispatch._id)}
                   disabled={processingId === activeDispatch._id}
-                  className="flex-1 py-3.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-sm font-bold transition active:scale-95 disabled:opacity-50"
+                  className="flex-1 py-3 bg-[#FAF7F0] hover:bg-[#F7F1E5] border border-[#DED7CA] text-[#10251C] rounded-[8px] text-sm font-bold transition active:scale-95 disabled:opacity-50"
                 >
                   Decline
                 </button>
                 <button
                   onClick={() => handleAccept(activeDispatch._id)}
                   disabled={processingId === activeDispatch._id}
-                  className="flex-1 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 rounded-xl text-sm font-bold transition active:scale-95 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 py-3 bg-[#123D32] hover:bg-[#0D3027] text-[#FAF7F0] rounded-[8px] text-sm font-bold transition active:scale-95 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {processingId === activeDispatch._id ? (
-                    <Loader2 className="animate-spin w-5 h-5" />
+                    <Loader2 className="animate-spin w-5 h-5 text-white" />
                   ) : (
                     <>
                       <Zap size={16} /> Accept ({timeLeft}s)

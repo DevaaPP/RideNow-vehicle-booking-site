@@ -111,22 +111,22 @@ export default function AdminVehicleReviewPage() {
   const cfg = (rates && rates[vType.toLowerCase()]) || standardRates[vType.toLowerCase()] || standardRates.car;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F7F1E5]">
 
       {/* HEADER */}
-      <header className="sticky top-0 bg-white border-b shadow-sm z-40">
+      <header className="sticky top-0 bg-[#FAF7F0]/90 backdrop-blur-md border-b border-[#DED7CA] shadow-xs z-40">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center gap-2.5 sm:gap-4">
           <button
             onClick={() => router.back()}
             aria-label="Back"
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition active:scale-95 shrink-0"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-[8px] border border-[#DED7CA] flex items-center justify-center bg-[#FAF7F0] hover:bg-[#F7F1E5] text-[#10251C] transition active:scale-95 shrink-0"
           >
             <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm sm:text-lg truncate">{data.owner.name}</p>
-            <p className="text-[11px] sm:text-xs text-gray-500 truncate">{data.owner.email}</p>
+            <p className="font-serif font-bold text-sm sm:text-lg truncate text-[#10251C]">{data.owner.name}</p>
+            <p className="text-[11px] sm:text-xs text-[#696B64] truncate">{data.owner.email}</p>
           </div>
 
           <StatusBadge status={data.status} />

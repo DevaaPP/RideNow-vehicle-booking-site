@@ -2,6 +2,7 @@
 
 
 
+import Image from "next/image";
 import nextDynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -93,10 +94,10 @@ export default function PublicTrackPage() {
 
   if (loading) {
     return (
-      <div className="h-screen w-full bg-zinc-950 flex items-center justify-center">
+      <div className="h-screen w-full bg-[#F7F1E5] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-          <p className="text-white/40 text-xs tracking-widest uppercase font-semibold">Loading Live Trip…</p>
+          <div className="w-12 h-12 rounded-full border-2 border-[#123D32]/20 border-t-[#123D32] animate-spin" />
+          <p className="text-[#10251C]/60 text-xs tracking-widest uppercase font-semibold">Loading Live Trip…</p>
         </div>
       </div>
     );
@@ -104,11 +105,11 @@ export default function PublicTrackPage() {
 
   if (error || !booking) {
     return (
-      <div className="h-screen w-full bg-zinc-950 flex items-center justify-center px-6 text-center">
-        <div className="flex flex-col items-center gap-3 max-w-sm">
-          <AlertCircle size={44} className="text-red-400" />
-          <h2 className="text-white font-bold text-lg">Unable to Track Trip</h2>
-          <p className="text-zinc-400 text-xs leading-relaxed">{error || "This tracking link may be invalid or expired."}</p>
+      <div className="h-screen w-full bg-[#F7F1E5] flex items-center justify-center px-6 text-center">
+        <div className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[14px] p-6 shadow-sm flex flex-col items-center gap-3 max-w-sm">
+          <AlertCircle size={44} className="text-[#B83A24]" />
+          <h2 className="text-[#10251C] font-serif font-bold text-xl">Unable to Track Trip</h2>
+          <p className="text-[#696B64] text-xs leading-relaxed">{error || "This tracking link may be invalid or expired."}</p>
         </div>
       </div>
     );
@@ -119,7 +120,7 @@ export default function PublicTrackPage() {
   const mapStatus = status === "started" ? "ongoing" : status === "completed" ? "completed" : "arriving";
 
   return (
-    <div className="h-screen w-full bg-zinc-900 text-white flex flex-col lg:flex-row overflow-hidden">
+    <div className="h-screen w-full bg-[#F7F1E5] text-[#10251C] flex flex-col lg:flex-row overflow-hidden">
       
       {/* MAP */}
       <div className="relative flex-1 h-full z-0">
@@ -134,36 +135,40 @@ export default function PublicTrackPage() {
             }}
           />
         ) : (
-          <div className="w-full h-full bg-zinc-950 flex items-center justify-center text-zinc-500 text-sm">
+          <div className="w-full h-full bg-[#FAF7F0] flex items-center justify-center text-[#696B64] text-sm">
             Map coordinates loading…
           </div>
         )}
 
         {/* Top Header Badge */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] pointer-events-none">
-          <div className="flex items-center gap-2.5 bg-zinc-950/90 backdrop-blur-md px-4 py-2 rounded-full border border-zinc-800 shadow-xl">
+          <div className="flex items-center gap-2.5 bg-[#FAF7F0]/95 backdrop-blur-md px-4 py-2 rounded-[8px] border border-[#DED7CA] shadow-sm">
             <span className={`w-2.5 h-2.5 rounded-full ${cfg.dot} animate-pulse`} />
-            <span className="text-xs font-bold text-white tracking-wide">{cfg.label}</span>
+            <span className="text-xs font-bold text-[#10251C] tracking-wide">{cfg.label}</span>
           </div>
         </div>
       </div>
 
       {/* TRACKING SIDEBAR PANEL */}
-      <div className="w-full lg:w-[420px] bg-zinc-950 border-t lg:border-t-0 lg:border-l border-zinc-800 flex flex-col overflow-y-auto">
+      <div className="w-full lg:w-[420px] bg-[#F7F1E5] border-t lg:border-t-0 lg:border-l border-[#DED7CA] flex flex-col overflow-y-auto">
         
         {/* BRAND BANNER */}
-        <div className="bg-zinc-900 px-6 py-5 border-b border-zinc-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-white text-zinc-950 flex items-center justify-center font-black text-sm">
-              RN
-            </div>
+        <div className="bg-[#FAF7F0] px-6 py-4 border-b border-[#DED7CA] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logojatri.png"
+              alt="Jaatri"
+              width={120}
+              height={38}
+              className="h-8 w-auto object-contain"
+              priority
+            />
             <div>
-              <h1 className="text-white font-black text-base leading-tight">RideNow Security Track</h1>
-              <p className="text-zinc-400 text-[10px] tracking-wider uppercase font-semibold">Shared Live Trip</p>
+              <p className="text-[10px] tracking-wider uppercase font-bold text-[#696B64]">Live Trip Tracking</p>
             </div>
           </div>
-          <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full text-xs font-semibold">
-            <ShieldCheck size={13} /> Live Secured
+          <div className="flex items-center gap-1.5 bg-[#E5EBDD] text-[#123D32] border border-[#123D32]/20 px-2.5 py-1 rounded-[8px] text-xs font-semibold">
+            <ShieldCheck size={13} /> Secured
           </div>
         </div>
 
@@ -171,71 +176,71 @@ export default function PublicTrackPage() {
           
           {/* PANIC ALERT BANNER */}
           {booking.isPanicActive && (
-            <div className="bg-red-950 border-2 border-red-600 rounded-2xl p-4 text-white animate-pulse">
-              <div className="flex items-center gap-2 text-red-400 font-bold text-sm mb-1">
+            <div className="bg-[#B83A24]/10 border-2 border-[#B83A24] rounded-[12px] p-4 text-[#10251C] animate-pulse">
+              <div className="flex items-center gap-2 text-[#B83A24] font-bold text-sm mb-1">
                 <Siren size={18} /> EMERGENCY SOS ACTIVATED
               </div>
-              <p className="text-red-200 text-xs leading-relaxed">
+              <p className="text-[#10251C] text-xs leading-relaxed">
                 Passenger has triggered emergency safety alert on this trip. Dispatch safety guidelines in effect.
               </p>
             </div>
           )}
 
           {/* ETA / STATUS CARD */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex items-center justify-between">
+          <div className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[12px] p-5 flex items-center justify-between shadow-xs">
             <div>
-              <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold mb-1">Status</p>
-              <h2 className="text-white text-lg font-bold">{cfg.label}</h2>
-              <p className="text-zinc-400 text-xs mt-0.5">{cfg.sublabel}</p>
+              <p className="text-[#696B64] text-[10px] uppercase tracking-widest font-semibold mb-1">Status</p>
+              <h2 className="text-[#10251C] font-serif text-lg font-bold">{cfg.label}</h2>
+              <p className="text-[#696B64] text-xs mt-0.5">{cfg.sublabel}</p>
             </div>
             {eta > 0 && ["confirmed", "started"].includes(status) && (
-              <div className="text-right bg-zinc-800 px-4 py-2 rounded-xl">
-                <p className="text-2xl font-black text-white leading-none">{eta}</p>
-                <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">min ETA</p>
+              <div className="text-right bg-[#E5EBDD] px-4 py-2 rounded-[8px] border border-[#123D32]/10">
+                <p className="text-2xl font-black text-[#123D32] leading-none">{eta}</p>
+                <p className="text-[10px] text-[#123D32]/80 uppercase tracking-wider font-semibold">min ETA</p>
               </div>
             )}
           </div>
 
           {/* DRIVER & VEHICLE INFO */}
           {booking.driver && (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                <User2 size={24} className="text-zinc-400" />
+            <div className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[12px] p-4 flex items-center gap-3 shadow-xs">
+              <div className="w-12 h-12 rounded-[10px] bg-[#123D32] text-[#F7F1E5] flex items-center justify-center flex-shrink-0">
+                <User2 size={24} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-zinc-500 text-[10px] uppercase tracking-wider font-semibold">Driver</p>
-                <p className="text-white font-bold text-sm truncate">{booking.driver.name}</p>
+                <p className="text-[#696B64] text-[10px] uppercase tracking-wider font-semibold">Driver</p>
+                <p className="text-[#10251C] font-bold text-sm truncate">{booking.driver.name}</p>
                 {booking.vehicle && (
-                  <p className="text-zinc-400 text-xs truncate mt-0.5">{booking.vehicle.vehicleModel}</p>
+                  <p className="text-[#696B64] text-xs truncate mt-0.5">{booking.vehicle.vehicleModel}</p>
                 )}
               </div>
               {booking.vehicle?.number && (
-                <div className="flex-shrink-0 bg-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-700">
-                  <p className="text-white text-xs font-black tracking-widest font-mono">{booking.vehicle.number}</p>
+                <div className="flex-shrink-0 bg-white px-3 py-1.5 rounded-[8px] border border-[#DED7CA]">
+                  <p className="text-[#10251C] text-xs font-black tracking-widest font-mono">{booking.vehicle.number}</p>
                 </div>
               )}
             </div>
           )}
 
           {/* ROUTE CARD */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-            <div className="p-4 border-b border-zinc-800 flex gap-3">
+          <div className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[12px] overflow-hidden shadow-xs">
+            <div className="p-4 border-b border-[#DED7CA]/70 flex gap-3">
               <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-400" />
-                <div className="w-px bg-zinc-700 flex-1 my-1" style={{ minHeight: 16 }} />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#123D32]" />
+                <div className="w-px bg-[#DED7CA] flex-1 my-1" style={{ minHeight: 16 }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold mb-0.5">Pickup</p>
-                <p className="text-xs text-zinc-300 leading-snug">{booking.pickupAddress || "—"}</p>
+                <p className="text-[10px] text-[#696B64] uppercase tracking-widest font-semibold mb-0.5">Pickup</p>
+                <p className="text-xs text-[#10251C] font-medium leading-snug">{booking.pickupAddress || "—"}</p>
               </div>
             </div>
             <div className="p-4 flex gap-3">
               <div className="flex-shrink-0 pt-1">
-                <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#B83A24]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold mb-0.5">Drop</p>
-                <p className="text-xs text-zinc-300 leading-snug">{booking.dropAddress || "—"}</p>
+                <p className="text-[10px] text-[#696B64] uppercase tracking-widest font-semibold mb-0.5">Drop</p>
+                <p className="text-xs text-[#10251C] font-medium leading-snug">{booking.dropAddress || "—"}</p>
               </div>
             </div>
           </div>

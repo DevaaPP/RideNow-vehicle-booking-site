@@ -133,19 +133,19 @@ export default function PartnerBookingsPage() {
     : bookings.filter(b => b.status === statusFilter.toLowerCase());
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F7F1E5]">
       
       {/* HEADER - PARTNER SPECIFIC */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-[#FAF7F0] border-b border-[#DED7CA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto py-5 sm:py-6">
             <div className="flex items-center gap-3">
-              <div className="bg-blue-100 p-2 rounded-lg shrink-0">
-                <Car className="w-5 h-5 text-blue-600" />
+              <div className="bg-[#123D32]/10 p-2.5 rounded-[10px] shrink-0 border border-[#123D32]/20">
+                <Car className="w-5 h-5 text-[#123D32]" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Partner Bookings</h1>
-                <p className="text-gray-500 text-xs sm:text-sm mt-0.5 sm:mt-1">
+                <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C]">Partner Bookings</h1>
+                <p className="text-[#696B64] text-xs sm:text-sm mt-0.5 sm:mt-1 font-sans">
                   {bookings.length} {bookings.length === 1 ? 'ride' : 'rides'} assigned to you
                 </p>
               </div>
@@ -160,13 +160,13 @@ export default function PartnerBookingsPage() {
           
           {/* FILTER BAR */}
           <div className="flex justify-between items-center mb-5 sm:mb-6">
-            <div className="text-xs sm:text-sm text-gray-500">
-              Showing {filteredBookings.length} bookings
+            <div className="text-xs sm:text-sm text-[#696B64] font-medium">
+              Showing <span className="text-[#10251C] font-bold">{filteredBookings.length}</span> bookings
             </div>
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[8px] px-3.5 py-1.5 text-xs sm:text-sm text-[#10251C] focus:outline-none focus:ring-1 focus:ring-[#123D32] focus:border-[#123D32] font-medium shadow-xs"
             >
               <option>All</option>
               <option>Scheduled</option>
@@ -186,10 +186,10 @@ export default function PartnerBookingsPage() {
 
           {/* EMPTY STATE */}
           {!loading && filteredBookings.length === 0 && (
-            <div className="bg-white rounded-xl shadow-sm p-8 sm:p-12 text-center">
-              <Car className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <h3 className="text-base sm:text-lg font-medium text-gray-900">No bookings yet</h3>
-              <p className="text-gray-500 text-xs sm:text-sm mt-1">When customers book rides, they'll appear here</p>
+            <div className="bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] p-8 sm:p-12 text-center shadow-xs">
+              <Car className="w-12 h-12 text-[#696B64]/40 mx-auto mb-3" />
+              <h3 className="text-base sm:text-lg font-serif font-bold text-[#10251C]">No bookings yet</h3>
+              <p className="text-[#696B64] text-xs sm:text-sm mt-1">When customers book rides, they'll appear here</p>
             </div>
           )}
 
@@ -203,29 +203,29 @@ export default function PartnerBookingsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                  <div className="bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] shadow-xs hover:shadow-md transition-all overflow-hidden">
                     
                     {/* CUSTOMER INFO - PARTNER SPECIFIC */}
-                    <div className="flex items-start sm:items-center gap-3 p-3.5 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                    <div className="flex items-start sm:items-center gap-3 p-3.5 sm:p-4 bg-[#F7F1E5]/80 border-b border-[#DED7CA]">
                       {/* CUSTOMER AVATAR */}
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-blue-200 flex-shrink-0 border-2 border-white shadow-sm flex items-center justify-center">
-                        <User className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[#123D32]/10 flex-shrink-0 border-2 border-white shadow-xs flex items-center justify-center">
+                        <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#123D32]" />
                       </div>
                       
                       {/* CUSTOMER DETAILS */}
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center justify-between gap-1.5">
-                          <h3 className="font-semibold text-sm sm:text-base text-gray-900 truncate">
+                          <h3 className="font-semibold text-sm sm:text-base text-[#10251C] truncate">
                             {booking.user?.name || "Customer"}
                           </h3>
-                          <span className={`px-2 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium ${getStatusColor(booking.status)}`}>
+                          <span className={`px-2.5 py-0.5 sm:py-1 rounded-[6px] border text-[11px] sm:text-xs font-semibold ${getStatusColor(booking.status)}`}>
                             {booking.status.replace("_", " ")}
                           </span>
                         </div>
                         
                         {/* USER MOBILE NUMBER - UPDATED */}
                         {(booking.userMobileNumber || booking.user?.phone) && (
-                          <div className="flex items-center gap-1 mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-gray-600">
+                          <div className="flex items-center gap-1 mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-[#696B64]">
                             <Phone className="w-3 h-3 shrink-0" />
                             <span>
                               {(() => {
@@ -240,7 +240,7 @@ export default function PartnerBookingsPage() {
                           </div>
                         )}
                         {booking.isScheduled && booking.scheduledPickupTime && (
-                          <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-900 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-lg mt-1.5">
+                          <div className="inline-flex items-center gap-1.5 bg-[#FAF7F0] text-[#B83A24] border border-[#B83A24]/30 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-[6px] mt-1.5">
                             <span>⏰ Scheduled: {formatDate(booking.scheduledPickupTime)}</span>
                           </div>
                         )}
@@ -250,9 +250,9 @@ export default function PartnerBookingsPage() {
                     {/* VEHICLE INFO - WITH DYNAMIC ICON */}
                     {booking.vehicle && (
                       <div className="px-3.5 sm:px-4 pt-2.5 sm:pt-3">
-                        <div className="bg-gray-50 rounded-lg p-2 flex items-center gap-2">
+                        <div className="bg-[#F7F1E5] border border-[#DED7CA]/70 rounded-[8px] p-2 flex items-center gap-2">
                           {getVehicleIcon(booking.vehicle.type)}
-                          <span className="text-xs text-gray-600 truncate">
+                          <span className="text-xs text-[#696B64] font-medium truncate">
                             {booking.vehicle.vehicleModel} • {booking.vehicle.number || "Not assigned"}
                           </span>
                         </div>
@@ -263,12 +263,12 @@ export default function PartnerBookingsPage() {
                     <div className="p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
                       {/* PICKUP */}
                       <div className="flex items-start gap-2.5 sm:gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3 h-3 text-green-600" />
+                        <div className="flex-shrink-0 w-6 h-6 bg-[#123D32]/10 rounded-full flex items-center justify-center mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#123D32]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[10px] sm:text-xs font-medium text-green-600 uppercase tracking-wider">PICKUP</span>
-                          <p className="text-xs sm:text-sm text-gray-700 mt-0.5 leading-relaxed">
+                          <span className="text-[10px] sm:text-xs font-bold text-[#123D32] uppercase tracking-wider">PICKUP</span>
+                          <p className="text-xs sm:text-sm text-[#10251C] mt-0.5 leading-relaxed font-medium">
                             {booking.pickupAddress}
                           </p>
                         </div>
@@ -276,12 +276,12 @@ export default function PartnerBookingsPage() {
 
                       {/* DROP */}
                       <div className="flex items-start gap-2.5 sm:gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3 h-3 text-red-600" />
+                        <div className="flex-shrink-0 w-6 h-6 bg-[#B83A24]/10 rounded-full flex items-center justify-center mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#B83A24]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[10px] sm:text-xs font-medium text-red-600 uppercase tracking-wider">DROP</span>
-                          <p className="text-xs sm:text-sm text-gray-700 mt-0.5 leading-relaxed">
+                          <span className="text-[10px] sm:text-xs font-bold text-[#B83A24] uppercase tracking-wider">DROP</span>
+                          <p className="text-xs sm:text-sm text-[#10251C] mt-0.5 leading-relaxed font-medium">
                             {booking.dropAddress}
                           </p>
                         </div>
@@ -289,30 +289,30 @@ export default function PartnerBookingsPage() {
                     </div>
 
                     {/* DATE AND FARE */}
-                    <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200">
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
-                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
+                    <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 sm:py-3 bg-[#F7F1E5]/70 border-t border-[#DED7CA]">
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-[#696B64]">
+                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#696B64]" />
                         <span>{formatDate(booking.createdAt)}</span>
                       </div>
-                      <div className="flex items-center gap-1 font-semibold text-gray-900 text-sm sm:text-base">
-                        <IndianRupee className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <div className="flex items-center gap-1 font-bold text-[#10251C] text-sm sm:text-base">
+                        <IndianRupee className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#123D32]" />
                         <span>₹{booking.fare}</span>
                       </div>
                     </div>
 
                     {/* PAYMENT AND ACTIONS */}
-                    <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 sm:py-3 border-t border-gray-200">
+                    <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 sm:py-3 border-t border-[#DED7CA]">
                       <div className="flex items-center gap-1.5 sm:gap-2">
-                        <span className="text-[11px] sm:text-xs text-gray-500">Payment:</span>
-                        <span className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full ${
+                        <span className="text-[11px] sm:text-xs text-[#696B64]">Payment:</span>
+                        <span className={`text-[11px] sm:text-xs px-2.5 py-0.5 rounded-[6px] font-semibold border ${
                           booking.paymentStatus === 'paid' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-yellow-100 text-yellow-700'
+                            ? 'bg-[#123D32]/10 text-[#123D32] border-[#123D32]/30' 
+                            : 'bg-amber-100 text-amber-900 border-amber-300'
                         }`}>
                           {booking.paymentStatus || 'pending'}
                         </span>
                         {booking.paymentMethod && (
-                          <span className="text-[11px] sm:text-xs text-gray-500 capitalize">
+                          <span className="text-[11px] sm:text-xs text-[#696B64] capitalize">
                             • {booking.paymentMethod}
                           </span>
                         )}
@@ -327,7 +327,7 @@ export default function PartnerBookingsPage() {
                                 setSelectedBookingForInvoice(booking);
                                 setShowInvoiceModal(true);
                               }}
-                              className="flex items-center gap-1 text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-2.5 sm:px-3 py-1.5 transition-colors border border-zinc-300 rounded-none cursor-pointer"
+                              className="flex items-center gap-1 text-xs font-semibold text-[#10251C] hover:text-[#123D32] bg-[#FAF7F0] hover:bg-[#F7F1E5] px-2.5 sm:px-3 py-1.5 transition-colors border border-[#DED7CA] rounded-[8px] cursor-pointer"
                               title="Download Official GST Tax Invoice"
                             >
                               <FileText size={13} />
@@ -339,7 +339,7 @@ export default function PartnerBookingsPage() {
                                 setSelectedBookingForDetails(booking);
                                 setShowDetailsModal(true);
                               }}
-                              className="flex items-center gap-1 text-xs sm:text-sm font-bold text-white bg-zinc-900 hover:bg-black px-3 sm:px-4 py-1.5 transition-colors cursor-pointer rounded-none"
+                              className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#FAF7F0] bg-[#123D32] hover:bg-[#0D3027] px-3 sm:px-4 py-1.5 transition-colors cursor-pointer rounded-[8px]"
                             >
                               <span>Details</span>
                               <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -349,7 +349,7 @@ export default function PartnerBookingsPage() {
                           <button
                             type="button"
                             onClick={() => window.location.href = `/partner/active-ride`}
-                            className="flex items-center gap-1 text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 sm:px-4 py-1.5 rounded-none transition-colors"
+                            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#FAF7F0] bg-[#123D32] hover:bg-[#0D3027] px-3 sm:px-4 py-1.5 rounded-[8px] transition-colors"
                           >
                             <span>Live Ride</span>
                             <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

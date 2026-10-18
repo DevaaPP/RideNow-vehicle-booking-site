@@ -175,8 +175,8 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partners/dashboard"
             className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partners/dashboard"
-                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
-                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
+                ? "bg-[#123D32] text-white font-extrabold shadow-sm rounded-[7px]"
+                : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5 rounded-[8px]"
             }`}
           >
             {t("nav.dashboard", "Dashboard")}
@@ -186,13 +186,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partner/active-ride"
             className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/active-ride"
-                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
-                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
+                ? "bg-[#123D32] text-white font-extrabold shadow-sm rounded-[7px]"
+                : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5 rounded-[8px]"
             }`}
           >
             {t("nav.activeRide", "Active Ride")}
             {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-2 w-5 h-5 bg-red-600 text-white text-[11px] rounded-full flex items-center justify-center font-black">
+              <span className="absolute -top-1 -right-2 w-5 h-5 bg-[#B83A24] text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
               </span>
             )}
@@ -202,13 +202,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partner/pending-requests"
             className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/pending-requests"
-                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
-                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
+                ? "bg-[#123D32] text-white font-extrabold shadow-sm rounded-[7px]"
+                : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5 rounded-[8px]"
             }`}
           >
             {t("nav.requests", "Requests")}
             {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-2 w-5 h-5 bg-red-600 text-white text-[11px] rounded-full flex items-center justify-center font-black">
+              <span className="absolute -top-1 -right-2 w-5 h-5 bg-[#B83A24] text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
               </span>
             )}
@@ -218,13 +218,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partner/bookings"
             className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/bookings"
-                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
-                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
+                ? "bg-[#123D32] text-white font-extrabold shadow-sm rounded-[7px]"
+                : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5 rounded-[8px]"
             }`}
           >
             {t("nav.bookings", "Bookings")}
             {activeCount > 0 && (
-              <span className="absolute -top-1 -right-2 w-5 h-5 bg-emerald-500 text-white text-[11px] rounded-full flex items-center justify-center font-black">
+              <span className="absolute -top-1 -right-2 w-5 h-5 bg-emerald-600 text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {activeCount}
               </span>
             )}
@@ -234,8 +234,8 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partner/wallet"
             className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/wallet"
-                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
-                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
+                ? "bg-[#123D32] text-white font-extrabold shadow-sm rounded-[7px]"
+                : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5 rounded-[8px]"
             }`}
           >
             {t("nav.wallet", "Wallet")}
@@ -243,8 +243,6 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         </nav>
       );
     }
-
-    const isHome = pathname === "/";
 
     return (
       <nav className="flex items-center gap-1.5 sm:gap-2 lg:gap-3" aria-label="Main Navigation">
@@ -258,9 +256,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               className={`text-base sm:text-[16px] lg:text-[17px] px-3.5 sm:px-4 py-1.5 sm:py-2 transition-all duration-150 active:scale-[0.97] ${
                 active
                   ? "bg-white text-[#10251C] font-extrabold shadow-2xs border border-[#DED7CA]/80 rounded-[7px]"
-                  : isHome
-                  ? "text-[#10251C]/85 hover:text-[#10251C] hover:bg-black/5 font-semibold rounded-[8px]"
-                  : "text-zinc-300 hover:text-white hover:bg-white/10 font-semibold rounded-[8px]"
+                  : "text-[#10251C]/85 hover:text-[#10251C] hover:bg-black/5 font-semibold rounded-[8px]"
               }`}
             >
               {t(NAV_KEYS[item] || item, item)}
@@ -271,7 +267,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         {currentUser?.role === "admin" && (
           <Link
             href="/admin/dashboard"
-            className="text-base sm:text-[17px] lg:text-[18px] font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-[8px] text-amber-500 hover:text-amber-600 hover:bg-black/5 transition active:scale-95"
+            className="text-base sm:text-[17px] lg:text-[18px] font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-[8px] text-amber-600 hover:text-amber-700 hover:bg-black/5 transition active:scale-95"
           >
             Admin Panel
           </Link>
@@ -287,13 +283,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
       {/* ================= SEAMLESS HEADER / NAVBAR ================= */}
       <header
         className={`fixed top-0 left-0 w-full z-50 px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
-          isHome
-            ? isScrolled
-              ? "bg-[#FAF7F0]/95 backdrop-blur-xl border-b border-[#DED7CA]/80 shadow-[0_4px_20px_rgba(18,61,50,0.06)] text-stone-900"
-              : "bg-transparent border-transparent shadow-none text-stone-900"
-            : "bg-black text-white border-b border-zinc-900 shadow-lg"
+          isHome && !isScrolled
+            ? "bg-transparent border-transparent shadow-none text-[#10251C]"
+            : "bg-[#FAF7F0]/95 backdrop-blur-xl border-b border-[#DED7CA]/80 shadow-[0_4px_20px_rgba(18,61,50,0.06)] text-[#10251C]"
         }`}
-        style={!isHome ? { backgroundColor: "var(--theme-nav-bg, #000000)" } : undefined}
       >
         <div className="max-w-7xl mx-auto h-[68px] sm:h-20 md:h-24 flex items-center justify-between transition-all duration-300">
           {/* LEFT: BRAND LOGO */}
@@ -381,11 +374,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className={`px-6 py-2.5 rounded-[8px] font-bold text-[15px] sm:text-[16px] transition shadow-xs active:scale-95 ${
-                    isHome
-                      ? "bg-forest hover:bg-forest-hover text-white"
-                      : "bg-white text-black hover:bg-zinc-200"
-                  }`}
+                  className="px-6 py-2.5 rounded-[8px] font-bold text-[15px] sm:text-[16px] transition shadow-xs active:scale-95 bg-[#123D32] hover:bg-[#0D3027] text-white"
                 >
                   {t("nav.signIn", "Sign In")}
                 </button>
@@ -397,7 +386,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               {currentUser ? (
                 <button
                   onClick={() => setProfileOpen(true)}
-                  className="w-9 h-9 rounded-full bg-forest text-white font-black flex items-center justify-center text-xs shadow-sm active:scale-95 transition hover:bg-forest-hover"
+                  className="w-9 h-9 rounded-full bg-[#123D32] text-white font-black flex items-center justify-center text-xs shadow-sm active:scale-95 transition hover:bg-[#0D3027]"
                   aria-label="Open Profile Details"
                 >
                   {currentUser.name?.charAt(0).toUpperCase() || "P"}
@@ -407,11 +396,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className={`px-3 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition ${
-                    isHome
-                      ? "bg-forest hover:bg-forest-hover text-white"
-                      : "bg-white text-stone-900 border border-stone-200"
-                  }`}
+                  className="px-3.5 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition bg-[#123D32] hover:bg-[#0D3027] text-white"
                 >
                   {t("nav.signIn", "Sign In")}
                 </button>
@@ -422,11 +407,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             <button
               type="button"
               onClick={() => setMenuOpen((p) => !p)}
-              className={`md:hidden p-2 rounded-[8px] active:scale-90 transition cursor-pointer ${
-                isHome
-                  ? "text-stone-900 hover:bg-black/5"
-                  : "text-white hover:bg-white/10"
-              }`}
+              className="md:hidden p-2 rounded-[8px] active:scale-90 transition cursor-pointer text-[#10251C] hover:bg-black/5"
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -443,11 +424,11 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ type: "spring", damping: 30, stiffness: 350 }}
-            className="fixed inset-0 top-0 left-0 w-full h-[100dvh] bg-black text-white z-50 md:hidden flex flex-col justify-between overflow-y-auto px-6 py-6"
+            className="fixed inset-0 top-0 left-0 w-full h-[100dvh] bg-[#FAF7F0] text-[#10251C] z-50 md:hidden flex flex-col justify-between overflow-y-auto px-6 py-6"
           >
             {/* TOP BAR INSIDE DRAWER */}
             <div>
-              <div className="flex items-center justify-between pb-6 border-b border-zinc-800">
+              <div className="flex items-center justify-between pb-6 border-b border-[#DED7CA]/80">
                 <Link
                   href="/"
                   onClick={() => setMenuOpen(false)}
@@ -458,14 +439,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     alt="Jaatri"
                     width={180}
                     height={66}
-                    className="h-12 w-auto object-contain"
+                    className="h-10 w-auto object-contain"
                   />
                 </Link>
 
                 <button
                   type="button"
                   onClick={() => setMenuOpen(false)}
-                  className="w-11 h-11 rounded-full bg-zinc-900 border border-zinc-800 text-white flex items-center justify-center active:scale-90 transition"
+                  className="w-11 h-11 rounded-full bg-white border border-[#DED7CA] text-[#10251C] flex items-center justify-center active:scale-90 transition hover:bg-black/5"
                   aria-label="Close menu"
                 >
                   <X size={24} />
@@ -478,10 +459,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   <Link
                     href={`/ride/${passengerActiveRide._id}`}
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold text-sm transition active:scale-98"
+                    className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold text-sm transition active:scale-98"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-ping" />
                       <span>Active Ride in Progress</span>
                     </div>
                     <ArrowRight size={16} />
@@ -489,15 +470,15 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 </div>
               )}
 
-              {/* MASSIVE UBER-STYLE NAVIGATION LINKS (+300% SIZING) */}
-              <div className="flex flex-col gap-2 pt-6">
+              {/* NAVIGATION LINKS */}
+              <div className="flex flex-col gap-1 pt-6 font-serif">
                 {currentUser?.role === "vendor" || isVendorRoute ? (
                   <>
                     <Link
                       href="/partners/dashboard"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 hover:text-zinc-300 transition active:scale-98 ${
-                        pathname === "/partners/dashboard" ? "text-white" : "text-zinc-400"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
+                        pathname === "/partners/dashboard" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       {t("nav.dashboard", "Dashboard")}
@@ -506,13 +487,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/partner/active-ride"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 hover:text-zinc-300 transition active:scale-98 flex items-center justify-between ${
-                        pathname === "/partner/active-ride" ? "text-white" : "text-zinc-400"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 flex items-center justify-between ${
+                        pathname === "/partner/active-ride" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       <span>{t("nav.activeRide", "Active Ride")}</span>
                       {pendingCount > 0 && (
-                        <span className="px-3 py-1 rounded-full bg-red-600 text-white text-base font-extrabold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#B83A24] text-white text-xs font-sans font-extrabold">
                           {pendingCount}
                         </span>
                       )}
@@ -521,13 +502,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/partner/pending-requests"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 hover:text-zinc-300 transition active:scale-98 flex items-center justify-between ${
-                        pathname === "/partner/pending-requests" ? "text-white" : "text-zinc-400"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 flex items-center justify-between ${
+                        pathname === "/partner/pending-requests" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       <span>{t("nav.requests", "Requests")}</span>
                       {pendingCount > 0 && (
-                        <span className="px-3 py-1 rounded-full bg-red-600 text-white text-base font-extrabold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#B83A24] text-white text-xs font-sans font-extrabold">
                           {pendingCount}
                         </span>
                       )}
@@ -536,13 +517,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/partner/bookings"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 hover:text-zinc-300 transition active:scale-98 flex items-center justify-between ${
-                        pathname === "/partner/bookings" ? "text-white" : "text-zinc-400"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 flex items-center justify-between ${
+                        pathname === "/partner/bookings" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       <span>{t("nav.bookings", "Bookings")}</span>
                       {activeCount > 0 && (
-                        <span className="px-3 py-1 rounded-full bg-emerald-500 text-white text-base font-extrabold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-sans font-extrabold">
                           {activeCount}
                         </span>
                       )}
@@ -551,8 +532,8 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/partner/wallet"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 hover:text-zinc-300 transition active:scale-98 ${
-                        pathname === "/partner/wallet" ? "text-white" : "text-zinc-400"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
+                        pathname === "/partner/wallet" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       {t("nav.walletEarnings", "Wallet & Earnings")}
@@ -563,7 +544,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/book"
                       onClick={() => setMenuOpen(false)}
-                      className="text-3xl sm:text-4xl font-black tracking-tight py-3 text-white hover:text-zinc-300 transition active:scale-98"
+                      className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-[#10251C] hover:text-[#123D32] transition active:scale-98"
                     >
                       {t("nav.ride", "Ride")}
                     </Link>
@@ -571,8 +552,8 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/bookings"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 transition active:scale-98 ${
-                        pathname === "/bookings" ? "text-white" : "text-zinc-400 hover:text-white"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
+                        pathname === "/bookings" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       {t("nav.bookings", "Bookings")}
@@ -581,7 +562,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/partner/onboard/vehicle"
                       onClick={() => setMenuOpen(false)}
-                      className="text-3xl sm:text-4xl font-black tracking-tight py-3 text-zinc-400 hover:text-white transition active:scale-98"
+                      className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-[#10251C]/75 hover:text-[#10251C] transition active:scale-98"
                     >
                       {t("nav.drive", "Drive")}
                     </Link>
@@ -589,8 +570,8 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/fleet"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 transition active:scale-98 ${
-                        pathname === "/fleet" ? "text-white" : "text-zinc-400 hover:text-white"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
+                        pathname === "/fleet" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       {t("nav.fleet", "Fleet")}
@@ -599,8 +580,8 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/faq"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 transition active:scale-98 ${
-                        pathname === "/faq" ? "text-white" : "text-zinc-400 hover:text-white"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
+                        pathname === "/faq" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       {t("nav.help", "Help")}
@@ -609,8 +590,8 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/contact"
                       onClick={() => setMenuOpen(false)}
-                      className={`text-3xl sm:text-4xl font-black tracking-tight py-3 transition active:scale-98 ${
-                        pathname === "/contact" ? "text-white" : "text-zinc-400 hover:text-white"
+                      className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
+                        pathname === "/contact" ? "text-[#123D32] font-semibold" : "text-[#10251C]/75 hover:text-[#10251C]"
                       }`}
                     >
                       {t("nav.contact", "Contact")}
@@ -620,7 +601,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       <Link
                         href="/admin/dashboard"
                         onClick={() => setMenuOpen(false)}
-                        className="text-3xl sm:text-4xl font-black tracking-tight py-3 text-amber-400 hover:text-amber-300 transition active:scale-98"
+                        className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-amber-600 hover:text-amber-700 transition active:scale-98"
                       >
                         Admin Panel
                       </Link>
@@ -631,21 +612,21 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             </div>
 
             {/* BOTTOM SECTION OF MOBILE DRAWER */}
-            <div className="pt-6 border-t border-zinc-800 space-y-4">
+            <div className="pt-6 border-t border-[#DED7CA]/80 space-y-4">
               {currentUser ? (
-                <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl flex items-center justify-between">
+                <div className="bg-white border border-[#DED7CA] p-4 rounded-[12px] flex items-center justify-between shadow-2xs">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-white text-black font-black text-lg flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-[#123D32] text-white font-black text-lg flex items-center justify-center">
                       {currentUser.name?.charAt(0).toUpperCase() || "P"}
                     </div>
                     <div>
-                      <p className="font-extrabold text-white text-base truncate">{currentUser.name || "User"}</p>
+                      <p className="font-extrabold text-[#10251C] text-base truncate">{currentUser.name || "User"}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs uppercase font-black px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
+                        <span className="text-xs uppercase font-extrabold px-2 py-0.5 rounded-full bg-[#E5EBDD] text-[#123D32]">
                           {currentUser.role || "user"}
                         </span>
                         {currentUser.role !== "vendor" && (
-                          <span className="text-xs font-bold text-zinc-400">
+                          <span className="text-xs font-bold text-[#696B64]">
                             ₹{currentUser.walletBalance || 0}
                           </span>
                         )}
@@ -654,7 +635,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition"
+                    className="p-3 text-[#B83A24] hover:bg-[#B83A24]/10 rounded-xl transition"
                     aria-label="Logout"
                   >
                     <LogOut size={20} />
@@ -666,10 +647,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     setMenuOpen(false);
                     setAuthOpen(true);
                   }}
-                  className="w-full py-4 rounded-2xl bg-white text-black font-black text-lg flex items-center justify-center gap-2 active:scale-98 transition shadow-lg"
+                  className="w-full py-3.5 rounded-[8px] bg-[#123D32] text-white font-bold text-base flex items-center justify-center gap-2 active:scale-98 transition shadow-xs hover:bg-[#0D3027]"
                 >
                   <span>{t("nav.signIn", "Login or Sign Up")}</span>
-                  <ArrowRight size={20} />
+                  <ArrowRight size={18} />
                 </button>
               )}
 

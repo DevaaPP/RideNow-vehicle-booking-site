@@ -773,11 +773,11 @@ export default function CheckoutContent() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-100 px-3 sm:px-4 py-5 sm:py-10">
+    <div className="min-h-screen bg-[#F7F1E5] text-[#10251C] px-3 sm:px-4 py-5 sm:py-10">
 
       {/* subtle dot grid */}
       <div className="fixed inset-0 pointer-events-none"
-        style={{ backgroundImage: "radial-gradient(circle, #d4d4d8 1px, transparent 1px)", backgroundSize: "28px 28px", opacity: 0.45 }}
+        style={{ backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)", backgroundSize: "28px 28px", opacity: 0.6 }}
       />
 
       <div className="relative max-w-2xl mx-auto z-10 space-y-4 sm:space-y-6">
@@ -787,13 +787,13 @@ export default function CheckoutContent() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-3"
+          className="flex items-center justify-between gap-3 border-b border-[#DED7CA] pb-3"
         >
           <div className="flex items-center gap-2.5">
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="w-9 h-9 rounded-none border border-zinc-300 bg-white hover:bg-zinc-100 flex items-center justify-center text-zinc-900 transition shadow-none cursor-pointer shrink-0"
+              className="w-9 h-9 rounded-[8px] border border-[#DED7CA] bg-[#FAF7F0] hover:bg-white flex items-center justify-center text-[#10251C] transition shadow-none cursor-pointer shrink-0"
               aria-label="Back to Map"
               title="Back to Map"
             >
@@ -801,9 +801,9 @@ export default function CheckoutContent() {
             </Link>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Step 2 of 2</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B83A24]">Step 2 of 2</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-zinc-950 font-heading">
+              <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#10251C]">
                 Review & Confirm Ride
               </h1>
             </div>
@@ -812,7 +812,7 @@ export default function CheckoutContent() {
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-900 text-xs font-bold transition shadow-none cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#DED7CA] bg-[#FAF7F0] hover:bg-white text-[#10251C] text-xs font-bold transition shadow-none cursor-pointer"
               title="Go to Home"
             >
               <Home size={13} />
@@ -821,7 +821,7 @@ export default function CheckoutContent() {
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-900 text-xs font-bold transition shadow-none cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#DED7CA] bg-[#FAF7F0] hover:bg-white text-[#10251C] text-xs font-bold transition shadow-none cursor-pointer"
             >
               <Edit2 size={12} />
               <span>Edit Route</span>
@@ -831,18 +831,18 @@ export default function CheckoutContent() {
 
         {/* Missing locations warning banner */}
         {isHydrated && (!pickupLat || !dropLat || pickup === "Pickup Location" || drop === "Drop Location") && (
-          <div className="p-3.5 sm:p-4 bg-amber-50 border border-amber-300 rounded-none flex items-center justify-between shadow-none gap-3">
+          <div className="p-3.5 sm:p-4 bg-[#faebe8] border border-[#f0c8c1] rounded-[10px] flex items-center justify-between shadow-none gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <AlertCircle size={18} className="text-amber-700 flex-shrink-0" />
+              <AlertCircle size={18} className="text-[#B83A24] flex-shrink-0" />
               <div>
-                <p className="text-xs font-black text-amber-950 uppercase tracking-wide">No active route selected</p>
-                <p className="text-[11px] text-amber-800 font-medium">Please choose your pickup and drop locations on the map.</p>
+                <p className="text-xs font-bold text-[#782313] uppercase tracking-wide">No active route selected</p>
+                <p className="text-[11px] text-[#782313]/90 font-medium">Please choose your pickup and drop locations on the map.</p>
               </div>
             </div>
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="px-3.5 py-1.5 bg-zinc-950 hover:bg-black text-white text-xs font-black uppercase tracking-wider rounded-none transition shrink-0"
+              className="px-3.5 py-1.5 bg-[#123D32] hover:bg-[#0D3027] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0"
             >
               Choose on Map
             </Link>
@@ -850,39 +850,39 @@ export default function CheckoutContent() {
         )}
 
         {/* ── UNIFIED BOOKING FLOW (ALL IN ONE TYPE) ── */}
-        <div className="bg-white rounded-none border border-zinc-300 overflow-hidden shadow-sm">
+        <div className="bg-[#FAF7F0] rounded-[14px] border border-[#DED7CA] overflow-hidden shadow-sm">
           {/* Top accent bar */}
-          <div className="h-1 bg-zinc-950" />
+          <div className="h-1 bg-[#123D32]" />
 
           {/* ══ 1. VEHICLE & TOTAL FARE SUMMARY ROW ══ */}
-          <div className="p-4 sm:p-6 border-b border-zinc-200 bg-zinc-50/70 flex items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 border-b border-[#DED7CA] bg-white flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-12 h-12 bg-zinc-950 text-white rounded-none flex items-center justify-center flex-shrink-0 shadow-xs">
-                <VehicleIcon size={24} className="text-white" />
+              <div className="w-12 h-12 bg-[#E5EBDD] text-[#123D32] rounded-[10px] flex items-center justify-center flex-shrink-0 shadow-2xs border border-[#cdd6c3]">
+                <VehicleIcon size={24} className="text-[#123D32]" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#B83A24]">
                     {opt?.categoryTitle || "Jaatri Fleet"}
                   </span>
                   {opt?.etaText && (
-                    <span className="text-[10px] font-mono text-zinc-600 bg-zinc-200/80 px-1.5 py-0.2 rounded-none">
+                    <span className="text-[10px] font-mono text-[#123D32] bg-[#E5EBDD] px-2 py-0.5 rounded-full font-bold">
                       {opt.etaText}
                     </span>
                   )}
                 </div>
-                <h2 className="text-lg sm:text-xl font-black text-zinc-950 tracking-tight font-heading truncate">
+                <h2 className="text-lg sm:text-xl font-serif text-[#10251C] tracking-tight truncate">
                   {vehicleLabel}
                 </h2>
-                <p className="text-[11px] text-zinc-600 font-medium truncate mt-0.5">
+                <p className="text-[11px] text-[#696B64] font-medium truncate mt-0.5">
                   {opt?.tagline || opt?.description || "Verified drivers with upfront guaranteed pricing"}
                 </p>
               </div>
             </div>
 
             <div className="text-right flex-shrink-0">
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Total Upfront</p>
-              <div className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950 font-heading">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64]">Total Upfront</p>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[#10251C] font-mono">
                 ₹{effectiveFare}
               </div>
             </div>
@@ -890,13 +890,13 @@ export default function CheckoutContent() {
 
           <div className="p-4 sm:p-6 space-y-5">
             {/* ══ 2. ROUTE TIMELINE (CLEAN MINIMALIST VERTICAL FLOW) ══ */}
-            <div className="bg-zinc-50 border border-zinc-200 rounded-none p-3.5 sm:p-4 space-y-3">
-              <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
-                <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">Route Overview</span>
+            <div className="bg-white border border-[#DED7CA] rounded-[10px] p-3.5 sm:p-4 space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-[#DED7CA]/60 pb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#696B64]">Route Overview</span>
                 <Link
                   href={editBookUrl}
                   onClick={handleReturnToBook}
-                  className="text-[11px] font-bold text-zinc-900 hover:underline flex items-center gap-1"
+                  className="text-[11px] font-bold text-[#123D32] hover:underline flex items-center gap-1"
                 >
                   <MapPin size={11} />
                   <span>Change</span>
@@ -906,12 +906,12 @@ export default function CheckoutContent() {
               {/* Pickup Point */}
               <div className="flex items-start gap-3">
                 <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                  <span className="w-2.5 h-2.5 bg-zinc-950 rounded-none" />
-                  <span className="w-px h-6 bg-zinc-300 my-1" />
+                  <span className="w-2.5 h-2.5 bg-[#123D32] rounded-full" />
+                  <span className="w-px h-6 bg-[#DED7CA] my-1" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Pickup</p>
-                  <p className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug truncate">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64]">Pickup</p>
+                  <p className="text-xs sm:text-sm font-bold text-[#10251C] leading-snug truncate">
                     {pickup}
                   </p>
                 </div>
@@ -921,12 +921,12 @@ export default function CheckoutContent() {
               {stops && stops.length > 0 && stops.map((stop, idx) => (
                 <div key={idx} className="flex items-start gap-3 pl-0.5">
                   <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                    <span className="w-2 h-2 border border-zinc-800 bg-zinc-300 rounded-none" />
-                    <span className="w-px h-6 bg-zinc-300 my-1" />
+                    <span className="w-2 h-2 border border-[#123D32] bg-[#E5EBDD] rounded-full" />
+                    <span className="w-px h-6 bg-[#DED7CA] my-1" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-black uppercase tracking-wider text-zinc-500">Stop {idx + 1}</p>
-                    <p className="text-xs font-semibold text-zinc-800 leading-snug truncate">{stop.address}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64]">Stop {idx + 1}</p>
+                    <p className="text-xs font-semibold text-[#10251C] leading-snug truncate">{stop.address}</p>
                   </div>
                 </div>
               ))}
@@ -934,20 +934,20 @@ export default function CheckoutContent() {
               {/* Drop Point */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 pt-1">
-                  <span className="w-2.5 h-2.5 border-2 border-zinc-950 bg-white rounded-none" />
+                  <span className="w-2.5 h-2.5 bg-[#B83A24] rounded-full" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Destination</p>
-                  <p className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug truncate">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#B83A24]">Destination</p>
+                  <p className="text-xs sm:text-sm font-bold text-[#10251C] leading-snug truncate">
                     {drop}
                   </p>
                 </div>
               </div>
 
               {/* Distance and Estimated Travel Time Stats */}
-              <div className="pt-2 border-t border-zinc-200 flex items-center justify-between text-[11px] font-mono text-zinc-600">
-                <span>Distance: <strong className="text-zinc-950">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
-                <span>Est. Time: <strong className="text-zinc-950">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
+              <div className="pt-2 border-t border-[#DED7CA]/60 flex items-center justify-between text-[11px] font-mono text-[#696B64]">
+                <span>Distance: <strong className="text-[#10251C]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
+                <span>Est. Time: <strong className="text-[#10251C]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
               </div>
             </div>
 
@@ -1130,7 +1130,7 @@ export default function CheckoutContent() {
                       type="button"
                       onClick={handleCreateBooking}
                       disabled={loading || !pickupLat || !dropLat}
-                      className="w-full h-13 py-3.5 bg-zinc-950 hover:bg-black disabled:opacity-40 text-white font-black text-sm uppercase tracking-wider rounded-none flex items-center justify-center gap-2 transition cursor-pointer shadow-md min-h-[50px] active:scale-[0.99]"
+                      className="w-full h-13 py-3.5 bg-[#123D32] hover:bg-[#0D3027] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[50px] active:scale-[0.99]"
                     >
                       {loading ? (
                         <>
