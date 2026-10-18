@@ -295,7 +295,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         }`}
         style={!isHome ? { backgroundColor: "var(--theme-nav-bg, #000000)" } : undefined}
       >
-        <div className="max-w-7xl mx-auto h-[68px] sm:h-20 md:h-24 flex items-center justify-between transition-all duration-300">
+        <div className="max-w-7xl mx-auto h-[74px] sm:h-22 md:h-24 lg:h-26 flex items-center justify-between transition-all duration-300">
           {/* LEFT: BRAND LOGO */}
           <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
             <Link
@@ -309,14 +309,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 }
               }}
               className="flex items-center flex-shrink-0 active:scale-98 transition group py-1"
-              aria-label="Jatri Home"
+              aria-label="Jaatri Home"
             >
               <Image
                 src="/logojatri.png"
-                alt="Jatri by RideNow"
-                width={260}
-                height={82}
-                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-xs"
+                alt="Jaatri by RideNow"
+                width={280}
+                height={88}
+                className="h-11 sm:h-14 md:h-16 lg:h-20 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-xs"
                 priority
               />
             </Link>
@@ -455,10 +455,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 >
                   <Image
                     src="/logojatri.png"
-                    alt="Jatri"
-                    width={180}
-                    height={66}
-                    className="h-12 w-auto object-contain"
+                    alt="Jaatri"
+                    width={200}
+                    height={72}
+                    className="h-14 w-auto object-contain"
                   />
                 </Link>
 

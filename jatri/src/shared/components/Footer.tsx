@@ -50,9 +50,9 @@ export default function Footer() {
                 <Image
                   src="/logojatri.png"
                   alt="Jaatri by RideNow"
-                  width={240}
-                  height={76}
-                  className="h-12 sm:h-14 w-auto object-contain brightness-0 invert opacity-95"
+                  width={280}
+                  height={88}
+                  className="h-14 sm:h-16 lg:h-18 w-auto object-contain brightness-0 invert opacity-95"
                   priority
                 />
               </Link>
@@ -204,43 +204,51 @@ export default function Footer() {
       </motion.div>
 
       {/* LEVEL C: BOTTOM LEGAL BAR */}
-      <div className="border-t border-[#426457]/70 bg-[#0D3027]/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 flex flex-col md:flex-row justify-between items-center text-xs text-[#C4D2C8] gap-4">
-          {/* Copyright, Theme & Language Controls */}
-          <div className="flex flex-col sm:flex-row items-center gap-3.5 text-center sm:text-left">
-            <p className="text-[#C4D2C8]">
-              © {new Date().getFullYear()} {t("footer.allRights", "RideNow Mobility Technologies Pvt. Ltd. All rights reserved.")}
-            </p>
-            <div className="h-3.5 w-px bg-[#426457] hidden sm:block" />
-            <div className="flex items-center gap-2">
+      <div className="border-t border-[#426457]/70 bg-[#0D3027]/75">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-4">
+          {/* Tier 1: Interactive System Controls (Theme & Languages) and Quick Legal Links */}
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4 text-xs text-[#C4D2C8]">
+            {/* System Controls: Theme & Languages in unified cluster */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-3.5">
               <ThemeToggle variant="footer" />
+              <div className="h-3.5 w-px bg-[#426457] hidden sm:block" />
               <LanguageSelector variant="footer" />
+            </div>
+
+            {/* Quick Legal Links */}
+            <div className="flex flex-wrap gap-x-4 sm:gap-x-5 gap-y-2 justify-center lg:justify-end text-xs text-[#C4D2C8]">
+              <Link href="/privacy" className="hover:text-[#F7F1E5] transition-colors">
+                {t("footer.privacy", "Privacy Policy")}
+              </Link>
+              <Link href="/terms" className="hover:text-[#F7F1E5] transition-colors">
+                {t("footer.terms", "Terms of Service")}
+              </Link>
+              <Link href="/payment-terms" className="hover:text-[#F7F1E5] transition-colors">
+                {t("footer.paymentTerms", "Payment Terms")}
+              </Link>
+              <Link href="/cancellation-refund" className="hover:text-[#F7F1E5] transition-colors">
+                {t("footer.refunds", "Refunds")}
+              </Link>
+              <Link href="/partner-terms" className="hover:text-[#F7F1E5] transition-colors">
+                {t("footer.driverTerms", "Driver Terms")}
+              </Link>
+              <Link href="/cookies" className="hover:text-[#F7F1E5] transition-colors">
+                {t("footer.cookies", "Cookies")}
+              </Link>
+              <Link href="/grievance" className="hover:text-[#F7F1E5] transition-colors">
+                {t("footer.grievance", "Grievance Redressal")}
+              </Link>
             </div>
           </div>
 
-          {/* Quick Legal Links */}
-          <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center text-xs text-[#C4D2C8]">
-            <Link href="/privacy" className="hover:text-[#F7F1E5] transition-colors">
-              {t("footer.privacy", "Privacy Policy")}
-            </Link>
-            <Link href="/terms" className="hover:text-[#F7F1E5] transition-colors">
-              {t("footer.terms", "Terms & Conditions")}
-            </Link>
-            <Link href="/payment-terms" className="hover:text-[#F7F1E5] transition-colors">
-              {t("footer.paymentTerms", "Payment Terms")}
-            </Link>
-            <Link href="/cancellation-refund" className="hover:text-[#F7F1E5] transition-colors">
-              {t("footer.refunds", "Refunds")}
-            </Link>
-            <Link href="/partner-terms" className="hover:text-[#F7F1E5] transition-colors">
-              {t("footer.driverTerms", "Driver Terms")}
-            </Link>
-            <Link href="/cookies" className="hover:text-[#F7F1E5] transition-colors">
-              {t("footer.cookies", "Cookies")}
-            </Link>
-            <Link href="/grievance" className="hover:text-[#F7F1E5] transition-colors">
-              {t("footer.grievance", "Grievance Redressal")}
-            </Link>
+          {/* Tier 2: Clean Sub-divider & Legal Copyright Sign-off */}
+          <div className="pt-3 border-t border-[#426457]/40 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#C4D2C8]/75 gap-2 text-center sm:text-left">
+            <p>
+              © {new Date().getFullYear()} {t("footer.allRights", "RideNow Mobility Technologies Pvt. Ltd. All rights reserved.")}
+            </p>
+            <p className="text-[#C4D2C8]/50">
+              Assam moves with you • Built with pride in Assam
+            </p>
           </div>
         </div>
       </div>

@@ -301,13 +301,13 @@ export default function HeroSection({
         <div className="w-full max-w-[660px]">
           <div className="flex flex-col justify-between">
             {/* TRIP MODE SELECTOR: 2-mode segmented control in warm ivory surface */}
-            <div className="grid grid-cols-2 sm:inline-flex items-center gap-1 sm:gap-1.5 p-1 bg-[#F7F1E5] rounded-[10px] mb-3 border border-[#e2dac7] shadow-2xs w-full sm:w-auto">
+            <div className="grid grid-cols-2 sm:inline-flex sm:self-start items-center gap-1 sm:gap-1.5 p-1 bg-[#F7F1E5] rounded-[10px] mb-3 border border-[#e2dac7] shadow-2xs w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setTripMode("ride")}
                 className={`py-2 sm:py-2.5 px-3 sm:px-6 rounded-[7px] text-xs sm:text-sm font-bold transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2 shrink-0 ${
                   tripMode === "ride"
-                    ? "bg-forest text-white shadow-xs"
+                    ? "bg-[#123D32] text-white shadow-xs"
                     : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5"
                 }`}
               >
@@ -320,7 +320,7 @@ export default function HeroSection({
                 onClick={() => setTripMode("cargo")}
                 className={`py-2 sm:py-2.5 px-3 sm:px-6 rounded-[7px] text-xs sm:text-sm font-bold transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2 shrink-0 ${
                   tripMode === "cargo"
-                    ? "bg-forest text-white shadow-xs"
+                    ? "bg-[#123D32] text-white shadow-xs"
                     : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5"
                 }`}
               >
@@ -489,7 +489,7 @@ export default function HeroSection({
                     onClick={() => setIsScheduled((prev) => !prev)}
                     className={`px-5 py-3 rounded-[8px] border text-sm font-bold transition active:scale-[0.97] flex items-center justify-center gap-2 shrink-0 ${
                       isScheduled
-                        ? "bg-forest text-white border-forest"
+                        ? "bg-[#123D32] text-white border-[#123D32]"
                         : "bg-white hover:bg-[#FAF7F0] text-[#10251C] border-[#e2dac7] shadow-2xs"
                     }`}
                   >
@@ -499,7 +499,7 @@ export default function HeroSection({
 
                   <button
                     type="submit"
-                    className="group flex-1 py-3 px-6 bg-forest hover:bg-forest-hover text-white font-bold text-base rounded-[8px] active:scale-[0.97] transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    className="group flex-1 py-3 px-6 bg-[#123D32] hover:bg-[#0D3027] text-white font-bold text-base rounded-[8px] active:scale-[0.97] transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123D32]"
                   >
                     <span className="text-white font-bold">{t("hero.searchRides", "Search Available Rides")}</span>
                     <ArrowRight className="w-4 h-4 text-[#D7AC62] transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.5} />
@@ -516,7 +516,7 @@ export default function HeroSection({
       <div className="md:hidden mt-5 w-full">
         <div className="bg-[#F7F1E5] border border-[#DED7CA] rounded-[12px] p-3 shadow-2xs grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[6px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] text-[#F7F1E5] flex items-center justify-center shrink-0">
               <IndianRupee className="w-4 h-4 text-[#F7F1E5]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
@@ -525,7 +525,7 @@ export default function HeroSection({
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[6px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] text-[#F7F1E5] flex items-center justify-center shrink-0">
               <ShieldCheck className="w-4 h-4 text-[#F7F1E5]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
@@ -534,7 +534,7 @@ export default function HeroSection({
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[6px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] text-[#F7F1E5] flex items-center justify-center shrink-0">
               <Users className="w-4 h-4 text-[#F7F1E5]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
@@ -550,7 +550,7 @@ export default function HeroSection({
         <div className="bg-[#F7F1E5] border border-[#DED7CA] rounded-[12px] py-3.5 lg:py-4 px-4 sm:px-6 shadow-[0_4px_16px_rgba(18,61,50,0.06)] grid grid-cols-3 divide-x divide-[#DED7CA]">
           {/* Item 1: Transparent Pricing */}
           <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
-            <div className="w-10 h-10 rounded-[8px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-forest-hover">
+            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027]">
               <IndianRupee className="w-4.5 h-4.5 text-[#F7F1E5]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
@@ -565,7 +565,7 @@ export default function HeroSection({
 
           {/* Item 2: 100% Direct Driver Pay */}
           <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
-            <div className="w-10 h-10 rounded-[8px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-forest-hover">
+            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027]">
               <ShieldCheck className="w-4.5 h-4.5 text-[#F7F1E5]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
@@ -580,7 +580,7 @@ export default function HeroSection({
 
           {/* Item 3: A Local Service for Our People */}
           <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
-            <div className="w-10 h-10 rounded-[8px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-forest-hover">
+            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027]">
               <Users className="w-4.5 h-4.5 text-[#F7F1E5]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">

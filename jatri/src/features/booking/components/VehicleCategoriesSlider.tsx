@@ -327,14 +327,14 @@ export default function VehicleCategoriesSlider() {
                   {/* Bottom Pricing & Action Row */}
                   <div className="mt-3.5 pt-3 border-t border-[#DED7CA]/70 flex items-center justify-between">
                     {/* Pale Sage Price Badge with Dark Green text */}
-                    <div className="inline-flex items-baseline gap-1 bg-[#E5EBDD] text-forest border border-[#cdd6c3] px-2.5 py-1 rounded-[8px]">
-                      <span className="text-[10px] font-semibold text-forest/75 uppercase tracking-wider">From</span>
-                      <span className="text-[13px] sm:text-[14px] font-extrabold text-forest tracking-tight">₹{item.rate}</span>
+                    <div className="inline-flex items-baseline gap-1 bg-[#E5EBDD] text-[#123D32] border border-[#cdd6c3] px-2.5 py-1 rounded-[8px]">
+                      <span className="text-[10px] font-semibold text-[#123D32]/80 uppercase tracking-wider">From</span>
+                      <span className="text-[13px] sm:text-[14px] font-extrabold text-[#123D32] tracking-tight">₹{item.rate}</span>
                     </div>
 
                     {/* Refined Arrow Affordance with 8px radius */}
-                    <div className="w-8 h-8 rounded-[8px] border border-[#DED7CA] bg-white group-hover:border-forest group-hover:bg-forest text-forest group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
-                      <ArrowRight size={14} strokeWidth={2.4} className="transition-transform duration-200 group-hover:translate-x-1 text-forest group-hover:text-[#D7AC62]" />
+                    <div className="w-8 h-8 rounded-[8px] border border-[#DED7CA] bg-white group-hover:border-[#123D32] group-hover:bg-[#123D32] text-[#123D32] group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
+                      <ArrowRight size={14} strokeWidth={2.4} className="transition-transform duration-200 group-hover:translate-x-1 text-[#123D32] group-hover:text-[#D7AC62]" />
                     </div>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export default function VehicleCategoriesSlider() {
             { num: "24/7", label: "Instant Dispatch" },
           ].map((s, i) => (
             <div key={i} className="flex items-center gap-2.5 sm:gap-3">
-              <p className="text-forest text-xl sm:text-2xl font-black tracking-tight tabular-nums leading-none">
+              <p className="text-[#123D32] text-xl sm:text-2xl font-black tracking-tight tabular-nums leading-none">
                 {s.num}
               </p>
               <p className="text-[#696B64] text-xs sm:text-[13px] font-medium leading-tight">

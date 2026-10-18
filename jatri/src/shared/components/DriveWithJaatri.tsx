@@ -100,7 +100,7 @@ export default function DriveWithJaatri() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
           >
-            <p className="text-lg sm:text-[22px] lg:text-[25px] font-bold text-forest mt-3 sm:mt-4 leading-snug tracking-tight">
+            <p className="text-lg sm:text-[22px] lg:text-[25px] font-bold text-[#123D32] mt-3 sm:mt-4 leading-snug tracking-tight">
               {t("partnerSection.headline", "Your vehicle. Your earnings. Your freedom.")}
             </p>
             {/* Description: Muted Charcoal (#555D57) */}
@@ -117,9 +117,9 @@ export default function DriveWithJaatri() {
             className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-6 sm:mt-7"
           >
             {/* Benefit 1: Direct payouts */}
-            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 backdrop-blur-xs border border-forest/10 rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
-              <div className="w-10 h-10 rounded-[8px] bg-forest/10 border border-forest/15 text-forest flex items-center justify-center shrink-0">
-                <Wallet className="w-5 h-5 text-forest" strokeWidth={2.2} />
+            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 backdrop-blur-xs border border-[#123D32]/15 rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
+              <div className="w-10 h-10 rounded-[8px] bg-[#123D32]/10 border border-[#123D32]/15 text-[#123D32] flex items-center justify-center shrink-0">
+                <Wallet className="w-5 h-5 text-[#123D32]" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
                 <h4 className="text-sm font-semibold text-[#10251C] leading-snug tracking-tight truncate">
@@ -132,9 +132,9 @@ export default function DriveWithJaatri() {
             </div>
 
             {/* Benefit 2: Flexible hours */}
-            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 backdrop-blur-xs border border-forest/10 rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
-              <div className="w-10 h-10 rounded-[8px] bg-forest/10 border border-forest/15 text-forest flex items-center justify-center shrink-0">
-                <CalendarClock className="w-5 h-5 text-forest" strokeWidth={2.2} />
+            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 backdrop-blur-xs border border-[#123D32]/15 rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
+              <div className="w-10 h-10 rounded-[8px] bg-[#123D32]/10 border border-[#123D32]/15 text-[#123D32] flex items-center justify-center shrink-0">
+                <CalendarClock className="w-5 h-5 text-[#123D32]" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
                 <h4 className="text-sm font-semibold text-[#10251C] leading-snug tracking-tight truncate">
@@ -147,9 +147,9 @@ export default function DriveWithJaatri() {
             </div>
 
             {/* Benefit 3: A local service */}
-            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 backdrop-blur-xs border border-forest/10 rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
-              <div className="w-10 h-10 rounded-[8px] bg-forest/10 border border-forest/15 text-forest flex items-center justify-center shrink-0">
-                <Users className="w-5 h-5 text-forest" strokeWidth={2.2} />
+            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 backdrop-blur-xs border border-[#123D32]/15 rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
+              <div className="w-10 h-10 rounded-[8px] bg-[#123D32]/10 border border-[#123D32]/15 text-[#123D32] flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5 text-[#123D32]" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
                 <h4 className="text-sm font-semibold text-[#10251C] leading-snug tracking-tight truncate">
@@ -172,7 +172,7 @@ export default function DriveWithJaatri() {
             {/* Primary CTA */}
             <Link
               href="/partner/onboard/vehicle"
-              className="group inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-[8px] bg-forest hover:bg-forest-hover text-white font-semibold text-base transition-all duration-200 active:scale-[0.97] shadow-[0_4px_16px_rgba(18,61,50,0.22)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+              className="group inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] text-white font-semibold text-base transition-all duration-200 active:scale-[0.97] shadow-[0_4px_16px_rgba(18,61,50,0.22)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123D32]"
             >
               <span>{t("partnerSection.ctaPrimary", "Become a Jaatri Partner")}</span>
               <ArrowRight className="w-4 h-4 text-[#D7AC62] transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.5} />
@@ -181,7 +181,7 @@ export default function DriveWithJaatri() {
             {/* Secondary CTA */}
             <Link
               href="/partner-terms"
-              className="inline-flex items-center text-sm sm:text-base font-semibold text-forest hover:text-forest-hover underline underline-offset-4 decoration-forest/40 hover:decoration-forest transition duration-150 cursor-pointer"
+              className="inline-flex items-center text-sm sm:text-base font-semibold text-[#123D32] hover:text-[#0D3027] underline underline-offset-4 decoration-[#123D32]/40 hover:decoration-[#123D32] transition duration-150 cursor-pointer"
             >
               {t("partnerSection.ctaSecondary", "Learn more")}
             </Link>

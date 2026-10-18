@@ -55,8 +55,8 @@ export default function LanguageSelector({
   if (variant === "footer") {
     return (
       <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <Globe size={14} className="text-[#C4D2C8]/70 mr-1 shrink-0" />
+        <div className="flex items-center gap-1 sm:gap-1.5 flex-nowrap shrink-0">
+          <Globe size={14} className="text-[#C4D2C8]/70 mr-0.5 shrink-0" />
           {SUPPORTED_LANGUAGES.map((lang) => {
             const isSelected = lang.code === language;
             return (
@@ -64,7 +64,7 @@ export default function LanguageSelector({
                 key={lang.code}
                 type="button"
                 onClick={() => handleSelect(lang.code)}
-                className={`text-xs px-2.5 py-1 rounded-[6px] transition-all font-medium active:scale-[0.97] cursor-pointer ${
+                className={`text-xs px-2 sm:px-2.5 py-1 rounded-[6px] transition-all font-medium active:scale-[0.97] cursor-pointer whitespace-nowrap shrink-0 ${
                   isSelected
                     ? "bg-[#0D3027] text-[#F7F1E5] font-bold border border-[#426457]/80 shadow-2xs"
                     : "text-[#C4D2C8] hover:text-[#F7F1E5] hover:bg-[#0D3027]/50 border border-transparent"
