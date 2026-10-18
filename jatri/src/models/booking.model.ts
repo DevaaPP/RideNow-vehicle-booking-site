@@ -90,7 +90,7 @@ export interface IBooking extends Document {
   paymentDeadline?: Date;
 
   userMobileNumber: string;
-  driverMobileNumber: string;
+  driverMobileNumber?: string;
   adminCommission: number;
   partnerAmount: number;
   pickupOtp: string;
@@ -314,7 +314,8 @@ partnerAmount: {
 
     driverMobileNumber: { 
       type: String, 
-      required: true,
+      required: false,
+      default: "",
       trim: true,
     },
     candidateDrivers: {
