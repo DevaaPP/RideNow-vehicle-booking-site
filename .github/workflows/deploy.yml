@@ -26,6 +26,11 @@ jobs:
           cd jatri
           npm ci
 
+      - name: Run Next.js Typecheck & Lint
+        run: |
+          cd jatri
+          npm run typecheck
+
       - name: Verify Production Build
         run: |
           cd jatri
@@ -35,6 +40,12 @@ jobs:
           NEXTAUTH_URL: "http://localhost:3000"
           NEXT_PUBLIC_SOCKET_SERVER: "https://socket.ridenow.com"
           NEXT_PUBLIC_SOCKET_SERVER_URL: "https://socket.ridenow.com"
+
+      - name: Verify Realtime Socket Service
+        run: |
+          cd socketServer
+          npm install --package-lock-only
+          node -c index.js
 
       - name: Trigger Vercel Deploy Hook (Optional)
         if: env.VERCEL_DEPLOY_HOOK != ''
