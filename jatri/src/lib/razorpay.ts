@@ -3,10 +3,17 @@ import Razorpay from "razorpay";
 let razorpayInstance: Razorpay | null = null;
 
 export const getRazorpay = (): Razorpay => {
+  const keyId =
+    process.env.RAZORPAY_KEY_ID ||
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+    "rzp_test_placeholder";
+  const keySecret = process.env.RAZORPAY_KEY_SECRET || "placeholder_secret";
+
   if (!razorpayInstance) {
     razorpayInstance = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
-      key_secret: process.env.RAZORPAY_KEY_SECRET || "placeholder_secret",
+      key_id: keyId,
+      key_secret: keySecret,
     });
   }
   return razorpayInstance;

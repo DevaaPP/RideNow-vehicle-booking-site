@@ -48,16 +48,23 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const effectiveKeyId =
+      process.env.RAZORPAY_KEY_ID ||
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+      "";
+
     return NextResponse.json({
       success: true,
       orderId: order.id,
       amount: order.amount, // in paise
-      keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
+      keyId: effectiveKeyId,
     });
   } catch (error: any) {
     console.error("POST /api/wallet/topup/create error:", error);
+    const rzpDescription = error?.error?.description || error?.message || "Failed to create topup order";
     return NextResponse.json(
-      { error: error?.message || "Failed to create topup order" },
+      { error: rzpDescription, details: error?.error || null },
       { status: 500 }
     );
   }
