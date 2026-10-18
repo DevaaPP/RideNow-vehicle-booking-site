@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 
-type TripMode = "ride" | "cargo" | "rental";
+type TripMode = "ride" | "cargo";
 
 export default function HeroSection({
   onAuthRequired,
@@ -177,8 +177,7 @@ export default function HeroSection({
       dropLat: dropLat ?? undefined,
       dropLng: dropLng ?? undefined,
       vehicle: tripMode === "cargo" ? "trucks" : "car",
-      category: tripMode === "cargo" ? "trucks" : (tripMode === "rental" ? "rentals" : "cars"),
-      isRental: tripMode === "rental",
+      category: tripMode === "cargo" ? "trucks" : "cars",
       isScheduled,
     };
 
@@ -199,8 +198,6 @@ export default function HeroSection({
 
     if (tripMode === "cargo") {
       params.set("category", "trucks");
-    } else if (tripMode === "rental") {
-      params.set("rental", "true");
     } else {
       params.set("category", "cars");
     }
@@ -275,19 +272,6 @@ export default function HeroSection({
                 >
                   <Truck className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
                   <span>{t("hero.parcelCargo", "Parcel & Cargo")}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setTripMode("rental")}
-                  className={`py-2 sm:py-3.5 px-3 sm:px-6 rounded-lg sm:rounded-xl text-xs sm:text-base lg:text-lg font-black transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2.5 ${
-                    tripMode === "rental"
-                      ? "bg-emerald-600 text-white shadow-md"
-                      : "text-zinc-300 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  <Clock className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
-                  <span>{t("hero.rentals", "Rentals")}</span>
                 </button>
               </div>
 
