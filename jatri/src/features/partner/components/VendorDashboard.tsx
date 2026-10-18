@@ -1449,18 +1449,18 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       <div className="relative max-w-7xl mx-auto space-y-5 sm:space-y-8 z-10">
         
         {/* Header Block */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-none p-5 sm:p-7 md:p-8 border border-zinc-300 shadow-none">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#FAF7F0] rounded-[16px] p-5 sm:p-7 md:p-8 border border-[#DED7CA] shadow-sm">
           <div className="flex items-center gap-3.5 sm:gap-4">
-            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-none border border-zinc-300 overflow-hidden bg-zinc-950">
+            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-[12px] border border-[#DED7CA] overflow-hidden bg-[#123D32]">
               {profilePicture ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={profilePicture}
                   alt={userData?.name || "Driver Headshot"}
-                  className="w-full h-full object-cover rounded-none"
+                  className="w-full h-full object-cover rounded-[12px]"
                 />
               ) : (
-                <div className="w-full h-full text-white flex items-center justify-center font-black text-xl sm:text-2xl font-heading">
+                <div className="w-full h-full text-white flex items-center justify-center font-bold text-xl sm:text-2xl font-serif">
                   {userData?.name?.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -1471,7 +1471,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 onClick={() => photoInputRef.current?.click()}
                 disabled={uploadingPhoto}
                 title="Update mandatory profile photo"
-                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity cursor-pointer text-center p-1"
+                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity cursor-pointer text-center p-1 rounded-[12px]"
               >
                 {uploadingPhoto ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -1494,17 +1494,17 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight truncate font-heading">{userData?.name}</h1>
-                <span className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-900 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-none border border-zinc-300">
+                <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] tracking-tight truncate">{userData?.name}</h1>
+                <span className="inline-flex items-center gap-1 bg-[#F7F1E5] text-[#123D32] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[6px] border border-[#DED7CA]">
                   Verified Partner
                 </span>
                 {!profilePicture && (
-                  <span className="inline-flex items-center gap-1 bg-zinc-950 text-white text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 border border-zinc-950">
+                  <span className="inline-flex items-center gap-1 bg-[#B83A24] text-white text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[6px]">
                     Photo Required
                   </span>
                 )}
               </div>
-              <p className="text-zinc-500 text-xs sm:text-sm mt-0.5 font-medium truncate font-body">
+              <p className="text-[#696B64] text-xs sm:text-sm mt-0.5 font-medium truncate font-body">
                 Manage live duty status, real-time GPS telemetry, and fleet ride dispatching
               </p>
             </div>
@@ -1513,14 +1513,14 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => window.location.href = "/partner/pending-requests"}
-              className="flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white text-xs sm:text-sm font-black uppercase tracking-wider px-5 py-3 rounded-none transition cursor-pointer"
+              className="flex items-center justify-center gap-2 bg-[#123D32] hover:bg-[#0D3027] text-[#FAF7F0] text-xs sm:text-sm font-semibold uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
             >
               <span>Incoming Requests</span>
               <ArrowRight size={15} />
             </button>
             <button
               onClick={() => window.location.href = "/partner/bookings"}
-              className="flex items-center justify-center gap-2 border border-zinc-300 hover:bg-zinc-100 bg-white text-zinc-900 text-xs sm:text-sm font-black uppercase tracking-wider px-4 py-3 rounded-none transition cursor-pointer"
+              className="flex items-center justify-center gap-2 border border-[#DED7CA] hover:bg-[#F7F1E5] bg-[#FAF7F0] text-[#10251C] text-xs sm:text-sm font-semibold uppercase tracking-wider px-4 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
             >
               Ride History
             </button>
@@ -1529,16 +1529,16 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Mandatory Profile Picture Alert Banner */}
         {!profilePicture && (
-          <div className="bg-zinc-950 text-white border border-zinc-950 rounded-none p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans">
+          <div className="bg-[#FAF7F0] text-[#10251C] border border-[#DED7CA] rounded-[12px] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-none bg-white text-zinc-950 flex items-center justify-center font-bold shrink-0">
+              <div className="w-8 h-8 rounded-[8px] bg-[#123D32] text-white flex items-center justify-center font-bold shrink-0">
                 <Camera size={16} />
               </div>
               <div>
-                <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#10251C]">
                   Mandatory Driver Face Photo Required
                 </p>
-                <p className="text-[11px] text-zinc-400 mt-0.5 font-mono">
+                <p className="text-[11px] text-[#696B64] mt-0.5">
                   You must upload a clear facial photograph to complete driver verification and remain active on dispatch.
                 </p>
               </div>
@@ -1546,7 +1546,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             <button
               onClick={() => photoInputRef.current?.click()}
               disabled={uploadingPhoto}
-              className="px-4 py-2 bg-white text-zinc-950 hover:bg-zinc-200 text-xs font-mono font-bold uppercase tracking-wider transition-colors shrink-0"
+              className="px-4 py-2 bg-[#123D32] text-[#FAF7F0] hover:bg-[#0D3027] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 rounded-[8px] cursor-pointer"
             >
               {uploadingPhoto ? "Uploading..." : "Upload Profile Photo"}
             </button>
@@ -1555,28 +1555,28 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Cash Ride Debt Threshold Alert Banner */}
         {isDebtBlocked && (
-          <div className="bg-red-950 text-white border-2 border-red-600 rounded-none p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans">
+          <div className="bg-red-50 text-[#B83A24] border border-red-200 rounded-[12px] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans shadow-sm">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-none bg-red-600 text-white flex items-center justify-center font-bold shrink-0">
+              <div className="w-10 h-10 rounded-[8px] bg-[#B83A24] text-white flex items-center justify-center font-bold shrink-0">
                 <AlertTriangle size={20} />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-xs font-mono font-bold uppercase tracking-wider text-red-200">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#B83A24]">
                     Dispatch Blocked &bull; Platform Commission Dues Limit Exceeded
                   </p>
-                  <span className="bg-red-800 text-white text-[10px] font-mono px-2 py-0.5 font-bold uppercase">
+                  <span className="bg-red-200 text-red-900 text-[10px] font-mono px-2 py-0.5 font-bold uppercase rounded-[4px]">
                     ₹{platformDues.toFixed(2)} Dues
                   </span>
                 </div>
-                <p className="text-xs text-red-200/90 mt-1 font-body">
+                <p className="text-xs text-red-800/90 mt-1 font-body">
                   You have exceeded the maximum allowed cash ride commission threshold of ₹{maxAllowedPlatformDues}. Settle your platform dues instantly via UPI or card in your Driver Wallet to resume receiving ride assignments.
                 </p>
               </div>
             </div>
             <button
               onClick={() => router.push("/partner/wallet")}
-              className="w-full sm:w-auto px-5 py-2.5 bg-white text-red-950 hover:bg-red-50 text-xs font-mono font-bold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-2 border border-white cursor-pointer font-sans"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#B83A24] text-white hover:bg-[#9E2F1B] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-2 rounded-[8px] cursor-pointer shadow-sm"
             >
               <WalletIcon size={14} /> Settle Dues Now
             </button>
@@ -1585,74 +1585,74 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Today's Shift Performance Bar */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-white rounded-none p-4 sm:p-5 border border-zinc-300 shadow-none flex flex-col justify-between">
-            <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{t("driver.todayEarnings", "Today's Earnings")}</span>
-              <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center">
+          <div className="bg-[#FAF7F0] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64]">{t("driver.todayEarnings", "Today's Earnings")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
                 <IndianRupee size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-black text-zinc-950 tracking-tight leading-none tabular-nums font-heading">
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] tracking-tight leading-none tabular-nums font-mono">
                 ₹{shiftSummary?.todayEarnings ?? 0}
               </p>
-              <p className="text-[11px] text-zinc-500 font-medium mt-1">Net shift earnings</p>
+              <p className="text-[11px] text-[#696B64] font-medium mt-1">Net shift earnings</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-none p-4 sm:p-5 border border-zinc-300 shadow-none flex flex-col justify-between">
-            <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{t("driver.tripsCompleted", "Trips Completed")}</span>
-              <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center">
+          <div className="bg-[#FAF7F0] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64]">{t("driver.tripsCompleted", "Trips Completed")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
                 <CheckCircle2 size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-black text-zinc-950 tracking-tight leading-none tabular-nums font-heading">
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] tracking-tight leading-none tabular-nums font-mono">
                 {shiftSummary?.todayTrips ?? 0}
               </p>
-              <p className="text-[11px] text-zinc-500 font-medium mt-1 truncate">
+              <p className="text-[11px] text-[#696B64] font-medium mt-1 truncate">
                 {shiftSummary?.totalCompleted ? `${shiftSummary.totalCompleted} all-time` : "Today's shift"}
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-none p-4 sm:p-5 border border-zinc-300 shadow-none flex flex-col justify-between">
-            <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{t("driver.onlineShift", "Online Shift")}</span>
-              <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center">
+          <div className="bg-[#FAF7F0] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64]">{t("driver.onlineShift", "Online Shift")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
                 <Clock size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-black text-zinc-950 tracking-tight leading-none tabular-nums font-heading">
-                {shiftSummary?.hoursOnline ?? 0}<span className="text-sm font-normal text-zinc-500 ml-0.5">hrs</span>
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] tracking-tight leading-none tabular-nums font-mono">
+                {shiftSummary?.hoursOnline ?? 0}<span className="text-sm font-normal text-[#696B64] ml-0.5 font-sans">hrs</span>
               </p>
-              <p className="text-[11px] text-zinc-500 font-medium mt-1">Active duty shift</p>
+              <p className="text-[11px] text-[#696B64] font-medium mt-1">Active duty shift</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-none p-4 sm:p-5 border border-zinc-300 shadow-none flex flex-col justify-between">
-            <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{t("driver.rating", "Driver Rating")}</span>
-              <div className="w-7 h-7 rounded-none bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center">
+          <div className="bg-[#FAF7F0] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64]">{t("driver.rating", "Driver Rating")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] flex items-center justify-center">
                 <Shield size={13} />
               </div>
             </div>
             <div>
               <div className="flex items-baseline gap-1.5 leading-none">
-                <p className="text-xl sm:text-3xl font-black text-zinc-950 tracking-tight tabular-nums font-heading">
+                <p className="text-xl sm:text-3xl font-bold text-[#10251C] tracking-tight tabular-nums font-mono">
                   ★ {shiftSummary?.rating ?? 5.0}
                 </p>
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-none uppercase tracking-wider ${
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] uppercase tracking-wider ${
                   (shiftSummary?.cancellationRate ?? 0) > 10
-                    ? "text-red-700 bg-red-50 border border-red-200"
-                    : "text-emerald-800 bg-emerald-50 border border-emerald-200"
+                    ? "text-[#B83A24] bg-red-50 border border-red-200"
+                    : "text-[#123D32] bg-emerald-50 border border-emerald-200"
                 }`}>
                   {shiftSummary?.acceptanceRate ?? 100}% accept
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-500 font-medium mt-1">
+              <p className="text-[11px] text-[#696B64] font-medium mt-1">
                 {shiftSummary?.dailyCancellations ? `${shiftSummary.dailyCancellations} cancelled today` : "Clean shift rating"}
               </p>
             </div>
@@ -1735,15 +1735,15 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
 
           {/* Card 1: Duty Status Command */}
-          <div className="bg-white rounded-none border border-zinc-300 p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-none">
+          <div className="bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] mb-1">
                 Dispatch & Duty Status
               </p>
-              <h2 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight font-heading">
+              <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] tracking-tight">
                 {isOnline ? "Online — Accepting Trips" : "Offline — Duty Paused"}
               </h2>
-              <p className="text-zinc-500 text-xs font-medium mt-1 leading-relaxed font-body">
+              <p className="text-[#696B64] text-xs font-medium mt-1 leading-relaxed font-body">
                 {isOnline
                   ? "Live radar active. You will receive real-time ride dispatch assignments matching your registered fleet."
                   : "Toggle online to start receiving ride dispatch assignments and passenger bookings."}
@@ -1751,28 +1751,28 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
 
             {isDebtBlocked && (
-              <div className="mt-2 p-2.5 bg-red-50 border border-red-300 text-red-900 text-xs font-medium flex items-center justify-between gap-2">
+              <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-[8px] text-[#B83A24] text-xs font-medium flex items-center justify-between gap-2">
                 <span className="truncate font-mono text-[11px]">Dues limit reached (₹{platformDues.toFixed(2)} / ₹{maxAllowedPlatformDues})</span>
-                <Link href="/partner/wallet" className="underline font-bold text-red-950 shrink-0 text-xs font-mono uppercase">
+                <Link href="/partner/wallet" className="underline font-bold text-[#B83A24] shrink-0 text-xs uppercase">
                   Settle
                 </Link>
               </div>
             )}
 
-            <div className="bg-zinc-50 rounded-none p-4 border border-zinc-200 flex items-center justify-between my-4">
+            <div className="bg-[#F7F1E5] rounded-[12px] p-4 border border-[#DED7CA] flex items-center justify-between my-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-zinc-950 tracking-tight">
+                  <p className="text-sm font-bold text-[#10251C] tracking-tight">
                     {isOnline ? "Duty: Online" : "Duty: Offline"}
                   </p>
                   {isOnline && isWakeLockActive && (
-                    <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 border border-emerald-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="flex items-center gap-1 text-[10px] font-mono text-[#123D32] bg-[#123D32]/10 px-1.5 py-0.5 rounded-[4px] border border-[#123D32]/20 font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#123D32] animate-pulse" />
                       SCREEN AWAKE
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
+                <p className="text-[10px] text-[#696B64] font-semibold uppercase tracking-wider">
                   {isOnline ? "Broadcasting live coordinates" : "Unavailable for dispatch"}
                 </p>
               </div>
@@ -1782,7 +1782,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 onClick={handleToggleOnline}
                 disabled={loading}
                 className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors cursor-pointer focus:outline-none ${
-                  isOnline ? "bg-emerald-500" : "bg-zinc-300"
+                  isOnline ? "bg-[#123D32]" : "bg-zinc-300"
                 }`}
                 title={isOnline ? "Switch to Offline" : "Switch to Online"}
               >
@@ -1794,10 +1794,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               </button>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs text-zinc-500">
+            <div className="flex items-center justify-between pt-2 border-t border-[#DED7CA] text-xs text-[#696B64]">
               <div className="flex items-center gap-1.5 min-w-0">
-                <MapPin size={13} className="text-zinc-400 shrink-0" />
-                <span className="truncate tabular-nums font-mono text-[11px]">
+                <MapPin size={13} className="text-[#123D32] shrink-0" />
+                <span className="truncate tabular-nums font-mono text-[11px] text-[#10251C]">
                   {coords
                     ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
                     : "Detecting GPS..."}
@@ -1807,62 +1807,62 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 type="button"
                 onClick={() => syncDriverLocation()}
                 disabled={isLocating}
-                className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-700 hover:text-black border border-zinc-300 hover:border-zinc-500 px-2.5 py-1 rounded-none bg-white transition cursor-pointer shrink-0 ml-2"
+                className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#10251C] hover:text-[#123D32] border border-[#DED7CA] hover:border-[#123D32] px-2.5 py-1 rounded-[8px] bg-[#FAF7F0] transition cursor-pointer shrink-0 ml-2 shadow-xs"
                 title="Refresh and sync GPS location now"
               >
-                <RefreshCw size={11} className={isLocating ? "animate-spin text-zinc-950" : "text-zinc-600"} />
+                <RefreshCw size={11} className={isLocating ? "animate-spin text-[#123D32]" : "text-[#123D32]"} />
                 <span>{isLocating ? "Syncing..." : "Sync GPS"}</span>
               </button>
             </div>
           </div>
 
           {/* Card 2: Live Location Tracker & Radar */}
-          <div className="bg-white rounded-none border border-zinc-300 p-6 flex flex-col justify-between min-h-[310px] shadow-none">
+          <div className="bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] mb-1">
                   Live GPS Telemetry
                 </p>
-                <h2 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight font-heading">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] tracking-tight">
                   Location Radar
                 </h2>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-zinc-100 border border-zinc-300 text-zinc-900 text-[10px] font-black uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#F7F1E5] border border-[#DED7CA] text-[#123D32] text-[10px] font-semibold uppercase tracking-wider">
                 <span>Live GPS</span>
               </span>
             </div>
 
-            <div className="flex-1 w-full h-[155px] relative my-3">
+            <div className="flex-1 w-full h-[155px] relative my-3 rounded-[12px] overflow-hidden border border-[#DED7CA]">
               <DriverLocationMap coords={coords} vehicleType={vType} />
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-zinc-500 border-t border-zinc-100 pt-2">
+            <div className="flex items-center justify-between text-[11px] text-[#696B64] border-t border-[#DED7CA] pt-2">
               <span className="truncate">
                 {lastSyncedTime
                   ? `Synced ${lastSyncedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
                   : "Continuous device tracking active"}
               </span>
-              <span className="text-[10px] font-black uppercase text-zinc-800 bg-zinc-100 px-1.5 py-0.5 border border-zinc-300 shrink-0 ml-2">
+              <span className="text-[10px] font-semibold uppercase text-[#123D32] bg-[#F7F1E5] px-2 py-0.5 rounded-[4px] border border-[#DED7CA] shrink-0 ml-2">
                 Active Radar
               </span>
             </div>
           </div>
 
           {/* Card 3: Fleet Vehicle Specifications */}
-          <div className="bg-white rounded-none border border-zinc-300 p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-none">
+          <div className="bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] mb-1">
                   Fleet Specifications
                 </p>
-                <h2 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight font-heading capitalize">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] tracking-tight capitalize">
                   {vType} Fleet
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowPricing(true)}
-                className="text-zinc-700 hover:text-zinc-950 p-2 rounded-none border border-zinc-300 hover:border-zinc-950 hover:bg-zinc-100 transition-all cursor-pointer"
+                className="text-[#10251C] hover:text-[#123D32] p-2 rounded-[8px] border border-[#DED7CA] hover:border-[#123D32] hover:bg-[#F7F1E5] transition-all cursor-pointer shadow-xs"
                 title="Edit pricing and vehicle details"
               >
                 <Edit3 size={15} />
@@ -1874,46 +1874,46 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 <img
                   src={pricing.imageUrl}
                   alt="Vehicle"
-                  className="w-20 h-20 rounded-none object-cover border border-zinc-300 shrink-0"
+                  className="w-20 h-20 rounded-[12px] object-cover border border-[#DED7CA] shrink-0"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-none bg-zinc-100 border border-zinc-300 flex flex-col items-center justify-center text-zinc-600 shrink-0 gap-1">
+                <div className="w-20 h-20 rounded-[12px] bg-[#F7F1E5] border border-[#DED7CA] flex flex-col items-center justify-center text-[#123D32] shrink-0 gap-1">
                   {vType === "auto" ? (
                     <Car size={26} className="text-amber-600" />
                   ) : vType === "bike" || vType === "scooty" ? (
-                    <Bike size={26} className="text-emerald-600" />
+                    <Bike size={26} className="text-[#123D32]" />
                   ) : vType === "loading" || vType === "truck" ? (
-                    <Truck size={26} className="text-zinc-900" />
+                    <Truck size={26} className="text-[#10251C]" />
                   ) : (
-                    <Car size={26} className="text-zinc-900" />
+                    <Car size={26} className="text-[#123D32]" />
                   )}
-                  <span className="text-[9px] font-black uppercase tracking-wider text-zinc-500">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-[#696B64]">
                     {vType}
                   </span>
                 </div>
               )}
               <div className="space-y-1.5 flex-1 min-w-0">
-                <div className="flex items-center justify-between text-xs text-zinc-600">
+                <div className="flex items-center justify-between text-xs text-[#696B64]">
                   <span className="font-medium">Base Fare:</span>
-                  <span className="tabular-nums text-zinc-950 font-bold">₹{cfg.baseFare}</span>
+                  <span className="tabular-nums text-[#10251C] font-mono font-bold">₹{cfg.baseFare}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-zinc-600">
+                <div className="flex items-center justify-between text-xs text-[#696B64]">
                   <span className="font-medium">Distance Rate:</span>
-                  <span className="tabular-nums text-zinc-950 font-bold">₹{cfg.pricePerKm}/km</span>
+                  <span className="tabular-nums text-[#10251C] font-mono font-bold">₹{cfg.pricePerKm}/km</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-zinc-600">
+                <div className="flex items-center justify-between text-xs text-[#696B64]">
                   <span className="font-medium">Time Charge:</span>
-                  <span className="tabular-nums text-zinc-950 font-bold">₹{cfg.pricePerMinute}/min</span>
+                  <span className="tabular-nums text-[#10251C] font-mono font-bold">₹{cfg.pricePerMinute}/min</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-zinc-600">
+                <div className="flex items-center justify-between text-xs text-[#696B64]">
                   <span className="font-medium">Demand Multiplier:</span>
-                  <span className="tabular-nums text-zinc-950 font-bold">{cfg.multiplier}x</span>
+                  <span className="tabular-nums text-[#10251C] font-mono font-bold">{cfg.multiplier}x</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-none border border-emerald-300 mt-auto self-start uppercase tracking-wider">
-              <Check size={12} className="text-emerald-700" />
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#123D32] bg-emerald-50 px-2.5 py-1 rounded-[6px] border border-emerald-200 mt-auto self-start uppercase tracking-wider">
+              <Check size={12} className="text-[#123D32]" />
               <span>Pricing Approved & Verified</span>
             </div>
           </div>
@@ -1926,19 +1926,19 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         </div>
 
         {/* Recent Trips & Drop-Off Ledger */}
-        <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-zinc-100 pb-4">
+        <div className="bg-[#FAF7F0] rounded-[16px] border border-[#DED7CA] p-6 md:p-8 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#DED7CA] pb-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Shift Activity</p>
-              <h2 className="text-xl font-black text-zinc-900 tracking-tight">Recent Trips & Drop-Off Ledger</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64]">Shift Activity</p>
+              <h2 className="text-xl font-serif font-bold text-[#10251C] tracking-tight">Recent Trips & Drop-Off Ledger</h2>
             </div>
-            <p className="text-xs text-zinc-400 font-semibold">Real-time trip records and drop-off arrival times</p>
+            <p className="text-xs text-[#696B64] font-medium">Real-time trip records and drop-off arrival times</p>
           </div>
 
           {recentTrips.length === 0 ? (
-            <div className="text-center py-10 bg-zinc-50 rounded-2xl border border-dashed border-zinc-200">
-              <p className="text-sm font-bold text-zinc-600">No trips recorded for this shift yet</p>
-              <p className="text-xs text-zinc-400 mt-1">Toggle online above to start receiving passenger bookings</p>
+            <div className="text-center py-10 bg-[#F7F1E5] rounded-[12px] border border-dashed border-[#DED7CA]">
+              <p className="text-sm font-bold text-[#10251C]">No trips recorded for this shift yet</p>
+              <p className="text-xs text-[#696B64] mt-1">Toggle online above to start receiving passenger bookings</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -1965,26 +1965,26 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 return (
                   <div
                     key={trip.id}
-                    className="p-4 rounded-2xl border border-zinc-100 bg-zinc-50/50 hover:bg-zinc-50 transition flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                    className="p-4 rounded-[12px] border border-[#DED7CA] bg-[#F7F1E5]/60 hover:bg-[#F7F1E5] transition flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs"
                   >
                     {/* Route Details */}
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black font-mono uppercase bg-zinc-200 text-zinc-800 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-bold font-mono uppercase bg-[#F7F1E5] text-[#10251C] px-2 py-0.5 rounded-[4px] border border-[#DED7CA]">
                           #{trip.id.slice(-6)}
                         </span>
                         <span
-                          className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[4px] ${
                             isCompleted
-                              ? "bg-emerald-100 text-emerald-800"
+                              ? "bg-emerald-100 text-[#123D32]"
                               : isCancelled
-                              ? "bg-red-100 text-red-800"
+                              ? "bg-red-100 text-[#B83A24]"
                               : "bg-blue-100 text-blue-800"
                           }`}
                         >
                           {trip.status}
                         </span>
-                        <span className="text-[11px] text-zinc-400 font-medium">
+                        <span className="text-[11px] text-[#696B64] font-medium">
                           {trip.createdAt
                             ? new Date(trip.createdAt).toLocaleDateString([], {
                                 month: "short",
@@ -1996,29 +1996,29 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
                       <div className="grid sm:grid-cols-2 gap-2 text-xs">
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-zinc-900 mt-1 flex-shrink-0" />
-                          <span className="text-zinc-600 truncate">{trip.pickupAddress}</span>
+                          <span className="w-2 h-2 rounded-full bg-[#123D32] mt-1 flex-shrink-0" />
+                          <span className="text-[#696B64] truncate">{trip.pickupAddress}</span>
                         </div>
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <span className="w-2 h-2 rounded-sm bg-emerald-500 mt-1 flex-shrink-0" />
-                          <span className="text-zinc-900 font-semibold truncate">{trip.dropAddress}</span>
+                          <span className="w-2 h-2 rounded-full border border-[#123D32] bg-[#FAF7F0] mt-1 flex-shrink-0" />
+                          <span className="text-[#10251C] font-semibold truncate">{trip.dropAddress}</span>
                         </div>
                       </div>
 
                       {/* Drop-off Time & Timing Info */}
-                      <div className="text-[11px] font-semibold text-zinc-500 flex items-center gap-2 flex-wrap">
+                      <div className="text-[11px] font-medium text-[#696B64] flex items-center gap-2 flex-wrap">
                         {isCompleted && dropTime && (
-                          <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 flex items-center gap-1">
+                          <span className="text-[#123D32] bg-emerald-50 px-2 py-0.5 rounded-[4px] border border-emerald-200 flex items-center gap-1 font-semibold">
                             <CheckCircle2 size={12} /> Dropped off at {dropTime} ({trip.tripDurationMinutes} mins)
                           </span>
                         )}
                         {isInProgress && dropTime && (
-                          <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 flex items-center gap-1">
+                          <span className="text-blue-800 bg-blue-50 px-2 py-0.5 rounded-[4px] border border-blue-200 flex items-center gap-1 font-semibold">
                             <Clock size={12} /> Est. Drop-off by {dropTime} (~{trip.tripDurationMinutes} mins)
                           </span>
                         )}
                         {isCancelled && (
-                          <span className="text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-100 flex items-center gap-1">
+                          <span className="text-[#B83A24] bg-red-50 px-2 py-0.5 rounded-[4px] border border-red-200 flex items-center gap-1 font-semibold">
                             ✕ {trip.cancellationReason || "Cancelled"}
                             {trip.cancellationFeeApplied ? " • ₹40 Driver Compensation" : " • Free cancel"}
                           </span>
@@ -2027,10 +2027,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     </div>
 
                     {/* Fare / Earnings */}
-                    <div className="text-left md:text-right flex-shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-zinc-200">
-                      <p className="text-[10px] uppercase font-bold text-zinc-400">Driver Share</p>
-                      <p className="text-lg font-black text-zinc-900">₹{trip.partnerAmount}</p>
-                      <p className="text-[10px] text-zinc-400 font-medium">Fare: ₹{trip.fare}</p>
+                    <div className="text-left md:text-right flex-shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-[#DED7CA]">
+                      <p className="text-[10px] uppercase font-bold text-[#696B64]">Driver Share</p>
+                      <p className="text-lg font-bold text-[#10251C] font-mono">₹{trip.partnerAmount}</p>
+                      <p className="text-[10px] text-[#696B64] font-medium">Fare: ₹{trip.fare}</p>
                     </div>
                   </div>
                 );

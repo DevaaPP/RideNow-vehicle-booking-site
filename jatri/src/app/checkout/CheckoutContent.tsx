@@ -602,7 +602,7 @@ export default function CheckoutContent() {
 
     const handleUpdate = (data: any) => {
       if (data.status === "awaiting_payment") {
-        setStatus((prev) => (prev === "payment" ? "payment" : "awaiting_payment"));
+        setStatus((prev) => (prev === "payment" || prev === "confirmed" ? prev : "awaiting_payment"));
       }
       if (data.status === "rejected")         setStatus("rejected");
       if (["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "started", "ride_started", "ride_in_progress"].includes(data.status)) {
@@ -680,16 +680,16 @@ export default function CheckoutContent() {
             setVehicle(resolvedType);
           }
           // If server state is awaiting_payment but local state is already payment or confirmed, do not revert
-          if (data.booking.status === "awaiting_payment" && (status === "payment" || status === "confirmed")) {
+          if (data.booking.status === "awaiting_payment") {
+            setStatus((prev) => (prev === "payment" || prev === "confirmed" ? prev : "awaiting_payment"));
             return;
           }
           if (["confirmed", "driver_assigned", "driver_arriving", "driver_arrived", "started", "ride_started", "ride_in_progress"].includes(data.booking.status)) {
             setStatus("confirmed");
             window.location.href = `/ride/${data.booking._id}`;
             return;
-          } else {
-            setStatus(data.booking.status);
           }
+          setStatus(data.booking.status);
         }
       } catch (err) {
         console.error("Failed to check active booking:", err);

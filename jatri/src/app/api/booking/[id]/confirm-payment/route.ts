@@ -16,12 +16,19 @@ export async function POST(
 
   // ── Authorization ──────────────────────────────────────────────────────
   const session = await auth();
-  if (!session?.user?.email) {
+  if (!session?.user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-  const sessionUser = await User.findOne({ email: session.user.email })
-    .select("_id role")
-    .lean();
+  const userId = (session.user as any)?.id;
+  const userEmail = session.user?.email;
+
+  let sessionUser: any = null;
+  if (userId) {
+    sessionUser = await User.findById(userId).select("_id role email mobileNumber").lean();
+  }
+  if (!sessionUser && userEmail) {
+    sessionUser = await User.findOne({ email: userEmail }).select("_id role email mobileNumber").lean();
+  }
   if (!sessionUser) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
