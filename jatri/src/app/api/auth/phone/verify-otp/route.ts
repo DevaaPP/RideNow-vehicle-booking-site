@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
+import { verifyOtpCode } from "@/lib/cryptoOtp";
 import { rateLimiter, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
@@ -58,8 +59,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!user.otp || user.otp !== otp.trim()) {
-      const remainingAttempts = phoneCheck.remaining;
+    // Check DB-level lockout
+    if (user.otpLockedUntil && new Date() < user.otpLockedUntil) {
+      const minutesLeft = Math.ceil((user.otpLockedUntil.getTime() - Date.now()) / (60 * 1000));
+      return NextResponse.json(
+        { error: `Account locked due to multiple failed OTP attempts. Please wait ${minutesLeft} minute(s).` },
+        { status: 429 }
+      );
+    }
+
+    const isValidOtp = await verifyOtpCode(otp, user.otp);
+
+    if (!isValidOtp) {
+      const failedAttempts = (user.otpFailedAttempts || 0) + 1;
+      const willLock = failedAttempts >= 5;
+
+      await User.findByIdAndUpdate(user._id, {
+        $inc: { otpFailedAttempts: 1 },
+        ...(willLock ? { otpLockedUntil: new Date(Date.now() + 15 * 60 * 1000) } : {}),
+      });
+
+      if (willLock) {
+        rateLimiter.lockout(phoneLimitKey, 15 * 60 * 1000);
+        return NextResponse.json(
+          { error: "Too many failed attempts. Account temporarily locked for 15 minutes for your security." },
+          { status: 429 }
+        );
+      }
+
+      const remainingAttempts = Math.max(0, 5 - failedAttempts);
       return NextResponse.json(
         {
           error: remainingAttempts > 0
@@ -81,9 +109,11 @@ export async function POST(req: NextRequest) {
     rateLimiter.reset(phoneLimitKey);
     rateLimiter.reset(`ip:${clientIp}:verify-otp`);
 
-    // Mark verified
+    // Mark verified and clear OTP + lockout
     await User.findByIdAndUpdate(user._id, {
       isMobileVerified: true,
+      otpFailedAttempts: 0,
+      otpLockedUntil: null,
       $unset: { otp: 1, otpExpiresAt: 1 },
     });
 

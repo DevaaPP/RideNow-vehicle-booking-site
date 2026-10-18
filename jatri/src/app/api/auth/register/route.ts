@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import User from "@/models/user.model";
 import connectDb from "@/lib/db";
 import { sendMail } from "@/lib/mailer";
-import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { generateSecureOtp, hashOtpCode } from "@/lib/cryptoOtp";
 import { rateLimiter, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 
 /* ---------------- POST: REGISTER ---------------- */
@@ -76,6 +76,7 @@ export async function POST(req: NextRequest) {
     /* ---------- GENERATE OTP (CSPRNG) ---------- */
 
     const otp = generateSecureOtp(6);
+    const hashedOtp = await hashOtpCode(otp);
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     /* ---------- CREATE / UPDATE USER ---------- */
@@ -84,8 +85,10 @@ export async function POST(req: NextRequest) {
       // Update OTP for unverified user
       existingUser.name = name;
       existingUser.password = hashedPassword;
-      existingUser.otp = otp;
+      existingUser.otp = hashedOtp;
       existingUser.otpExpiresAt = otpExpiresAt;
+      existingUser.otpFailedAttempts = 0;
+      existingUser.otpLockedUntil = null;
 
       await existingUser.save();
     } else {
@@ -95,8 +98,10 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         role: "user",
         isEmailVerified: false,
-        otp,
+        otp: hashedOtp,
         otpExpiresAt,
+        otpFailedAttempts: 0,
+        otpLockedUntil: null,
       });
     }
 

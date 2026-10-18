@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
+import { verifyOtpCode } from "@/lib/cryptoOtp";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -42,7 +43,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (phoneRecord.otp !== otp.trim()) {
+    const isValid = await verifyOtpCode(otp, phoneRecord.otp);
+    if (!isValid) {
       return NextResponse.json(
         { error: "Invalid OTP code" },
         { status: 400 }

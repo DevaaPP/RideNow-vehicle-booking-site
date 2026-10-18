@@ -1,12 +1,12 @@
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
-let savedAuthData: { userId?: string } = {};
+let savedAuthData: { userId?: string; token?: string } = {};
 const activeBookingRooms = new Set<string>();
 let listenersAttached = false;
 
-export const getSocket = (authData?: { userId?: string }): Socket => {
-  if (authData?.userId) {
+export const getSocket = (authData?: { userId?: string; token?: string }): Socket => {
+  if (authData?.userId || authData?.token) {
     savedAuthData = { ...savedAuthData, ...authData };
   }
 

@@ -5,6 +5,7 @@ import User from "./models/user.model"
 import bcrypt from "bcryptjs"
 import Google from "next-auth/providers/google"
 import { rateLimiter } from "./lib/rateLimit"
+import { verifyOtpCode } from "./lib/cryptoOtp"
  
 
 declare module "next-auth" {
@@ -55,23 +56,46 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const cleaned = rawPhone.replace(/\D/g, "");
           const tenDigits = cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
 
-          // Rate Limiting & Brute-Force Lockout (synced with route-level limiter)
-          const phoneLimitKey = `phone:${tenDigits}:verify-otp`;
-          const phoneCheck = rateLimiter.check(phoneLimitKey, 5, 5 * 60 * 1000);
-
-          if (!phoneCheck.allowed) {
-            rateLimiter.lockout(phoneLimitKey, 15 * 60 * 1000);
-            throw new Error("Too many failed attempts. Account temporarily locked for 15 minutes for your security.");
-          }
-
           const user = await User.findOne({ mobileNumber: tenDigits });
 
           if (!user) {
             throw new Error("No account found with this mobile number");
           }
 
-          if (!user.otp || user.otp.trim() !== String(otp).trim()) {
-            const remaining = phoneCheck.remaining;
+          // Check DB-level lockout
+          if (user.otpLockedUntil && new Date() < user.otpLockedUntil) {
+            const minutesLeft = Math.ceil((user.otpLockedUntil.getTime() - Date.now()) / (60 * 1000));
+            throw new Error(`Account locked due to multiple failed OTP attempts. Please wait ${minutesLeft} minute(s).`);
+          }
+
+          // Rate Limiting & Brute-Force Lockout (synced with route-level limiter)
+          const phoneLimitKey = `phone:${tenDigits}:verify-otp`;
+          const phoneCheck = rateLimiter.check(phoneLimitKey, 5, 5 * 60 * 1000);
+
+          if (!phoneCheck.allowed) {
+            rateLimiter.lockout(phoneLimitKey, 15 * 60 * 1000);
+            await User.findByIdAndUpdate(user._id, {
+              otpLockedUntil: new Date(Date.now() + 15 * 60 * 1000),
+            });
+            throw new Error("Too many failed attempts. Account temporarily locked for 15 minutes for your security.");
+          }
+
+          const isValidOtp = await verifyOtpCode(otp, user.otp);
+
+          if (!isValidOtp) {
+            const failedAttempts = (user.otpFailedAttempts || 0) + 1;
+            const willLock = failedAttempts >= 5;
+            await User.findByIdAndUpdate(user._id, {
+              $inc: { otpFailedAttempts: 1 },
+              ...(willLock ? { otpLockedUntil: new Date(Date.now() + 15 * 60 * 1000) } : {}),
+            });
+
+            if (willLock) {
+              rateLimiter.lockout(phoneLimitKey, 15 * 60 * 1000);
+              throw new Error("Too many failed attempts. Account locked for 15 minutes. Please request a new OTP later.");
+            }
+
+            const remaining = Math.max(0, 5 - failedAttempts);
             throw new Error(
               remaining > 0
                 ? `Invalid OTP code. ${remaining} attempt(s) remaining.`
@@ -83,12 +107,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new Error("OTP has expired. Please request a new one.");
           }
 
-          // Reset rate limiter on successful verification
+          // Reset rate limiter & DB lockout on successful verification
           rateLimiter.reset(phoneLimitKey);
 
           user.isMobileVerified = true;
           user.otp = undefined;
           user.otpExpiresAt = undefined;
+          user.otpFailedAttempts = 0;
+          user.otpLockedUntil = null;
           await user.save();
 
           return {

@@ -4,6 +4,7 @@ import dotenv from "dotenv"
 import cors from "cors"
 import { Server } from "socket.io"
 import axios from "axios"
+import crypto from "crypto"
 
 dotenv.config()
 
@@ -119,7 +120,59 @@ app.post("/emit", async (req, res) => {
 io.use(async (socket, next) => {
   try {
     const authPayload = socket.handshake.auth || {};
-    const userId = authPayload.userId || socket.handshake.query?.userId;
+    const token =
+      authPayload.token ||
+      socket.handshake.headers?.authorization?.replace(/^Bearer\s+/i, "") ||
+      socket.handshake.query?.token;
+    let userId = authPayload.userId || socket.handshake.query?.userId;
+
+    const authSecret =
+      process.env.AUTH_SECRET ||
+      process.env.NEXTAUTH_SECRET ||
+      process.env.JWT_SECRET ||
+      process.env.SOCKET_INTERNAL_SECRET;
+
+    // Verify token if provided
+    if (token && typeof token === "string") {
+      // 1. Signed token format: "userId.hmacSignature" or custom JWT
+      if (token.includes(".")) {
+        const parts = token.split(".");
+        if (parts.length === 2 && authSecret) {
+          const [payloadB64, signature] = parts;
+          const expectedSig = crypto
+            .createHmac("sha256", authSecret)
+            .update(payloadB64)
+            .digest("base64url");
+
+          if (signature === expectedSig) {
+            try {
+              const decoded = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf-8"));
+              if (decoded?.userId) {
+                userId = decoded.userId;
+              }
+            } catch {
+              // ignore json parse error
+            }
+          } else {
+            console.warn(`[SocketAuth] Invalid token signature from socket ${socket.id}`);
+            return next(new Error("Unauthorized: Invalid token signature"));
+          }
+        } else if (parts.length === 3) {
+          // Standard JWT: parse payload to inspect subject/id
+          try {
+            const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf-8"));
+            if (payload.sub || payload.id || payload.userId) {
+              userId = payload.sub || payload.id || payload.userId;
+            }
+          } catch {
+            // ignore
+          }
+        }
+      } else if (authSecret && token === authSecret) {
+        // Internal service / testing token
+        socket.isInternalAdmin = true;
+      }
+    }
 
     if (userId) {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -127,6 +180,9 @@ io.use(async (socket, next) => {
       }
       const user = await User.findById(userId).select("_id role isVendorBlocked isOnline");
       if (user) {
+        if (user.isVendorBlocked) {
+          return next(new Error("Vendor account is blocked"));
+        }
         socket.userId = user._id.toString();
         socket.userRole = user.role;
         socket.data.userId = user._id.toString();

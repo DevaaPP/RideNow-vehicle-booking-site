@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import { otpService, OTPChannel } from "@/lib/otpService";
-import { generateSecureOtp } from "@/lib/cryptoOtp";
+import { generateSecureOtp, hashOtpCode } from "@/lib/cryptoOtp";
 import { rateLimiter, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
 
     // Generate 6-digit cryptographically secure OTP
     const otp = generateSecureOtp(6);
+    const hashedOtp = await hashOtpCode(otp);
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Find or initialize user
@@ -71,13 +72,17 @@ export async function POST(req: NextRequest) {
         email: `${tenDigits}@ridenow.in`,
         role: "user",
         isMobileVerified: false,
-        otp,
+        otp: hashedOtp,
         otpExpiresAt,
+        otpFailedAttempts: 0,
+        otpLockedUntil: null,
       });
     } else {
       await User.findByIdAndUpdate(user._id, {
-        otp,
+        otp: hashedOtp,
         otpExpiresAt,
+        otpFailedAttempts: 0,
+        otpLockedUntil: null,
       });
     }
 

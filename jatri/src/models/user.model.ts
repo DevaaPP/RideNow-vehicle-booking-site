@@ -91,6 +91,8 @@ socketId:string | null
   isMobileVerified: boolean;
   otp?: string;
   otpExpiresAt?: Date;
+  otpFailedAttempts?: number;
+  otpLockedUntil?: Date | null;
 
   /* ===== STUDENT PROGRAM (ANNUAL 12-MONTH VERIFIED BENEFIT) ===== */
   isStudent?: boolean;
@@ -321,6 +323,15 @@ const UserSchema = new Schema<IUser>(
 
     otp: String,
     otpExpiresAt: Date,
+    otpFailedAttempts: {
+      type: Number,
+      default: 0,
+    },
+    otpLockedUntil: {
+      type: Date,
+      default: null,
+      index: true,
+    },
 
     /* ===== STUDENT PROGRAM (ANNUAL 12-MONTH BENEFIT) ===== */
     isStudent: {
