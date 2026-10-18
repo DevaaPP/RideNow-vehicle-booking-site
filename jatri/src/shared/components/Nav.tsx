@@ -295,7 +295,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         }`}
         style={!isHome ? { backgroundColor: "var(--theme-nav-bg, #000000)" } : undefined}
       >
-        <div className="max-w-7xl mx-auto h-20 sm:h-22 md:h-24 lg:h-28 flex items-center justify-between transition-all duration-300">
+        <div className="max-w-7xl mx-auto h-20 sm:h-24 md:h-28 lg:h-30 flex items-center justify-between transition-all duration-300">
           {/* LEFT: BRAND LOGO */}
           <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
             <Link
@@ -314,9 +314,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               <Image
                 src="/logojatri.png"
                 alt="Jaatri by RideNow"
-                width={360}
-                height={114}
-                className="h-14 sm:h-16 md:h-20 lg:h-22 w-auto object-contain transition-transform group-hover:scale-105"
+                width={400}
+                height={126}
+                className="h-15 sm:h-18 md:h-22 lg:h-24 w-auto object-contain transition-transform group-hover:scale-105"
                 priority
               />
             </Link>
