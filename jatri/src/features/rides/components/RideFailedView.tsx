@@ -19,6 +19,7 @@ export default function RideFailedView({
 }: RideFailedViewProps) {
   const router = useRouter();
   const isExpired = status === "expired";
+  const isNoDriver = status === "no_drivers_available" || status === "rejected";
 
   return (
     <motion.div
@@ -35,16 +36,18 @@ export default function RideFailedView({
       >
         <div
           className={`w-24 h-24 rounded-full flex items-center justify-center ${
-            isExpired ? "bg-orange-500/10 border border-orange-500/20" : "bg-red-500/10 border border-red-500/20"
+            isExpired || isNoDriver
+              ? "bg-amber-500/10 border border-amber-500/20"
+              : "bg-red-500/10 border border-red-500/20"
           }`}
         >
           <div
             className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              isExpired ? "bg-orange-500/20" : "bg-red-500/20"
+              isExpired || isNoDriver ? "bg-amber-500/20" : "bg-red-500/20"
             }`}
           >
-            {isExpired ? (
-              <AlertCircle size={36} className="text-orange-400" />
+            {isExpired || isNoDriver ? (
+              <AlertCircle size={36} className="text-amber-400" />
             ) : (
               <XCircle size={36} className="text-red-400" />
             )}

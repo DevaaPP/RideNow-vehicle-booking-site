@@ -853,7 +853,7 @@ export default function RidePage() {
   const cfg         = STATUS_CONFIG[status];
   const mapStatus   = cfg.mapStatus;
   const isActive    = ["requested", "awaiting_payment", "confirmed", "started", "scheduled"].includes(status);
-  const isFailed    = ["cancelled", "rejected", "expired"].includes(status);
+  const isFailed    = ["cancelled", "rejected", "expired", "no_drivers_available"].includes(status);
   const isCompleted = status === "completed";
   /* chat only when driver heading to pickup, not yet started */
   const canChat     = status === "confirmed";
