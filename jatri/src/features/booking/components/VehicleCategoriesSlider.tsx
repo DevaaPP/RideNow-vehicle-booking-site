@@ -3,11 +3,12 @@
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft, ChevronRight, ArrowRight, Sparkles,
+  Leaf, Flame, Users, Car, Crown, Truck, Package,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/context/LanguageContext";
-import { VEHICLE_OPTIONS, VehicleType } from "@/lib/vehicleConfig";
+import { VehicleType } from "@/lib/vehicleConfig";
 import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
 
 interface FleetSliderItem {
@@ -16,91 +17,118 @@ interface FleetSliderItem {
   title: string;
   desc: string;
   Icon: React.ComponentType<{ size?: number; className?: string }>;
+  TagIcon?: React.ComponentType<{ size?: number; className?: string }>;
+  image: string;
   tagKey: string;
   tag: string;
+  tagBg: string;
   rate: string;
 }
 
 const FLEET_ITEMS: FleetSliderItem[] = [
   {
-    id: "bike",
-    key: "bike",
-    title: VEHICLE_OPTIONS.bike.label,
-    desc: VEHICLE_OPTIONS.bike.tagline,
-    Icon: VEHICLE_SVG_ICONS.bike,
-    tagKey: "quick",
-    tag: "Quick",
-    rate: "₹8/km",
-  },
-  {
     id: "scooty",
     key: "scooty",
-    title: VEHICLE_OPTIONS.scooty.label,
-    desc: VEHICLE_OPTIONS.scooty.tagline,
+    title: "Jatri Scooty",
+    desc: "Comfortable and eco-friendly rides",
     Icon: VEHICLE_SVG_ICONS.scooty,
+    TagIcon: Leaf,
+    image: "/fleet/scooty.webp",
     tagKey: "eco",
-    tag: "Eco",
-    rate: "₹7/km",
+    tag: "ECO",
+    tagBg: "bg-[#E5EBDD] text-[#123D32] border-[#cdd6c3]",
+    rate: "7/km",
+  },
+  {
+    id: "bike",
+    key: "bike",
+    title: "Jatri Moto",
+    desc: "Fast, affordable, everyday rides",
+    Icon: VEHICLE_SVG_ICONS.bike,
+    TagIcon: Flame,
+    image: "/fleet/moto.webp",
+    tagKey: "popular",
+    tag: "POPULAR",
+    tagBg: "bg-[#faebe8] text-[#B83A24] border-[#f0c8c1]",
+    rate: "8/km",
   },
   {
     id: "auto",
     key: "auto",
-    title: VEHICLE_OPTIONS.auto.label,
-    desc: VEHICLE_OPTIONS.auto.tagline,
+    title: "Jatri Auto",
+    desc: "Quick and economical for short trips",
     Icon: VEHICLE_SVG_ICONS.auto,
-    tagKey: "popular",
-    tag: "Popular",
-    rate: "₹11.5/km",
+    TagIcon: Users,
+    image: "/fleet/auto.webp",
+    tagKey: "budget",
+    tag: "BUDGET",
+    tagBg: "bg-[#eaf3e7] text-[#1e5a28] border-[#c8e3c3]",
+    rate: "11.5/km",
   },
   {
     id: "mini",
     key: "mini",
-    title: VEHICLE_OPTIONS.mini.label,
-    desc: VEHICLE_OPTIONS.mini.tagline,
+    title: "Jatri Car Mini",
+    desc: "Affordable and comfortable for city rides",
     Icon: VEHICLE_SVG_ICONS.mini,
-    tagKey: "economy",
-    tag: "Economy",
-    rate: "₹13.5/km",
+    TagIcon: Car,
+    image: "/fleet/car-mini.webp",
+    tagKey: "mini",
+    tag: "MINI",
+    tagBg: "bg-[#e7eff8] text-[#1e4d7d] border-[#c8dcf1]",
+    rate: "13.5/km",
   },
   {
     id: "car",
     key: "car",
-    title: VEHICLE_OPTIONS.car.label,
-    desc: VEHICLE_OPTIONS.car.tagline,
+    title: "Jatri Car Premier",
+    desc: "Spacious and premium sedan for a better experience",
     Icon: VEHICLE_SVG_ICONS.car,
-    tagKey: "comfort",
-    tag: "Comfort",
-    rate: "₹16.5/km",
+    TagIcon: Crown,
+    image: "/fleet/premier.webp",
+    tagKey: "premier",
+    tag: "PREMIER",
+    tagBg: "bg-[#fdf3e5] text-[#8a520e] border-[#f5ddbb]",
+    rate: "16.5/km",
   },
   {
     id: "priority",
     key: "priority",
-    title: VEHICLE_OPTIONS.priority.label,
-    desc: VEHICLE_OPTIONS.priority.tagline,
+    title: "Jatri Car XL",
+    desc: "More space for families and groups",
     Icon: VEHICLE_SVG_ICONS.priority,
-    tagKey: "premium",
-    tag: "Premium",
-    rate: "₹21/km",
+    TagIcon: Users,
+    image: "/fleet/suv.webp",
+    tagKey: "xl_priority",
+    tag: "XL / PRIORITY",
+    tagBg: "bg-[#eee9f8] text-[#51358a] border-[#d8ccf0]",
+    rate: "19.5/km",
   },
   {
     id: "loading",
     key: "loading",
-    title: VEHICLE_OPTIONS.loading.label,
-    desc: VEHICLE_OPTIONS.loading.tagline,
+    title: "Jatri Express Mini",
+    desc: "Small cargo, big convenience",
     Icon: VEHICLE_SVG_ICONS.loading,
-    tagKey: "cargo",
-    tag: "Cargo",
-    rate: "₹20/km",
+    TagIcon: Truck,
+    image: "/fleet/express-mini.webp",
+    tagKey: "express_mini",
+    tag: "EXPRESS MINI",
+    tagBg: "bg-[#e5f0fb] text-[#1b589b] border-[#c8e2f8]",
+    rate: "25/km",
   },
   {
     id: "truck",
     key: "truck",
-    title: VEHICLE_OPTIONS.truck.label,
-    desc: VEHICLE_OPTIONS.truck.tagline,
+    title: "Jatri Freight",
+    desc: "Reliable truck service for larger shipments",
     Icon: VEHICLE_SVG_ICONS.truck,
-    tagKey: "logistics",
-    tag: "Logistics",
-    rate: "₹35/km",
+    TagIcon: Package,
+    image: "/fleet/freight.webp",
+    tagKey: "freight",
+    tag: "FREIGHT",
+    tagBg: "bg-[#fcf0e4] text-[#9a4f0f] border-[#f4d5b6]",
+    rate: "35/km",
   },
 ];
 
@@ -110,7 +138,6 @@ export default function VehicleCategoriesSlider() {
   const sliderRef  = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const inView     = useInView(sectionRef, { once: true, margin: "-80px" });
-  const [hovered, setHovered] = useState<number | null>(null);
   const [canLeft,  setCanLeft]  = useState(false);
   const [canRight, setCanRight] = useState(true);
 
@@ -123,7 +150,9 @@ export default function VehicleCategoriesSlider() {
 
   const scroll = (dir: "left" | "right") => {
     if (!sliderRef.current) return;
-    sliderRef.current.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
+    const cardWidth = sliderRef.current.firstElementChild?.clientWidth || 280;
+    const scrollAmount = cardWidth + 20; // 1 full card + gap
+    sliderRef.current.scrollBy({ left: dir === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
   };
 
   const onScroll = () => {
@@ -144,201 +173,196 @@ export default function VehicleCategoriesSlider() {
   };
 
   return (
-    <section ref={sectionRef} className="w-full bg-white py-10 sm:py-20 px-3 sm:px-4 overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="w-full bg-[#FAF7F0] border-t border-[#DED7CA]/60 pt-14 sm:pt-16 lg:pt-20 pb-8 sm:pb-10 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      aria-label="Jaatri Vehicle Categories"
+    >
       <div className="max-w-7xl mx-auto">
 
-        {/* ── HEADER ── */}
+        {/* ── SECTION HEADER ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-end justify-between mb-6 sm:mb-10"
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-end justify-between mb-5 sm:mb-6"
         >
           <div>
             {/* Eyebrow */}
-            <div className="flex items-center gap-2 mb-2 sm:mb-3">
-              <div className="h-px w-8 bg-zinc-900" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">{t("fleet.eyebrow", "Fleet")}</span>
+            <div className="flex items-center gap-2.5 mb-2 sm:mb-2.5">
+              <div className="h-[2px] w-7 sm:w-9 bg-[#B83A24] rounded-full" />
+              <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.2em] text-[#B83A24]">
+                {t("fleet.eyebrow", "FLEET")}
+              </span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-zinc-900 leading-none">
+            {/* Main Editorial Heading: DM Serif Display, 36-44px */}
+            <h2
+              style={{ fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif" }}
+              className="text-3xl sm:text-4xl lg:text-[42px] font-normal tracking-tight text-[#10251C] leading-[1.08]"
+            >
               {t("fleet.title", "Vehicle Categories")}
             </h2>
-            <p className="text-zinc-400 text-xs sm:text-sm mt-2 sm:mt-3 font-medium">{t("fleet.subtitle", "Choose the ride that fits your journey")}</p>
+            {/* Subtitle: 15-17px, muted charcoal */}
+            <p className="text-[#696B64] text-sm sm:text-[16px] mt-1.5 sm:mt-2 font-normal leading-normal">
+              {t("fleet.subtitle", "Choose the ride that fits your journey")}
+            </p>
           </div>
 
-          {/* Nav buttons */}
-          <div className="hidden sm:flex items-center gap-2">
+          {/* Nav buttons: Aligned with heading, 8px radius geometry */}
+          <div className="hidden sm:flex items-center gap-2 shrink-0">
             <motion.button
-              whileTap={{ scale: 0.88 }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => scroll("left")}
               disabled={!canLeft}
               aria-label="Scroll left"
-              className="w-11 h-11 rounded-2xl border border-zinc-200 bg-white flex items-center justify-center hover:bg-zinc-900 hover:border-zinc-900 hover:text-white disabled:opacity-25 disabled:hover:bg-white disabled:hover:text-zinc-900 disabled:hover:border-zinc-200 transition-all text-zinc-700 shadow-sm cursor-pointer"
+              className="w-10 h-10 rounded-[8px] border border-[#DED7CA] bg-white flex items-center justify-center hover:bg-forest hover:border-forest hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
             >
-              <ChevronLeft size={18} strokeWidth={2.5} />
+              <ChevronLeft size={18} strokeWidth={2.4} />
             </motion.button>
             <motion.button
-              whileTap={{ scale: 0.88 }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => scroll("right")}
               disabled={!canRight}
               aria-label="Scroll right"
-              className="w-11 h-11 rounded-2xl border border-zinc-200 bg-white flex items-center justify-center hover:bg-zinc-900 hover:border-zinc-900 hover:text-white disabled:opacity-25 disabled:hover:bg-white disabled:hover:text-zinc-900 disabled:hover:border-zinc-200 transition-all text-zinc-700 shadow-sm cursor-pointer"
+              className="w-10 h-10 rounded-[8px] border border-[#DED7CA] bg-white flex items-center justify-center hover:bg-forest hover:border-forest hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
             >
-              <ChevronRight size={18} strokeWidth={2.5} />
+              <ChevronRight size={18} strokeWidth={2.4} />
             </motion.button>
           </div>
         </motion.div>
 
-        {/* ── SLIDER ── */}
+        {/* ── CAROUSEL WRAPPER ── */}
         <div className="relative">
 
-          {/* Left fade */}
+          {/* Left atmospheric edge fade */}
           <AnimatePresence>
             {canLeft && (
               <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute left-0 top-0 bottom-0 w-8 sm:w-14 bg-gradient-to-r from-[#FAF7F0] to-transparent z-10 pointer-events-none"
               />
             )}
           </AnimatePresence>
 
-          {/* Right fade */}
+          {/* Right atmospheric edge fade */}
           <AnimatePresence>
             {canRight && (
               <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute right-0 top-0 bottom-0 w-8 sm:w-14 bg-gradient-to-l from-[#FAF7F0] to-transparent z-10 pointer-events-none"
               />
             )}
           </AnimatePresence>
 
+          {/* Horizontal scroll track with smooth snap behavior */}
           <div
             ref={sliderRef}
             onScroll={onScroll}
-            className="flex gap-3.5 sm:gap-5 pt-2 sm:pt-4 overflow-x-auto scroll-smooth pb-4 px-1"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            className="flex gap-4 sm:gap-5 overflow-x-auto scroll-smooth pb-5 pt-1 px-1 snap-x snap-mandatory scrollbar-hide"
           >
-            {vehicleCategories.map((item, i) => {
-              const isHovered = hovered === i;
-              const Icon = item.Icon;
+            {vehicleCategories.map((item, i) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 22 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.04 + i * 0.05, duration: 0.45, ease: [0.32, 0.72, 0, 1] }}
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.985 }}
+                onClick={() => handleSelectVehicle(item.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSelectVehicle(item.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={`${item.title}: ${item.desc}. Starting from ₹${item.rate}. Click to book.`}
+                className="group relative w-[80vw] sm:w-[280px] min-w-[260px] sm:min-w-[280px] max-w-[310px] sm:max-w-[280px] flex-shrink-0 cursor-pointer select-none snap-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest rounded-[14px]"
+              >
+                {/* Card Container: Editorial white surface on warm ivory with 1px border and restrained elevation */}
+                <div className="relative rounded-[14px] border border-[#DED7CA] bg-white p-4 sm:p-5 overflow-hidden h-full flex flex-col justify-between shadow-[0_2px_8px_rgba(18,61,50,0.03)] group-hover:shadow-[0_10px_24px_rgba(18,61,50,0.07)] group-hover:border-forest/35 transition-all duration-250">
+                  <div>
+                    {/* CARD TOP MEDIA: Hero vehicle artwork with 15% increased visual prominence */}
+                    <div className="-mx-4 -mt-4 sm:-mx-5 sm:-mt-5 mb-3.5 relative overflow-hidden select-none h-48 sm:h-56 lg:h-58 rounded-t-[13px] bg-[#FAF7F0]">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                      />
 
-              return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 28 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: 0.05 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  onHoverStart={() => setHovered(i)}
-                  onHoverEnd={() => setHovered(null)}
-                  whileHover={{ y: -6 }}
-                  onClick={() => handleSelectVehicle(item.id)}
-                  className="group relative min-w-[220px] sm:min-w-[270px] flex-shrink-0 cursor-pointer select-none"
-                >
-                  {/* Card */}
-                  <motion.div
-                    animate={{
-                      backgroundColor: isHovered ? "#09090b" : "#ffffff",
-                      borderColor: isHovered ? "#09090b" : "#e4e4e7",
-                      boxShadow: isHovered
-                        ? "0 20px 48px rgba(0,0,0,0.18)"
-                        : "0 2px 14px rgba(0,0,0,0.05)",
-                    }}
-                    transition={{ duration: 0.25 }}
-                    className="relative rounded-2xl sm:rounded-3xl border p-5 sm:p-7 overflow-hidden h-full flex flex-col justify-between"
-                  >
+                      {/* Small restrained category badge in upper-left */}
+                      <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-10 pointer-events-none">
+                        <span className={`inline-flex items-center gap-1.5 border text-[9.5px] font-bold uppercase tracking-[0.14em] px-2.5 py-1 rounded-full shadow-2xs backdrop-blur-xs ${item.tagBg}`}>
+                          {item.TagIcon ? (
+                            <item.TagIcon size={10} className="stroke-[2.2]" />
+                          ) : (
+                            <Sparkles size={9} />
+                          )}
+                          {item.tag}
+                        </span>
+                      </div>
 
-                    {/* BG dot pattern on hover */}
-                    <motion.div
-                      animate={{ opacity: isHovered ? 0.06 : 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-                        backgroundSize: "20px 20px",
-                      }}
-                    />
-
-                    <div>
-                      {/* TAG */}
-                      <motion.div
-                        animate={{
-                          backgroundColor: isHovered ? "rgba(255,255,255,0.12)" : "#f4f4f5",
-                          color: isHovered ? "#ffffff" : "#71717a",
-                          borderColor: isHovered ? "rgba(255,255,255,0.15)" : "#e4e4e7",
-                        }}
-                        className="inline-flex items-center gap-1.5 border text-[9px] font-black uppercase tracking-[0.18em] px-2.5 py-1.5 rounded-full mb-5 transition-colors"
-                      >
-                        <Sparkles size={8} />
-                        {item.tag}
-                      </motion.div>
-
-                      {/* ICON BOX */}
-                      <motion.div
-                        animate={{
-                          backgroundColor: isHovered ? "rgba(255,255,255,0.1)" : "#f4f4f5",
-                          borderColor: isHovered ? "rgba(255,255,255,0.15)" : "#e4e4e7",
-                        }}
-                        className="w-16 h-16 rounded-2xl border flex items-center justify-center mb-5 p-2 transition-colors overflow-hidden"
-                      >
-                        <div className="w-12 h-12 flex items-center justify-center">
-                          <Icon size={44} className="w-full h-full object-contain" />
-                        </div>
-                      </motion.div>
-
-                      {/* TEXT */}
-                      <motion.h3
-                        animate={{ color: isHovered ? "#ffffff" : "#09090b" }}
-                        transition={{ duration: 0.2 }}
-                        className="text-lg font-black tracking-tight leading-none mb-2"
-                      >
-                        {item.title}
-                      </motion.h3>
-                      <motion.p
-                        animate={{ color: isHovered ? "rgba(255,255,255,0.6)" : "#71717a" }}
-                        transition={{ duration: 0.2 }}
-                        className="text-xs font-medium leading-relaxed"
-                      >
-                        {item.desc}
-                      </motion.p>
+                      {/* Subtle fleet numbering in upper-right */}
+                      <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-10 text-[11px] font-semibold text-[#10251C]/35 tabular-nums pointer-events-none">
+                        0{i + 1}
+                      </div>
                     </div>
 
-                    {/* Bottom Rate & Book Action */}
-                    <div className="mt-5 pt-3.5 border-t border-zinc-100 group-hover:border-zinc-800 transition-colors flex items-center justify-between">
-                      <span className={`text-xs font-bold ${isHovered ? "text-amber-400" : "text-zinc-900"}`}>
-                        From {item.rate}
-                      </span>
-                      <span className={`text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${isHovered ? "text-white" : "text-zinc-500"}`}>
-                        Book <ArrowRight size={12} />
-                      </span>
+                    {/* Title: 19-20px, semibold, high contrast */}
+                    <h3 className="text-[19px] sm:text-[20px] font-bold text-[#10251C] tracking-tight leading-snug mb-1">
+                      {item.title}
+                    </h3>
+
+                    {/* Description: 13-14px, restrained grey, clamped to 2 lines for perfect card alignment */}
+                    <p className="text-[13px] sm:text-[14px] text-[#696B64] font-normal leading-relaxed line-clamp-2 min-h-[38px]">
+                      {item.desc}
+                    </p>
+                  </div>
+
+                  {/* Bottom Pricing & Action Row */}
+                  <div className="mt-3.5 pt-3 border-t border-[#DED7CA]/70 flex items-center justify-between">
+                    {/* Pale Sage Price Badge with Dark Green text */}
+                    <div className="inline-flex items-baseline gap-1 bg-[#E5EBDD] text-forest border border-[#cdd6c3] px-2.5 py-1 rounded-[8px]">
+                      <span className="text-[10px] font-semibold text-forest/75 uppercase tracking-wider">From</span>
+                      <span className="text-[13px] sm:text-[14px] font-extrabold text-forest tracking-tight">₹{item.rate}</span>
                     </div>
 
-                    {/* Static index number — subtle */}
-                    <div className="absolute top-5 right-5 text-[10px] font-black tabular-nums" style={{ color: isHovered ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)" }}>
-                      0{i + 1}
+                    {/* Refined Arrow Affordance with 8px radius */}
+                    <div className="w-8 h-8 rounded-[8px] border border-[#DED7CA] bg-white group-hover:border-forest group-hover:bg-forest text-forest group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
+                      <ArrowRight size={14} strokeWidth={2.4} className="transition-transform duration-200 group-hover:translate-x-1 text-forest group-hover:text-[#D7AC62]" />
                     </div>
-                  </motion.div>
-                </motion.div>
-              );
-            })}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
 
-        {/* ── BOTTOM COUNTER ── */}
+        {/* ── FLEET STATISTICS ROW ── */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.7 }}
-          className="flex flex-wrap items-center justify-between sm:justify-start gap-3 sm:gap-6 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-zinc-100"
+          initial={{ opacity: 0, y: 14 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.35, duration: 0.5 }}
+          className="flex flex-wrap items-center justify-between sm:justify-start gap-4 sm:gap-8 mt-7 sm:mt-9 pt-4 sm:pt-5 border-t border-[#DED7CA]"
         >
           {[
             { num: "8",    label: "Fleet Options" },
             { num: "100%", label: "Verified Drivers" },
             { num: "24/7", label: "Instant Dispatch" },
           ].map((s, i) => (
-            <div key={i} className="flex items-center gap-2 sm:gap-3">
-              <p className="text-zinc-900 text-base sm:text-lg font-black tracking-tight">{s.num}</p>
-              <p className="text-zinc-400 text-[11px] sm:text-xs font-medium">{s.label}</p>
-              {i < 2 && <div className="hidden sm:block w-px h-5 bg-zinc-200 ml-3" />}
+            <div key={i} className="flex items-center gap-2.5 sm:gap-3">
+              <p className="text-forest text-xl sm:text-2xl font-black tracking-tight tabular-nums leading-none">
+                {s.num}
+              </p>
+              <p className="text-[#696B64] text-xs sm:text-[13px] font-medium leading-tight">
+                {s.label}
+              </p>
+              {i < 2 && <div className="hidden sm:block w-px h-4 bg-[#DED7CA] ml-3 sm:ml-4" />}
             </div>
           ))}
         </motion.div>

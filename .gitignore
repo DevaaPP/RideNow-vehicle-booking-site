@@ -30,7 +30,9 @@ Thumbs.db
 .agents/
 skills-lock.json
 
-# Local SVG asset sources (never push to GitHub)
+# Local asset sources & scratch scripts
 .svg/
 .svgs/
+.images/
+jatri/scripts/
 

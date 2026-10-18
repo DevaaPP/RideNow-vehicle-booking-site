@@ -56,7 +56,7 @@ export default function LanguageSelector({
     return (
       <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
         <div className="flex items-center gap-1.5 flex-wrap">
-          <Globe size={14} className="text-zinc-500 mr-1" />
+          <Globe size={14} className="text-[#C4D2C8]/70 mr-1 shrink-0" />
           {SUPPORTED_LANGUAGES.map((lang) => {
             const isSelected = lang.code === language;
             return (
@@ -64,10 +64,10 @@ export default function LanguageSelector({
                 key={lang.code}
                 type="button"
                 onClick={() => handleSelect(lang.code)}
-                className={`text-xs px-2.5 py-1 rounded-lg transition-all font-medium ${
+                className={`text-xs px-2.5 py-1 rounded-[6px] transition-all font-medium active:scale-[0.97] cursor-pointer ${
                   isSelected
-                    ? "bg-zinc-800 text-white font-bold"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                    ? "bg-[#0D3027] text-[#F7F1E5] font-bold border border-[#426457]/80 shadow-2xs"
+                    : "text-[#C4D2C8] hover:text-[#F7F1E5] hover:bg-[#0D3027]/50 border border-transparent"
                 }`}
               >
                 {lang.nativeName}
@@ -84,15 +84,15 @@ export default function LanguageSelector({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 hover:border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold transition-all shadow-xs active:scale-95"
+        className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-[8px] border border-stone-200/90 hover:border-stone-300 bg-white/95 hover:bg-white text-stone-800 text-xs sm:text-sm font-bold transition-all shadow-xs active:scale-[0.97]"
         title="Change Language"
         aria-expanded={open}
       >
-        <Globe size={14} className="text-zinc-500 shrink-0" />
-        <span className="font-semibold truncate max-w-[80px]">{currentOption.nativeName}</span>
+        <Globe size={15} className="text-stone-600 shrink-0" />
+        <span className="font-extrabold truncate max-w-[90px]">{currentOption.nativeName}</span>
         <ChevronDown
-          size={12}
-          className={`text-zinc-400 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          size={13}
+          className={`text-stone-500 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 

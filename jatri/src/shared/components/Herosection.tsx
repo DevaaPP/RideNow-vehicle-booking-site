@@ -14,6 +14,12 @@ import {
   MapPin,
   X,
   Loader2,
+  Wallet,
+  Zap,
+  Calendar,
+  ShieldCheck,
+  Users,
+  IndianRupee,
 } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 
@@ -210,296 +216,382 @@ export default function HeroSection({
   };
 
   return (
-    <section className="relative w-full bg-[#0B0F19] text-white px-4 sm:px-6 lg:px-8 pt-10 sm:pt-20 lg:pt-24 pb-12 sm:pb-20 lg:pb-28 overflow-hidden">
-      {/* ================= GORGEOUS SUNSET CITY SKYLINE (GUWAHATI / ASSAM) ================= */}
+    <section className="relative w-full text-[#10251C] px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32 pb-20 sm:pb-24 lg:pb-28 overflow-visible">
+      {/* ================= HERO BACKGROUND (Assam golden-hour river-and-bridge) ================= */}
       <Image
-        src="/hero-city.webp"
-        alt="Northeast Indian Transit Skyline at Sunset"
+        src="/hero/back.webp"
+        alt="Assam Brahmaputra Bridge Golden Hour River Sunset"
         fill
         priority
-        quality={90}
+        quality={94}
         sizes="100vw"
-        className="object-cover object-center pointer-events-none opacity-90 sm:opacity-95"
+        className="object-cover object-top sm:object-center pointer-events-none"
       />
-      {/* Atmospheric directional overlays: Softened so sunset sky, golden temple & city lights shine through clearly */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none" />
+      {/* Controlled, soft atmospheric gradient overlay to preserve natural golden river tones while ensuring high text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-white/10 to-white/40 pointer-events-none" />
 
       {/* ================= HERO CONTENT CONTAINER ================= */}
       <div className="relative z-10 max-w-7xl mx-auto">
         
-        {/* HERO HEADLINE */}
-        <div className="mb-6 sm:mb-10 text-left max-w-3xl">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-md">
-            {t("hero.headlinePart1", "Move anything,")}{" "}
-            <br className="hidden sm:inline" />
-            {t("hero.headlinePart2", "go anywhere.")}
+        {/* EYEBROW & HERO HEADLINE */}
+        <div className="mb-5 sm:mb-8 text-left max-w-3xl">
+          {/* Eyebrow: MORE THAN A RIDE. — */}
+          <div className="flex items-center gap-2.5 sm:gap-3 mb-2 sm:mb-3">
+            <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-[0.25em] text-[#6d513a]">
+              MORE THAN A RIDE.
+            </span>
+            <span className="w-7 sm:w-10 h-[2px] bg-[#6d513a]/80 rounded-full" />
+          </div>
+
+          {/* Headline: DM Serif Display in dark forest green (#10251C) with Assamese vermilion (#B83A24) brush strokes */}
+          <h1
+            style={{ fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif" }}
+            className="text-[38px] xs:text-[42px] sm:text-7xl lg:text-[80px] font-normal text-[#10251C] display-headline leading-[1.08] sm:leading-[1.05]"
+          >
+            Assam moves
+            <br />
+            <span className="relative inline-block mt-0.5 sm:mt-2">
+              <span className="relative inline-block mr-1.5 sm:mr-3">
+                with
+                {/* Assamese-vermilion (#B83A24) subtle curved brush stroke under 'with' */}
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 100 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="absolute left-0 -bottom-1.5 sm:-bottom-2 w-[85%] h-2 sm:h-3 text-[#B83A24] pointer-events-none"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M4 6.5C24 4.5 76 4.5 96 6.5"
+                    stroke="currentColor"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              <span className="relative inline-block">
+                you.
+                {/* Assamese-vermilion (#B83A24) subtle curved brush stroke under 'you.' */}
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 100 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="absolute left-0 -bottom-1.5 sm:-bottom-2 w-[80%] h-2 sm:h-3 text-[#B83A24] pointer-events-none"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M4 6.5C24 4.5 76 4.5 96 6.5"
+                    stroke="currentColor"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+            </span>
           </h1>
-          <p className="mt-2 text-sm sm:text-lg lg:text-xl text-zinc-200 font-bold drop-shadow-sm">
+
+          <p className="mt-3 sm:mt-5 text-sm sm:text-lg lg:text-xl text-[#10251C]/85 font-medium tracking-normal leading-relaxed">
             {t("hero.tagline", "Honest upfront fares. 100% direct driver pay.")}
           </p>
         </div>
 
-        {/* 2-COLUMN BALANCED LAYOUT: DIRECT FLOATING BOOKING PANEL + PARTNER HERO (PERFECTLY BALANCED) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-stretch pt-1 sm:pt-2">
-          
-          {/* ================= LEFT: DIRECT BOOKING PANEL ================= */}
-          <div className="lg:col-span-7 flex flex-col justify-between text-white">
-            <div>
-              {/* TRIP MODE SELECTOR TABS */}
-              <div className="inline-flex items-center gap-1 sm:gap-2 p-1 sm:p-1.5 bg-black/50 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 border border-white/15 backdrop-blur-md">
-                <button
-                  type="button"
-                  onClick={() => setTripMode("ride")}
-                  className={`py-2 sm:py-3.5 px-3 sm:px-6 rounded-lg sm:rounded-xl text-xs sm:text-base lg:text-lg font-black transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2.5 ${
-                    tripMode === "ride"
-                      ? "bg-emerald-600 text-white shadow-md"
-                      : "text-zinc-300 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  <Car className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
-                  <span>{t("hero.dailyRides", "Daily Rides")}</span>
-                </button>
+        {/* ================= BOOKING CONTAINER ================= */}
+        <div className="w-full max-w-[660px]">
+          <div className="flex flex-col justify-between">
+            {/* TRIP MODE SELECTOR: 2-mode segmented control in warm ivory surface */}
+            <div className="grid grid-cols-2 sm:inline-flex items-center gap-1 sm:gap-1.5 p-1 bg-[#F7F1E5] rounded-[10px] mb-3 border border-[#e2dac7] shadow-2xs w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setTripMode("ride")}
+                className={`py-2 sm:py-2.5 px-3 sm:px-6 rounded-[7px] text-xs sm:text-sm font-bold transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2 shrink-0 ${
+                  tripMode === "ride"
+                    ? "bg-forest text-white shadow-xs"
+                    : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5"
+                }`}
+              >
+                <Car className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" strokeWidth={2.5} />
+                <span className="truncate">{t("hero.dailyRides", "Daily Rides")}</span>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => setTripMode("cargo")}
-                  className={`py-2 sm:py-3.5 px-3 sm:px-6 rounded-lg sm:rounded-xl text-xs sm:text-base lg:text-lg font-black transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2.5 ${
-                    tripMode === "cargo"
-                      ? "bg-emerald-600 text-white shadow-md"
-                      : "text-zinc-300 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  <Truck className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
-                  <span>{t("hero.parcelCargo", "Parcel & Cargo")}</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setTripMode("cargo")}
+                className={`py-2 sm:py-2.5 px-3 sm:px-6 rounded-[7px] text-xs sm:text-sm font-bold transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2 shrink-0 ${
+                  tripMode === "cargo"
+                    ? "bg-forest text-white shadow-xs"
+                    : "text-[#10251C]/80 hover:text-[#10251C] hover:bg-black/5"
+                }`}
+              >
+                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" strokeWidth={2.5} />
+                <span className="truncate">{t("hero.parcelCargo", "Parcel & Cargo")}</span>
+              </button>
+            </div>
 
-              {/* STREAMLINED LOCATION FORM (UBER/RAPIDO UNIFIED CONTAINER) */}
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-                <div ref={containerRef} className="relative z-30">
-                  <div className="relative bg-white border border-stone-200/90 rounded-xl sm:rounded-2xl shadow-2xl focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-600/20 transition">
-                    {/* Left Transit Icons & Continuous Connector */}
-                    <div className="absolute left-3.5 sm:left-5 top-0 bottom-0 w-4 sm:w-5 flex flex-col items-center pointer-events-none">
-                      <div className="h-[54px] sm:h-[76px] flex items-center justify-center">
-                        <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-[3px] sm:border-[3.5px] border-emerald-600 bg-white shadow-xs" />
-                      </div>
-                      <div className="w-[2px] sm:w-[2.5px] flex-1 -my-1.5 sm:-my-2 bg-gradient-to-b from-emerald-600 via-amber-500 to-amber-600 rounded-full" />
-                      <div className="h-[54px] sm:h-[76px] flex items-center justify-center">
-                        <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-amber-600 rounded-xs shadow-xs" />
-                      </div>
+            {/* MAIN BOOKING FORM */}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div ref={containerRef} className="relative z-30">
+                {/* LOCATION PANEL: Restrained ivory surface #F7F1E5, 12px radius, 1px border, minimal shadow */}
+                <div className="relative bg-[#F7F1E5] border border-[#e2dac7] rounded-[12px] divide-y divide-[#e2dac7] overflow-hidden shadow-2xs">
+                  {/* Vertical transit dotted connector line perfectly centered through the 20px marker icon column */}
+                  <div className="absolute left-[25px] sm:left-[29px] top-[26px] bottom-[26px] w-[2px] border-l-2 border-dashed border-forest/30 pointer-events-none z-10" />
+
+                  {/* PICKUP ROW */}
+                  <div className="relative flex items-center gap-3.5 px-4 sm:px-5 py-3.5 transition focus-within:bg-[#FAF7F0] rounded-none">
+                    {/* Green pickup marker (fixed 20px column, centered dot) */}
+                    <div className="w-5 h-5 flex items-center justify-center shrink-0 z-20">
+                      <div className="w-4 h-4 rounded-full border-[3px] border-forest bg-[#F7F1E5] shadow-2xs" />
                     </div>
 
-                    {/* Input Rows */}
-                    <div className="pl-10 sm:pl-15 pr-3 sm:pr-4">
-                      {/* Pickup Input Row */}
-                      <div className="h-[54px] sm:h-[76px] flex items-center border-b border-stone-200/90 gap-1">
-                        <input
-                          type="text"
-                          value={pickup}
-                          onFocus={() => setActiveField("pickup")}
-                          onChange={(e) => {
-                            setPickup(e.target.value);
-                            setPickupLat(null);
-                            setPickupLng(null);
-                            setActiveField("pickup");
-                          }}
-                          placeholder={t("hero.enterPickup", "Enter pickup point")}
-                          className="w-full py-2.5 sm:py-3 text-base sm:text-xl md:text-2xl font-bold sm:font-black text-stone-900 placeholder:text-stone-400 placeholder:font-semibold sm:placeholder:font-bold focus:outline-none bg-transparent"
-                        />
-                        {pickup && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setPickup("");
-                              setPickupLat(null);
-                              setPickupLng(null);
-                              setSuggestions([]);
-                            }}
-                            className="p-1.5 text-stone-400 hover:text-stone-700 transition"
-                            title="Clear pickup"
-                          >
-                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={handleDetectLocation}
-                          title="Use current GPS location"
-                          className="p-2 sm:p-2.5 text-stone-500 hover:text-emerald-700 transition flex-shrink-0 active:scale-90"
-                        >
-                          <Navigation
-                            className={`w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 ${isLocating ? "animate-spin text-emerald-600" : ""}`}
-                          />
-                        </button>
-                      </div>
+                    <div className="min-w-0 flex-1">
+                      <input
+                        type="text"
+                        value={pickup}
+                        onFocus={() => setActiveField("pickup")}
+                        onChange={(e) => {
+                          setPickup(e.target.value);
+                          setPickupLat(null);
+                          setPickupLng(null);
+                          setActiveField("pickup");
+                        }}
+                        placeholder={t("hero.enterPickup", "Enter pickup point")}
+                        className="w-full text-base sm:text-lg font-bold text-[#10251C] placeholder:text-[#10251C]/80 placeholder:font-bold focus:outline-none bg-transparent"
+                      />
+                      <p className="text-xs text-[#10251C]/50 font-medium leading-tight">
+                        {t("hero.pickupHint", "Use current location or search")}
+                      </p>
+                    </div>
 
-                      {/* Dropoff Input Row */}
-                      <div className="h-[54px] sm:h-[76px] flex items-center gap-1">
-                        <input
-                          type="text"
-                          value={drop}
-                          onFocus={() => setActiveField("drop")}
-                          onChange={(e) => {
-                            setDrop(e.target.value);
-                            setDropLat(null);
-                            setDropLng(null);
-                            setActiveField("drop");
-                          }}
-                          placeholder={t("hero.enterDrop", "Enter drop destination")}
-                          className="w-full py-2.5 sm:py-3 text-base sm:text-xl md:text-2xl font-bold sm:font-black text-stone-900 placeholder:text-stone-400 placeholder:font-semibold sm:placeholder:font-bold focus:outline-none bg-transparent"
+                    {pickup && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPickup("");
+                          setPickupLat(null);
+                          setPickupLng(null);
+                          setSuggestions([]);
+                        }}
+                        className="p-1.5 text-stone-400 hover:text-stone-700 transition"
+                        title="Clear pickup"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+
+                    {/* Current-location action right-aligned without overlapping input */}
+                    <div className="pl-3 border-l border-[#e2dac7]">
+                      <button
+                        type="button"
+                        onClick={handleDetectLocation}
+                        title="Use current location"
+                        className="px-2.5 py-1 text-forest hover:text-forest-hover text-xs font-bold transition flex items-center gap-1.5 shrink-0 active:scale-95 rounded-[6px] hover:bg-forest/5"
+                      >
+                        <Navigation
+                          className={`w-3.5 h-3.5 text-forest ${isLocating ? "animate-spin" : ""}`}
                         />
-                        {drop && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDrop("");
-                              setDropLat(null);
-                              setDropLng(null);
-                              setSuggestions([]);
-                            }}
-                            className="p-1.5 text-stone-400 hover:text-stone-700 transition"
-                            title="Clear destination"
-                          >
-                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </button>
-                        )}
-                      </div>
+                        <span>{t("hero.current", "Current")}</span>
+                      </button>
                     </div>
                   </div>
 
-                  {/* AUTOCOMPLETE SUGGESTIONS DROPDOWN */}
-                  {activeField && suggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-stone-200 z-50 overflow-hidden max-h-72 overflow-y-auto">
-                      <div className="px-4 py-2 border-b border-stone-100 flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-stone-500 bg-stone-50">
-                        <span>Suggestions for {activeField === "pickup" ? "Pickup Point" : "Drop Destination"}</span>
-                        {isLoadingSuggestions && (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
-                        )}
-                      </div>
-                      <div className="divide-y divide-stone-100">
-                        {suggestions.map((item, idx) => {
-                          const title = item.title || item.name || item.description?.split(",")[0] || "Location";
-                          const subtitle = item.subtitle || item.description?.split(",").slice(1).join(",").trim() || "";
-                          return (
-                            <button
-                              key={item.place_id || item.id || idx}
-                              type="button"
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                handleSelectSuggestion(item, activeField);
-                              }}
-                              className="w-full text-left px-4 py-3 hover:bg-emerald-50/80 transition flex items-start gap-3 cursor-pointer group"
-                            >
-                              <div className="w-8 h-8 rounded-full bg-emerald-100/80 group-hover:bg-emerald-600 text-emerald-700 group-hover:text-white flex items-center justify-center shrink-0 mt-0.5 transition">
-                                <MapPin size={15} />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="font-bold text-sm text-stone-900 group-hover:text-emerald-950 truncate">
-                                  {title}
-                                </p>
-                                {subtitle && (
-                                  <p className="text-xs text-stone-500 group-hover:text-emerald-800/80 truncate mt-0.5">
-                                    {subtitle}
-                                  </p>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
+                  {/* DROP DESTINATION ROW */}
+                  <div className="relative flex items-center gap-3.5 px-4 sm:px-5 py-3.5 transition focus-within:bg-[#FAF7F0] rounded-none">
+                    {/* Vermilion destination marker (fixed 20px column, centered dot) */}
+                    <div className="w-5 h-5 flex items-center justify-center shrink-0 z-20">
+                      <div className="w-4 h-4 rounded-full border-[3px] border-[#B83A24] bg-[#F7F1E5] shadow-2xs" />
                     </div>
-                  )}
+
+                    <div className="min-w-0 flex-1">
+                      <input
+                        type="text"
+                        value={drop}
+                        onFocus={() => setActiveField("drop")}
+                        onChange={(e) => {
+                          setDrop(e.target.value);
+                          setDropLat(null);
+                          setDropLng(null);
+                          setActiveField("drop");
+                        }}
+                        placeholder={t("hero.enterDrop", "Enter drop destination")}
+                        className="w-full text-base sm:text-lg font-bold text-[#10251C] placeholder:text-[#10251C]/80 placeholder:font-bold focus:outline-none bg-transparent"
+                      />
+                      <p className="text-xs text-[#10251C]/50 font-medium leading-tight">
+                        {t("hero.dropHint", "Where are you going?")}
+                      </p>
+                    </div>
+
+                    {drop && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDrop("");
+                          setDropLat(null);
+                          setDropLng(null);
+                          setSuggestions([]);
+                        }}
+                        className="p-1.5 text-stone-400 hover:text-stone-700 transition"
+                        title="Clear destination"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                {/* TIMING SELECTOR */}
-                <div className="flex items-center gap-2.5 sm:gap-3 pt-0.5 sm:pt-1">
+                {/* AUTOCOMPLETE SUGGESTIONS DROPDOWN */}
+                {activeField && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-[#FAF7F0] rounded-[10px] shadow-xl border border-[#e2dac7] z-50 overflow-hidden max-h-72 overflow-y-auto">
+                    <div className="px-4 py-2 border-b border-[#e2dac7] flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-stone-500 bg-[#F7F1E5]">
+                      <span>Suggestions for {activeField === "pickup" ? "Pickup Point" : "Drop Destination"}</span>
+                      {isLoadingSuggestions && (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-forest" />
+                      )}
+                    </div>
+                    <div className="divide-y divide-[#e2dac7]/60">
+                      {suggestions.map((item, idx) => {
+                        const title = item.title || item.name || item.description?.split(",")[0] || "Location";
+                        const subtitle = item.subtitle || item.description?.split(",").slice(1).join(",").trim() || "";
+                        return (
+                          <button
+                            key={item.place_id || item.id || idx}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectSuggestion(item, activeField);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-[#F7F1E5] transition flex items-start gap-3 cursor-pointer group"
+                          >
+                            <div className="w-7 h-7 rounded-[8px] bg-forest/10 group-hover:bg-forest text-forest group-hover:text-white flex items-center justify-center shrink-0 mt-0.5 transition">
+                              <MapPin size={14} />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-sm text-[#10251C] truncate">
+                                {title}
+                              </p>
+                              {subtitle && (
+                                <p className="text-xs text-stone-500 truncate mt-0.5">
+                                  {subtitle}
+                                </p>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* BOTTOM ACTION BUTTONS ROW: 8px radius tokens */}
+                <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                   <button
                     type="button"
-                    onClick={() => setIsScheduled(false)}
-                    className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-base md:text-lg font-bold sm:font-black transition active:scale-95 ${
-                      !isScheduled
-                        ? "bg-emerald-600 text-white shadow-md"
-                        : "bg-black/50 border border-white/15 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
-                    }`}
-                  >
-                    {t("hero.leaveNow", "Leave Now")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsScheduled(true)}
-                    className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-base md:text-lg font-bold sm:font-black transition active:scale-95 ${
+                    onClick={() => setIsScheduled((prev) => !prev)}
+                    className={`px-5 py-3 rounded-[8px] border text-sm font-bold transition active:scale-[0.97] flex items-center justify-center gap-2 shrink-0 ${
                       isScheduled
-                        ? "bg-emerald-600 text-white shadow-md"
-                        : "bg-black/50 border border-white/15 text-zinc-300 hover:bg-white/10 hover:text-white backdrop-blur-sm"
+                        ? "bg-forest text-white border-forest"
+                        : "bg-white hover:bg-[#FAF7F0] text-[#10251C] border-[#e2dac7] shadow-2xs"
                     }`}
                   >
-                    {t("hero.scheduleLater", "Schedule Later")}
+                    <Calendar className="w-4 h-4 text-[#10251C]/70" />
+                    <span>{isScheduled ? "Scheduled" : "Schedule Later"}</span>
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="group flex-1 py-3 px-6 bg-forest hover:bg-forest-hover text-white font-bold text-base rounded-[8px] active:scale-[0.97] transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                  >
+                    <span className="text-white font-bold">{t("hero.searchRides", "Search Available Rides")}</span>
+                    <ArrowRight className="w-4 h-4 text-[#D7AC62] transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.5} />
                   </button>
                 </div>
+              </div>
+            </form>
+          </div>
+        </div>
 
-                {/* PRIMARY ACTION BUTTON */}
-                <button
-                  type="submit"
-                  className="w-full py-3.5 sm:py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-xl md:text-2xl rounded-xl sm:rounded-2xl active:scale-[0.98] transition shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 cursor-pointer mt-2.5 sm:mt-3"
-                >
-                  <span>{t("hero.searchRides", "Search Available Rides")}</span>
-                  <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300" strokeWidth={3} />
-                </button>
-              </form>
+      </div>
+
+      {/* ================= MOBILE BENEFIT STRIP (Directly beneath booking form on small screens) ================= */}
+      <div className="md:hidden mt-5 w-full">
+        <div className="bg-[#F7F1E5] border border-[#DED7CA] rounded-[12px] p-3 shadow-2xs grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-[6px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0">
+              <IndianRupee className="w-4 h-4 text-[#F7F1E5]" strokeWidth={2.4} />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-[#10251C] leading-snug">Transparent Pricing</h4>
+              <p className="text-[10px] text-[#10251C]/70">Know your fare before you ride</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-[6px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-4 h-4 text-[#F7F1E5]" strokeWidth={2.4} />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-[#10251C] leading-snug">100% Direct Driver Pay</h4>
+              <p className="text-[10px] text-[#10251C]/70">Fair earnings for driver partners</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-[6px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0">
+              <Users className="w-4 h-4 text-[#F7F1E5]" strokeWidth={2.4} />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-[#10251C] leading-snug">A Local Service for Our People</h4>
+              <p className="text-[10px] text-[#10251C]/70">Built for Assam, by Assam</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= REFINED BENEFITS FEATURE STRIP STRADDLING HERO AND FLEET SECTION (DESKTOP) ================= */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-full max-w-5xl px-4 sm:px-6 z-30 hidden md:block pointer-events-auto">
+        <div className="bg-[#F7F1E5] border border-[#DED7CA] rounded-[12px] py-3.5 lg:py-4 px-4 sm:px-6 shadow-[0_4px_16px_rgba(18,61,50,0.06)] grid grid-cols-3 divide-x divide-[#DED7CA]">
+          {/* Item 1: Transparent Pricing */}
+          <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
+            <div className="w-10 h-10 rounded-[8px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-forest-hover">
+              <IndianRupee className="w-4.5 h-4.5 text-[#F7F1E5]" strokeWidth={2.4} />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] leading-snug tracking-tight">
+                Transparent Pricing
+              </h4>
+              <p className="text-[11px] lg:text-xs text-[#10251C]/70 font-medium leading-normal mt-0.5">
+                Know your fare before you ride
+              </p>
             </div>
           </div>
 
-          {/* ================= RIGHT: SUBTLE REFINED PARTNER SHOWCASE (BALANCED WITH LEFT) ================= */}
-          <div className="lg:col-span-5 hidden lg:flex flex-col justify-between text-white pl-0 lg:pl-4">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                  {t("hero.partnerTitle", "Drive & Earn")}
-                </h2>
-                <p className="text-base sm:text-lg text-zinc-200 font-bold mt-2 drop-shadow-sm">
-                  {t("hero.partnerSubtitle", "Transparent earnings with direct payouts.")}
-                </p>
-              </div>
-
-              {/* 3 CLEAN FACTUAL BULLET POINTS (NO ICONS) */}
-              <div className="space-y-4 pt-1">
-                <div className="flex items-center gap-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 shadow-sm" />
-                  <span className="text-lg sm:text-xl lg:text-2xl font-black text-white drop-shadow-sm">
-                    {t("hero.partnerPoint1", "Direct Cash & UPI Earnings")}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 shadow-sm" />
-                  <span className="text-lg sm:text-xl lg:text-2xl font-black text-white drop-shadow-sm">
-                    {t("hero.partnerPoint2", "Fast Daily Bank Payouts")}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 shadow-sm" />
-                  <span className="text-lg sm:text-xl lg:text-2xl font-black text-white drop-shadow-sm">
-                    {t("hero.partnerPoint3", "Drive On Your Own Schedule")}
-                  </span>
-                </div>
-              </div>
+          {/* Item 2: 100% Direct Driver Pay */}
+          <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
+            <div className="w-10 h-10 rounded-[8px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-forest-hover">
+              <ShieldCheck className="w-4.5 h-4.5 text-[#F7F1E5]" strokeWidth={2.4} />
             </div>
-
-            {/* MATCHING ACTION BUTTON (PERFECTLY ALIGNED WITH LEFT SEARCH BUTTON) */}
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={() => router.push("/partner/onboard/vehicle")}
-                className="w-full py-3.5 sm:py-5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-base sm:text-xl md:text-2xl rounded-xl sm:rounded-2xl active:scale-[0.98] transition shadow-2xl flex items-center justify-center gap-2.5 sm:gap-3 cursor-pointer"
-              >
-                <span>{t("hero.partnerCta", "Partner With Us")}</span>
-                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3} />
-              </button>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] leading-snug tracking-tight">
+                100% Direct Driver Pay
+              </h4>
+              <p className="text-[11px] lg:text-xs text-[#10251C]/70 font-medium leading-normal mt-0.5">
+                Fair earnings for driver partners
+              </p>
             </div>
           </div>
 
+          {/* Item 3: A Local Service for Our People */}
+          <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
+            <div className="w-10 h-10 rounded-[8px] bg-forest text-[#F7F1E5] flex items-center justify-center shrink-0 shadow-2xs border border-forest-hover">
+              <Users className="w-4.5 h-4.5 text-[#F7F1E5]" strokeWidth={2.4} />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] leading-snug tracking-tight">
+                A Local Service for Our People
+              </h4>
+              <p className="text-[11px] lg:text-xs text-[#10251C]/70 font-medium leading-normal mt-0.5">
+                Built for Assam, by Assam
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, DM_Serif_Display, Outfit } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "@/redux/StoreProvider";
 import InitUser from "@/initUser";
@@ -9,16 +9,23 @@ import CookieConsent from "@/shared/components/CookieConsent";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
   display: "swap",
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const dmSerifDisplay = DM_Serif_Display({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-serif",
   display: "swap",
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -101,7 +108,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning className={`${outfit.variable} ${plusJakartaSans.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${dmSerifDisplay.variable} ${outfit.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{

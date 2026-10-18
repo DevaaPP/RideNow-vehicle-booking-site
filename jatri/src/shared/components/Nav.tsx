@@ -61,6 +61,17 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const dispatch = useDispatch<AppDispatch>();
   const { userData } = useSelector((state: RootState) => state.user);
   const { data: session, status } = useSession();
@@ -162,10 +173,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         <nav className="flex items-center gap-1 sm:gap-2 lg:gap-3" aria-label="Partner Navigation">
           <Link
             href="/partners/dashboard"
-            className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 rounded-full transition active:scale-95 ${
+            className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partners/dashboard"
-                ? "bg-white text-black font-extrabold shadow-sm"
-                : "text-zinc-300 hover:text-white hover:bg-white/10"
+                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
+                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
             }`}
           >
             {t("nav.dashboard", "Dashboard")}
@@ -173,10 +184,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           <Link
             href="/partner/active-ride"
-            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 rounded-full transition active:scale-95 ${
+            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/active-ride"
-                ? "bg-white text-black font-extrabold shadow-sm"
-                : "text-zinc-300 hover:text-white hover:bg-white/10"
+                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
+                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
             }`}
           >
             {t("nav.activeRide", "Active Ride")}
@@ -189,10 +200,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           <Link
             href="/partner/pending-requests"
-            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 rounded-full transition active:scale-95 ${
+            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/pending-requests"
-                ? "bg-white text-black font-extrabold shadow-sm"
-                : "text-zinc-300 hover:text-white hover:bg-white/10"
+                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
+                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
             }`}
           >
             {t("nav.requests", "Requests")}
@@ -205,10 +216,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           <Link
             href="/partner/bookings"
-            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 rounded-full transition active:scale-95 ${
+            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/bookings"
-                ? "bg-white text-black font-extrabold shadow-sm"
-                : "text-zinc-300 hover:text-white hover:bg-white/10"
+                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
+                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
             }`}
           >
             {t("nav.bookings", "Bookings")}
@@ -221,10 +232,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           <Link
             href="/partner/wallet"
-            className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 rounded-full transition active:scale-95 ${
+            className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/wallet"
-                ? "bg-white text-black font-extrabold shadow-sm"
-                : "text-zinc-300 hover:text-white hover:bg-white/10"
+                ? "bg-white text-black font-extrabold shadow-sm rounded-[7px]"
+                : "text-zinc-300 hover:text-white hover:bg-white/10 rounded-[8px]"
             }`}
           >
             {t("nav.wallet", "Wallet")}
@@ -233,8 +244,10 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
       );
     }
 
+    const isHome = pathname === "/";
+
     return (
-      <nav className="flex items-center gap-1 sm:gap-2 lg:gap-3" aria-label="Main Navigation">
+      <nav className="flex items-center gap-1.5 sm:gap-2 lg:gap-3" aria-label="Main Navigation">
         {NAV_ITEMS.map((item) => {
           const href = NAV_ROUTES[item];
           const active = pathname === href;
@@ -242,10 +255,12 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             <Link
               key={item}
               href={href}
-              className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 rounded-full transition active:scale-95 ${
+              className={`text-base sm:text-[16px] lg:text-[17px] px-3.5 sm:px-4 py-1.5 sm:py-2 transition-all duration-150 active:scale-[0.97] ${
                 active
-                  ? "bg-white text-black font-extrabold shadow-sm"
-                  : "text-zinc-300 hover:text-white hover:bg-white/10"
+                  ? "bg-white text-[#10251C] font-extrabold shadow-2xs border border-[#DED7CA]/80 rounded-[7px]"
+                  : isHome
+                  ? "text-[#10251C]/85 hover:text-[#10251C] hover:bg-black/5 font-semibold rounded-[8px]"
+                  : "text-zinc-300 hover:text-white hover:bg-white/10 font-semibold rounded-[8px]"
               }`}
             >
               {t(NAV_KEYS[item] || item, item)}
@@ -256,7 +271,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         {currentUser?.role === "admin" && (
           <Link
             href="/admin/dashboard"
-            className="text-[16px] lg:text-[17px] font-bold px-4 py-2 rounded-full text-amber-400 hover:text-amber-300 hover:bg-white/10 transition active:scale-95"
+            className="text-base sm:text-[17px] lg:text-[18px] font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-[8px] text-amber-500 hover:text-amber-600 hover:bg-black/5 transition active:scale-95"
           >
             Admin Panel
           </Link>
@@ -265,16 +280,24 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
     );
   };
 
+  const isHome = pathname === "/";
+
   return (
     <>
-      {/* ================= UBER / RAPIDO FLUSH RECTANGULAR NAVBAR ================= */}
+      {/* ================= SEAMLESS HEADER / NAVBAR ================= */}
       <header
-        className="fixed top-0 left-0 w-full z-50 rounded-none bg-black text-white border-b border-zinc-900 transition-colors shadow-lg"
-        style={{ backgroundColor: "var(--theme-nav-bg, #000000)" }}
+        className={`fixed top-0 left-0 w-full z-50 px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
+          isHome
+            ? isScrolled
+              ? "bg-[#FAF7F0]/95 backdrop-blur-xl border-b border-[#DED7CA]/80 shadow-[0_4px_20px_rgba(18,61,50,0.06)] text-stone-900"
+              : "bg-transparent border-transparent shadow-none text-stone-900"
+            : "bg-black text-white border-b border-zinc-900 shadow-lg"
+        }`}
+        style={!isHome ? { backgroundColor: "var(--theme-nav-bg, #000000)" } : undefined}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
-          {/* LEFT: BRAND LOGO + DESKTOP LINKS */}
-          <div className="flex items-center gap-8 lg:gap-10">
+        <div className="max-w-7xl mx-auto h-[68px] sm:h-20 md:h-24 flex items-center justify-between transition-all duration-300">
+          {/* LEFT: BRAND LOGO */}
+          <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
             <Link
               href={currentUser?.role === "vendor" || isVendorRoute ? "/partners/dashboard" : "/"}
               onClick={() => {
@@ -285,15 +308,15 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   } catch (_) {}
                 }
               }}
-              className="flex items-center flex-shrink-0 active:scale-98 transition"
-              aria-label="RideNow Home"
+              className="flex items-center flex-shrink-0 active:scale-98 transition group py-1"
+              aria-label="Jatri Home"
             >
               <Image
-                src="/logo-clean.webp"
-                alt="RideNow"
-                width={150}
-                height={55}
-                className="h-9 sm:h-10 md:h-11 w-auto object-contain transition-transform group-hover:scale-105"
+                src="/logojatri.png"
+                alt="Jatri by RideNow"
+                width={260}
+                height={82}
+                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-xs"
                 priority
               />
             </Link>
@@ -303,14 +326,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
           </div>
 
           {/* RIGHT: ONGOING RIDE, TOOLS & PROFILE */}
-          <div className="flex items-center gap-3 sm:gap-4 relative">
+          <div className="flex items-center gap-2 sm:gap-3 relative">
             {/* Passenger Ongoing Ride Indicator */}
             {passengerActiveRide && (
               <Link
                 href={`/ride/${passengerActiveRide._id}`}
-                className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs sm:text-sm font-black animate-pulse transition hover:bg-emerald-500/30 active:scale-95"
+                className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-600 border border-emerald-500/40 text-xs sm:text-sm font-black animate-pulse transition hover:bg-emerald-500/30 active:scale-95"
               >
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 <span>Ongoing Ride</span>
               </Link>
             )}
@@ -328,7 +351,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 <>
                   <button
                     onClick={() => setProfileOpen((p) => !p)}
-                    className="w-11 h-11 rounded-full bg-white text-black font-black text-base flex items-center justify-center shadow-md active:scale-95 transition border border-white/20 hover:bg-zinc-100"
+                    className="w-11 h-11 rounded-full bg-forest text-white font-black text-base flex items-center justify-center shadow-md active:scale-95 transition hover:bg-forest-hover"
                     aria-label="Open User Profile Menu"
                   >
                     {currentUser.name?.charAt(0).toUpperCase() || "P"}
@@ -341,7 +364,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.98 }}
                         transition={{ type: "spring", damping: 28, stiffness: 350 }}
-                        className="absolute top-14 right-0 w-[340px] bg-white text-zinc-950 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.35)] border border-zinc-200 overflow-hidden z-50"
+                        className="absolute top-14 right-0 w-[340px] bg-white text-zinc-950 rounded-[14px] shadow-[0_20px_60px_rgba(0,0,0,0.35)] border border-zinc-200 overflow-hidden z-50"
                       >
                         <UberProfileDropdown
                           userData={currentUser}
@@ -354,11 +377,15 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   </AnimatePresence>
                 </>
               ) : status === "loading" || isVendorRoute ? (
-                <div className="w-11 h-11 rounded-full bg-white/10 animate-pulse border border-white/10" />
+                <div className="w-11 h-11 rounded-[8px] bg-stone-200 animate-pulse border border-stone-300" />
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="px-6 py-2.5 rounded-full bg-white text-black font-extrabold text-[15px] sm:text-[16px] hover:bg-zinc-200 active:scale-95 transition shadow-sm"
+                  className={`px-6 py-2.5 rounded-[8px] font-bold text-[15px] sm:text-[16px] transition shadow-xs active:scale-95 ${
+                    isHome
+                      ? "bg-forest hover:bg-forest-hover text-white"
+                      : "bg-white text-black hover:bg-zinc-200"
+                  }`}
                 >
                   {t("nav.signIn", "Sign In")}
                 </button>
@@ -366,23 +393,27 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             </div>
 
             {/* MOBILE QUICK SIGN IN / PROFILE BUTTON */}
-            <div className="md:hidden flex items-center gap-2">
+            <div className="md:hidden flex items-center gap-1.5">
               {currentUser ? (
                 <button
                   onClick={() => setProfileOpen(true)}
-                  className="w-10 h-10 rounded-full bg-white text-black font-black flex items-center justify-center text-sm shadow-sm active:scale-95 transition"
+                  className="w-9 h-9 rounded-full bg-forest text-white font-black flex items-center justify-center text-xs shadow-sm active:scale-95 transition hover:bg-forest-hover"
                   aria-label="Open Profile Details"
                 >
                   {currentUser.name?.charAt(0).toUpperCase() || "P"}
                 </button>
               ) : status === "loading" || isVendorRoute ? (
-                <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse border border-white/10" />
+                <div className="w-9 h-9 rounded-[8px] bg-stone-200 animate-pulse border border-stone-300" />
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="px-4 py-2 rounded-full bg-white text-black text-sm font-extrabold active:scale-95 transition"
+                  className={`px-3 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition ${
+                    isHome
+                      ? "bg-forest hover:bg-forest-hover text-white"
+                      : "bg-white text-stone-900 border border-stone-200"
+                  }`}
                 >
-                  Sign In
+                  {t("nav.signIn", "Sign In")}
                 </button>
               )}
             </div>
@@ -391,10 +422,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             <button
               type="button"
               onClick={() => setMenuOpen((p) => !p)}
-              className="md:hidden text-white p-2 rounded-full hover:bg-white/10 active:scale-90 transition cursor-pointer"
+              className={`md:hidden p-2 rounded-[8px] active:scale-90 transition cursor-pointer ${
+                isHome
+                  ? "text-stone-900 hover:bg-black/5"
+                  : "text-white hover:bg-white/10"
+              }`}
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
-              {menuOpen ? <X size={28} /> : <Menu size={28} />}
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
@@ -419,11 +454,11 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   className="flex items-center active:scale-95 transition"
                 >
                   <Image
-                    src="/logo-clean.webp"
-                    alt="RideNow"
-                    width={140}
-                    height={50}
-                    className="h-10 w-auto object-contain"
+                    src="/logojatri.png"
+                    alt="Jatri"
+                    width={180}
+                    height={66}
+                    className="h-12 w-auto object-contain"
                   />
                 </Link>
 

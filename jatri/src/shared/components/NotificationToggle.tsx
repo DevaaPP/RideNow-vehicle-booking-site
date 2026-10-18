@@ -2,7 +2,7 @@
 
 import { Bell, BellOff, BellRing, Loader2 } from "lucide-react";
 import { usePushNotifications } from "@/shared/hooks/usePushNotifications";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function NotificationToggle({
   variant = "button",
@@ -11,11 +11,16 @@ export default function NotificationToggle({
   variant?: "button" | "banner";
   className?: string;
 }) {
+  const [mounted, setMounted] = useState(false);
   const { isSupported, permission, isSubscribed, loading, subscribe, unsubscribe } =
     usePushNotifications();
   const [justEnabled, setJustEnabled] = useState(false);
 
-  if (!isSupported) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !isSupported) return null;
 
   const handleClick = async () => {
     if (isSubscribed) {
