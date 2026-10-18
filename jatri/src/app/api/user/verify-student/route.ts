@@ -8,6 +8,8 @@ import User from "@/models/user.model";
 import StudentConfig from "@/models/studentConfig.model";
 
 import { validateStudentEmail } from "@/lib/studentVerification";
+import { generateSecureOtp, hashOtpCode, verifyOtpCode } from "@/lib/cryptoOtp";
+import { sendMail } from "@/lib/mailer";
 
 /**
  * GET /api/user/verify-student
@@ -179,6 +181,92 @@ export async function POST(req: Request) {
           },
           { status: 400 }
         );
+      }
+
+      // If client requests activation OTP dispatch
+      if (body.action === "send_otp") {
+        const otpCode = generateSecureOtp(6);
+        const hashedOtp = await hashOtpCode(otpCode);
+        const userDoc = await User.findById(session.user.id);
+        if (!userDoc) {
+          return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+        }
+
+        userDoc.studentVerification = {
+          ...(userDoc.studentVerification || {}),
+          status: "pending",
+          institutionName: trimmedInstitution,
+          verificationMethod: "institutional_email",
+          eduEmail: cleanEduEmail,
+          studentName: studentName?.trim() || userDoc.name,
+          activationOtp: hashedOtp,
+          activationOtpExpiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 mins
+          activationOtpFailedAttempts: 0,
+        };
+        await userDoc.save();
+
+        // Dispatch Email with Resend / Dev simulator
+        await sendMail(
+          cleanEduEmail,
+          "RideNow Student Pass Verification Code",
+          `<div style="font-family:sans-serif;padding:24px;background:#f9fafb;border-radius:16px;">
+            <h2 style="color:#111827;margin-bottom:8px;">RideNow Student Verification</h2>
+            <p style="color:#4b5563;font-size:14px;">Use the following 6-digit confirmation code to activate your 10% student discount for <strong>${trimmedInstitution}</strong>:</p>
+            <div style="margin:24px 0;text-align:center;">
+              <span style="display:inline-block;padding:12px 28px;background:#10b981;color:#ffffff;font-size:28px;font-weight:900;letter-spacing:6px;border-radius:12px;">${otpCode}</span>
+            </div>
+            <p style="color:#6b7280;font-size:12px;">This code is valid for 15 minutes. If you did not request this, you can safely ignore this email.</p>
+          </div>`
+        );
+
+        return NextResponse.json({
+          success: true,
+          requiresOtp: true,
+          message: `Verification code sent to ${cleanEduEmail}. Please enter the 6-digit code.`,
+        });
+      }
+
+      // If client provides OTP for activation
+      if (body.action === "verify_otp" || body.otp) {
+        const submittedOtp = String(body.otp || "").trim();
+        const userDoc = await User.findById(session.user.id);
+        if (!userDoc || !userDoc.studentVerification?.activationOtp) {
+          return NextResponse.json(
+            { success: false, message: "No active verification code found. Please request a new code." },
+            { status: 400 }
+          );
+        }
+
+        if (
+          userDoc.studentVerification.activationOtpExpiresAt &&
+          new Date(userDoc.studentVerification.activationOtpExpiresAt) < new Date()
+        ) {
+          return NextResponse.json(
+            { success: false, message: "Verification code expired. Please request a new one." },
+            { status: 400 }
+          );
+        }
+
+        const isMatch = await verifyOtpCode(
+          submittedOtp,
+          userDoc.studentVerification.activationOtp
+        );
+
+        if (!isMatch) {
+          const attempts = (userDoc.studentVerification.activationOtpFailedAttempts || 0) + 1;
+          userDoc.studentVerification.activationOtpFailedAttempts = attempts;
+          await userDoc.save();
+          const remaining = Math.max(0, 3 - attempts);
+          return NextResponse.json(
+            {
+              success: false,
+              message: remaining > 0
+                ? `Invalid verification code. ${remaining} attempt(s) remaining.`
+                : "Too many failed attempts. Please request a fresh code.",
+            },
+            { status: 400 }
+          );
+        }
       }
     } else if (method === "student_id") {
       if (!studentName?.trim() || !studentIdNumber?.trim()) {

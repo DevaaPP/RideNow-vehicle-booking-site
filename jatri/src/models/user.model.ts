@@ -109,6 +109,9 @@ socketId:string | null
     expiresAt?: Date;
     verificationReference?: string;
     rejectionReason?: string;
+    activationOtp?: string;
+    activationOtpExpiresAt?: Date;
+    activationOtpFailedAttempts?: number;
   };
   studentDetails?: {
     eduEmail?: string;
@@ -360,6 +363,9 @@ const UserSchema = new Schema<IUser>(
       expiresAt: { type: Date, index: true },
       verificationReference: { type: String, trim: true },
       rejectionReason: { type: String, trim: true },
+      activationOtp: { type: String },
+      activationOtpExpiresAt: { type: Date },
+      activationOtpFailedAttempts: { type: Number, default: 0 },
     },
     studentDetails: {
       eduEmail: String,

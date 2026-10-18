@@ -98,25 +98,26 @@ export async function POST(req: Request) {
 
       if (String(booking.dropOtp).trim() !== String(otp).trim()) {
         const failed = (booking.dropOtpFailedAttempts || 0) + 1;
-        if (failed >= 5) {
-          booking.dropOtpLockedUntil = new Date(Date.now() + 5 * 60 * 1000);
+        const MAX_ATTEMPTS = 3;
+        if (failed >= MAX_ATTEMPTS) {
+          booking.dropOtpLockedUntil = new Date(Date.now() + 10 * 60 * 1000);
           booking.dropOtpFailedAttempts = 0;
           await booking.save();
           return NextResponse.json(
             {
-              message: "Too many failed attempts. Drop OTP verification locked for 5 minutes.",
+              message: "Too many failed attempts. Drop OTP verification locked for 10 minutes.",
               isLocked: true,
-              lockedSeconds: 300,
+              lockedSeconds: 600,
             },
             { status: 429 }
           );
         } else {
           booking.dropOtpFailedAttempts = failed;
           await booking.save();
-          const remaining = 5 - failed;
+          const remaining = MAX_ATTEMPTS - failed;
           return NextResponse.json(
             {
-              message: `Invalid Drop OTP. ${remaining} attempt${remaining > 1 ? "s" : ""} remaining before 5-minute lockout.`,
+              message: `Invalid Drop OTP. ${remaining} attempt${remaining > 1 ? "s" : ""} remaining before 10-minute lockout.`,
               remainingAttempts: remaining,
             },
             { status: 400 }

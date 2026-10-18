@@ -79,25 +79,26 @@ export async function POST(req: Request) {
 
     if (String(booking.pickupOtp).trim() !== String(otp).trim()) {
       const failed = (booking.pickupOtpFailedAttempts || 0) + 1;
-      if (failed >= 5) {
-        booking.pickupOtpLockedUntil = new Date(Date.now() + 5 * 60 * 1000);
+      const MAX_ATTEMPTS = 3;
+      if (failed >= MAX_ATTEMPTS) {
+        booking.pickupOtpLockedUntil = new Date(Date.now() + 10 * 60 * 1000);
         booking.pickupOtpFailedAttempts = 0;
         await booking.save();
         return NextResponse.json(
           {
-            message: "Too many failed attempts. OTP verification is locked for 5 minutes for safety.",
+            message: "Too many failed attempts. OTP verification is locked for 10 minutes for safety.",
             isLocked: true,
-            lockedSeconds: 300,
+            lockedSeconds: 600,
           },
           { status: 429 }
         );
       } else {
         booking.pickupOtpFailedAttempts = failed;
         await booking.save();
-        const remaining = 5 - failed;
+        const remaining = MAX_ATTEMPTS - failed;
         return NextResponse.json(
           {
-            message: `Invalid OTP. ${remaining} attempt${remaining > 1 ? "s" : ""} remaining before 5-minute lockout.`,
+            message: `Invalid OTP. ${remaining} attempt${remaining > 1 ? "s" : ""} remaining before 10-minute lockout.`,
             remainingAttempts: remaining,
           },
           { status: 400 }
