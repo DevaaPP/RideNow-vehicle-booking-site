@@ -46,7 +46,7 @@ export interface VehicleRateConfig {
 /**
  * RideNow Canonical Vehicle Rates (Phase 6 Architecture).
  * Baseline multiplier is 1.0 (no artificial surge during normal hours).
- * Standardized across all 8 Jatri fleets + Intercity.
+ * Standardized across all 8 Jaatri fleets + Intercity.
  */
 export const DEFAULT_VEHICLE_RATES: Record<string, VehicleRateConfig> = {
   scooty: {

@@ -16,13 +16,13 @@ export interface VehicleOption {
 }
 
 /**
- * Authoritative vehicle options catalog with distinctive Jatri naming.
+ * Authoritative vehicle options catalog with distinctive Jaatri naming.
  */
 export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   scooty: {
     id: "scooty",
-    label: "Jatri Scooty",
-    categoryTitle: "Jatri Scooty — Quick Light Commute",
+    label: "Jaatri Scooty",
+    categoryTitle: "Jaatri Scooty — Quick Light Commute",
     serviceMode: "passenger",
     tagline: "Solo commute · Quick & light",
     description: "Affordable solo scooty ride for quick nearby commutes.",
@@ -33,8 +33,8 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   },
   bike: {
     id: "bike",
-    label: "Jatri Moto",
-    categoryTitle: "Jatri Moto — Solo Ride",
+    label: "Jaatri Moto",
+    categoryTitle: "Jaatri Moto — Solo Ride",
     serviceMode: "passenger",
     tagline: "Quick solo ride · Helmet provided",
     description: "Fast motorcycle commuting for solo riders to bypass traffic.",
@@ -45,8 +45,8 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   },
   auto: {
     id: "auto",
-    label: "Jatri Auto",
-    categoryTitle: "Jatri Auto — 3-Wheeler",
+    label: "Jaatri Auto",
+    categoryTitle: "Jaatri Auto — 3-Wheeler",
     serviceMode: "passenger",
     tagline: "Everyday doorstep auto rides",
     description: "Iconic 3-wheeler ride for daily errands and small groups.",
@@ -57,8 +57,8 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   },
   mini: {
     id: "mini",
-    label: "Jatri Mini",
-    categoryTitle: "Jatri Mini — Economy Hatchback",
+    label: "Jaatri Mini",
+    categoryTitle: "Jaatri Mini — Economy Hatchback",
     serviceMode: "passenger",
     tagline: "Economy AC hatchback",
     description: "Pocket-friendly compact 4-wheeler (WagonR, Tiago) with AC.",
@@ -69,8 +69,8 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   },
   car: {
     id: "car",
-    label: "Jatri Premier",
-    categoryTitle: "Jatri Premier — AC Sedan",
+    label: "Jaatri Premier",
+    categoryTitle: "Jaatri Premier — AC Sedan",
     serviceMode: "passenger",
     tagline: "Comfortable AC sedan",
     description: "Spacious executive sedan (Dzire, Amaze) with verified drivers.",
@@ -81,8 +81,8 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   },
   priority: {
     id: "priority",
-    label: "Jatri XL Priority",
-    categoryTitle: "Jatri XL Priority — Spacious SUV",
+    label: "Jaatri XL Priority",
+    categoryTitle: "Jaatri XL Priority — Spacious SUV",
     serviceMode: "passenger",
     tagline: "Spacious 6-seater SUV · Priority pickup",
     description: "Extra legroom & 6 passenger capacity (Ertiga, Innova) with priority dispatch.",
@@ -93,8 +93,8 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   },
   loading: {
     id: "loading",
-    label: "Jatri Express Mini",
-    categoryTitle: "Jatri Express — Tata Ace & Dost",
+    label: "Jaatri Express Mini",
+    categoryTitle: "Jaatri Express — Tata Ace & Dost",
     serviceMode: "logistics",
     tagline: "House shifting, furniture & merchant stock",
     description: "Dedicated transport for cargo, house moves, and merchant deliveries.",
@@ -105,8 +105,8 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   },
   truck: {
     id: "truck",
-    label: "Jatri Freight",
-    categoryTitle: "Jatri Freight — Commercial Logistics",
+    label: "Jaatri Freight",
+    categoryTitle: "Jaatri Freight — Commercial Logistics",
     serviceMode: "logistics",
     tagline: "Heavy cargo, wholesale stock & industrial freight",
     description: "Heavy logistics vehicle for industrial, agricultural, and wholesale cargo.",
@@ -158,7 +158,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
       return {
         vehicleId: "truck",
         matchScore: 96,
-        reason: "Heavy commercial cargo (>500kg) requires Jatri Freight 14ft payload",
+        reason: "Heavy commercial cargo (>500kg) requires Jaatri Freight 14ft payload",
       };
     }
     return {
@@ -173,7 +173,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     return {
       vehicleId: "priority",
       matchScore: 98,
-      reason: `Jatri XL Priority comfortably seats ${passengers} passengers with 3 rows of seating & large bags`,
+      reason: `Jaatri XL Priority comfortably seats ${passengers} passengers with 3 rows of seating & large bags`,
     };
   }
 
@@ -183,13 +183,13 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
       return {
         vehicleId: "car",
         matchScore: 96,
-        reason: "Jatri Premier executive sedan offers spacious boot and top AC comfort for 4 passengers",
+        reason: "Jaatri Premier executive sedan offers spacious boot and top AC comfort for 4 passengers",
       };
     }
     return {
       vehicleId: "mini",
       matchScore: 94,
-      reason: "Jatri Mini offers affordable 4-passenger AC hatchback travel",
+      reason: "Jaatri Mini offers affordable 4-passenger AC hatchback travel",
     };
   }
 
@@ -200,13 +200,13 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
         return {
           vehicleId: "car",
           matchScore: 93,
-          reason: "Jatri Premier provides a full sedan boot for large bags with chilled AC",
+          reason: "Jaatri Premier provides a full sedan boot for large bags with chilled AC",
         };
       }
       return {
         vehicleId: "mini",
         matchScore: 91,
-        reason: "Jatri Mini hatchback fits bags with comfortable AC at lower fare",
+        reason: "Jaatri Mini hatchback fits bags with comfortable AC at lower fare",
       };
     }
 
@@ -214,14 +214,14 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
       return {
         vehicleId: "car",
         matchScore: 92,
-        reason: "Jatri Premier executive sedan gives premium comfort & quiet cabin",
+        reason: "Jaatri Premier executive sedan gives premium comfort & quiet cabin",
       };
     }
 
     return {
       vehicleId: "auto",
       matchScore: 96,
-      reason: `Jatri Auto is the most budget-friendly doorstep ride for ${passengers} passengers`,
+      reason: `Jaatri Auto is the most budget-friendly doorstep ride for ${passengers} passengers`,
     };
   }
 
@@ -230,7 +230,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     return {
       vehicleId: "car",
       matchScore: 92,
-      reason: "Large luggage requires Jatri Premier dedicated sedan boot space",
+      reason: "Large luggage requires Jaatri Premier dedicated sedan boot space",
     };
   }
 
@@ -238,7 +238,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     return {
       vehicleId: "mini",
       matchScore: 90,
-      reason: "Jatri Mini gives you personal AC comfort at our lowest 4-wheeler cab fare",
+      reason: "Jaatri Mini gives you personal AC comfort at our lowest 4-wheeler cab fare",
     };
   }
 
@@ -246,7 +246,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     return {
       vehicleId: "auto",
       matchScore: 92,
-      reason: "Jatri Auto has ample floor space for your bag at an economical fare",
+      reason: "Jaatri Auto has ample floor space for your bag at an economical fare",
     };
   }
 
@@ -254,6 +254,6 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
   return {
     vehicleId: "bike",
     matchScore: 99,
-    reason: "Jatri Moto is fastest and most economical for solo commuting to bypass traffic",
+    reason: "Jaatri Moto is fastest and most economical for solo commuting to bypass traffic",
   };
 }

@@ -612,14 +612,14 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
   const [loading, setLoading] = useState(false);
 
   const FLEET_CATEGORIES = [
-    { id: "car", label: "Jatri Premier (Sedan / Cab)" },
-    { id: "mini", label: "Jatri Mini (Hatchback)" },
-    { id: "priority", label: "Jatri XL Priority (SUV)" },
-    { id: "auto", label: "Jatri Auto (3-Wheeler)" },
-    { id: "bike", label: "Jatri Moto (Motorcycle)" },
-    { id: "scooty", label: "Jatri Scooty (Scooter)" },
-    { id: "loading", label: "Jatri Express Mini (Cargo)" },
-    { id: "truck", label: "Jatri City Truck (Freight)" },
+    { id: "car", label: "Jaatri Premier (Sedan / Cab)" },
+    { id: "mini", label: "Jaatri Mini (Hatchback)" },
+    { id: "priority", label: "Jaatri XL Priority (SUV)" },
+    { id: "auto", label: "Jaatri Auto (3-Wheeler)" },
+    { id: "bike", label: "Jaatri Moto (Motorcycle)" },
+    { id: "scooty", label: "Jaatri Scooty (Scooter)" },
+    { id: "loading", label: "Jaatri Express Mini (Cargo)" },
+    { id: "truck", label: "Jaatri City Truck (Freight)" },
   ];
 
   const submitPricing = async () => {

@@ -47,7 +47,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("jatri_lang") as Language;
+      const stored = (localStorage.getItem("jaatri_lang") || localStorage.getItem("jatri_lang")) as Language;
       if (stored && ["en", "as", "hi", "bn"].includes(stored)) {
         setLanguageState(stored);
       } else {
@@ -64,7 +64,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     try {
+      localStorage.setItem("jaatri_lang", lang);
       localStorage.setItem("jatri_lang", lang);
+      document.cookie = `jaatri_lang=${lang}; path=/; max-age=31536000; SameSite=Lax`;
       document.cookie = `jatri_lang=${lang}; path=/; max-age=31536000; SameSite=Lax`;
     } catch {}
   };

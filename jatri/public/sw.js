@@ -1,4 +1,4 @@
-// Service Worker for RideNow / Jatri Web Push Notifications
+// Service Worker for RideNow / Jaatri Web Push Notifications
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

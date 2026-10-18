@@ -156,13 +156,13 @@ export async function findEligibleCandidates(options: {
           const isAuto = normalizedType === "auto";
           const isGoods = ["loading", "truck"].includes(normalizedType);
           const modelName =
-            normalizedType === "scooty" ? "Jatri Scooty" :
-            normalizedType === "bike" ? "Jatri Moto" :
-            normalizedType === "auto" ? "Jatri Auto" :
-            normalizedType === "mini" ? "Jatri Mini" :
-            normalizedType === "priority" ? "Jatri XL Priority" :
-            normalizedType === "truck" ? "Jatri Heavy Cargo" :
-            normalizedType === "loading" ? "Jatri Express Mini" : "Jatri Premier Sedan";
+            normalizedType === "scooty" ? "Jaatri Scooty" :
+            normalizedType === "bike" ? "Jaatri Moto" :
+            normalizedType === "auto" ? "Jaatri Auto" :
+            normalizedType === "mini" ? "Jaatri Mini" :
+            normalizedType === "priority" ? "Jaatri XL Priority" :
+            normalizedType === "truck" ? "Jaatri Heavy Cargo" :
+            normalizedType === "loading" ? "Jaatri Express Mini" : "Jaatri Premier Sedan";
 
           const assignedType = isTwoWheeler
             ? normalizedType

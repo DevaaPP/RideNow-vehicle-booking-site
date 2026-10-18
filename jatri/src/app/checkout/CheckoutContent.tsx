@@ -863,7 +863,7 @@ export default function CheckoutContent() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">
-                    {opt?.categoryTitle || "Jatri Fleet"}
+                    {opt?.categoryTitle || "Jaatri Fleet"}
                   </span>
                   {opt?.etaText && (
                     <span className="text-[10px] font-mono text-zinc-600 bg-zinc-200/80 px-1.5 py-0.2 rounded-none">
