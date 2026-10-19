@@ -69,13 +69,6 @@ function noCacheResponse(res: NextResponse = NextResponse.next()) {
   res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
   res.headers.set("Pragma", "no-cache");
   res.headers.set("Expires", "0");
-  res.headers.set("X-XSS-Protection", "0");
-  res.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-  res.headers.set("Cross-Origin-Resource-Policy", "same-origin");
-  res.headers.set("Cross-Origin-Embedder-Policy", "credentialless");
-  res.headers.delete("server");
-  res.headers.delete("Server");
-  res.headers.delete("x-powered-by");
   return res;
 }
 
