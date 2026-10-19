@@ -46,6 +46,18 @@ const securityHeaders = [
     value: "max-age=31536000; includeSubDomains; preload",
   },
   {
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin-allow-popups",
+  },
+  {
+    key: "Cross-Origin-Resource-Policy",
+    value: "same-origin",
+  },
+  {
+    key: "Cross-Origin-Embedder-Policy",
+    value: "credentialless",
+  },
+  {
     key: "Server",
     value: "RideNow",
   },
@@ -57,7 +69,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value:
       "default-src 'self'; " +
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
+      "script-src 'self' 'unsafe-eval' https://checkout.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.zegocloud.com; " +
       "img-src 'self' blob: data: https:; " +
       "connect-src 'self' https: wss: ws:; " +
