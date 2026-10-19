@@ -3,25 +3,19 @@ import fs from "fs";
 import path from "path";
 
 try {
-  const publicLogoPath = path.join(process.cwd(), "public", "logo.webp");
-  const destIconPath = path.join(process.cwd(), "src", "app", "icon.webp");
-  const oldIconJpeg = path.join(process.cwd(), "src", "app", "icon.jpeg");
-  const oldFaviconPath = path.join(process.cwd(), "src", "app", "favicon.ico");
+  const publicJatriPng = path.join(process.cwd(), "public", "logojatri.png");
+  const publicJatriWebp = path.join(process.cwd(), "public", "logojatri.webp");
+  const destIconPng = path.join(process.cwd(), "src", "app", "icon.png");
+  const destIconWebp = path.join(process.cwd(), "src", "app", "icon.webp");
 
-  if (fs.existsSync(publicLogoPath)) {
-    fs.copyFileSync(publicLogoPath, destIconPath);
-    console.log("Successfully copied logo.webp to src/app/icon.webp");
+  if (fs.existsSync(publicJatriPng)) {
+    fs.copyFileSync(publicJatriPng, destIconPng);
   }
-
-  if (fs.existsSync(oldIconJpeg)) {
-    fs.unlinkSync(oldIconJpeg);
-  }
-
-  if (fs.existsSync(oldFaviconPath)) {
-    fs.unlinkSync(oldFaviconPath);
+  if (fs.existsSync(publicJatriWebp)) {
+    fs.copyFileSync(publicJatriWebp, destIconWebp);
   }
 } catch (err) {
-  console.error("Error setting up logo favicon:", err);
+  console.error("Error setting up Jaatri favicon:", err);
 }
 
 const securityHeaders = [

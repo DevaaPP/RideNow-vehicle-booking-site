@@ -31,49 +31,60 @@ const dmSerifDisplay = DM_Serif_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://ride-now-vehicle-booking-site.vercel.app"),
   title: {
-    default: "RideNow - Smart Vehicle Booking Platform",
-    template: "%s | RideNow",
+    default: "Jaatri (যাত্ৰী) - Smart Vehicle Booking Platform",
+    template: "%s | Jaatri",
   },
   description:
-    "RideNow is a modern vehicle booking platform for reliable, transparent, and verified rides across India. Fast dispatch, upfront pricing, and safety-first mobility.",
+    "Jaatri (যাত্ৰী) is a modern vehicle booking platform for reliable, transparent, and verified rides across India. Fast dispatch, upfront pricing, and safety-first mobility.",
   keywords: [
-    "RideNow",
+    "Jaatri",
+    "যাত্ৰী",
     "cab booking",
     "auto rickshaw",
     "bike taxi",
     "goods delivery",
     "vehicle booking India",
     "smart cab platform",
+    "RideNow",
   ],
-  authors: [{ name: "RideNow Mobility Technologies" }],
-  creator: "RideNow",
-  publisher: "RideNow",
+  authors: [{ name: "Jaatri Mobility Technologies" }],
+  creator: "Jaatri",
+  publisher: "Jaatri",
   alternates: {
     canonical: "/",
+  },
+  icons: {
+    icon: [
+      { url: "/logojatri.png", type: "image/png" },
+      { url: "/logojatri.webp", type: "image/webp" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/logojatri.png",
+    apple: "/logojatri.png",
   },
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: "https://ride-now-vehicle-booking-site.vercel.app",
-    siteName: "RideNow",
-    title: "RideNow - Smart Vehicle Booking Platform",
+    siteName: "Jaatri",
+    title: "Jaatri (যাত্ৰী) - Smart Vehicle Booking Platform",
     description:
       "Reliable, upfront pricing with instant dispatch for bikes, autos, cabs, and logistics.",
     images: [
       {
-        url: "/logo.webp",
+        url: "/logojatri.png",
         width: 800,
         height: 400,
-        alt: "RideNow Smart Vehicle Booking",
+        alt: "Jaatri Smart Vehicle Booking",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "RideNow - Smart Vehicle Booking Platform",
+    title: "Jaatri (যাত্ৰী) - Smart Vehicle Booking Platform",
     description:
       "Reliable, upfront pricing with instant dispatch for bikes, autos, cabs, and logistics.",
-    images: ["/logo.webp"],
+    images: ["/logojatri.png"],
   },
   robots: {
     index: true,
@@ -99,9 +110,10 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "TransportationService",
-    name: "RideNow",
+    name: "Jaatri (যাত্ৰী)",
+    alternateName: "RideNow",
     url: "https://ride-now-vehicle-booking-site.vercel.app",
-    logo: "https://ride-now-vehicle-booking-site.vercel.app/logo.webp",
+    logo: "https://ride-now-vehicle-booking-site.vercel.app/logojatri.png",
     description: "Smart vehicle booking and transparent on-demand transportation platform.",
     areaServed: "IN",
     serviceType: ["Cab Booking", "Auto Rickshaw", "Bike Taxi", "Logistics Delivery"],
