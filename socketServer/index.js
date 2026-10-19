@@ -82,7 +82,13 @@ const io = new Server(server, {
 app.post("/emit", async (req, res) => {
   const secret = req.headers["x-socket-secret"];
   const expectedSecret = INTERNAL_SECRET || "ridenow-internal-socket-secret-key-2026";
-  if (INTERNAL_SECRET && secret && secret !== INTERNAL_SECRET && secret !== expectedSecret) {
+  if (!secret) {
+    return res.status(401).json({ success: false, error: "Missing x-socket-secret header" });
+  }
+
+  const secretBuf = Buffer.from(String(secret), "utf8");
+  const expectedBuf = Buffer.from(String(expectedSecret), "utf8");
+  if (secretBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(secretBuf, expectedBuf)) {
     return res.status(403).json({ success: false, error: "Unauthorized socket emission secret" });
   }
 
@@ -239,7 +245,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Room joining with automatic identity recovery
+  // Room joining with authorization
   socket.on("join-booking", async (bookingId) => {
     if (!bookingId || typeof bookingId !== "string" || !mongoose.Types.ObjectId.isValid(bookingId)) {
       return;
@@ -251,6 +257,9 @@ io.on("connection", (socket) => {
       if (fallbackUserId && mongoose.Types.ObjectId.isValid(fallbackUserId)) {
         socket.userId = fallbackUserId.toString();
         socket.join(`user-${fallbackUserId}`);
+      } else {
+        console.warn(`[SocketSecurity] Blocked unauthenticated socket ${socket.id} from joining booking-${bookingId}`);
+        return;
       }
     }
 
@@ -261,38 +270,49 @@ io.on("connection", (socket) => {
       );
 
       if (!booking) {
-        // Allow room join during booking creation transition so events aren't lost
-        socket.join(`booking-${bookingId}`);
+        console.warn(`[SocketSecurity] Booking ${bookingId} not found for join attempt by ${socket.userId}`);
         return;
       }
 
-      if (socket.userId) {
-        const currentUserId = socket.userId.toString();
-        const isRider = booking.user && booking.user.toString() === currentUserId;
-        const isDriver = booking.driver && booking.driver.toString() === currentUserId;
-        const isCandidate =
-          Array.isArray(booking.candidateDrivers) &&
-          booking.candidateDrivers.some((c) => c && c.toString() === currentUserId);
-        const isAdmin = socket.userRole === "admin";
+      const currentUserId = socket.userId.toString();
+      const isRider = booking.user && booking.user.toString() === currentUserId;
+      const isDriver = booking.driver && booking.driver.toString() === currentUserId;
+      const isCandidate =
+        Array.isArray(booking.candidateDrivers) &&
+        booking.candidateDrivers.some((c) => c && c.toString() === currentUserId);
+      const isAdmin = socket.userRole === "admin" || socket.isInternalAdmin;
 
-        if (!isRider && !isDriver && !isCandidate && !isAdmin) {
-          console.warn(`[SocketSecurity] Denied unauthorized user ${currentUserId} from joining booking-${bookingId}`);
-          return;
-        }
+      if (!isRider && !isDriver && !isCandidate && !isAdmin) {
+        console.warn(`[SocketSecurity] Denied unauthorized user ${currentUserId} from joining booking-${bookingId}`);
+        return;
       }
 
       socket.join(`booking-${bookingId}`);
-      console.log(`[Socket] Socket ${socket.id} (user: ${socket.userId || "guest"}) joined room: booking-${bookingId}`);
+      console.log(`[Socket] Socket ${socket.id} (user: ${socket.userId}) joined room: booking-${bookingId}`);
     } catch (err) {
       console.error("[Socket] join-booking error:", err);
-      socket.join(`booking-${bookingId}`);
     }
   });
 
   // Real-time booking status relay between connected participants
-  socket.on("booking-status-update", (data) => {
-    if (!data?.bookingId) return;
-    io.to(`booking-${data.bookingId}`).emit("booking-updated", data);
+  socket.on("booking-status-update", async (data) => {
+    if (!data?.bookingId || !socket.userId) return;
+    try {
+      const booking = await mongoose.connection.collection("bookings").findOne(
+        { _id: new mongoose.Types.ObjectId(data.bookingId) },
+        { projection: { user: 1, driver: 1 } }
+      );
+      if (!booking) return;
+      const currentUserId = socket.userId.toString();
+      const isRider = booking.user && booking.user.toString() === currentUserId;
+      const isDriver = booking.driver && booking.driver.toString() === currentUserId;
+      const isAdmin = socket.userRole === "admin" || socket.isInternalAdmin;
+      if (isRider || isDriver || isAdmin) {
+        io.to(`booking-${data.bookingId}`).emit("booking-updated", data);
+      }
+    } catch (err) {
+      console.error("[Socket] booking-status-update error:", err);
+    }
   });
 
   // Driver Location Updates: Verified against assigned booking driver

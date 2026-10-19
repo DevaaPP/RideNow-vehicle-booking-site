@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
         amount, // in rupees
       } = body;
 
-      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !amount) {
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return NextResponse.json(
           { error: "Missing required payment verification details." },
           { status: 400 }
@@ -141,22 +141,50 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // HMAC SHA256 Signature Verification
+      // HMAC SHA256 Signature Verification (Constant-Time Safe)
       const expectedSignature = crypto
         .createHmac("sha256", secret)
         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
         .digest("hex");
 
-      if (expectedSignature !== razorpay_signature) {
+      const sigBuf = Buffer.from(expectedSignature, "utf8");
+      const recBuf = Buffer.from(razorpay_signature, "utf8");
+      if (sigBuf.length !== recBuf.length || !crypto.timingSafeEqual(sigBuf, recBuf)) {
         return NextResponse.json(
           { error: "Invalid cryptographic payment signature." },
           { status: 400 }
         );
       }
 
+      // Authoritative Order Verification: Verify driver ownership and gateway amount
+      let verifiedAmount: number;
+      try {
+        const order = await razorpay.orders.fetch(razorpay_order_id);
+        if (order.notes?.driverId && order.notes.driverId !== user._id.toString()) {
+          return NextResponse.json(
+            { error: "Order does not belong to this driver." },
+            { status: 403 }
+          );
+        }
+        verifiedAmount = Math.round(Number(order.amount) / 100);
+      } catch (fetchErr) {
+        console.error("Failed to fetch Razorpay order for dues settlement:", fetchErr);
+        return NextResponse.json(
+          { error: "Failed to verify order details with payment gateway." },
+          { status: 502 }
+        );
+      }
+
+      if (!verifiedAmount || verifiedAmount <= 0) {
+        return NextResponse.json(
+          { error: "Invalid payment order amount from gateway." },
+          { status: 400 }
+        );
+      }
+
       const result = await settleDriverPlatformDues({
         driverId: user._id,
-        amount: Number(amount),
+        amount: verifiedAmount,
         razorpayOrderId: razorpay_order_id,
         razorpayPaymentId: razorpay_payment_id,
       });

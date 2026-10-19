@@ -11,8 +11,17 @@ export async function POST(
   const { id } = await context.params;
   await connectDb();
   const session = await auth();
-  const actorRole = session?.user?.role === "vendor" || session?.user?.role === "driver" ? "driver" : session?.user?.role === "admin" ? "admin" : "driver";
-  const actorId = session?.user?.id;
+  if (!session?.user?.id) {
+    return NextResponse.json({ message: "Unauthorized: Driver login required" }, { status: 401 });
+  }
+
+  const userRole = session.user.role;
+  if (userRole !== "vendor" && userRole !== "driver" && userRole !== "admin") {
+    return NextResponse.json({ message: "Forbidden: Driver or Admin privileges required" }, { status: 403 });
+  }
+
+  const actorRole = userRole === "admin" ? "admin" : "driver";
+  const actorId = session.user.id;
 
   const body = await req.json().catch(() => ({}));
   const { otp, emergencyFallback, bypassReason } = body;
@@ -23,31 +32,35 @@ export async function POST(
     return NextResponse.json({ message: "Booking not found" }, { status: 404 });
   }
 
-  // Security Gate: Enforce Drop OTP or Emergency Deadlock Fallback for non-admin actors
+  // Driver Assignment Check
+  if (actorRole === "driver" && existingBooking.driver?.toString() !== actorId) {
+    return NextResponse.json({ message: "Forbidden: You are not assigned to this booking" }, { status: 403 });
+  }
+
+  // Security Gate: Enforce Drop OTP for drivers; restrict emergency bypass strictly to admin
   let dropBypassed = false;
   if (actorRole !== "admin") {
     if (emergencyFallback === true) {
-      if (!bypassReason || String(bypassReason).trim().length < 5) {
-        return NextResponse.json(
-          { message: "Please provide a valid reason for emergency completion (e.g. passenger phone died)." },
-          { status: 400 }
-        );
-      }
-      dropBypassed = true;
-    } else {
-      if (!otp) {
-        return NextResponse.json(
-          { message: "Drop-off OTP is required to complete the ride." },
-          { status: 400 }
-        );
-      }
-      if (String(existingBooking.dropOtp).trim() !== String(otp).trim()) {
-        return NextResponse.json(
-          { message: "Invalid Drop-off OTP. Please check the code on the customer's screen or use Emergency Fallback." },
-          { status: 400 }
-        );
-      }
+      return NextResponse.json(
+        { message: "Emergency OTP bypass requires administrator authorization. Please contact support." },
+        { status: 403 }
+      );
     }
+
+    if (!otp) {
+      return NextResponse.json(
+        { message: "Drop-off OTP is required to complete the ride." },
+        { status: 400 }
+      );
+    }
+    if (String(existingBooking.dropOtp).trim() !== String(otp).trim()) {
+      return NextResponse.json(
+        { message: "Invalid Drop-off OTP. Please verify the 4-digit PIN on the customer's screen." },
+        { status: 400 }
+      );
+    }
+  } else if (emergencyFallback === true) {
+    dropBypassed = true;
   }
 
   const now = new Date();

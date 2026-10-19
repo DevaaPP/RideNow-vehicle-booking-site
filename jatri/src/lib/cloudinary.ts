@@ -12,8 +12,32 @@ const isPlaceholder = (val?: string) => {
   return !val || val === "" || val.includes("add your");
 };
 
+const ALLOWED_MIME_TYPES: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/jpg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+  "application/pdf": ".pdf",
+};
+
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
 const uploadOnCloudinary = async (file: Blob): Promise<string | null> => {
   if (!file) {
+    return null;
+  }
+
+  // Security Check 1: File size validation (Strict 5MB cap)
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    console.warn(`[UploadSecurity] Rejected file upload: Size (${file.size} bytes) exceeds 5MB limit.`);
+    return null;
+  }
+
+  // Security Check 2: MIME Type Whitelisting
+  const mime = (file.type || "").toLowerCase().trim();
+  const fileExt = ALLOWED_MIME_TYPES[mime];
+  if (!fileExt) {
+    console.warn(`[UploadSecurity] Rejected file upload: Disallowed MIME type '${file.type}'.`);
     return null;
   }
 
@@ -33,8 +57,7 @@ const uploadOnCloudinary = async (file: Blob): Promise<string | null> => {
         fs.mkdirSync(uploadsDir, { recursive: true });
       }
 
-      // Generate a unique filename using timestamp and random string
-      const fileExt = file.type ? `.${file.type.split("/")[1]}` : ".jpg";
+      // Generate a unique filename using timestamp and secure random string with mapped extension
       const fileName = `upload-${Date.now()}-${Math.random().toString(36).substring(7)}${fileExt}`;
       const filePath = path.join(uploadsDir, fileName);
 

@@ -39,13 +39,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Retrieve user early to verify order ownership
+    const user = await User.findOne({ email: session.user.email });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expectedSignature = crypto
       .createHmac("sha256", secret)
       .update(body)
       .digest("hex");
 
-    if (expectedSignature !== razorpay_signature) {
+    const sigBuf = Buffer.from(expectedSignature, "utf8");
+    const recBuf = Buffer.from(razorpay_signature, "utf8");
+    if (sigBuf.length !== recBuf.length || !crypto.timingSafeEqual(sigBuf, recBuf)) {
       return NextResponse.json(
         { error: "Invalid payment signature" },
         { status: 400 }
@@ -58,6 +66,12 @@ export async function POST(req: NextRequest) {
     let orderAmountPaise: number;
     try {
       const order = await razorpay.orders.fetch(razorpay_order_id);
+      if (order.notes?.userId && order.notes.userId !== user._id.toString()) {
+        return NextResponse.json(
+          { error: "Payment order does not belong to the authenticated user" },
+          { status: 403 }
+        );
+      }
       orderAmountPaise = Number(order.amount);
     } catch (rzpErr: any) {
       console.error("Razorpay order fetch failed:", rzpErr);
@@ -89,12 +103,6 @@ export async function POST(req: NextRequest) {
         message: "Payment already verified",
         newBalance: existingTx.balanceAfter,
       });
-    }
-
-    // Retrieve user and atomically credit balance
-    const user = await User.findOne({ email: session.user.email });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const wallet = await getOrCreateWallet(user._id);

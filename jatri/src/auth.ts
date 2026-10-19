@@ -221,8 +221,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
         }
 
-        if(trigger=="update"){
-            token.role=session.role
+        if (trigger === "update") {
+            if (token.id) {
+                await connectDb()
+                const dbUser = await User.findById(token.id).select("role name email")
+                if (dbUser) {
+                    token.role = dbUser.role
+                    if (dbUser.name) token.name = dbUser.name
+                    if (dbUser.email) token.email = dbUser.email
+                }
+            }
         }
 
         return token

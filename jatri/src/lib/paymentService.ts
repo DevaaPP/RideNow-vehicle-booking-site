@@ -161,7 +161,9 @@ export async function verifyPayment(params: VerifyPaymentParams) {
     .update(`${orderId}|${paymentId}`)
     .digest("hex");
 
-  if (expectedSignature !== signature) {
+  const sigBuf = Buffer.from(expectedSignature, "utf8");
+  const recBuf = Buffer.from(signature, "utf8");
+  if (sigBuf.length !== recBuf.length || !crypto.timingSafeEqual(sigBuf, recBuf)) {
     throw new Error("Invalid payment signature verification failed");
   }
 
@@ -268,7 +270,9 @@ export async function handleRazorpayWebhook(
     .update(rawBody)
     .digest("hex");
 
-  if (expectedSignature !== webhookSignature) {
+  const sigBuf = Buffer.from(expectedSignature, "utf8");
+  const recBuf = Buffer.from(webhookSignature, "utf8");
+  if (sigBuf.length !== recBuf.length || !crypto.timingSafeEqual(sigBuf, recBuf)) {
     throw new Error("Invalid webhook signature");
   }
 

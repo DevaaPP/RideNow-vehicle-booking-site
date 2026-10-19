@@ -16,6 +16,7 @@ import { idempotency } from "@/lib/idempotency";
 import { getRequestId } from "@/lib/apiResponse";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
+import { rateLimiter } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
   const requestId = getRequestId(req);
@@ -42,6 +43,14 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { success: false, message: "Please sign in to request a ride", meta: { requestId } },
         { status: 401 }
+      );
+    }
+
+    const userLimit = rateLimiter.check(`booking:create:${session.user.id}`, 10, 60 * 1000);
+    if (!userLimit.allowed) {
+      return NextResponse.json(
+        { success: false, message: "Too many ride requests. Please wait a moment before trying again.", meta: { requestId } },
+        { status: 429 }
       );
     }
 

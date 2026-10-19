@@ -33,6 +33,19 @@ export async function GET(
     return NextResponse.json({ message: "Ride booking not found" }, { status: 404 });
   }
 
+  // Cross-tenant access control: only the booking's rider, assigned driver, or an admin can inspect cancellation details
+  const currentUserId = (sessionUser as any)._id.toString();
+  const riderId = booking.user?.toString();
+  const driverId = booking.driver?.toString();
+  const isAdmin = (sessionUser as any).role === "admin";
+
+  if (!isAdmin && driverId !== currentUserId && riderId !== currentUserId) {
+    return NextResponse.json(
+      { message: "Forbidden: You are not authorized to view cancellation details for this ride" },
+      { status: 403 }
+    );
+  }
+
   const { searchParams } = new URL(req.url);
   const reason = searchParams.get("reason") || "Cancelled by passenger";
   const cancelledBy = (searchParams.get("cancelledBy") as "user" | "driver" | "admin" | "system") || "user";

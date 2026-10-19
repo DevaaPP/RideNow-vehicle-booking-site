@@ -153,7 +153,16 @@ export async function transitionBookingState(ctx: TransitionContext): Promise<Tr
   }
 
   // 5. Driver Ownership Authorization Check
-  if (actorRole === "driver" && actorId) {
+  if (actorRole === "driver") {
+    if (!actorId) {
+      return {
+        success: false,
+        previousStatus: currentStatus,
+        currentStatus,
+        message: "Driver identifier is required for driver transitions.",
+        errorCode: "UNAUTHORIZED",
+      };
+    }
     const driverIdStr = actorId.toString();
 
     // If driver is attempting to accept a ride, enforce candidate check or open search
@@ -179,7 +188,16 @@ export async function transitionBookingState(ctx: TransitionContext): Promise<Tr
   }
 
   // 6. User Ownership Authorization Check
-  if (actorRole === "user" && actorId) {
+  if (actorRole === "user") {
+    if (!actorId) {
+      return {
+        success: false,
+        previousStatus: currentStatus,
+        currentStatus,
+        message: "User identifier is required for user transitions.",
+        errorCode: "UNAUTHORIZED",
+      };
+    }
     const userIdStr = actorId.toString();
     if (currentBooking.user.toString() !== userIdStr) {
       return {

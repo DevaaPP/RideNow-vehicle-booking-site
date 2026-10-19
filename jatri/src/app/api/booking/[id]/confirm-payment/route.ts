@@ -33,7 +33,16 @@ export async function POST(
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const { method } = await req.json();
+  const body = await req.json().catch(() => ({}));
+  const { method } = body;
+
+  if (method !== "cash") {
+    return NextResponse.json(
+      { message: "Invalid payment method for offline confirmation. Online payments must be verified through the payment gateway." },
+      { status: 400 }
+    );
+  }
+
   const booking = await Booking.findById(id);
 
   if (!booking) {
@@ -63,7 +72,7 @@ export async function POST(
   }
 
   booking.status = "confirmed";
-  booking.paymentStatus = method === "cash" ? "cash" : "paid";
+  booking.paymentStatus = "cash";
   booking.paymentDeadline = undefined;
 
   if (!booking.pickupOtp) {

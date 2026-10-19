@@ -11,8 +11,17 @@ export async function POST(
   await connectDb();
   const session = await auth();
 
-  const actorRole = session?.user?.role === "vendor" || session?.user?.role === "driver" ? "driver" : session?.user?.role === "admin" ? "admin" : "driver";
-  const actorId = session?.user?.id;
+  if (!session?.user?.id) {
+    return NextResponse.json({ message: "Unauthorized: Driver login required" }, { status: 401 });
+  }
+
+  const userRole = session.user.role;
+  if (userRole !== "vendor" && userRole !== "driver" && userRole !== "admin") {
+    return NextResponse.json({ message: "Forbidden: Driver or Admin privileges required" }, { status: 403 });
+  }
+
+  const actorRole = userRole === "admin" ? "admin" : "driver";
+  const actorId = session.user.id;
 
   const transitionRes = await transitionBookingState({
     bookingId: id,

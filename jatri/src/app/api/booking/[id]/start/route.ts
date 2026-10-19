@@ -12,8 +12,17 @@ export async function POST(
     const { id } = await params;
     await connectDb();
     const session = await auth();
-    const actorRole = session?.user?.role === "vendor" || session?.user?.role === "driver" ? "driver" : session?.user?.role === "admin" ? "admin" : "driver";
-    const actorId = session?.user?.id;
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, message: "Unauthorized: Login required" }, { status: 401 });
+    }
+
+    const userRole = session.user.role;
+    if (userRole !== "vendor" && userRole !== "driver" && userRole !== "admin") {
+      return NextResponse.json({ success: false, message: "Forbidden: Driver or Admin privileges required" }, { status: 403 });
+    }
+
+    const actorRole = userRole === "admin" ? "admin" : "driver";
+    const actorId = session.user.id;
 
     const body = await req.json().catch(() => ({}));
     const { otp } = body;
@@ -22,6 +31,13 @@ export async function POST(
     const booking = await Booking.findById(id);
     if (!booking) {
       return NextResponse.json({ success: false, message: "Booking not found" }, { status: 404 });
+    }
+
+    if (actorRole === "driver" && booking.driver?.toString() !== actorId) {
+      return NextResponse.json(
+        { success: false, message: "Forbidden: You are not assigned to this ride" },
+        { status: 403 }
+      );
     }
 
     // Security Gate: Enforce Pickup OTP for non-admin actors
@@ -76,7 +92,7 @@ export async function POST(
       return NextResponse.json({ success: false, message: transitionRes.message || "Could not start ride" }, { status });
     }
 
-    // Notify passenger and driver via socket
+    // Notify passenger with dropOtp (confidential to passenger)
     try {
       await emitSocketEvent({
         userId: booking.user.toString(),
@@ -87,8 +103,9 @@ export async function POST(
           pickupOtp: "",
           dropOtp: newDropOtp,
         },
-        directBookingId: booking._id.toString(),
       });
+
+      // Notify driver and room WITHOUT dropOtp
       if (booking.driver) {
         await emitSocketEvent({
           userId: booking.driver.toString(),
@@ -97,7 +114,6 @@ export async function POST(
             bookingId: booking._id.toString(),
             status: "started",
             pickupOtp: "",
-            dropOtp: newDropOtp,
           },
           directBookingId: booking._id.toString(),
         });
