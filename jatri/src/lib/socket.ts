@@ -154,3 +154,17 @@ export const leaveBookingRoom = (bookingId: string) => {
     s.emit("leave-booking", bookingId);
   }
 };
+
+/**
+ * Resets socket authentication and cleanly disconnects upon user sign-out.
+ */
+export const resetSocketAuth = () => {
+  savedAuthData = {};
+  activeBookingRooms.clear();
+  if (socket) {
+    socket.auth = {};
+    socket.disconnect();
+    socket = null;
+    listenersAttached = false;
+  }
+};

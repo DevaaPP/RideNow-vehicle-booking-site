@@ -24,7 +24,7 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { performFastSignOut } from "@/lib/authLogout";
 import AdminEarningsChart from "@/features/admin/components/AdminEarningsChart";
 import StatusAreaChart from "@/features/admin/components/AdminStatusChart";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
@@ -112,8 +112,8 @@ export default function AdminDashboardClient() {
               Secure Console
             </div>
             <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="text-xs font-semibold text-[#696B64] hover:text-[#E34222] transition-colors border border-[#DED7CA] px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] shadow-xs active:scale-95"
+              onClick={() => performFastSignOut("/")}
+              className="text-xs font-semibold text-[#696B64] hover:text-[#E34222] transition-colors border border-[#DED7CA] px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] shadow-xs active:scale-95 cursor-pointer"
             >
               Logout
             </button>

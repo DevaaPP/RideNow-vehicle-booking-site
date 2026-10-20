@@ -19,12 +19,14 @@ import {
   User as UserIcon,
   Tag,
   Car,
+  Loader2,
 } from "lucide-react";
 import AuthModal from "@/features/auth/components/AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { setUserData } from "@/redux/userSlice";
+import { performFastSignOut } from "@/lib/authLogout";
 import axios from "axios";
 import LanguageSelector from "./LanguageSelector";
 import NotificationToggle from "./NotificationToggle";
@@ -158,12 +160,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const handleLogout = async () => {
-    await signOut({ redirect: false });
-    dispatch(setUserData(null));
+    setIsLoggingOut(true);
     setProfileOpen(false);
     setMenuOpen(false);
-    router.push("/");
+    await performFastSignOut("/");
   };
 
   /* Desktop navigation items with 300% visual prominence */
@@ -362,6 +365,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         <UberProfileDropdown
                           userData={currentUser}
                           handleLogout={handleLogout}
+                          isLoggingOut={isLoggingOut}
                           router={router}
                           onClose={() => setProfileOpen(false)}
                         />
@@ -635,10 +639,11 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="p-3 text-[#E34222] dark:text-[#E06A50] hover:bg-[#E34222]/10 rounded-xl transition"
+                    disabled={isLoggingOut}
+                    className="p-3 text-[#E34222] dark:text-[#E06A50] hover:bg-[#E34222]/10 rounded-xl transition cursor-pointer disabled:opacity-50"
                     aria-label="Logout"
                   >
-                    <LogOut size={20} />
+                    {isLoggingOut ? <Loader2 size={20} className="animate-spin" /> : <LogOut size={20} />}
                   </button>
                 </div>
               ) : (
@@ -687,6 +692,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               <UberProfileDropdown
                 userData={currentUser}
                 handleLogout={handleLogout}
+                isLoggingOut={isLoggingOut}
                 router={router}
                 onClose={() => setProfileOpen(false)}
                 mobile
@@ -705,12 +711,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 function UberProfileDropdown({
   userData,
   handleLogout,
+  isLoggingOut,
   router,
   onClose,
   mobile,
 }: {
   userData: any;
   handleLogout: () => void;
+  isLoggingOut?: boolean;
   router: any;
   onClose: () => void;
   mobile?: boolean;
@@ -848,9 +856,17 @@ function UberProfileDropdown({
       {/* 5. RED SIGN OUT BUTTON */}
       <button
         onClick={handleLogout}
-        className="w-full mt-2 py-3 rounded-2xl text-red-600 dark:text-[#E06A50] font-bold hover:bg-red-50 dark:hover:bg-[#E34222]/10 transition active:scale-98 text-center text-base"
+        disabled={isLoggingOut}
+        className="w-full mt-2 py-3 rounded-2xl text-red-600 dark:text-[#E06A50] font-bold hover:bg-red-50 dark:hover:bg-[#E34222]/10 transition active:scale-98 text-center text-base flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
       >
-        Sign out
+        {isLoggingOut ? (
+          <>
+            <Loader2 size={16} className="animate-spin" />
+            <span>Signing out...</span>
+          </>
+        ) : (
+          <span>Sign out</span>
+        )}
       </button>
     </div>
   );

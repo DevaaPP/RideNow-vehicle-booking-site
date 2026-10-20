@@ -32,6 +32,7 @@ import {
   Clock,
   ChevronRight,
   CheckCircle2,
+  LogOut,
 } from "lucide-react";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
@@ -39,6 +40,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { validateStudentEmail } from "@/lib/studentVerification";
 import { useSession } from "next-auth/react";
 import AuthModal from "@/features/auth/components/AuthModal";
+import { performFastSignOut } from "@/lib/authLogout";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -81,6 +83,13 @@ export default function ProfilePage() {
   const [memberEmail, setMemberEmail] = useState("");
   const [addingMember, setAddingMember] = useState(false);
   const [familyMsg, setFamilyMsg] = useState<string | null>(null);
+
+  /* ── SIGN OUT STATE ── */
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    await performFastSignOut("/");
+  };
 
   /* ── DPDP ACCOUNT ERASURE STATE ── */
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -830,6 +839,42 @@ export default function ProfilePage() {
                 Past trip logs and tax receipts are archived in anonymized form for statutory audit periods under Motor Vehicle Guidelines.
               </div>
             </div>
+          </div>
+
+          {/* 🚪 SIGN OUT ACTION CARD */}
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A] p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#faebe8] dark:bg-[#341814] text-[#E34222] dark:text-[#E06A50] flex items-center justify-center shrink-0">
+                <LogOut size={18} />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">
+                  Sign Out of Jaatri
+                </h3>
+                <p className="text-xs text-[#696B64] dark:text-[#B8C2B8]">
+                  Securely sign out of your account on this device.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-[8px] bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer disabled:opacity-50 shadow-xs"
+            >
+              {isSigningOut ? (
+                <>
+                  <Loader2 size={15} className="animate-spin" />
+                  <span>Signing out...</span>
+                </>
+              ) : (
+                <>
+                  <LogOut size={15} />
+                  <span>Sign Out</span>
+                </>
+              )}
+            </button>
           </div>
         </motion.div>
         </>
