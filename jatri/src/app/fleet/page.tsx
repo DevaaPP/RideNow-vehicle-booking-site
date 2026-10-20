@@ -111,9 +111,9 @@ export default function FleetPage() {
     <div className="min-h-screen flex flex-col bg-[#F7F1E5] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] justify-between">
       <Nav />
 
-      <main className="flex-1 pt-28 sm:pt-36 pb-20">
-        {/* ================= HERO INTRO ================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 sm:mb-20">
+      <main className="flex-1 pt-20 sm:pt-36 pb-24 sm:pb-20">
+        {/* ================= HERO INTRO (DESKTOP) ================= */}
+        <section className="hidden sm:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 sm:mb-20">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -133,12 +133,37 @@ export default function FleetPage() {
           </motion.div>
         </section>
 
+        {/* ================= HERO INTRO (MOBILE COMPACT UBER REFERENCE) ================= */}
+        <section className="sm:hidden max-w-7xl mx-auto px-3 mb-4">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] border border-[#cdd6c3] dark:border-[#2D4E3A] text-[9.5px] font-bold uppercase tracking-wider mb-1.5">
+                <Sparkles size={10} className="text-[#E34222]" />
+                <span>Verified Fleets</span>
+              </div>
+              <h1 className="font-serif text-2xl font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
+                Services &amp; Fleet
+              </h1>
+              <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-0.5">
+                Go anywhere, get anything across Assam
+              </p>
+            </div>
+            <Link
+              href="/book?fresh=true"
+              className="text-xs font-bold text-[#046A38] dark:text-[#90C8A8] bg-[#E5EBDD]/80 dark:bg-[#1D3428]/80 hover:bg-[#E5EBDD] px-2.5 py-1.5 rounded-[8px] border border-[#cdd6c3] dark:border-[#2D4E3A] shrink-0 inline-flex items-center gap-1 transition"
+            >
+              <span>Estimate</span>
+              <ArrowRight size={12} />
+            </Link>
+          </div>
+        </section>
+
         {/* ================= VEHICLE CATEGORIES SHOWCASE ================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 sm:mb-24">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-12">
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mb-12 sm:mb-24">
+          <div className="hidden sm:flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-12">
             <div>
               <p className="text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#E34222] mb-2">
-                TRANSIT TIERS & COMMUTE OPTIONS
+                TRANSIT TIERS &amp; COMMUTE OPTIONS
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-2">
                 Choose Your Vehicle Class
@@ -156,75 +181,95 @@ export default function FleetPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
             {FLEET_CATEGORIES.map((category, idx) => (
               <motion.div
                 key={category.id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: idx * 0.05 }}
-                className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-5 sm:p-6 flex flex-col justify-between group hover:border-[#123D32]/50 dark:hover:border-[#90C8A8]/50 hover:shadow-md transition-all duration-200"
+                transition={{ duration: 0.35, delay: idx * 0.04 }}
+                className="h-full"
               >
-                <div>
-                  {/* Category Image */}
-                  <div className="relative w-full h-36 sm:h-40 bg-[#F7F1E5] dark:bg-[#101713] rounded-[10px] mb-4 overflow-hidden flex items-center justify-center p-2 border border-[#DED7CA]/60 dark:border-[#34443A]/60">
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-
-                  {/* Header info */}
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#E34222]">
-                      {category.badge}
-                    </span>
-                    <span className="text-[11px] font-semibold text-[#123D32] dark:text-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] px-2 py-0.5 rounded-full">
-                      {category.capacity}
-                    </span>
-                  </div>
-
-                  <h3 className="font-serif text-xl text-[#10251C] dark:text-[#F3F1E8] font-normal mb-1.5">{category.name}</h3>
-                  <p className="text-[#696B64] dark:text-[#929D93] text-xs leading-relaxed mb-4 min-h-[32px]">{category.description}</p>
-                </div>
-
-                {/* Pricing & CTA */}
-                <div className="pt-4 border-t border-[#DED7CA]/70 dark:border-[#34443A]/70 flex items-center justify-between">
+                <Link
+                  href={`/book?vehicle=${category.id}&fresh=true`}
+                  aria-label={`${category.name}: ${category.badge}, ${category.capacity}. ${category.price}. Tap to book directly.`}
+                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] sm:rounded-[14px] p-2.5 sm:p-5 lg:p-6 flex flex-col justify-between h-full group hover:border-[#046A38] dark:hover:border-[#90C8A8]/60 hover:shadow-md transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                >
                   <div>
-                    <span className="text-[11px] text-[#696B64] dark:text-[#929D93] block">Transparent rate</span>
-                    <p className="text-[#10251C] dark:text-[#F3F1E8] text-sm font-bold">{category.price}</p>
+                    {/* Category Image */}
+                    <div className="relative w-full h-24 sm:h-36 lg:h-40 bg-[#F7F1E5] dark:bg-[#101713] rounded-[8px] sm:rounded-[10px] mb-2 sm:mb-3.5 overflow-hidden flex items-center justify-center p-1 sm:p-2 border border-[#DED7CA]/60 dark:border-[#34443A]/60">
+                      <Image
+                        src={category.image}
+                        alt={category.name}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-contain p-1 sm:p-2 group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+
+                    {/* Header info */}
+                    <div className="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
+                      <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#E34222] truncate">
+                        {category.badge}
+                      </span>
+                      <span className="text-[8.5px] sm:text-[11px] font-semibold text-[#123D32] dark:text-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] px-1.5 sm:px-2 py-0.5 rounded-full shrink-0">
+                        {category.capacity}
+                      </span>
+                    </div>
+
+                    <h3 className="font-serif text-sm sm:text-xl text-[#10251C] dark:text-[#F3F1E8] font-bold sm:font-normal mb-0.5 sm:mb-1.5 truncate group-hover:text-[#046A38] dark:group-hover:text-[#90C8A8] transition-colors">
+                      {category.name}
+                    </h3>
+                    <p className="text-[#696B64] dark:text-[#929D93] text-[10.5px] sm:text-xs leading-snug sm:leading-relaxed mb-2 sm:mb-4 line-clamp-1 sm:line-clamp-2 min-h-0 sm:min-h-[32px]">
+                      {category.description}
+                    </p>
                   </div>
-                  <Link
-                    href={`/book?vehicle=${category.id}&fresh=true`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs font-bold transition active:scale-95 shadow-2xs"
-                  >
-                    <span>Book</span>
-                    <ArrowRight size={13} />
-                  </Link>
-                </div>
+
+                  {/* Pricing & CTA */}
+                  <div className="pt-2 sm:pt-4 border-t border-[#DED7CA]/70 dark:border-[#34443A]/70 flex items-center justify-between mt-auto">
+                    <div>
+                      <span className="text-[9px] sm:text-[11px] text-[#696B64] dark:text-[#929D93] block leading-tight">
+                        <span className="sm:hidden">From</span>
+                        <span className="hidden sm:inline">Transparent rate</span>
+                      </span>
+                      <p className="text-[#10251C] dark:text-[#F3F1E8] text-xs sm:text-sm font-extrabold sm:font-bold tracking-tight">
+                        <span className="hidden sm:inline">Starting from </span>
+                        {category.price.replace("Starting from ", "")}
+                      </p>
+                    </div>
+
+                    {/* Mobile Direct Click Indicator */}
+                    <div className="sm:hidden w-6 h-6 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#046A38] dark:text-[#90C8A8] flex items-center justify-center shrink-0 group-hover:bg-[#046A38] group-hover:text-white transition-colors">
+                      <ArrowRight size={11} strokeWidth={2.4} />
+                    </div>
+
+                    {/* Desktop Book CTA Button */}
+                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#046A38] group-hover:bg-[#03532C] dark:bg-[#058A48] dark:group-hover:bg-[#046A38] text-white text-xs font-bold transition shadow-2xs">
+                      <span>Book</span>
+                      <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                    </span>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </div>
         </section>
 
         {/* ================= FLEET STANDARDS GRID (REASSURANCE & TRUST) ================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 sm:mb-24">
-          <div className="max-w-3xl mb-8 sm:mb-12">
-            <p className="text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#E34222] mb-2">
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mb-12 sm:mb-24">
+          <div className="max-w-3xl mb-6 sm:mb-12">
+            <p className="text-[10px] sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#E34222] mb-1.5 sm:mb-2">
               VERIFIED MOBILITY STANDARDS
             </p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-2">
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-1.5 sm:mb-2">
               Engineered for Safety, Speed &amp; Transparency
             </h2>
-            <p className="text-[#696B64] dark:text-[#929D93] text-sm sm:text-base leading-relaxed">
+            <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-base leading-relaxed">
               Every trip on Jaatri is backed by multi-point physical inspections, real-time GPS telemetry, and honest upfront fare metrics.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {FLEET_STANDARDS.map((feature, idx) => {
               const Icon = feature.icon;
               return (
@@ -233,12 +278,13 @@ export default function FleetPage() {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: idx * 0.08 }}
-                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-6 shadow-2xs hover:border-[#123D32]/40 dark:hover:border-[#90C8A8]/40 transition duration-200"
+                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-4 sm:p-6 shadow-2xs hover:border-[#123D32]/40 dark:hover:border-[#90C8A8]/40 transition duration-200"
                 >
-                  <div className="w-11 h-11 rounded-[8px] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] flex items-center justify-center mb-4">
-                    <Icon size={22} />
+                  <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-[8px] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] flex items-center justify-center mb-3 sm:mb-4">
+                    <Icon size={19} className="sm:hidden" />
+                    <Icon size={22} className="hidden sm:block" />
                   </div>
-                  <h3 className="font-bold text-base text-[#10251C] dark:text-[#F3F1E8] mb-2">{feature.title}</h3>
+                  <h3 className="font-bold text-sm sm:text-base text-[#10251C] dark:text-[#F3F1E8] mb-1 sm:mb-2">{feature.title}</h3>
                   <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm leading-relaxed">{feature.description}</p>
                 </motion.div>
               );
@@ -247,27 +293,27 @@ export default function FleetPage() {
         </section>
 
         {/* ================= BOTTOM CTA ================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[16px] p-8 sm:p-12 text-center shadow-xs">
-            <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#E34222] mb-2 block">
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] sm:rounded-[16px] p-5 sm:p-12 text-center shadow-xs">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.16em] text-[#E34222] mb-1 sm:mb-2 block">
               READY TO COMMUTE?
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] max-w-xl mx-auto mb-4">
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] max-w-xl mx-auto mb-2 sm:mb-4">
               Fast, reliable rides at your fingertips across Assam.
             </h2>
-            <p className="text-[#696B64] dark:text-[#929D93] text-sm sm:text-base max-w-lg mx-auto mb-8">
+            <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-base max-w-lg mx-auto mb-6 sm:mb-8">
               Experience seamless booking with transparent upfront pricing, real-time vehicle dispatch, and verified local drivers.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4">
               <Link
                 href="/book?fresh=true"
-                className="px-8 py-3.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold rounded-[8px] transition active:scale-95 shadow-xs text-sm sm:text-base"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold rounded-[8px] transition active:scale-95 shadow-xs text-sm sm:text-base text-center"
               >
                 Book a Ride Now
               </Link>
               <Link
                 href="/partner/onboard/vehicle"
-                className="px-6 py-3.5 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] text-[#10251C] dark:text-[#F3F1E8] font-bold rounded-[8px] transition active:scale-95 text-sm sm:text-base"
+                className="w-full sm:w-auto px-5 sm:px-6 py-3 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] text-[#10251C] dark:text-[#F3F1E8] font-bold rounded-[8px] transition active:scale-95 text-sm sm:text-base text-center"
               >
                 Drive with Jaatri
               </Link>
