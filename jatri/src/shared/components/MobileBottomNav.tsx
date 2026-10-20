@@ -54,7 +54,7 @@ const DESTINATIONS: NavDestination[] = [
 
 // Routes where full-screen interaction, map manipulation, or pinned CTAs must NOT be obstructed
 const HIDDEN_PATTERNS = [
-  /^\/book/,                 // Interactive map booking sheet & pinned confirm CTA
+  /^\/book($|\?)/,           // Interactive map booking sheet & pinned confirm CTA (only /book or /book?..., NOT /bookings)
   /^\/ride\//,               // Live turn-by-turn passenger tracking & panic controls
   /^\/track\//,              // Public live tracking map view
   /^\/video-kyc\//,          // Full-screen camera & video KYC stream
