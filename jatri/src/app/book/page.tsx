@@ -1670,8 +1670,8 @@ export default function BookPage() {
 
       {/* Destination Row */}
       <div className="relative">
-        <div className="flex items-center gap-2.5 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] px-3.5 py-2 min-h-[46px] focus-within:border-[#B83A24] dark:focus-within:border-[#E06A50] focus-within:ring-2 focus-within:ring-[#B83A24]/10 transition-all shadow-xs">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#B83A24] dark:bg-[#E06A50] flex-shrink-0" />
+        <div className="flex items-center gap-2.5 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] px-3.5 py-2 min-h-[46px] focus-within:border-[#E34222] dark:focus-within:border-[#E06A50] focus-within:ring-2 focus-within:ring-[#E34222]/10 transition-all shadow-xs">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#E34222] dark:bg-[#E06A50] flex-shrink-0" />
 
           {/* Reorder controls for Drop */}
           <div className="flex items-center gap-0.5 flex-shrink-0">
@@ -1728,9 +1728,9 @@ export default function BookPage() {
               setMapSelectionMode("drop");
             }}
             title="Choose destination on map"
-            className="w-7 h-7 rounded-[6px] border border-[#B83A24] dark:border-[#E06A50] bg-white dark:bg-[#1E2B23] hover:bg-[#faebe8] dark:hover:bg-[#3A201A] transition flex items-center justify-center flex-shrink-0"
+            className="w-7 h-7 rounded-[6px] border border-[#E34222] dark:border-[#E06A50] bg-white dark:bg-[#1E2B23] hover:bg-[#faebe8] dark:hover:bg-[#3A201A] transition flex items-center justify-center flex-shrink-0"
           >
-            <MapPin size={13} className="text-[#B83A24] dark:text-[#E06A50]" />
+            <MapPin size={13} className="text-[#E34222] dark:text-[#E06A50]" />
           </motion.button>
         </div>
 
@@ -1870,7 +1870,7 @@ export default function BookPage() {
                       setActiveSearchField(null);
                       setMapSelectionMode("drop");
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 dark:bg-[#B83A24] text-white text-xs font-bold shadow-xs hover:bg-black dark:hover:bg-[#8A2514] transition"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 dark:bg-[#E34222] text-white text-xs font-bold shadow-xs hover:bg-black dark:hover:bg-[#8A2514] transition"
                   >
                     <MapPin size={12} />
                     <span>Set destination on map</span>
@@ -2257,14 +2257,14 @@ export default function BookPage() {
                   onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
                   className={`relative flex items-center justify-between px-3.5 py-3.5 transition-colors cursor-pointer select-none rounded-[10px] my-1 ${
                     isSelected
-                      ? "bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] shadow-xs"
+                      ? "bg-[#1E6048] text-[#F7F1E5] shadow-xs"
                       : isSmartPick
-                      ? "bg-[#E5EBDD]/50 dark:bg-[#1D3428]/60 hover:bg-[#E5EBDD] dark:hover:bg-[#1D3428] text-[#10251C] dark:text-[#F3F1E8]"
+                      ? "bg-[#E5EBDD]/60 dark:bg-[#1D3428]/60 hover:bg-[#E5EBDD] dark:hover:bg-[#1D3428] text-[#10251C] dark:text-[#F3F1E8]"
                       : "hover:bg-[#FAF7F0] dark:hover:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8]"
                   } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
                 >
                   {isSmartPick && !isSelected && (
-                    <span className="absolute top-1.5 right-3 bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[4px] shadow-xs flex items-center gap-1">
+                    <span className="absolute top-1.5 right-3 bg-[#046A38] text-white text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[4px] shadow-xs flex items-center gap-1">
                       <Sparkles size={8} />
                       <span>Best Match</span>
                     </span>
@@ -2334,7 +2334,7 @@ export default function BookPage() {
                           e.stopPropagation();
                           setVehicle("car");
                         }}
-                        className="text-[9px] font-bold uppercase text-[#B83A24] dark:text-[#E06A50] bg-[#faebe8] dark:bg-[#3A201A] hover:bg-[#faebe8]/80 px-1.5 py-0.5 rounded-[4px] border border-[#B83A24]/30 dark:border-[#E06A50]/40 block mt-1"
+                        className="text-[9px] font-bold uppercase text-[#E34222] dark:text-[#E06A50] bg-[#faebe8] dark:bg-[#3A201A] hover:bg-[#faebe8]/80 px-1.5 py-0.5 rounded-[4px] border border-[#E34222]/30 dark:border-[#E06A50]/40 block mt-1"
                       >
                         Use Intercity
                       </button>
@@ -2555,7 +2555,7 @@ export default function BookPage() {
             whileTap={{ scale: 0.99 }}
             disabled={!canContinue}
             onClick={handleConfirmRide}
-            className="w-full py-3.5 sm:py-4 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-35 text-white font-bold text-sm sm:text-base uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[48px]"
+            className="w-full py-3.5 sm:py-4 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-35 text-white font-bold text-sm sm:text-base uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[48px]"
           >
             <span>
               {!hasRoute
@@ -2699,13 +2699,13 @@ export default function BookPage() {
             </div>
           </div>
         ) : (
-          /* Mobile Dynamic Full Split View with Tactile Sliding Sheet */
-          <div className="flex flex-col w-full h-full overflow-hidden relative">
+          /* Mobile Fullscreen Map with Non-Colliding Bottom Sheet Overlay */
+          <div className="relative w-full h-[100dvh] overflow-hidden">
             {/* Floating Top-Left Home / Back CTA over Mobile Map */}
-            <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 pointer-events-auto">
+            <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 pointer-events-auto">
               <Link
                 href="/"
-                className="h-8 px-2.5 bg-white/95 dark:bg-[#17211B]/95 hover:bg-white dark:hover:bg-[#1E2B23] text-zinc-900 dark:text-[#F3F1E8] border border-zinc-300 dark:border-[#34443A] shadow-sm flex items-center gap-1.5 text-xs font-black uppercase tracking-wider backdrop-blur-sm transition"
+                className="h-8 px-2.5 bg-white/95 dark:bg-[#17211B]/95 hover:bg-white dark:hover:bg-[#1E2B23] text-zinc-900 dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition"
                 title="Home"
               >
                 <Home size={13} />
@@ -2714,21 +2714,15 @@ export default function BookPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="w-8 h-8 bg-white/95 dark:bg-[#17211B]/95 hover:bg-white dark:hover:bg-[#1E2B23] text-zinc-900 dark:text-[#F3F1E8] border border-zinc-300 dark:border-[#34443A] shadow-sm flex items-center justify-center backdrop-blur-sm transition"
+                className="w-8 h-8 bg-white/95 dark:bg-[#17211B]/95 hover:bg-white dark:hover:bg-[#1E2B23] text-zinc-900 dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] shadow-sm flex items-center justify-center backdrop-blur-sm transition"
                 title="Back"
               >
                 <ArrowLeft size={14} />
               </button>
             </div>
 
-            {/* Dynamic Map: Seamlessly transitions between Full Map, Half Split (36dvh), and Peek (14dvh) */}
-            <div className={`w-full relative z-0 border-b border-zinc-300 dark:border-[#34443A] bg-zinc-100 dark:bg-[#101713] transition-all duration-300 ease-in-out flex-shrink-0 ${
-              mobileSheetState === "up"
-                ? "h-[14dvh]"
-                : mobileSheetState === "down"
-                ? "h-[calc(100dvh-130px)]"
-                : "h-[36dvh]"
-            }`}>
+            {/* Stable Fullscreen Map: NEVER changes container height during gestures */}
+            <div className="absolute inset-0 z-0 bg-zinc-100 dark:bg-[#101713]">
               <RouteMap
                 pickup={pickup}
                 drop={drop}
@@ -2743,146 +2737,159 @@ export default function BookPage() {
                 smartPickups={smartPickups}
                 onSelectSmartPickup={handleSelectSmartPickup}
                 stops={validStopsForMap}
-                bottomPadding={mobileSheetState === "down" ? 70 : mobileSheetState === "up" ? 15 : 40}
+                bottomPadding={mobileSheetState === "down" ? 130 : mobileSheetState === "up" ? 110 : 340}
                 selectionMode={mapSelectionMode}
                 onSelectionModeChange={setMapSelectionMode}
                 onConfirmPinSelection={handleConfirmPinSelection}
               />
             </div>
 
-            {/* Bottom Tactile Sliding Booking Interface (Integrated Framer Motion physics from /active-ride) */}
-            <motion.div
-              animate={{
-                height:
-                  mobileSheetState === "up"
-                    ? "86dvh"
-                    : mobileSheetState === "down"
-                    ? 130
-                    : "64dvh",
-              }}
-              transition={{ type: "spring", stiffness: 340, damping: 34 }}
-              className="flex flex-col bg-[#FAF7F0] dark:bg-[#17211B] overflow-hidden shadow-2xl relative z-10 border-t border-[#DED7CA] dark:border-[#34443A]"
-            >
-              {/* Interactive Drag Handle Header */}
+            {/* Bottom Tactile Sliding Booking Interface (3 Definite Snap Points: down 110px, half 56dvh, up 88dvh) */}
+            <div className="absolute bottom-0 inset-x-0 z-20 pointer-events-none flex flex-col justify-end">
               <motion.div
-                drag="y"
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={0.25}
-                onDragEnd={(_, info) => {
-                  if (info.offset.y < -35 || info.velocity.y < -250) {
-                    setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
-                  } else if (info.offset.y > 35 || info.velocity.y > 250) {
-                    setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
-                  }
+                animate={{
+                  height:
+                    mobileSheetState === "up"
+                      ? "88dvh"
+                      : mobileSheetState === "down"
+                      ? 110
+                      : "56dvh",
                 }}
-                className="flex-shrink-0 pt-2 pb-2 px-3.5 border-b border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] cursor-grab active:cursor-grabbing select-none"
+                transition={{ type: "spring", stiffness: 380, damping: 36 }}
+                className="pointer-events-auto flex flex-col bg-[#FAF7F0] dark:bg-[#17211B] rounded-t-[20px] shadow-[0_-8px_30px_rgba(0,0,0,0.18)] border-t border-[#DED7CA] dark:border-[#34443A] overflow-hidden"
               >
-                {/* Physical slide pill bar indicator */}
+                {/* Interactive Drag Handle Header */}
                 <div
-                  onClick={() => {
-                    setMobileSheetState((prev) => (prev === "up" ? "down" : prev === "down" ? "half" : "up"));
+                  className="flex-shrink-0 pt-2 pb-2.5 px-3.5 border-b border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] select-none cursor-grab active:cursor-grabbing touch-none"
+                  onTouchStart={(e) => {
+                    const touch = e.touches[0];
+                    (e.currentTarget as any)._startY = touch.clientY;
+                    (e.currentTarget as any)._startTime = Date.now();
                   }}
-                  className="w-12 h-1 bg-[#DED7CA] dark:bg-[#34443A] mx-auto rounded-full mb-2 cursor-pointer hover:bg-[#696B64] active:scale-95 transition-all"
-                  title="Slide to adjust view"
-                />
-
-                <div className="flex items-center justify-between">
-                  <div
+                  onTouchEnd={(e) => {
+                    const startY = (e.currentTarget as any)._startY;
+                    const startTime = (e.currentTarget as any)._startTime;
+                    if (typeof startY === "number") {
+                      const deltaY = e.changedTouches[0].clientY - startY;
+                      const deltaTime = Date.now() - (startTime || Date.now());
+                      const velocityY = deltaY / Math.max(1, deltaTime);
+                      if (deltaY < -35 || velocityY < -0.35) {
+                        setMobileSheetState((prev) => (prev === "down" ? "half" : "up"));
+                      } else if (deltaY > 35 || velocityY > 0.35) {
+                        setMobileSheetState((prev) => (prev === "up" ? "half" : "down"));
+                      }
+                    }
+                  }}
+                >
+                  {/* Physical slide pill bar indicator */}
+                  <button
+                    type="button"
                     onClick={() => {
-                      if (mobileSheetState === "down") setMobileSheetState("half");
-                      else if (mobileSheetState === "half") setMobileSheetState("up");
-                      else setMobileSheetState("half");
+                      setMobileSheetState((prev) => (prev === "up" ? "down" : prev === "down" ? "half" : "up"));
                     }}
-                    className="flex items-center gap-2 min-w-0 pr-2 cursor-pointer"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#90C8A8] flex-shrink-0" />
-                    <span className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] truncate max-w-[120px]">{pickup.split(',')[0]}</span>
-                    <span className="text-[#696B64] dark:text-[#929D93]">→</span>
-                    <span className="w-2 h-2 rounded-full bg-[#B83A24] dark:bg-[#E06A50] flex-shrink-0" />
-                    <span className="text-xs font-black text-[#10251C] dark:text-[#F3F1E8] truncate max-w-[120px]">{drop.split(',')[0]}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] border border-[#123D32] dark:border-[#28664D]">
-                      {effectiveDistance} km
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsEditingRoute(!isEditingRoute);
+                    aria-label="Toggle ride drawer"
+                    className="w-12 h-1.5 bg-[#DED7CA] dark:bg-[#34443A] mx-auto rounded-full mb-2 cursor-pointer hover:bg-[#696B64] active:scale-95 transition-all block"
+                    title="Slide to adjust view"
+                  />
+
+                  <div className="flex items-center justify-between">
+                    <div
+                      onClick={() => {
+                        if (mobileSheetState === "down") setMobileSheetState("half");
+                        else if (mobileSheetState === "half") setMobileSheetState("up");
+                        else setMobileSheetState("half");
                       }}
-                      className="px-2 py-0.5 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-bold flex items-center gap-1 cursor-pointer hover:bg-[#F7F1E5] dark:hover:bg-[#202B24]"
+                      className="flex items-center gap-2 min-w-0 pr-2 cursor-pointer"
                     >
-                      <Edit2 size={10} />
-                      <span>{isEditingRoute ? "Done" : "Edit"}</span>
-                    </button>
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#046A38] dark:bg-[#90C8A8] flex-shrink-0" />
+                      <span className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] truncate max-w-[120px]">{pickup.split(',')[0]}</span>
+                      <span className="text-[#696B64] dark:text-[#929D93] text-xs">→</span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#E34222] flex-shrink-0" />
+                      <span className="text-xs font-black text-[#10251C] dark:text-[#F3F1E8] truncate max-w-[120px]">{drop.split(',')[0]}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] border border-[#123D32] dark:border-[#28664D]">
+                        {effectiveDistance} km
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsEditingRoute(!isEditingRoute);
+                        }}
+                        className="px-2 py-0.5 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-bold flex items-center gap-1 cursor-pointer hover:bg-[#F7F1E5] dark:hover:bg-[#202B24]"
+                      >
+                        <Edit2 size={10} />
+                        <span>{isEditingRoute ? "Done" : "Edit"}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
 
-              {/* If Mobile User Tapped Edit, Show Inputs Inline */}
-              {isEditingRoute && (
-                <div className="p-3 bg-white/70 dark:bg-[#101713]/70 border-b border-[#DED7CA] dark:border-[#34443A] flex-shrink-0">
-                  {renderLocationInputs()}
-                </div>
-              )}
-
-              {/* Scrollable Rides Body (Hidden only in peek down state) */}
-              {mobileSheetState !== "down" ? (
-                <div className="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 overscroll-contain">
-                  {renderRideSelection()}
-                </div>
-              ) : (
-                /* Compact Action Bar when bottom sheet is slid down */
-                <div className="flex-1 px-3.5 py-2 flex items-center justify-between gap-3 bg-[#FAF7F0] dark:bg-[#17211B]">
-                  <div className="min-w-0">
-                    <p className="text-xs font-black text-[#10251C] dark:text-[#F3F1E8] truncate">
-                      {VEHICLE_OPTIONS[vehicle]?.label || "Ride"}
-                    </p>
-                    <p className="text-xs font-bold text-[#696B64] dark:text-[#929D93]">
-                      ₹{currentBreakdown.totalFare} · Upfront fare
-                    </p>
+                {/* If Mobile User Tapped Edit, Show Inputs Inline */}
+                {isEditingRoute && (
+                  <div className="p-3 bg-white/80 dark:bg-[#101713]/80 border-b border-[#DED7CA] dark:border-[#34443A] flex-shrink-0">
+                    {renderLocationInputs()}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setMobileSheetState("half")}
-                      className="px-3 py-2 border border-[#DED7CA] dark:border-[#34443A] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold rounded-[8px] bg-white dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] transition"
-                    >
-                      Rides
-                    </button>
-                    <button
-                      type="button"
+                )}
+
+                {/* Scrollable Rides Body (Hidden only in peek down state) */}
+                {mobileSheetState !== "down" ? (
+                  <div className="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 overscroll-contain">
+                    {renderRideSelection()}
+                  </div>
+                ) : (
+                  /* Compact Action Bar when bottom sheet is peeked down */
+                  <div className="flex-1 px-3.5 py-2 flex items-center justify-between gap-3 bg-[#FAF7F0] dark:bg-[#17211B]">
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-[#10251C] dark:text-[#F3F1E8] truncate">
+                        {VEHICLE_OPTIONS[vehicle]?.label || "Ride"}
+                      </p>
+                      <p className="text-xs font-bold text-[#696B64] dark:text-[#929D93]">
+                        ₹{currentBreakdown.totalFare} · Upfront fare
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setMobileSheetState("half")}
+                        className="px-3 py-2 border border-[#DED7CA] dark:border-[#34443A] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold rounded-[8px] bg-white dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] transition"
+                      >
+                        Rides
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!canContinue}
+                        onClick={handleConfirmRide}
+                        className="px-4 py-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition flex items-center gap-1.5"
+                      >
+                        <span>Confirm</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mobile Pinned Bottom Action Footer: ALWAYS visible in half & up states */}
+                {mobileSheetState !== "down" && (
+                  <div className="flex-shrink-0 p-3 pb-[max(14px,env(safe-area-inset-bottom))] border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] z-20 shadow-lg">
+                    <motion.button
+                      whileTap={{ scale: 0.99 }}
                       disabled={!canContinue}
                       onClick={handleConfirmRide}
-                      className="px-4 py-2 bg-[#123D32] dark:bg-[#28664D] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] hover:bg-[#0D3027] dark:hover:bg-[#347858] transition flex items-center gap-1.5"
+                      className="w-full py-3.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-35 text-white font-bold text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition cursor-pointer min-h-[48px]"
                     >
-                      <span>Confirm</span>
-                      <ArrowRight size={14} />
-                    </button>
+                      <span>
+                        {bookingMode === "schedule"
+                          ? t("booking.scheduleRide", "Schedule Ride")
+                          : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride")}`}
+                      </span>
+                      <ArrowRight size={16} />
+                    </motion.button>
                   </div>
-                </div>
-              )}
-
-              {/* Mobile Pinned Bottom Action Footer: ALWAYS visible in half & up states */}
-              {mobileSheetState !== "down" && (
-                <div className="flex-shrink-0 p-3 pb-[max(14px,env(safe-area-inset-bottom))] border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] z-20 shadow-lg">
-                  <motion.button
-                    whileTap={{ scale: 0.99 }}
-                    disabled={!canContinue}
-                    onClick={handleConfirmRide}
-                    className="w-full py-3.5 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-35 text-white font-bold text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition cursor-pointer min-h-[48px]"
-                  >
-                    <span>
-                      {bookingMode === "schedule"
-                        ? t("booking.scheduleRide", "Schedule Ride")
-                        : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride")}`}
-                    </span>
-                    <ArrowRight size={16} />
-                  </motion.button>
-                </div>
-              )}
-            </motion.div>
+                )}
+              </motion.div>
+            </div>
           </div>
         )}
       </div>

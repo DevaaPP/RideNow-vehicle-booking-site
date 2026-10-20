@@ -136,7 +136,7 @@ function GroupJoinContent() {
               </div>
               <div className="h-px bg-[#DED7CA]/60" />
               <div className="flex gap-2.5 items-center">
-                <Navigation size={15} className="text-[#B83A24] flex-shrink-0" />
+                <Navigation size={15} className="text-[#E34222] flex-shrink-0" />
                 <p className="text-xs text-[#10251C] truncate">{joinResult.booking.dropAddress}</p>
               </div>
             </div>

@@ -24,7 +24,7 @@ export default function SafetyPolicyPage() {
       <section className="bg-[#123D32] dark:bg-[#101713] text-white pt-28 sm:pt-36 pb-14 px-4 sm:px-6 lg:px-8 border-b border-[#0D3027] dark:border-[#34443A]">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#F7F1E5] text-xs font-bold uppercase tracking-wider mb-4">
-            <ShieldAlert size={14} className="text-[#B83A24] dark:text-[#E06A50]" />
+            <ShieldAlert size={14} className="text-[#E34222] dark:text-[#E06A50]" />
             <span>24×7 Passenger & Driver Safety Protocols</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">
@@ -42,7 +42,7 @@ export default function SafetyPolicyPage() {
         {/* 1. In-App Emergency Assistance */}
         <section className="bg-[#faebe8] dark:bg-[#341814] rounded-[14px] p-6 sm:p-8 border border-[#f0c8c1] dark:border-[#E06A50]/40 text-[#782313] dark:text-[#E06A50] space-y-3 shadow-2xs">
           <h2 className="font-serif text-xl sm:text-2xl font-bold flex items-center gap-2 text-[#782313] dark:text-[#E06A50]">
-            <PhoneCall size={20} className="text-[#B83A24] dark:text-[#E06A50]" /> In-Ride Emergency Assistance & SOS
+            <PhoneCall size={20} className="text-[#E34222] dark:text-[#E06A50]" /> In-Ride Emergency Assistance & SOS
           </h2>
           <p className="text-xs text-[#782313]/90 dark:text-[#E06A50]/90 leading-relaxed">
             Every active ride in Jaatri features an integrated emergency protocol. In an unexpected safety or medical event:

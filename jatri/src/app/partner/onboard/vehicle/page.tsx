@@ -269,7 +269,7 @@ export default function PartnerVehiclePage() {
 
         {/* ERROR */}
         {error && (
-          <div className="mt-4 p-3 rounded-[8px] bg-[#B83A24]/10 dark:bg-red-950/30 border border-[#B83A24] dark:border-red-900/50 text-xs text-[#B83A24] dark:text-[#E06A50] font-mono">
+          <div className="mt-4 p-3 rounded-[8px] bg-[#E34222]/10 dark:bg-red-950/30 border border-[#E34222] dark:border-red-900/50 text-xs text-[#E34222] dark:text-[#E06A50] font-mono">
             {error}
           </div>
         )}

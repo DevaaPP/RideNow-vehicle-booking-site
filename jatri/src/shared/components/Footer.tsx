@@ -12,6 +12,7 @@ import {
 import LanguageSelector from "./LanguageSelector";
 import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "@/context/LanguageContext";
+import { GamosaBorder } from "./GamosaMotif";
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -25,8 +26,8 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-[#123D32] dark:bg-[#0A120E] text-[#F7F1E5] dark:text-[#F3F1E8] border-t border-[#426457]/50 dark:border-[#34443A] relative overflow-hidden">
-      {/* Subtle Assamese Gamosa-inspired vermilion top accent line */}
-      <div className="w-full h-[3px] bg-gradient-to-r from-transparent via-[#B83A24] dark:via-[#E06A50] via-45% via-[#D7AC62] to-transparent opacity-85" />
+      {/* Authentic Assamese Gamosa-inspired geometric woven border strip */}
+      <GamosaBorder height={8} accentColor="#E34222" className="opacity-90" />
 
       {/* MAIN FOOTER CONTENT */}
       <motion.div

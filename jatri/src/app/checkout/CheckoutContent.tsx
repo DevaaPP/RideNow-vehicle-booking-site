@@ -803,7 +803,7 @@ export default function CheckoutContent() {
             </Link>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B83A24]">Step 2 of 2</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E34222]">Step 2 of 2</span>
               </div>
               <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
                 Review & Confirm Ride
@@ -835,7 +835,7 @@ export default function CheckoutContent() {
         {isHydrated && (!pickupLat || !dropLat || pickup === "Pickup Location" || drop === "Drop Location") && (
           <div className="p-3.5 sm:p-4 bg-[#faebe8] dark:bg-[#3A201A] border border-[#f0c8c1] dark:border-[#6B3A2C] rounded-[10px] flex items-center justify-between shadow-none gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <AlertCircle size={18} className="text-[#B83A24] flex-shrink-0" />
+              <AlertCircle size={18} className="text-[#E34222] flex-shrink-0" />
               <div>
                 <p className="text-xs font-bold text-[#782313] dark:text-rose-200 uppercase tracking-wide">No active route selected</p>
                 <p className="text-[11px] text-[#782313]/90 dark:text-rose-300/90 font-medium">Please choose your pickup and drop locations on the map.</p>
@@ -844,7 +844,7 @@ export default function CheckoutContent() {
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="px-3.5 py-1.5 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0"
+              className="px-3.5 py-1.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0"
             >
               Choose on Map
             </Link>
@@ -864,7 +864,7 @@ export default function CheckoutContent() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#B83A24]">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E34222]">
                     {opt?.categoryTitle || "Jaatri Fleet"}
                   </span>
                   {opt?.etaText && (
@@ -936,10 +936,10 @@ export default function CheckoutContent() {
               {/* Drop Point */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 pt-1">
-                  <span className="w-2.5 h-2.5 bg-[#B83A24] dark:bg-[#E06A50] rounded-full" />
+                  <span className="w-2.5 h-2.5 bg-[#E34222] dark:bg-[#E06A50] rounded-full" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#B83A24] dark:text-[#E06A50]">Destination</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">Destination</p>
                   <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug truncate">
                     {drop}
                   </p>
@@ -1044,7 +1044,7 @@ export default function CheckoutContent() {
                     <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.distanceFare}</span>
                   </div>
                   {computedBreakdown.surgeAmount > 0 && (
-                    <div className="flex justify-between text-[11px] text-[#B83A24] dark:text-[#E06A50] font-bold">
+                    <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold">
                       <span>High Demand Surge ({computedBreakdown.surgeMultiplier}x)</span>
                       <span>+₹{computedBreakdown.surgeAmount}</span>
                     </div>
@@ -1064,7 +1064,7 @@ export default function CheckoutContent() {
                     </div>
                   )}
                   {(computedBreakdown.cancellationDues ? computedBreakdown.cancellationDues > 0 : Number((userData as any)?.outstandingAmount || 0) > 0) && (
-                    <div className="flex justify-between text-[11px] text-[#B83A24] dark:text-[#E06A50] font-bold pt-1 border-t border-[#DED7CA] dark:border-[#34443A]">
+                    <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold pt-1 border-t border-[#DED7CA] dark:border-[#34443A]">
                       <span>Unsettled Cancellation Dues</span>
                       <span>+₹{computedBreakdown.cancellationDues || Number((userData as any)?.outstandingAmount || 0)}</span>
                     </div>
@@ -1118,7 +1118,7 @@ export default function CheckoutContent() {
                             <button
                               type="button"
                               onClick={() => setShowAuthModal(true)}
-                              className="mt-2 text-xs font-bold text-white bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] px-3.5 py-1.5 rounded-[6px] transition cursor-pointer"
+                              className="mt-2 text-xs font-bold text-white bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] px-3.5 py-1.5 rounded-[6px] transition cursor-pointer"
                             >
                               Sign In Now
                             </button>
@@ -1132,7 +1132,7 @@ export default function CheckoutContent() {
                       type="button"
                       onClick={handleCreateBooking}
                       disabled={loading || !pickupLat || !dropLat}
-                      className="w-full h-13 py-3.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[50px] active:scale-[0.99]"
+                      className="w-full h-13 py-3.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[50px] active:scale-[0.99]"
                     >
                       {loading ? (
                         <>
@@ -1260,7 +1260,7 @@ export default function CheckoutContent() {
                       type="button"
                       disabled={!paymentMethod || loading}
                       onClick={handlePaymentConfirm}
-                      className="w-full h-12 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-30 text-white font-bold text-xs uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
+                      className="w-full h-12 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-30 text-white font-bold text-xs uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
                     >
                       {loading ? (
                         <><Loader2 size={16} className="animate-spin" /><span>Processing…</span></>
@@ -1299,7 +1299,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => { window.location.href = `/ride/${bookingId}`; }}
-                      className="mt-2 flex items-center gap-2 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-[8px] transition cursor-pointer"
+                      className="mt-2 flex items-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-[8px] transition cursor-pointer"
                     >
                       <span>Track Your Ride</span>
                       <ArrowRight size={15} />
@@ -1327,7 +1327,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
+                      className="flex items-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
                     >
                       <RotateCcw size={13} />
                       <span>Book Again</span>
@@ -1345,7 +1345,7 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#B83A24] dark:text-[#E06A50]">
+                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#E34222] dark:text-[#E06A50]">
                       <XCircle size={28} />
                     </div>
                     <div>
@@ -1355,7 +1355,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
+                      className="flex items-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
                     >
                       <RotateCcw size={13} />
                       <span>Try Again</span>
@@ -1383,7 +1383,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="flex items-center gap-2 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
+                      className="flex items-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer"
                     >
                       <RotateCcw size={13} />
                       <span>Try Again</span>

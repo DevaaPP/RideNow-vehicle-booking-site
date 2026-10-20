@@ -9,29 +9,41 @@
   --font-serif: var(--font-serif), 'DM Serif Display', Georgia, Cambria, serif;
   --font-body: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
 
-  /* Primary Brand Forest Green & Palette Tokens */
+  /* Primary Brand Palette Tokens (Mandatory Green-Role Hierarchy) */
+  --color-brand: #046A38;
+  --color-brand-hover: #03532C;
+  --color-emerald-primary: #046A38;
+  --color-emerald-active: #1E6048;
+  --color-emerald-subtle: #DDEBE0;
   --color-forest: #123D32;
   --color-forest-hover: #0D3027;
   --color-forest-dark: #0D3027;
   --color-ink: #10251C;
   --color-ivory: #F7F1E5;
+  --color-ivory-warm: #F9EBD7;
   --color-ivory-light: #FAF7F0;
   --color-sage: #E5EBDD;
-  --color-vermilion: #B83A24;
+  --color-vermilion: #E34222;
   --color-warm-border: #DED7CA;
   --color-muted-text: #696B64;
 }
 
 :root {
   /* Brand Color Design Tokens */
+  --color-brand: #046A38;
+  --color-brand-hover: #03532C;
+  --color-emerald-primary: #046A38;
+  --color-emerald-active: #1E6048;
+  --color-emerald-subtle: #DDEBE0;
   --color-forest: #123D32;
   --color-forest-hover: #0D3027;
   --color-forest-dark: #0D3027;
   --color-ink: #10251C;
   --color-ivory: #F7F1E5;
+  --color-ivory-warm: #F9EBD7;
   --color-ivory-light: #FAF7F0;
   --color-sage: #E5EBDD;
-  --color-vermilion: #B83A24;
+  --color-vermilion: #E34222;
   --color-warm-border: #DED7CA;
   --color-muted-text: #696B64;
 
@@ -40,23 +52,29 @@
   --surface: #FAF7F0;
   --surface-raised: #FFFFFF;
   --surface-subtle: #E5EBDD;
+  --surface-warm: #F9EBD7;
   --surface-inverse: #101713;
+  --surface-active: #1E6048;
+  --surface-emerald-light: #DDEBE0;
 
   --text-primary: #10251C;
   --text-secondary: #4A554E;
   --text-muted: #696B64;
   --text-inverse: #F3F1E8;
 
-  --brand-primary: #123D32;
-  --brand-strong: #0D3027;
-  --brand-hover: #0D3027;
-  --brand-subtle: #E5EBDD;
-  --accent-vermilion: #B83A24;
+  /* Switched Green Roles: Emerald is primary interactive, Forest is structural */
+  --brand-primary: #046A38;
+  --brand-strong: #03532C;
+  --brand-hover: #03532C;
+  --brand-structural: #123D32;
+  --brand-structural-dark: #0D3027;
+  --brand-subtle: #DDEBE0;
+  --accent-vermilion: #E34222;
   --accent-gold: #C28B38;
 
   --border-default: #DED7CA;
   --border-subtle: #E8E2D8;
-  --focus-ring: #123D32;
+  --focus-ring: #046A38;
   --overlay: rgba(16, 37, 28, 0.45);
 
   --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -86,23 +104,29 @@
   --surface: #17211B;
   --surface-raised: #1E2B23;
   --surface-subtle: #202B24;
+  --surface-warm: #1D2A21;
   --surface-inverse: #F7F1E5;
+  --surface-active: #1E6048;
+  --surface-emerald-light: #1D3428;
 
   --text-primary: #F3F1E8;
   --text-secondary: #B8C2B8;
   --text-muted: #929D93;
   --text-inverse: #10251C;
 
-  --brand-primary: #28664D;
-  --brand-strong: #347858;
-  --brand-hover: #388463;
+  /* Switched Green Roles: Emerald is primary interactive, Forest is structural */
+  --brand-primary: #058A48;
+  --brand-strong: #046A38;
+  --brand-hover: #07A556;
+  --brand-structural: #123D32;
+  --brand-structural-dark: #0D3027;
   --brand-subtle: #1D3428;
-  --accent-vermilion: #E06A50;
+  --accent-vermilion: #E34222;
   --accent-gold: #D7AC62;
 
   --border-default: #34443A;
   --border-subtle: #29372E;
-  --focus-ring: #347858;
+  --focus-ring: #058A48;
   --overlay: rgba(0, 0, 0, 0.75);
 }
 
@@ -355,5 +379,68 @@ a, button, select, option, [role="button"] {
   filter: brightness(0) invert(1) !important;
   opacity: 0.95 !important;
 }
+
+/* =========================================================================
+   JAATRI EDITORIAL & MOTIF UTILITIES
+   ========================================================================= */
+
+/* Primary Interactive Emerald Button (Green-Role Switch: #046A38) */
+.jaatri-btn-primary {
+  background-color: #046A38;
+  color: #FFFFFF;
+  border-radius: 8px;
+  font-weight: 700;
+  transition: background-color 150ms ease, transform 120ms ease;
+}
+.jaatri-btn-primary:hover {
+  background-color: #03532C;
+}
+.jaatri-btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Structural Forest Green Button */
+.jaatri-btn-structural {
+  background-color: #123D32;
+  color: #F7F1E5;
+  border-radius: 8px;
+  font-weight: 700;
+  transition: background-color 150ms ease, transform 120ms ease;
+}
+.jaatri-btn-structural:hover {
+  background-color: #0D3027;
+}
+
+/* Neutral Border Button */
+.jaatri-btn-secondary {
+  border: 1px solid #DED7CA;
+  background-color: #FFFFFF;
+  color: #10251C;
+  border-radius: 8px;
+  font-weight: 700;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+:is(.dark, html.dark, .dark *) .jaatri-btn-secondary {
+  border-color: #34443A;
+  background-color: #1E2B23;
+  color: #F3F1E8;
+}
+.jaatri-btn-secondary:hover {
+  background-color: #F7F1E5;
+}
+:is(.dark, html.dark, .dark *) .jaatri-btn-secondary:hover {
+  background-color: #202B24;
+}
+
+/* Continuous-flow Editorial Dividers */
+.editorial-rule {
+  height: 1px;
+  background-color: #DED7CA;
+  width: 100%;
+}
+:is(.dark, html.dark, .dark *) .editorial-rule {
+  background-color: #34443A;
+}
+
 
 

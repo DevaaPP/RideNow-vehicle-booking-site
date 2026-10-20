@@ -293,7 +293,7 @@ export default function TripDetailsModal({
                   width="12"
                   height="12"
                   rx="3"
-                  fill="#B83A24"
+                  fill="#E34222"
                   stroke="#FAF7F0"
                   strokeWidth="2"
                 />
@@ -390,7 +390,7 @@ export default function TripDetailsModal({
                   {["cancelled", "expired", "rejected"].includes(booking.status) ? (
                     <>
                       <span className="text-[#696B64] dark:text-[#B8C2B8]">Trip Status</span>
-                      <span className="capitalize text-[#B83A24] dark:text-[#E06A50] font-bold">{booking.status} (No Charge)</span>
+                      <span className="capitalize text-[#E34222] dark:text-[#E06A50] font-bold">{booking.status} (No Charge)</span>
                     </>
                   ) : (
                     <>
@@ -432,7 +432,7 @@ export default function TripDetailsModal({
                 </span>
               </div>
               <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                <div className="w-3.5 h-3.5 rounded-[2px] bg-[#B83A24] dark:bg-[#E06A50] border border-[#B83A24] dark:border-[#E06A50]" />
+                <div className="w-3.5 h-3.5 rounded-[2px] bg-[#E34222] dark:bg-[#E06A50] border border-[#E34222] dark:border-[#E06A50]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-tight">

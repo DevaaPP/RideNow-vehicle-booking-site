@@ -49,7 +49,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     image: "/fleet/moto.webp",
     tagKey: "popular",
     tag: "POPULAR",
-    tagBg: "bg-[#faebe8] text-[#B83A24] border-[#f0c8c1]",
+    tagBg: "bg-[#faebe8] text-[#E34222] border-[#f0c8c1]",
     rate: "8/km",
   },
   {
@@ -190,8 +190,8 @@ export default function VehicleCategoriesSlider() {
           <div>
             {/* Eyebrow */}
             <div className="flex items-center gap-2.5 mb-2 sm:mb-2.5">
-              <div className="h-[2px] w-7 sm:w-9 bg-[#B83A24] dark:bg-[#E06A50] rounded-full" />
-              <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.2em] text-[#B83A24] dark:text-[#E06A50]">
+              <div className="h-[2px] w-7 sm:w-9 bg-[#E34222] dark:bg-[#E06A50] rounded-full" />
+              <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.2em] text-[#E34222] dark:text-[#E06A50]">
                 {t("fleet.eyebrow", "FLEET")}
               </span>
             </div>
@@ -215,7 +215,7 @@ export default function VehicleCategoriesSlider() {
               onClick={() => scroll("left")}
               disabled={!canLeft}
               aria-label="Scroll left"
-              className="w-10 h-10 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#17211B] flex items-center justify-center hover:bg-forest dark:hover:bg-[#28664D] hover:border-forest hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] dark:text-[#F3F1E8] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+              className="w-10 h-10 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#17211B] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#28664D] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] dark:text-[#F3F1E8] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
             >
               <ChevronLeft size={18} strokeWidth={2.4} />
             </motion.button>
@@ -224,7 +224,7 @@ export default function VehicleCategoriesSlider() {
               onClick={() => scroll("right")}
               disabled={!canRight}
               aria-label="Scroll right"
-              className="w-10 h-10 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#17211B] flex items-center justify-center hover:bg-forest dark:hover:bg-[#28664D] hover:border-forest hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] dark:text-[#F3F1E8] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+              className="w-10 h-10 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#17211B] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#28664D] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] dark:text-[#F3F1E8] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
             >
               <ChevronRight size={18} strokeWidth={2.4} />
             </motion.button>
@@ -285,7 +285,7 @@ export default function VehicleCategoriesSlider() {
                 className="group relative w-[80vw] sm:w-[280px] min-w-[260px] sm:min-w-[280px] max-w-[310px] sm:max-w-[280px] flex-shrink-0 cursor-pointer select-none snap-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest rounded-[14px]"
               >
                 {/* Card Container: Editorial white surface on warm ivory with 1px border and restrained elevation */}
-                <div className="relative rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#17211B] p-4 sm:p-5 overflow-hidden h-full flex flex-col justify-between shadow-[0_2px_8px_rgba(18,61,50,0.03)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.3)] group-hover:shadow-[0_10px_24px_rgba(18,61,50,0.07)] dark:group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.5)] group-hover:border-forest/35 dark:group-hover:border-[#388463]/50 transition-all duration-250">
+                <div className="relative rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#17211B] p-4 sm:p-5 overflow-hidden h-full flex flex-col justify-between shadow-[0_2px_8px_rgba(18,61,50,0.03)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.3)] group-hover:shadow-[0_10px_24px_rgba(18,61,50,0.07)] dark:group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.5)] group-hover:border-[#046A38]/35 dark:group-hover:border-[#388463]/50 transition-all duration-250">
                   <div>
                     {/* CARD TOP MEDIA: Hero vehicle artwork with 15% increased visual prominence */}
                     <div className="-mx-4 -mt-4 sm:-mx-5 sm:-mt-5 mb-3.5 relative overflow-hidden select-none h-48 sm:h-56 lg:h-58 rounded-t-[13px] bg-[#FAF7F0] dark:bg-[#101713]">
@@ -333,7 +333,7 @@ export default function VehicleCategoriesSlider() {
                     </div>
 
                     {/* Refined Arrow Affordance with 8px radius */}
-                    <div className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] group-hover:border-[#123D32] dark:group-hover:border-[#28664D] group-hover:bg-[#123D32] dark:group-hover:bg-[#28664D] text-[#123D32] dark:text-[#F3F1E8] group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
+                    <div className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] group-hover:border-[#046A38] dark:group-hover:border-[#28664D] group-hover:bg-[#046A38] dark:group-hover:bg-[#28664D] text-[#123D32] dark:text-[#F3F1E8] group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
                       <ArrowRight size={14} strokeWidth={2.4} className="transition-transform duration-200 group-hover:translate-x-1 text-[#123D32] dark:text-[#F3F1E8] group-hover:text-[#D7AC62]" />
                     </div>
                   </div>

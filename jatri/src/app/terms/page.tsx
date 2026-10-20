@@ -20,7 +20,7 @@ export default function TermsAndConditionsPage() {
       <section className="bg-[#123D32] dark:bg-[#0D3027] text-white pt-28 sm:pt-36 pb-14 px-4 sm:px-6 lg:px-8 border-b border-[#0D3027] dark:border-[#1E2B23]">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#F7F1E5] text-xs font-bold uppercase tracking-wider mb-4">
-            <Scale size={14} className="text-[#B83A24] dark:text-[#E06A50]" />
+            <Scale size={14} className="text-[#E34222] dark:text-[#E06A50]" />
             <span>Consumer Protection (E-Commerce) Rules 2020 Compliant</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">
@@ -107,7 +107,7 @@ export default function TermsAndConditionsPage() {
         {/* 5. Conduct & Safety */}
         <section className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] p-6 sm:p-8 border border-[#DED7CA] dark:border-[#34443A] shadow-2xs space-y-3">
           <h2 className="font-serif text-xl sm:text-2xl text-[#10251C] dark:text-[#F3F1E8] flex items-center gap-2">
-            <Ban size={20} className="text-[#B83A24] dark:text-[#E06A50]" /> 5. Prohibited Conduct & Safety
+            <Ban size={20} className="text-[#E34222] dark:text-[#E06A50]" /> 5. Prohibited Conduct & Safety
           </h2>
           <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B8C2B8]">Customers and drivers must adhere to safety norms:</p>
           <ul className="list-disc list-inside space-y-1.5 text-xs sm:text-sm text-[#696B64] dark:text-[#B8C2B8] leading-relaxed">

@@ -55,10 +55,10 @@ export default function DriveWithJaatri() {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="flex items-center gap-3 mb-2 sm:mb-2.5"
           >
-            <span className="text-xs sm:text-[13px] lg:text-[14px] font-semibold uppercase tracking-[0.16em] text-[#B83A24] dark:text-[#E06A50]">
+            <span className="text-xs sm:text-[13px] lg:text-[14px] font-semibold uppercase tracking-[0.16em] text-[#E34222] dark:text-[#E06A50]">
               {t("partnerSection.eyebrow", "FOR OUR DRIVER PARTNERS")}
             </span>
-            <span className="w-8 sm:w-12 h-[1.5px] bg-[#B83A24]/70 dark:bg-[#E06A50]/70 rounded-full" />
+            <span className="w-8 sm:w-12 h-[1.5px] bg-[#E34222]/70 dark:bg-[#E06A50]/70 rounded-full" />
           </motion.div>
 
           {/* Main Heading: DM Serif Display in dark forest ink (#10251C) with Assamese vermilion brush stroke */}
@@ -81,7 +81,7 @@ export default function DriveWithJaatri() {
                 viewBox="0 0 100 12"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="absolute -bottom-1.5 sm:-bottom-2 left-0 w-full h-[8px] sm:h-[10px] text-[#B83A24] dark:text-[#E06A50] pointer-events-none"
+                className="absolute -bottom-1.5 sm:-bottom-2 left-0 w-full h-[8px] sm:h-[10px] text-[#E34222] dark:text-[#E06A50] pointer-events-none"
                 preserveAspectRatio="none"
               >
                 <path
@@ -172,7 +172,7 @@ export default function DriveWithJaatri() {
             {/* Primary CTA */}
             <Link
               href="/partner/onboard/vehicle"
-              className="group inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-semibold text-base transition-all duration-200 active:scale-[0.97] shadow-[0_4px_16px_rgba(18,61,50,0.22)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123D32]"
+              className="group inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-semibold text-base transition-all duration-200 active:scale-[0.97] shadow-[0_4px_16px_rgba(18,61,50,0.22)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <span>{t("partnerSection.ctaPrimary", "Become a Jaatri Partner")}</span>
               <ArrowRight className="w-4 h-4 text-[#D7AC62] transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.5} />

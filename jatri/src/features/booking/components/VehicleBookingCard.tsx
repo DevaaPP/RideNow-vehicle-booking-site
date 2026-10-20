@@ -59,11 +59,10 @@ export default function VehicleBookingCard({
       whileHover={{ y: -6 }}
       transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
       onClick={onBook}
-      className="relative bg-white border border-zinc-200 rounded-3xl overflow-hidden flex flex-col group cursor-pointer select-none"
-      style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}
+      className="relative bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] overflow-hidden flex flex-col group cursor-pointer select-none transition-all shadow-sm"
     >
       {/* Hover border glow */}
-      <div className="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-zinc-900 transition-all duration-300 pointer-events-none z-10" />
+      <div className="absolute inset-0 rounded-[14px] border-2 border-transparent group-hover:border-[#046A38] transition-all duration-300 pointer-events-none z-10" />
 
       {/* BEST PICK BADGE */}
       {isRecommended && (
@@ -71,7 +70,7 @@ export default function VehicleBookingCard({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15 }}
-          className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-zinc-900 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded-full shadow-lg"
+          className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-[#046A38] text-white text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-[6px] shadow-sm"
         >
           <Zap size={9} className="fill-white" />
           {t("fleet.bestPick", "Best Pick")}
@@ -79,11 +78,11 @@ export default function VehicleBookingCard({
       )}
 
       {/* IMAGE AREA */}
-      <div className="relative h-48 bg-zinc-50 flex items-center justify-center overflow-hidden">
+      <div className="relative h-48 bg-white dark:bg-[#1E2B23] flex items-center justify-center overflow-hidden">
 
         {/* Subtle grid pattern */}
         <div
-          className="absolute inset-0 opacity-[0.04]"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
             backgroundSize: "24px 24px",
@@ -101,20 +100,20 @@ export default function VehicleBookingCard({
         />
 
         {/* Type pill — bottom right */}
-        <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-zinc-900 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-full">
+        <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-[#123D32] text-[#F7F1E5] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-[6px]">
           <Icon size={10} />
           {label}
         </div>
 
         {/* Rating pill — bottom left */}
-        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white border border-zinc-200 text-zinc-700 text-[10px] font-bold px-2.5 py-1.5 rounded-full shadow-sm">
-          <Star size={9} className="fill-zinc-900 text-zinc-900" />
+        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-bold px-2 py-1 rounded-[6px] shadow-xs">
+          <Star size={9} className="fill-amber-500 text-amber-500" />
           4.8
         </div>
       </div>
 
       {/* THIN DIVIDER */}
-      <div className="h-px bg-zinc-100" />
+      <div className="h-px bg-[#DED7CA] dark:bg-[#34443A]" />
 
       {/* CONTENT */}
       <div className="flex flex-col flex-1 p-5 gap-4">
@@ -196,7 +195,7 @@ export default function VehicleBookingCard({
             whileTap={{ scale: 0.92 }}
             whileHover={{ scale: 1.04 }}
             onClick={onBook}
-            className="group/btn flex items-center gap-2 bg-zinc-900 hover:bg-black text-white text-sm font-black px-6 py-3.5 rounded-2xl transition-colors shadow-md"
+            className="group/btn flex items-center gap-2 bg-[#046A38] hover:bg-[#03532C] text-white text-sm font-bold px-5 py-3 rounded-[8px] transition-colors shadow-sm"
           >
             {t("fleet.bookNow", "Book")}
             <motion.div

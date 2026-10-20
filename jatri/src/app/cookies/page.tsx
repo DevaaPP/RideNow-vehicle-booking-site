@@ -20,7 +20,7 @@ export default function CookiePolicyPage() {
       <section className="bg-[#123D32] text-white pt-28 sm:pt-36 pb-14 px-4 sm:px-6 lg:px-8 border-b border-[#0D3027]">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#F7F1E5] text-xs font-bold uppercase tracking-wider mb-4">
-            <Cookie size={14} className="text-[#B83A24]" />
+            <Cookie size={14} className="text-[#E34222]" />
             <span>DPDP Act 2023 & IT Act Compliant</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">

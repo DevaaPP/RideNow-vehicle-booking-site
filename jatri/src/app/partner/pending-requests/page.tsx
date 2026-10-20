@@ -176,11 +176,11 @@ export default function VendorPendingPage() {
                     </div>
 
                     <div className="flex gap-3 sm:gap-4">
-                      <div className="bg-[#B83A24]/10 dark:bg-[#E06A50]/20 p-2.5 sm:p-3 rounded-[8px] flex items-center justify-center shrink-0 border border-[#B83A24]/20 dark:border-[#E06A50]/30">
-                        <Navigation size={18} className="text-[#B83A24] dark:text-[#E06A50]" />
+                      <div className="bg-[#E34222]/10 dark:bg-[#E06A50]/20 p-2.5 sm:p-3 rounded-[8px] flex items-center justify-center shrink-0 border border-[#E34222]/20 dark:border-[#E06A50]/30">
+                        <Navigation size={18} className="text-[#E34222] dark:text-[#E06A50]" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] sm:text-xs uppercase text-[#B83A24] dark:text-[#E06A50] mb-0.5 sm:mb-1 font-bold tracking-wider">
+                        <p className="text-[10px] sm:text-xs uppercase text-[#E34222] dark:text-[#E06A50] mb-0.5 sm:mb-1 font-bold tracking-wider">
                           Drop Location
                         </p>
                         <p className="text-[#10251C] dark:text-[#F3F1E8] font-semibold text-xs sm:text-base leading-snug">
@@ -304,11 +304,11 @@ export default function VendorPendingPage() {
                 </div>
                 <div className="h-px bg-[#DED7CA] dark:bg-[#29372E] ml-11" />
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-[6px] bg-[#B83A24]/10 dark:bg-[#E06A50]/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#B83A24]/20 dark:border-[#E06A50]/30">
-                    <Navigation size={16} className="text-[#B83A24] dark:text-[#E06A50]" />
+                  <div className="w-8 h-8 rounded-[6px] bg-[#E34222]/10 dark:bg-[#E06A50]/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#E34222]/20 dark:border-[#E06A50]/30">
+                    <Navigation size={16} className="text-[#E34222] dark:text-[#E06A50]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-[#B83A24] dark:text-[#E06A50] uppercase tracking-wider">Drop</p>
+                    <p className="text-[10px] font-bold text-[#E34222] dark:text-[#E06A50] uppercase tracking-wider">Drop</p>
                     <p className="text-sm font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug">{activeDispatch.dropAddress}</p>
                   </div>
                 </div>

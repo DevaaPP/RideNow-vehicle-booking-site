@@ -393,7 +393,7 @@ export default function PartnerWalletPage() {
                       type="button"
                       disabled={clearingDues}
                       onClick={() => handlePayPlatformDues()}
-                      className="w-full bg-[#B83A24] dark:bg-[#E06A50] hover:bg-[#a0321e] dark:hover:bg-[#B83A24] text-white font-bold text-xs py-2 px-3 rounded-[8px] flex items-center justify-center gap-1.5 transition disabled:opacity-50 shadow-xs cursor-pointer"
+                      className="w-full bg-[#E34222] dark:bg-[#E06A50] hover:bg-[#a0321e] dark:hover:bg-[#E34222] text-white font-bold text-xs py-2 px-3 rounded-[8px] flex items-center justify-center gap-1.5 transition disabled:opacity-50 shadow-xs cursor-pointer"
                     >
                       {clearingDues ? (
                         <Loader2 size={13} className="animate-spin" />
@@ -702,7 +702,7 @@ export default function PartnerWalletPage() {
             </p>
 
             {withdrawError && (
-              <div className="mt-3 p-3 rounded-[8px] bg-[#B83A24]/10 dark:bg-red-950/30 text-[#B83A24] dark:text-[#E06A50] text-xs font-semibold flex items-center gap-2 border border-[#B83A24] dark:border-[#B83A24]/40">
+              <div className="mt-3 p-3 rounded-[8px] bg-[#E34222]/10 dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] text-xs font-semibold flex items-center gap-2 border border-[#E34222] dark:border-[#E34222]/40">
                 <AlertCircle size={15} />
                 <span>{withdrawError}</span>
               </div>

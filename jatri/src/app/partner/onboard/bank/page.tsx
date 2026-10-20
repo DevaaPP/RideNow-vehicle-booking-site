@@ -212,7 +212,7 @@ export default function PartnerBankPage() {
         {/* ================= WHY DISABLED ================= */}
         {!canSubmit && editMode && (
           <div className="mt-4 text-xs font-mono text-[#10251C] dark:text-[#F3F1E8] bg-white dark:bg-[#101713] p-3 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] space-y-1">
-            <p className="font-bold uppercase tracking-wider text-[#B83A24] dark:text-[#E06A50]">
+            <p className="font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">
               Required Fields Missing:
             </p>
             {!isNameValid && <p>• Valid account holder name</p>}
@@ -232,7 +232,7 @@ export default function PartnerBankPage() {
 
         {/* ================= ERROR ================= */}
         {error && (
-          <div className="mt-4 p-3 rounded-[8px] bg-[#B83A24]/10 dark:bg-red-950/30 border border-[#B83A24] dark:border-red-900/50 text-xs text-[#B83A24] dark:text-[#E06A50] font-mono">
+          <div className="mt-4 p-3 rounded-[8px] bg-[#E34222]/10 dark:bg-red-950/30 border border-[#E34222] dark:border-red-900/50 text-xs text-[#E34222] dark:text-[#E06A50] font-mono">
             {error}
           </div>
         )}
@@ -310,7 +310,7 @@ function InputFieldMinimal({
       </div>
 
       {error && errorText && (
-        <p className="mt-1 text-[11px] font-mono text-[#B83A24] dark:text-[#E06A50]">
+        <p className="mt-1 text-[11px] font-mono text-[#E34222] dark:text-[#E06A50]">
           {errorText}
         </p>
       )}

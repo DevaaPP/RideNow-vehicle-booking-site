@@ -167,7 +167,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
               <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] leading-snug line-clamp-1">{booking.pickupAddress}</p>
             </div>
             <div className="flex items-start gap-2.5">
-              <div className="w-2 h-2 rounded-sm bg-[#B83A24] dark:bg-[#E06A50] mt-1 flex-shrink-0" />
+              <div className="w-2 h-2 rounded-sm bg-[#E34222] dark:bg-[#E06A50] mt-1 flex-shrink-0" />
               <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] leading-snug line-clamp-1">{booking.dropAddress}</p>
             </div>
           </div>
@@ -211,7 +211,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                   className="w-full bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] px-3 py-2 text-xs text-[#10251C] dark:text-[#F3F1E8] placeholder-[#929D93] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
                 />
                 {ratingError && (
-                  <p className="text-[#B83A24] dark:text-[#E06A50] text-[11px] font-medium">{ratingError}</p>
+                  <p className="text-[#E34222] dark:text-[#E06A50] text-[11px] font-medium">{ratingError}</p>
                 )}
                 <button
                   type="button"
@@ -287,7 +287,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                 <X size={18} />
               </button>
 
-              <div className="flex items-center gap-2 mb-2 text-[#B83A24] dark:text-[#E06A50]">
+              <div className="flex items-center gap-2 mb-2 text-[#E34222] dark:text-[#E06A50]">
                 <ShieldAlert size={20} />
                 <h3 className="text-base font-bold text-[#10251C] dark:text-[#F3F1E8]">Trust & Safety Report</h3>
               </div>
@@ -345,7 +345,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                     <button
                       type="submit"
                       disabled={submittingReport || !reportNotes.trim()}
-                      className="flex-1 bg-[#B83A24] hover:bg-[#a0321e] disabled:opacity-50 text-white font-bold py-3 rounded-[8px] text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      className="flex-1 bg-[#E34222] hover:bg-[#a0321e] disabled:opacity-50 text-white font-bold py-3 rounded-[8px] text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
                       {submittingReport ? (
                         <>

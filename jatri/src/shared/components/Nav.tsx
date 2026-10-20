@@ -175,7 +175,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partners/dashboard"
             className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partners/dashboard"
-                ? "bg-[#123D32] dark:bg-[#28664D] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F3F1E8]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
@@ -186,13 +186,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partner/active-ride"
             className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/active-ride"
-                ? "bg-[#123D32] dark:bg-[#28664D] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F3F1E8]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
             {t("nav.activeRide", "Active Ride")}
             {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-2 w-5 h-5 bg-[#B83A24] dark:bg-[#E06A50] text-white text-[11px] rounded-full flex items-center justify-center font-black">
+              <span className="absolute -top-1 -right-2 w-5 h-5 bg-[#E34222] dark:bg-[#E06A50] text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
               </span>
             )}
@@ -202,13 +202,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partner/pending-requests"
             className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/pending-requests"
-                ? "bg-[#123D32] dark:bg-[#28664D] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F3F1E8]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
             {t("nav.requests", "Requests")}
             {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-2 w-5 h-5 bg-[#B83A24] dark:bg-[#E06A50] text-white text-[11px] rounded-full flex items-center justify-center font-black">
+              <span className="absolute -top-1 -right-2 w-5 h-5 bg-[#E34222] dark:bg-[#E06A50] text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
               </span>
             )}
@@ -218,7 +218,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partner/bookings"
             className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/bookings"
-                ? "bg-[#123D32] dark:bg-[#28664D] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F3F1E8]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
@@ -234,7 +234,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             href="/partner/wallet"
             className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
               pathname === "/partner/wallet"
-                ? "bg-[#123D32] dark:bg-[#28664D] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F3F1E8]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
@@ -374,7 +374,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="px-6 py-2.5 rounded-[8px] font-bold text-[15px] sm:text-[16px] transition shadow-xs active:scale-95 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white"
+                  className="px-6 py-2.5 rounded-[8px] font-bold text-[15px] sm:text-[16px] transition shadow-xs active:scale-95 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white"
                 >
                   {t("nav.signIn", "Sign In")}
                 </button>
@@ -396,7 +396,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="px-3.5 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white"
+                  className="px-3.5 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white"
                 >
                   {t("nav.signIn", "Sign In")}
                 </button>
@@ -493,7 +493,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     >
                       <span>{t("nav.activeRide", "Active Ride")}</span>
                       {pendingCount > 0 && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#B83A24] dark:bg-[#E06A50] text-white text-xs font-sans font-extrabold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#E34222] dark:bg-[#E06A50] text-white text-xs font-sans font-extrabold">
                           {pendingCount}
                         </span>
                       )}
@@ -508,7 +508,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     >
                       <span>{t("nav.requests", "Requests")}</span>
                       {pendingCount > 0 && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#B83A24] dark:bg-[#E06A50] text-white text-xs font-sans font-extrabold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#E34222] dark:bg-[#E06A50] text-white text-xs font-sans font-extrabold">
                           {pendingCount}
                         </span>
                       )}
@@ -635,7 +635,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="p-3 text-[#B83A24] dark:text-[#E06A50] hover:bg-[#B83A24]/10 rounded-xl transition"
+                    className="p-3 text-[#E34222] dark:text-[#E06A50] hover:bg-[#E34222]/10 rounded-xl transition"
                     aria-label="Logout"
                   >
                     <LogOut size={20} />
@@ -647,7 +647,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     setMenuOpen(false);
                     setAuthOpen(true);
                   }}
-                  className="w-full py-3.5 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-white font-bold text-base flex items-center justify-center gap-2 active:scale-98 transition shadow-xs hover:bg-[#0D3027] dark:hover:bg-[#347858]"
+                  className="w-full py-3.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-base flex items-center justify-center gap-2 active:scale-98 transition shadow-xs hover:bg-[#0D3027] dark:hover:bg-[#347858]"
                 >
                   <span>{t("nav.signIn", "Login or Sign Up")}</span>
                   <ArrowRight size={18} />
@@ -848,7 +848,7 @@ function UberProfileDropdown({
       {/* 5. RED SIGN OUT BUTTON */}
       <button
         onClick={handleLogout}
-        className="w-full mt-2 py-3 rounded-2xl text-red-600 dark:text-[#E06A50] font-bold hover:bg-red-50 dark:hover:bg-[#B83A24]/10 transition active:scale-98 text-center text-base"
+        className="w-full mt-2 py-3 rounded-2xl text-red-600 dark:text-[#E06A50] font-bold hover:bg-red-50 dark:hover:bg-[#E34222]/10 transition active:scale-98 text-center text-base"
       >
         Sign out
       </button>

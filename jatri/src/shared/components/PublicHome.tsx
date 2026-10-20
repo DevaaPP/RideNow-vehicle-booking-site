@@ -12,7 +12,7 @@ export default function PublicHome() {
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
-    <main className="w-full pt-0 bg-white">
+    <main className="w-full pt-0 bg-[#F7F1E5] dark:bg-[#101713]">
       <HeroSection onAuthRequired={() => setAuthOpen(true)} />
       <VehicleCategoriesSlider />
       <DriveWithJaatri />

@@ -243,7 +243,7 @@ export default function HeroSection({
             <span className="w-7 sm:w-10 h-[2px] bg-[#6d513a]/80 dark:bg-[#D7AC62]/80 rounded-full" />
           </div>
 
-          {/* Headline: DM Serif Display in dark forest green (#10251C) with Assamese vermilion (#B83A24) brush strokes */}
+          {/* Headline: DM Serif Display in dark forest green (#10251C) with Assamese vermilion (#E34222) brush strokes */}
           <h1
             style={{ fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif" }}
             className="text-[38px] xs:text-[42px] sm:text-7xl lg:text-[80px] font-normal text-[#10251C] dark:text-[#F3F1E8] display-headline leading-[1.08] sm:leading-[1.05]"
@@ -253,13 +253,13 @@ export default function HeroSection({
             <span className="relative inline-block mt-0.5 sm:mt-2">
               <span className="relative inline-block mr-1.5 sm:mr-3">
                 with
-                {/* Assamese-vermilion (#B83A24) subtle curved brush stroke under 'with' */}
+                {/* Assamese-vermilion (#E34222) subtle curved brush stroke under 'with' */}
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 100 12"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="absolute left-0 -bottom-1.5 sm:-bottom-2 w-[85%] h-2 sm:h-3 text-[#B83A24] dark:text-[#E06A50] pointer-events-none"
+                  className="absolute left-0 -bottom-1.5 sm:-bottom-2 w-[85%] h-2 sm:h-3 text-[#E34222] dark:text-[#E06A50] pointer-events-none"
                   preserveAspectRatio="none"
                 >
                   <path
@@ -272,13 +272,13 @@ export default function HeroSection({
               </span>
               <span className="relative inline-block">
                 you.
-                {/* Assamese-vermilion (#B83A24) subtle curved brush stroke under 'you.' */}
+                {/* Assamese-vermilion (#E34222) subtle curved brush stroke under 'you.' */}
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 100 12"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="absolute left-0 -bottom-1.5 sm:-bottom-2 w-[80%] h-2 sm:h-3 text-[#B83A24] dark:text-[#E06A50] pointer-events-none"
+                  className="absolute left-0 -bottom-1.5 sm:-bottom-2 w-[80%] h-2 sm:h-3 text-[#E34222] dark:text-[#E06A50] pointer-events-none"
                   preserveAspectRatio="none"
                 >
                   <path
@@ -399,7 +399,7 @@ export default function HeroSection({
                   <div className="relative flex items-center gap-3.5 px-4 sm:px-5 py-3.5 transition focus-within:bg-[#FAF7F0] dark:focus-within:bg-[#1E2B23] rounded-none">
                     {/* Vermilion destination marker (fixed 20px column, centered dot) */}
                     <div className="w-5 h-5 flex items-center justify-center shrink-0 z-20">
-                      <div className="w-4 h-4 rounded-full border-[3px] border-[#B83A24] dark:border-[#E06A50] bg-[#F7F1E5] dark:bg-[#17211B] shadow-2xs" />
+                      <div className="w-4 h-4 rounded-full border-[3px] border-[#E34222] dark:border-[#E06A50] bg-[#F7F1E5] dark:bg-[#17211B] shadow-2xs" />
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -499,7 +499,7 @@ export default function HeroSection({
 
                   <button
                     type="submit"
-                    className="group flex-1 py-3 px-6 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-base rounded-[8px] active:scale-[0.97] transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123D32]"
+                    className="group flex-1 py-3 px-6 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-base rounded-[8px] active:scale-[0.97] transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                   >
                     <span className="text-white font-bold">{t("hero.searchRides", "Search Available Rides")}</span>
                     <ArrowRight className="w-4 h-4 text-[#D7AC62] transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.5} />

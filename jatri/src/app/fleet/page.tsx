@@ -121,7 +121,7 @@ export default function FleetPage() {
             className="max-w-3xl"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] border border-[#cdd6c3] dark:border-[#2D4E3A] text-xs font-bold uppercase tracking-wider mb-4">
-              <Sparkles size={13} className="text-[#B83A24]" />
+              <Sparkles size={13} className="text-[#E34222]" />
               <span>Verified Fleet Architecture</span>
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-[1.08] mb-4">
@@ -161,7 +161,7 @@ export default function FleetPage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-12">
             <div>
-              <p className="text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#B83A24] mb-2">
+              <p className="text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#E34222] mb-2">
                 TRANSIT TIERS
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
@@ -200,7 +200,7 @@ export default function FleetPage() {
 
                   {/* Header info */}
                   <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#B83A24]">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#E34222]">
                       {category.badge}
                     </span>
                     <span className="text-[11px] font-semibold text-[#123D32] dark:text-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] px-2 py-0.5 rounded-full">
@@ -220,7 +220,7 @@ export default function FleetPage() {
                   </div>
                   <Link
                     href={`/book?vehicle=${category.id}&fresh=true`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white text-xs font-bold transition active:scale-95 shadow-2xs"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs font-bold transition active:scale-95 shadow-2xs"
                   >
                     <span>Book</span>
                     <ArrowRight size={13} />
@@ -234,7 +234,7 @@ export default function FleetPage() {
         {/* ================= BOTTOM CTA ================= */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[16px] p-8 sm:p-12 text-center shadow-xs">
-            <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#B83A24] mb-2 block">
+            <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#E34222] mb-2 block">
               READY TO COMMUTE?
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] max-w-xl mx-auto mb-4">
@@ -246,7 +246,7 @@ export default function FleetPage() {
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/book?fresh=true"
-                className="px-8 py-3.5 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold rounded-[8px] transition active:scale-95 shadow-xs text-sm sm:text-base"
+                className="px-8 py-3.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold rounded-[8px] transition active:scale-95 shadow-xs text-sm sm:text-base"
               >
                 Book a Ride Now
               </Link>

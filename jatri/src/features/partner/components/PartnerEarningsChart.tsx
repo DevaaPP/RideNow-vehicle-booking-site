@@ -131,7 +131,7 @@ export default function PartnerEarningsChart() {
           </motion.p>
           <div
             className={`flex items-center sm:justify-end gap-1 text-[11px] font-mono mt-0.5 ${
-              deltaPositive ? "text-[#123D32] dark:text-[#347858]" : "text-[#B83A24] dark:text-[#E06A50]"
+              deltaPositive ? "text-[#123D32] dark:text-[#347858]" : "text-[#E34222] dark:text-[#E06A50]"
             }`}
           >
             {deltaPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}

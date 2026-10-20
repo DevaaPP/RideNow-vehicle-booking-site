@@ -479,8 +479,8 @@ export default function ProfilePage() {
                     {t("student.verified", "Status: Verified")}
                   </span>
                 ) : studentData?.status === "expired" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] dark:bg-[#341814] border border-[#B83A24]/30 dark:border-[#E06A50]/40 text-[#B83A24] dark:text-[#E06A50] text-xs font-bold">
-                    <AlertCircle size={14} className="text-[#B83A24] dark:text-[#E06A50]" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs font-bold">
+                    <AlertCircle size={14} className="text-[#E34222] dark:text-[#E06A50]" />
                     {t("student.expired", "Status: Expired")}
                   </span>
                 ) : (
@@ -546,13 +546,13 @@ export default function ProfilePage() {
                 )}
               </div>
             ) : studentData?.status === "expired" ? (
-              <div className="p-4 bg-[#faebe8] dark:bg-[#341814] border border-[#B83A24]/30 dark:border-[#E06A50]/40 rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2 text-[#B83A24] dark:text-[#E06A50] font-bold text-sm">
-                    <AlertCircle size={16} className="text-[#B83A24] dark:text-[#E06A50]" />
+                  <div className="flex items-center gap-2 text-[#E34222] dark:text-[#E06A50] font-bold text-sm">
+                    <AlertCircle size={16} className="text-[#E34222] dark:text-[#E06A50]" />
                     Student Status Expired
                   </div>
-                  <p className="text-xs text-[#B83A24] dark:text-[#E06A50] mt-1">
+                  <p className="text-xs text-[#E34222] dark:text-[#E06A50] mt-1">
                     Your 12-month annual student discount has concluded. Re-verify your enrollment to resume 10% off on all eligible rides.
                   </p>
                 </div>
@@ -562,7 +562,7 @@ export default function ProfilePage() {
                     setStudentStep(1);
                     setShowStudentModal(true);
                   }}
-                  className="shrink-0 bg-[#B83A24] hover:bg-[#B83A24]/90 dark:bg-[#E06A50] dark:hover:bg-[#E06A50]/90 text-white text-xs font-bold px-4 py-2.5 rounded-[8px] shadow-xs transition cursor-pointer"
+                  className="shrink-0 bg-[#E34222] hover:bg-[#E34222]/90 dark:bg-[#E06A50] dark:hover:bg-[#E06A50]/90 text-white text-xs font-bold px-4 py-2.5 rounded-[8px] shadow-xs transition cursor-pointer"
                 >
                   {t("student.verifyAgain", "Verify Again")}
                 </button>
@@ -745,7 +745,7 @@ export default function ProfilePage() {
                       <button
                         type="button"
                         onClick={() => handleRemoveMember(m._id)}
-                        className="w-8 h-8 rounded-[6px] hover:bg-[#faebe8] dark:hover:bg-[#341814] text-[#696B64] dark:text-[#B8C2B8] hover:text-[#B83A24] dark:hover:text-[#E06A50] flex items-center justify-center transition cursor-pointer"
+                        className="w-8 h-8 rounded-[6px] hover:bg-[#faebe8] dark:hover:bg-[#341814] text-[#696B64] dark:text-[#B8C2B8] hover:text-[#E34222] dark:hover:text-[#E06A50] flex items-center justify-center transition cursor-pointer"
                       >
                         <Trash2 size={15} />
                       </button>
@@ -770,7 +770,7 @@ export default function ProfilePage() {
           transition={{ delay: 0.15 }}
           className="mt-6 sm:mt-8 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-hidden"
         >
-          <div className="h-1.5 bg-[#B83A24] dark:bg-[#E06A50] w-full" />
+          <div className="h-1.5 bg-[#E34222] dark:bg-[#E06A50] w-full" />
           <div className="p-4 sm:p-8 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#DED7CA]/60 dark:border-[#34443A]">
               <div className="flex items-center gap-3">
@@ -794,7 +794,7 @@ export default function ProfilePage() {
                   setDeleteSuccess(false);
                   setShowDeleteModal(true);
                 }}
-                className="inline-flex items-center justify-center gap-2 text-xs font-bold text-[#B83A24] dark:text-[#E06A50] bg-[#faebe8] dark:bg-[#341814] hover:bg-[#faebe8]/80 dark:hover:bg-[#341814]/80 border border-[#B83A24]/30 dark:border-[#E06A50]/40 px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 text-xs font-bold text-[#E34222] dark:text-[#E06A50] bg-[#faebe8] dark:bg-[#341814] hover:bg-[#faebe8]/80 dark:hover:bg-[#341814]/80 border border-[#E34222]/30 dark:border-[#E06A50]/40 px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer"
               >
                 <Trash2 size={14} /> Request Account Deletion
               </button>
@@ -847,8 +847,8 @@ export default function ProfilePage() {
                 </div>
 
                 {deleteError && (
-                  <div className="mb-4 p-3 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#B83A24]/30 dark:border-[#E06A50]/40 text-[#B83A24] dark:text-[#E06A50] text-xs flex items-start gap-2">
-                    <AlertCircle size={15} className="shrink-0 text-[#B83A24] dark:text-[#E06A50] mt-0.5" />
+                  <div className="mb-4 p-3 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs flex items-start gap-2">
+                    <AlertCircle size={15} className="shrink-0 text-[#E34222] dark:text-[#E06A50] mt-0.5" />
                     <span>{deleteError}</span>
                   </div>
                 )}
@@ -891,7 +891,7 @@ export default function ProfilePage() {
                         type="button"
                         disabled={deletingAccount}
                         onClick={handleDeleteAccount}
-                        className="flex-1 bg-[#B83A24] hover:bg-[#B83A24]/90 dark:bg-[#E06A50] dark:hover:bg-[#E06A50]/90 disabled:opacity-50 text-white font-bold text-xs py-3 rounded-[8px] flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
+                        className="flex-1 bg-[#E34222] hover:bg-[#E34222]/90 dark:bg-[#E06A50] dark:hover:bg-[#E06A50]/90 disabled:opacity-50 text-white font-bold text-xs py-3 rounded-[8px] flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
                       >
                         {deletingAccount ? (
                           <>
@@ -952,8 +952,8 @@ export default function ProfilePage() {
                 </div>
 
                 {studentError && (
-                  <div className="mb-4 p-3 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#B83A24]/30 dark:border-[#E06A50]/40 text-[#B83A24] dark:text-[#E06A50] text-xs flex items-center gap-2">
-                    <AlertCircle size={15} className="shrink-0 text-[#B83A24] dark:text-[#E06A50]" />
+                  <div className="mb-4 p-3 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs flex items-center gap-2">
+                    <AlertCircle size={15} className="shrink-0 text-[#E34222] dark:text-[#E06A50]" />
                     <span>{studentError}</span>
                   </div>
                 )}

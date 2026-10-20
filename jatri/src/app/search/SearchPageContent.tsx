@@ -152,13 +152,13 @@ export default function SearchPageContent() {
             </div>
             <div className="flex gap-3 px-4 py-3">
               <div className="flex-shrink-0 pt-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#B83A24]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#E34222]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-[#696B64] uppercase tracking-wider font-bold mb-0.5">Drop</p>
                 <p className="text-sm text-[#10251C] font-semibold leading-snug truncate">{drop || "—"}</p>
               </div>
-              <Navigation size={14} className="text-[#B83A24] flex-shrink-0 mt-1.5" />
+              <Navigation size={14} className="text-[#E34222] flex-shrink-0 mt-1.5" />
             </div>
           </motion.div>
 

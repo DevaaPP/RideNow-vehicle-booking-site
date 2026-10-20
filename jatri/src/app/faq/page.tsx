@@ -59,7 +59,7 @@ export default function FAQPage() {
           {/* Header */}
           <div className="mb-10 sm:mb-12 text-center sm:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#cdd6c3] dark:border-[#34443A] text-xs font-bold uppercase tracking-wider mb-3">
-              <HelpCircle size={13} className="text-[#B83A24] dark:text-[#E06A50]" />
+              <HelpCircle size={13} className="text-[#E34222] dark:text-[#E06A50]" />
               <span>Assistance & Knowledge Base</span>
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-3">

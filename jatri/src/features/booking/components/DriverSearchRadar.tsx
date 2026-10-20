@@ -59,7 +59,7 @@ export default function DriverSearchRadar({
           <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] truncate">{pickup}</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-sm bg-[#B83A24] dark:bg-[#E06A50] flex-shrink-0" />
+          <div className="w-2 h-2 rounded-sm bg-[#E34222] dark:bg-[#E06A50] flex-shrink-0" />
           <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] truncate">{drop}</p>
         </div>
       </div>

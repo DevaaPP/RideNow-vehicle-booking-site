@@ -223,7 +223,7 @@ export default function WalletPage() {
 
           <button
             onClick={() => setShowTopupModal(true)}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs sm:text-sm font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs sm:text-sm font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
           >
             <Plus size={16} /> {t("wallet.addMoney", "Add Money")}
           </button>
@@ -282,7 +282,7 @@ export default function WalletPage() {
           <div className="md:col-span-2 relative overflow-hidden rounded-[14px] bg-linear-to-br from-[#123D32] via-[#0D3027] to-[#10251C] text-[#F7F1E5] p-5 sm:p-9 shadow-lg border border-[#123D32]/50 dark:border-[#28664D]/50 flex flex-col justify-between min-h-[190px] sm:min-h-[220px]">
             {/* Background design elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#E5EBDD]/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#B83A24]/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#E34222]/10 rounded-full blur-2xl pointer-events-none" />
 
             <div className="relative z-10 flex items-start justify-between">
               <div>
@@ -403,7 +403,7 @@ export default function WalletPage() {
                 </p>
                 <button
                   onClick={() => setShowTopupModal(true)}
-                  className="mt-4 px-4 py-2 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white rounded-[8px] text-xs font-bold transition shadow-xs cursor-pointer"
+                  className="mt-4 px-4 py-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white rounded-[8px] text-xs font-bold transition shadow-xs cursor-pointer"
                 >
                   {t("wallet.topup", "Top Up")} ₹500
                 </button>
@@ -422,7 +422,7 @@ export default function WalletPage() {
                       <div
                         className={`w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 ${
                           isRefund
-                            ? "bg-[#faebe8] dark:bg-[#341814] text-[#B83A24] dark:text-[#E06A50] border border-[#B83A24]/30 dark:border-[#E06A50]/40"
+                            ? "bg-[#faebe8] dark:bg-[#341814] text-[#E34222] dark:text-[#E06A50] border border-[#E34222]/30 dark:border-[#E06A50]/40"
                             : isCredit
                             ? "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#DED7CA] dark:border-[#34443A]"
                             : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A]"
@@ -445,7 +445,7 @@ export default function WalletPage() {
                           <span
                             className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] border ${
                               isRefund
-                                ? "bg-[#faebe8] dark:bg-[#341814] text-[#B83A24] dark:text-[#E06A50] border-[#B83A24]/30 dark:border-[#E06A50]/40"
+                                ? "bg-[#faebe8] dark:bg-[#341814] text-[#E34222] dark:text-[#E06A50] border-[#E34222]/30 dark:border-[#E06A50]/40"
                                 : isCredit
                                 ? "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border-[#DED7CA] dark:border-[#34443A]"
                                 : "bg-white dark:bg-[#1E2B23] text-[#696B64] dark:text-[#B8C2B8] border-[#DED7CA] dark:border-[#34443A]"
@@ -517,7 +517,7 @@ export default function WalletPage() {
                 </div>
 
                 {topupError && (
-                  <div className="p-3 mb-3 bg-[#faebe8] dark:bg-[#341814] border border-[#B83A24]/30 dark:border-[#E06A50]/40 rounded-[8px] text-xs text-[#B83A24] dark:text-[#E06A50] font-medium flex items-center gap-2">
+                  <div className="p-3 mb-3 bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 rounded-[8px] text-xs text-[#E34222] dark:text-[#E06A50] font-medium flex items-center gap-2">
                     <AlertCircle size={14} className="flex-shrink-0" />
                     <span>{topupError}</span>
                   </div>
@@ -584,7 +584,7 @@ export default function WalletPage() {
                     type="button"
                     disabled={processingTopup || !customAmount}
                     onClick={handleInitiateTopup}
-                    className="flex-1 py-3 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer"
+                    className="flex-1 py-3 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer"
                   >
                     {processingTopup ? (
                       <>

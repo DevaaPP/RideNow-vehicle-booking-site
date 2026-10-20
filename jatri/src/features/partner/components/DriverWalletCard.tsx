@@ -216,7 +216,7 @@ export default function DriverWalletCard() {
           {platformDues > 0 && (
             <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#29372E] flex items-center justify-between gap-3 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[8px] bg-red-100 dark:bg-red-950/30 text-[#B83A24] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-[8px] bg-red-100 dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
                   <AlertCircle size={16} />
                 </div>
                 <div>
@@ -234,7 +234,7 @@ export default function DriverWalletCard() {
                 </span>
                 <Link
                   href="/partner/wallet"
-                  className="text-[10px] font-bold text-[#B83A24] dark:text-[#E06A50] underline hover:text-[#10251C] dark:hover:text-[#F3F1E8] uppercase tracking-wider"
+                  className="text-[10px] font-bold text-[#E34222] dark:text-[#E06A50] underline hover:text-[#10251C] dark:hover:text-[#F3F1E8] uppercase tracking-wider"
                 >
                   Clear Online →
                 </Link>
@@ -346,7 +346,7 @@ export default function DriverWalletCard() {
                   </div>
 
                   <div className="text-right">
-                    <p className={`text-xs sm:text-sm font-bold font-mono tabular-nums ${isCredit ? "text-[#123D32] dark:text-[#347858]" : "text-[#B83A24] dark:text-[#E06A50]"}`}>
+                    <p className={`text-xs sm:text-sm font-bold font-mono tabular-nums ${isCredit ? "text-[#123D32] dark:text-[#347858]" : "text-[#E34222] dark:text-[#E06A50]"}`}>
                       {isCredit ? "+" : "-"}₹{Number(tx.amount || 0).toLocaleString("en-IN")}
                     </p>
                     <span className="text-[9px] font-mono uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">
@@ -390,7 +390,7 @@ export default function DriverWalletCard() {
               </div>
 
               {withdrawError && (
-                <div className="p-3 mb-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-xs text-[#B83A24] dark:text-[#E06A50] flex items-center gap-2">
+                <div className="p-3 mb-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-xs text-[#E34222] dark:text-[#E06A50] flex items-center gap-2">
                   <AlertCircle size={14} className="flex-shrink-0" />
                   <span>{withdrawError}</span>
                 </div>

@@ -828,13 +828,13 @@ export default function RidePage() {
   if (error || !booking) return (
     <div className="h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex items-center justify-center px-6">
       <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-6 shadow-sm flex flex-col items-center gap-4 text-center max-w-sm">
-        <AlertCircle size={44} className="text-[#B83A24] dark:text-[#E06A50]" />
+        <AlertCircle size={44} className="text-[#E34222] dark:text-[#E06A50]" />
         <p className="text-[#10251C] dark:text-[#F3F1E8] font-serif font-bold text-xl">Unable to load ride</p>
         <p className="text-[#696B64] dark:text-[#929D93] text-xs">{error || "Trip details could not be retrieved. Please check your connection."}</p>
         <div className="flex items-center gap-2.5 mt-2 w-full">
           <button
             onClick={() => fetchBooking(false)}
-            className="flex-1 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white py-3 rounded-[8px] font-bold text-xs transition shadow-sm cursor-pointer"
+            className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white py-3 rounded-[8px] font-bold text-xs transition shadow-sm cursor-pointer"
           >
             Retry Connection
           </button>
@@ -1003,7 +1003,7 @@ export default function RidePage() {
       {/* ══ SWIPE BOTTOM SHEET (< lg) ══ */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
-          className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-t-[16px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] dark:border-[#34443A] flex flex-col"
+          className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-t-[20px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] dark:border-[#34443A] flex flex-col"
           animate={{ height: expanded ? "82vh" : PEEK_H }}
           transition={{ type: "spring", stiffness: 340, damping: 34 }}
         >
@@ -1082,7 +1082,7 @@ export default function RidePage() {
               {/* Header */}
               <div className="p-4 border-b border-[#DED7CA] dark:border-[#34443A] flex items-center justify-between bg-[#FAF7F0] dark:bg-[#17211B]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-[8px] bg-[#B83A24]/10 text-[#B83A24] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-[8px] bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
                     <AlertTriangle size={16} />
                   </div>
                   <div>
@@ -1172,7 +1172,7 @@ export default function RidePage() {
                                     <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{cancellationQuote.willDeductFromWallet}</span>
                                   </div>
                                   {cancellationQuote.willAddToOutstanding > 0 && (
-                                    <div className="flex justify-between text-[#B83A24] dark:text-[#E06A50] font-bold">
+                                    <div className="flex justify-between text-[#E34222] dark:text-[#E06A50] font-bold">
                                       <span>{t("cancellation.outstandingAccrued", "Added to Outstanding Dues:")}</span>
                                       <span>₹{cancellationQuote.willAddToOutstanding}</span>
                                     </div>
@@ -1270,7 +1270,7 @@ export default function RidePage() {
                   type="button"
                   onClick={confirmCancelRide}
                   disabled={!selectedReason || cancellingRide}
-                  className="flex-1 py-3 bg-[#B83A24] hover:bg-[#a0321e] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  className="flex-1 py-3 bg-[#E34222] hover:bg-[#a0321e] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   {cancellingRide ? (
                     <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
@@ -1301,7 +1301,7 @@ export default function RidePage() {
               className="bg-[#FAF7F0] dark:bg-[#17211B] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden border border-[#DED7CA] dark:border-[#34443A]"
             >
               <div className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 bg-[#B83A24]/10 rounded-[10px] flex items-center justify-center mx-auto text-[#B83A24] dark:text-[#E06A50]">
+                <div className="w-12 h-12 bg-[#E34222]/10 rounded-[10px] flex items-center justify-center mx-auto text-[#E34222] dark:text-[#E06A50]">
                   <XCircle size={24} />
                 </div>
                 <div className="space-y-1">
@@ -1314,7 +1314,7 @@ export default function RidePage() {
               <div className="px-6 pb-6 pt-2">
                 <button
                   onClick={() => setShowCancelError(null)}
-                  className="w-full py-3 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition active:scale-[0.98] cursor-pointer shadow-xs"
+                  className="w-full py-3 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition active:scale-[0.98] cursor-pointer shadow-xs"
                 >
                   Okay
                 </button>
@@ -1341,7 +1341,7 @@ export default function RidePage() {
               className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden text-[#10251C] dark:text-[#F3F1E8]"
             >
               <div className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 bg-[#B83A24] text-white rounded-[10px] flex items-center justify-center mx-auto shadow-xs">
+                <div className="w-12 h-12 bg-[#E34222] text-white rounded-[10px] flex items-center justify-center mx-auto shadow-xs">
                   <Siren size={24} />
                 </div>
                 <div className="space-y-2">
@@ -1355,7 +1355,7 @@ export default function RidePage() {
                 <button
                   onClick={triggerPanic}
                   disabled={panicLoading}
-                  className="w-full py-3 bg-[#B83A24] hover:bg-[#a0321e] active:scale-[0.98] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="w-full py-3 bg-[#E34222] hover:bg-[#a0321e] active:scale-[0.98] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   {panicLoading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -1394,11 +1394,11 @@ export default function RidePage() {
               transition={{ duration: 0.2 }}
               className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] p-6 max-w-sm w-full shadow-2xl border border-[#DED7CA] dark:border-[#34443A] text-center relative overflow-hidden"
             >
-              <div className="w-12 h-12 rounded-[10px] bg-[#B83A24]/10 border border-[#B83A24]/20 text-[#B83A24] dark:text-[#E06A50] mx-auto flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-[10px] bg-[#E34222]/10 border border-[#E34222]/20 text-[#E34222] dark:text-[#E06A50] mx-auto flex items-center justify-center mb-4">
                 <ShieldAlert size={24} />
               </div>
 
-              <div className="inline-flex items-center gap-1.5 bg-[#B83A24]/10 border border-[#B83A24]/20 px-3 py-1 rounded-[6px] text-[#B83A24] dark:text-[#E06A50] text-[10px] font-bold uppercase tracking-wider mb-2">
+              <div className="inline-flex items-center gap-1.5 bg-[#E34222]/10 border border-[#E34222]/20 px-3 py-1 rounded-[6px] text-[#E34222] dark:text-[#E06A50] text-[10px] font-bold uppercase tracking-wider mb-2">
                 Route Deviation Detected
               </div>
 
@@ -1413,7 +1413,7 @@ export default function RidePage() {
                 <button
                   onClick={handleConfirmSafe}
                   disabled={safetyLoading}
-                  className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <CheckCircle2 size={15} /> I&apos;m Safe (Road Detour)
                 </button>
@@ -1421,7 +1421,7 @@ export default function RidePage() {
                 <button
                   onClick={handleTriggerSosFromCheckin}
                   disabled={safetyLoading}
-                  className="w-full bg-[#B83A24] hover:bg-[#a0321e] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="w-full bg-[#E34222] hover:bg-[#a0321e] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <Siren size={15} /> Get Help / Emergency SOS
                 </button>
@@ -1557,7 +1557,7 @@ function ActionBar({
           type="button"
           onClick={onPayNow}
           disabled={paymentProcessing}
-          className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-50 text-white py-3.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] shadow-sm"
+          className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-50 text-white py-3.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] shadow-sm"
         >
           {paymentProcessing ? (
             <>
@@ -1578,7 +1578,7 @@ function ActionBar({
         <button
           type="button"
           onClick={onCancel}
-          className="w-full bg-white dark:bg-[#1E2B23] hover:bg-[#B83A24]/10 text-[#B83A24] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+          className="w-full bg-white dark:bg-[#1E2B23] hover:bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
         >
           {status === "scheduled" ? "Cancel Scheduled Ride" : "Cancel Ride Request"}
         </button>
@@ -1593,7 +1593,7 @@ function ActionBar({
           <button
             type="button"
             onClick={onPanicClick}
-            className="flex-1 bg-[#B83A24] hover:bg-[#a0321e] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition flex items-center justify-center gap-1.5 active:scale-[0.99] cursor-pointer shadow-xs"
+            className="flex-1 bg-[#E34222] hover:bg-[#a0321e] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition flex items-center justify-center gap-1.5 active:scale-[0.99] cursor-pointer shadow-xs"
           >
             <Siren size={15} className="animate-pulse" />
             <span>Emergency SOS</span>
@@ -1602,7 +1602,7 @@ function ActionBar({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 bg-white dark:bg-[#1E2B23] hover:bg-[#B83A24]/10 text-[#B83A24] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+          className="flex-1 bg-white dark:bg-[#1E2B23] hover:bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
         >
           Cancel Ride
         </button>
@@ -1639,13 +1639,13 @@ function PanelContent({
       {/* PANIC ALERT ACTIVE BANNER */}
       {booking?.isPanicActive && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-[#B83A24]/10 border-2 border-[#B83A24] rounded-[12px] p-4 text-[#10251C] dark:text-[#F3F1E8]">
+          <div className="bg-[#E34222]/10 border-2 border-[#E34222] rounded-[12px] p-4 text-[#10251C] dark:text-[#F3F1E8]">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-[8px] bg-[#B83A24] text-white flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-[8px] bg-[#E34222] text-white flex items-center justify-center flex-shrink-0">
                 <Siren size={18} className="text-white" />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#B83A24] dark:text-[#E06A50]">Emergency SOS Triggered</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#E34222] dark:text-[#E06A50]">Emergency SOS Triggered</p>
                 <p className="text-xs font-bold uppercase tracking-wide text-[#10251C] dark:text-[#F3F1E8]">Security Dispatch Notified</p>
               </div>
             </div>
@@ -1655,7 +1655,7 @@ function PanelContent({
             <div className="grid grid-cols-2 gap-2">
               <a
                 href="tel:112"
-                className="flex items-center justify-center gap-1.5 bg-[#B83A24] hover:bg-[#a0321e] text-white font-bold uppercase tracking-wider py-2.5 rounded-[8px] text-xs transition cursor-pointer"
+                className="flex items-center justify-center gap-1.5 bg-[#E34222] hover:bg-[#a0321e] text-white font-bold uppercase tracking-wider py-2.5 rounded-[8px] text-xs transition cursor-pointer"
               >
                 <PhoneCall size={13} /> Call 112
               </a>
@@ -1827,7 +1827,7 @@ function PanelContent({
             </div>
 
             {paymentError && (
-              <div className="p-3 bg-[#B83A24]/10 border border-[#B83A24] rounded-[8px] text-[#B83A24] dark:text-[#E06A50] text-xs font-medium">
+              <div className="p-3 bg-[#E34222]/10 border border-[#E34222] rounded-[8px] text-[#E34222] dark:text-[#E06A50] text-xs font-medium">
                 {paymentError}
               </div>
             )}
@@ -1836,7 +1836,7 @@ function PanelContent({
               type="button"
               onClick={onPayNow}
               disabled={paymentProcessing}
-              className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-50 text-white py-3.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] shadow-sm"
+              className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-50 text-white py-3.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] shadow-sm"
             >
               {paymentProcessing ? (
                 <>
@@ -1956,7 +1956,7 @@ function PanelContent({
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mt-2">
               <button
                 onClick={onCallClick}
-                className="flex items-center justify-center gap-1.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer shadow-xs"
+                className="flex items-center justify-center gap-1.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer shadow-xs"
               >
                 <Phone size={13} /> <span>In-App Call</span>
               </button>
@@ -2079,7 +2079,7 @@ function PanelContent({
 
           <div className="flex gap-3 p-3.5">
             <div className="flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#B83A24] dark:bg-[#E06A50] flex-shrink-0" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#E34222] dark:bg-[#E06A50] flex-shrink-0" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-widest mb-0.5">Drop</p>

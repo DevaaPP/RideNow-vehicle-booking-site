@@ -38,18 +38,18 @@ export default function RideFailedView({
           className={`w-24 h-24 rounded-full flex items-center justify-center ${
             isExpired || isNoDriver
               ? "bg-amber-500/10 border border-amber-500/20"
-              : "bg-[#B83A24]/10 border border-[#B83A24]/20"
+              : "bg-[#E34222]/10 border border-[#E34222]/20"
           }`}
         >
           <div
             className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              isExpired || isNoDriver ? "bg-amber-500/20" : "bg-[#B83A24]/20"
+              isExpired || isNoDriver ? "bg-amber-500/20" : "bg-[#E34222]/20"
             }`}
           >
             {isExpired || isNoDriver ? (
               <AlertCircle size={36} className="text-amber-600 dark:text-amber-400" />
             ) : (
-              <XCircle size={36} className="text-[#B83A24] dark:text-[#E06A50]" />
+              <XCircle size={36} className="text-[#E34222] dark:text-[#E06A50]" />
             )}
           </div>
         </div>
@@ -108,7 +108,7 @@ export default function RideFailedView({
 
           <div className="flex gap-3 p-4">
             <div className="flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-sm bg-[#B83A24] dark:bg-[#E06A50]" />
+              <div className="w-2.5 h-2.5 rounded-sm bg-[#E34222] dark:bg-[#E06A50]" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider mb-0.5">Drop</p>

@@ -63,7 +63,7 @@ export default function PaymentMethodSelector({
               {walletBalance !== null ? `Balance: ₹${walletBalance}` : "Loading..."}
             </p>
             {!isWalletSufficient && walletBalance !== null && (
-              <span className="text-[10px] text-[#B83A24] dark:text-[#E06A50] font-semibold block mt-1">
+              <span className="text-[10px] text-[#E34222] dark:text-[#E06A50] font-semibold block mt-1">
                 Insufficient (needs ₹{fare})
               </span>
             )}

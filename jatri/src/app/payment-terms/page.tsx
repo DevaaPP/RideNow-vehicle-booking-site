@@ -21,7 +21,7 @@ export default function PaymentTermsPage() {
       <section className="bg-[#123D32] text-white pt-28 sm:pt-36 pb-14 px-4 sm:px-6 lg:px-8 border-b border-[#0D3027]">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#F7F1E5] text-xs font-bold uppercase tracking-wider mb-4">
-            <CreditCard size={14} className="text-[#B83A24]" />
+            <CreditCard size={14} className="text-[#E34222]" />
             <span>MoRTH 2025 & RBI Compliant Payment Architecture</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">

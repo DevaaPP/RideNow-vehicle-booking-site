@@ -21,7 +21,7 @@ export default function CancellationRefundPolicyPage() {
       <section className="bg-[#123D32] dark:bg-[#101713] text-white pt-28 sm:pt-36 pb-14 px-4 sm:px-6 lg:px-8 border-b border-[#0D3027] dark:border-[#34443A]">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#F7F1E5] text-xs font-bold uppercase tracking-wider mb-4">
-            <RotateCcw size={14} className="text-[#B83A24] dark:text-[#E06A50]" />
+            <RotateCcw size={14} className="text-[#E34222] dark:text-[#E06A50]" />
             <span>Direct Match with Jaatri Ledger Engine</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">
@@ -59,7 +59,7 @@ export default function CancellationRefundPolicyPage() {
 
             <div className="p-4 rounded-[10px] bg-[#faebe8] dark:bg-[#341814] border border-[#f0c8c1] dark:border-[#E06A50]/40 text-[#782313] dark:text-[#E06A50]">
               <div className="flex items-center gap-2 font-bold mb-1 text-[#782313] dark:text-[#E06A50]">
-                <XCircle size={16} className="text-[#B83A24] dark:text-[#E06A50]" />
+                <XCircle size={16} className="text-[#E34222] dark:text-[#E06A50]" />
                 <span>Late Cancellation Fee</span>
               </div>
               <p className="text-[#782313]/90 dark:text-[#B8C2B8] leading-relaxed">

@@ -107,7 +107,7 @@ export default function PublicTrackPage() {
     return (
       <div className="h-screen w-full bg-[#F7F1E5] flex items-center justify-center px-6 text-center">
         <div className="bg-[#FAF7F0] border border-[#DED7CA] rounded-[14px] p-6 shadow-sm flex flex-col items-center gap-3 max-w-sm">
-          <AlertCircle size={44} className="text-[#B83A24]" />
+          <AlertCircle size={44} className="text-[#E34222]" />
           <h2 className="text-[#10251C] font-serif font-bold text-xl">Unable to Track Trip</h2>
           <p className="text-[#696B64] text-xs leading-relaxed">{error || "This tracking link may be invalid or expired."}</p>
         </div>
@@ -176,8 +176,8 @@ export default function PublicTrackPage() {
           
           {/* PANIC ALERT BANNER */}
           {booking.isPanicActive && (
-            <div className="bg-[#B83A24]/10 border-2 border-[#B83A24] rounded-[12px] p-4 text-[#10251C] animate-pulse">
-              <div className="flex items-center gap-2 text-[#B83A24] font-bold text-sm mb-1">
+            <div className="bg-[#E34222]/10 border-2 border-[#E34222] rounded-[12px] p-4 text-[#10251C] animate-pulse">
+              <div className="flex items-center gap-2 text-[#E34222] font-bold text-sm mb-1">
                 <Siren size={18} /> EMERGENCY SOS ACTIVATED
               </div>
               <p className="text-[#10251C] text-xs leading-relaxed">
@@ -236,7 +236,7 @@ export default function PublicTrackPage() {
             </div>
             <div className="p-4 flex gap-3">
               <div className="flex-shrink-0 pt-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#B83A24]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#E34222]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-[#696B64] uppercase tracking-widest font-semibold mb-0.5">Drop</p>

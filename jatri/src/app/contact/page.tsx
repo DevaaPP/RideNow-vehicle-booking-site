@@ -75,7 +75,7 @@ export default function ContactPage() {
             className="mb-12 sm:mb-16 max-w-2xl"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#cdd6c3] dark:border-[#34443A] text-xs font-bold uppercase tracking-wider mb-3">
-              <MessageSquareQuote size={13} className="text-[#B83A24] dark:text-[#E06A50]" />
+              <MessageSquareQuote size={13} className="text-[#E34222] dark:text-[#E06A50]" />
               <span>Assam Dispatch & Care Desk</span>
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-4">
@@ -243,7 +243,7 @@ export default function ContactPage() {
                 <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B8C2B8] leading-relaxed mb-4">
                   Jaatri is dedicated to ethical mobility, fair driver earnings, and passenger transparency across all 35 districts of Assam.
                 </p>
-                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#B83A24] dark:text-[#E06A50]">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#E34222] dark:text-[#E06A50]">
                   <span>Jaatri Mobility Technologies Private Limited</span>
                 </div>
               </div>

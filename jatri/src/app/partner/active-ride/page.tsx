@@ -627,7 +627,7 @@ export default function DriverRidePage() {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => window.location.href = "/partners/dashboard"}
-          className="bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] px-8 py-3.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider shadow-sm transition-colors cursor-pointer"
+          className="bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] px-8 py-3.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider shadow-sm transition-colors cursor-pointer"
         >
           Back to Dashboard
         </motion.button>
@@ -813,7 +813,7 @@ export default function DriverRidePage() {
       {/* MOBILE BOTTOM SHEET */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
-          className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-t-[16px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] dark:border-[#34443A] flex flex-col"
+          className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-t-[20px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] dark:border-[#34443A] flex flex-col"
           animate={{ height: expanded ? "82vh" : PEEK_H }}
           transition={{ type: "spring", stiffness: 340, damping: 34 }}
         >
@@ -885,7 +885,7 @@ export default function DriverRidePage() {
               {/* Header */}
               <div className="p-4 border-b border-[#DED7CA] dark:border-[#34443A] flex items-center justify-between bg-[#F7F1E5] dark:bg-[#1E2B23]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-[8px] bg-red-100 dark:bg-red-950/50 text-[#B83A24] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-[8px] bg-red-100 dark:bg-red-950/50 text-[#E34222] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
                     <AlertTriangle size={16} />
                   </div>
                   <div>
@@ -932,8 +932,8 @@ export default function DriverRidePage() {
                       {/* Penalty Impact Warning */}
                       {isNearPickup || elapsedSec > 120 ? (
                         <div className="bg-red-50/80 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[10px] p-3.5 text-left">
-                          <div className="flex items-center gap-1.5 text-[#B83A24] dark:text-[#E06A50] text-xs font-bold mb-1">
-                            <AlertTriangle size={15} className="text-[#B83A24] dark:text-[#E06A50] flex-shrink-0" />
+                          <div className="flex items-center gap-1.5 text-[#E34222] dark:text-[#E06A50] text-xs font-bold mb-1">
+                            <AlertTriangle size={15} className="text-[#E34222] dark:text-[#E06A50] flex-shrink-0" />
                             <span>Driver Penalty & Reliability Impact</span>
                           </div>
                           <p className="text-[11px] text-red-900 dark:text-red-200 leading-relaxed font-medium">
@@ -1011,7 +1011,7 @@ export default function DriverRidePage() {
                   type="button"
                   onClick={confirmCancelRide}
                   disabled={!selectedDriverReason || cancellingRide}
-                  className="flex-1 py-3 bg-[#B83A24] dark:bg-[#B83A24] hover:bg-[#9E2F1B] text-[#FAF7F0] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                  className="flex-1 py-3 bg-[#E34222] dark:bg-[#E34222] hover:bg-[#9E2F1B] text-[#FAF7F0] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                 >
                   {cancellingRide ? (
                     <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
@@ -1041,7 +1041,7 @@ export default function DriverRidePage() {
               className="bg-[#FAF7F0] dark:bg-[#17211B] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden border border-[#DED7CA] dark:border-[#34443A]"
             >
               <div className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 bg-red-100 dark:bg-red-950/50 rounded-full flex items-center justify-center mx-auto text-[#B83A24] dark:text-[#E06A50]">
+                <div className="w-12 h-12 bg-red-100 dark:bg-red-950/50 rounded-full flex items-center justify-center mx-auto text-[#E34222] dark:text-[#E06A50]">
                   <XCircle size={24} />
                 </div>
                 <div className="space-y-1">
@@ -1054,7 +1054,7 @@ export default function DriverRidePage() {
               <div className="px-6 pb-6 pt-2">
                 <button
                   onClick={() => setShowCancelError(null)}
-                  className="w-full py-3 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition active:scale-[0.98] cursor-pointer shadow-sm"
+                  className="w-full py-3 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition active:scale-[0.98] cursor-pointer shadow-sm"
                 >
                   Okay
                 </button>
@@ -1103,7 +1103,7 @@ export default function DriverRidePage() {
                   setActiveCall(null);
                   zegoCallJoined.current = false;
                 }}
-                className="mt-4 bg-[#B83A24] hover:bg-[#9E2F1B] text-white font-semibold text-xs uppercase tracking-wider px-6 py-2.5 rounded-[8px] transition active:scale-95 cursor-pointer shadow-sm"
+                className="mt-4 bg-[#E34222] hover:bg-[#9E2F1B] text-white font-semibold text-xs uppercase tracking-wider px-6 py-2.5 rounded-[8px] transition active:scale-95 cursor-pointer shadow-sm"
               >
                 End / Close Call
               </button>
@@ -1159,7 +1159,7 @@ export default function DriverRidePage() {
                     setIncomingCall(null);
                     setActiveCall({ isOpen: true });
                   }}
-                  className="flex-1 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] font-semibold py-3 rounded-[8px] text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] font-semibold py-3 rounded-[8px] text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all cursor-pointer"
                 >
                   <PhoneCall size={16} /> Answer
                 </button>
@@ -1201,7 +1201,7 @@ function ActionBar({
           type="button"
           onClick={onAcceptRide}
           disabled={actionPending}
-          className="flex-1 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] py-3 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
+          className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-3 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
         >
           <CheckCircle2 size={15} />
           <span>{actionPending ? "Accepting..." : "Accept Ride"}</span>
@@ -1228,7 +1228,7 @@ function ActionBar({
         href={navUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full mb-2.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] active:scale-[0.98] text-[#FAF7F0] py-3 px-4 rounded-[8px] font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+        className="w-full mb-2.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] active:scale-[0.98] text-[#FAF7F0] py-3 px-4 rounded-[8px] font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
       >
         <Navigation size={14} className="fill-[#FAF7F0]" />
         <span>Navigate in Maps ({isStarted ? "To Drop" : "To Pickup"})</span>
@@ -1242,7 +1242,7 @@ function ActionBar({
           <motion.button key="arrived"
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             onClick={async () => { await sendPickupOtp(); setOtpMode(true); }}
-            className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] active:scale-[0.98] text-[#FAF7F0] py-3.5 rounded-[8px] font-semibold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] active:scale-[0.98] text-[#FAF7F0] py-3.5 rounded-[8px] font-semibold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
           >
             <MapPin size={15} /> I&apos;ve Arrived at Pickup <ArrowRight size={14} className="ml-1" />
           </motion.button>
@@ -1268,13 +1268,13 @@ function ActionBar({
                   className="w-48 border border-[#DED7CA] dark:border-[#34443A] focus:border-[#123D32] dark:focus:border-[#28664D] rounded-[8px] px-4 py-2 text-center text-2xl tracking-[0.5em] font-mono font-bold outline-none transition-colors bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]"
                 />
               </div>
-              {otpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#B83A24] dark:text-[#E06A50] text-xs text-center font-bold">{otpError}</motion.p>}
+              {otpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#E34222] dark:text-[#E06A50] text-xs text-center font-bold">{otpError}</motion.p>}
               <div className="flex gap-2">
                 <button onClick={() => { setOtpMode(false); setOtp(""); setOtpError(""); }}
                   className="flex-1 border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
                 >Cancel</button>
                 <button onClick={handleVerifyOtp} disabled={loadingOtp || otp.length < 4}
-                  className="flex-1 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-40 text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                 >
                   {loadingOtp ? <span className="flex items-center justify-center gap-2"><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Verifying…</span> : "Verify OTP"}
                 </button>
@@ -1300,7 +1300,7 @@ function ActionBar({
           <motion.button key="drop-btn"
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             onClick={async () => { await sendDropOtp(); setDropOtpMode(true); }}
-            className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] active:scale-[0.98] text-[#FAF7F0] py-3.5 rounded-[8px] font-semibold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] active:scale-[0.98] text-[#FAF7F0] py-3.5 rounded-[8px] font-semibold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
           >
             <Navigation size={15} /> Mark as Dropped <ArrowRight size={14} />
           </motion.button>
@@ -1326,13 +1326,13 @@ function ActionBar({
                   className="w-48 border border-[#DED7CA] dark:border-[#34443A] focus:border-[#123D32] dark:focus:border-[#28664D] rounded-[8px] px-4 py-2 text-center text-2xl tracking-[0.5em] font-mono font-bold outline-none transition-colors bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]"
                 />
               </div>
-              {dropOtpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#B83A24] dark:text-[#E06A50] text-xs text-center font-bold">{dropOtpError}</motion.p>}
+              {dropOtpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#E34222] dark:text-[#E06A50] text-xs text-center font-bold">{dropOtpError}</motion.p>}
               <div className="flex gap-2">
                 <button onClick={() => { setDropOtpMode(false); setDropOtp(""); setDropOtpError(""); }}
                   className="flex-1 border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
                 >Cancel</button>
                 <button onClick={handleVerifyDropOtp} disabled={loadingDropOtp || dropOtp.length < 4}
-                  className="flex-1 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-40 text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                 >
                   {loadingDropOtp ? <span className="flex items-center justify-center gap-2"><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Verifying…</span> : "Complete Ride"}
                 </button>
@@ -1387,7 +1387,7 @@ function PanelContent({
               type="button"
               onClick={onAcceptRide}
               disabled={actionPending}
-              className="flex-1 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
+              className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
             >
               <CheckCircle2 size={15} />
               <span>{actionPending ? "Accepting..." : "Accept Ride"}</span>
@@ -1399,12 +1399,12 @@ function PanelContent({
       {/* DRIVER PANIC ALERT BANNER */}
       {booking?.isPanicActive && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 text-[#B83A24] dark:text-[#E06A50] flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[8px] bg-[#B83A24] flex items-center justify-center flex-shrink-0 text-white">
+          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 text-[#E34222] dark:text-[#E06A50] flex items-center gap-3">
+            <div className="w-8 h-8 rounded-[8px] bg-[#E34222] flex items-center justify-center flex-shrink-0 text-white">
               <Siren size={18} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#B83A24] dark:text-[#E06A50]">Emergency SOS Triggered</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">Emergency SOS Triggered</p>
               <p className="text-xs font-medium text-red-900 dark:text-red-200">Passenger requested emergency safety assistance. Please adhere to standard safety guidelines.</p>
             </div>
           </div>
@@ -1579,7 +1579,7 @@ function PanelContent({
         <div className="mx-4 lg:mx-6 mt-1">
           <button
             onClick={onCancel}
-            className="w-full bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#B83A24] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition-all border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] shadow-sm"
+            className="w-full bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition-all border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] shadow-sm"
           >
             Cancel Ride
           </button>
@@ -1591,9 +1591,9 @@ function PanelContent({
         <div className="mx-4 lg:mx-6 mt-2 pt-2 border-t border-[#DED7CA] dark:border-[#34443A] flex gap-2">
           <a
             href="tel:112"
-            className="flex-1 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-[#B83A24] dark:text-[#E06A50] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+            className="flex-1 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-[#E34222] dark:text-[#E06A50] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
           >
-            <Siren size={14} className="text-[#B83A24] dark:text-[#E06A50]" />
+            <Siren size={14} className="text-[#E34222] dark:text-[#E06A50]" />
             Police (112)
           </a>
           <button
@@ -1668,7 +1668,7 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
               </div>
               <div className="flex justify-between text-[#696B64] dark:text-[#929D93] font-medium">
                 <span>Platform Commission (10%):</span>
-                <span className="font-mono text-[#B83A24] dark:text-[#E06A50] font-semibold">-₹{booking.adminCommission || Math.round(booking.fare * 0.1)}</span>
+                <span className="font-mono text-[#E34222] dark:text-[#E06A50] font-semibold">-₹{booking.adminCommission || Math.round(booking.fare * 0.1)}</span>
               </div>
               <div className="flex justify-between text-[#10251C] dark:text-[#F3F1E8] font-bold border-t border-[#DED7CA] dark:border-[#34443A] pt-2">
                 <span className="text-[#123D32] dark:text-emerald-400">Net Driver Payout:</span>
@@ -1725,7 +1725,7 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => window.location.href = "/partners/dashboard"}
-            className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] py-3.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+            className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-3.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
           >
             Back to Dashboard
           </motion.button>
@@ -1755,7 +1755,7 @@ function FailedScreen({ booking, status, cfg }: {
         className="mb-6"
       >
         <div className={`w-20 h-20 rounded-full flex items-center justify-center border ${isExpired ? "bg-orange-500/10 dark:bg-orange-500/20 border-orange-500/30" : "bg-red-500/10 dark:bg-red-500/20 border-red-500/30"}`}>
-          {isExpired ? <AlertCircle size={36} className="text-orange-500 dark:text-orange-400" /> : <XCircle size={36} className="text-[#B83A24] dark:text-[#E06A50]" />}
+          {isExpired ? <AlertCircle size={36} className="text-orange-500 dark:text-orange-400" /> : <XCircle size={36} className="text-[#E34222] dark:text-[#E06A50]" />}
         </div>
       </motion.div>
 
@@ -1804,7 +1804,7 @@ function FailedScreen({ booking, status, cfg }: {
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={() => window.location.href = "/partners/dashboard"}
-          className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] py-3.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+          className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-3.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
         >
           Back to Dashboard
         </motion.button>

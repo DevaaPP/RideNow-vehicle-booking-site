@@ -240,7 +240,7 @@ export default function PartnerBookingsPage() {
                           </div>
                         )}
                         {booking.isScheduled && booking.scheduledPickupTime && (
-                          <div className="inline-flex items-center gap-1.5 bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#B83A24] dark:text-[#E06A50] border border-[#B83A24]/30 dark:border-[#E06A50]/30 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-[6px] mt-1.5">
+                          <div className="inline-flex items-center gap-1.5 bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#E34222] dark:text-[#E06A50] border border-[#E34222]/30 dark:border-[#E06A50]/30 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-[6px] mt-1.5">
                             <span>⏰ Scheduled: {formatDate(booking.scheduledPickupTime)}</span>
                           </div>
                         )}
@@ -276,11 +276,11 @@ export default function PartnerBookingsPage() {
 
                       {/* DROP */}
                       <div className="flex items-start gap-2.5 sm:gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-[#B83A24]/10 dark:bg-[#E06A50]/20 rounded-full flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3.5 h-3.5 text-[#B83A24] dark:text-[#E06A50]" />
+                        <div className="flex-shrink-0 w-6 h-6 bg-[#E34222]/10 dark:bg-[#E06A50]/20 rounded-full flex items-center justify-center mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#E34222] dark:text-[#E06A50]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[10px] sm:text-xs font-bold text-[#B83A24] dark:text-[#E06A50] uppercase tracking-wider">DROP</span>
+                          <span className="text-[10px] sm:text-xs font-bold text-[#E34222] dark:text-[#E06A50] uppercase tracking-wider">DROP</span>
                           <p className="text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] mt-0.5 leading-relaxed font-medium">
                             {booking.dropAddress}
                           </p>

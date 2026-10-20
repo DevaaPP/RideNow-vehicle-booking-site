@@ -10,7 +10,7 @@
 
 Jaatri pairs an Assamese warm ivory editorial aesthetic for daytime with a deep, organic nighttime forest green dark theme. Cold brutalist blacks, zincs, and generic grays are strictly prohibited.
 
-### A. Semantic Theme Mapping
+### A. Semantic Theme Mapping (With Mandated Green-Role Hierarchy)
 
 | Semantic Role | Light Mode Value | Dark Mode Value | Tailwind Usage |
 |---|---|---|---|
@@ -21,13 +21,15 @@ Jaatri pairs an Assamese warm ivory editorial aesthetic for daytime with a deep,
 | **Primary Text / Headlines** | `#10251C` (Deep Ink) | `#F3F1E8` (Ivory Cream Text) | `text-[#10251C] dark:text-[#F3F1E8]` |
 | **Secondary / Subtitle Text**| `#4A554E` / `#696B64` | `#B8C2B8` (Muted Sage Gray) | `text-[#696B64] dark:text-[#B8C2B8]` |
 | **Muted Meta / Helper Text** | `#889088` | `#929D93` (Muted Olive Text) | `text-[#889088] dark:text-[#929D93]` |
-| **Brand Primary CTA** | `#123D32` (Forest Green) | `#28664D` (Emerald Forest) | `bg-[#123D32] dark:bg-[#28664D]` |
-| **Brand Hover / Active** | `#0D3027` (Deep Forest) | `#347858` / `#388463` | `hover:bg-[#0D3027] dark:hover:bg-[#347858]` |
+| **Brand Primary Interactive CTA** | `#046A38` (Primary Emerald) | `#058A48` (Vibrant Emerald) | `bg-[#046A38] dark:bg-[#058A48] text-white hover:bg-[#03532C]` |
+| **Active Selected Surface** | `#1E6048` (Active Emerald Surface) | `#1E6048` / `#1D3428` | `bg-[#1E6048] text-[#F7F1E5]` |
+| **Structural Brand Green** | `#123D32` (Forest Green) | `#123D32` (Night Structural Forest)| `bg-[#123D32] dark:bg-[#17211B]` |
+| **Deep Forest Surface** | `#0D3027` (Deep Forest) | `#0D3027` | `bg-[#0D3027]` |
 | **Default Border / Divider** | `#DED7CA` (Warm Border) | `#34443A` (Forest Border) | `border-[#DED7CA] dark:border-[#34443A]` |
 | **Subtle Border** | `#E8E2D8` (Soft Ivory Line)| `#29372E` (Subtle Night Line)| `border-[#E8E2D8] dark:border-[#29372E]` |
-| **Vermilion Accent (Alerts)**| `#B83A24` (Red Oxide) | `#E06A50` (Warm Terracotta) | `text-[#B83A24] dark:text-[#E06A50]` |
+| **Assamese Vermilion Signature Accent**| `#E34222` (Assamese Vermilion) | `#E34222` / `#E06A50` | `text-[#E34222] bg-[#E34222]` |
 | **Gold / Rating Accent** | `#C28B38` (Assam Silk Gold)| `#D7AC62` (Warm Amber Gold) | `text-[#C28B38] dark:text-[#D7AC62]` |
-| **Lime Accent (Badges)** | `#123D32` on `#E5EBDD` | `#A3E635` (Fluorescent Lime) | `text-[#123D32] dark:text-[#A3E635]` |
+| **Lime Accent (Badges)** | `#046A38` on `#E5EBDD` | `#A3E635` (Fluorescent Lime) | `text-[#046A38] dark:text-[#A3E635]` |
 
 ### B. Tailwind CSS v4 Dark Variant Integration
 

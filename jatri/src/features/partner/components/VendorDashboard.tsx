@@ -348,7 +348,7 @@ export default function VendorDashboard({
             </div>
             <button
               onClick={() => router.push(`/video-kyc/${roomId}`)}
-              className="w-full sm:w-auto px-6 py-3 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] text-xs uppercase tracking-wider font-semibold rounded-[8px] transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              className="w-full sm:w-auto px-6 py-3 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] text-xs uppercase tracking-wider font-semibold rounded-[8px] transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
               <Video size={16} /> Join Video KYC Call
             </button>
@@ -424,7 +424,7 @@ export default function VendorDashboard({
 
           <button
             onClick={() => router.push("/partner/bookings")}
-            className="mt-6 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] px-6 py-3 rounded-[8px] text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
+            className="mt-6 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] px-6 py-3 rounded-[8px] text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
           >
             Access Dispatch Orders <ArrowRight size={15} />
           </button>
@@ -747,7 +747,7 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
               <button
                 onClick={submitPricing}
                 disabled={loading}
-                className="flex-1 py-2.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] text-xs uppercase tracking-wider font-semibold rounded-[8px] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm"
+                className="flex-1 py-2.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] text-xs uppercase tracking-wider font-semibold rounded-[8px] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Fleet Details"}
               </button>
@@ -874,7 +874,7 @@ function RejectionCard({
         space-y-4
       "
     >
-      <div className="flex items-center gap-2 text-[#B83A24] dark:text-[#E06A50] font-bold text-xs uppercase tracking-wider">
+      <div className="flex items-center gap-2 text-[#E34222] dark:text-[#E06A50] font-bold text-xs uppercase tracking-wider">
         <AlertTriangle size={16} />
         {title}
       </div>
@@ -890,7 +890,7 @@ function RejectionCard({
             w-full sm:w-auto
             px-6 
             py-2.5 
-            bg-[#B83A24] hover:bg-[#9E2F1B] 
+            bg-[#E34222] hover:bg-[#9E2F1B] 
             text-[#FAF7F0] 
             rounded-[8px] 
             text-xs uppercase tracking-wider font-semibold
@@ -1500,7 +1500,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   Verified Partner
                 </span>
                 {!profilePicture && (
-                  <span className="inline-flex items-center gap-1 bg-[#B83A24] text-white text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[6px]">
+                  <span className="inline-flex items-center gap-1 bg-[#E34222] text-white text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[6px]">
                     Photo Required
                   </span>
                 )}
@@ -1514,7 +1514,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => window.location.href = "/partner/pending-requests"}
-              className="flex items-center justify-center gap-2 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] text-xs sm:text-sm font-semibold uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
+              className="flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] text-xs sm:text-sm font-semibold uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
             >
               <span>Incoming Requests</span>
               <ArrowRight size={15} />
@@ -1547,7 +1547,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             <button
               onClick={() => photoInputRef.current?.click()}
               disabled={uploadingPhoto}
-              className="px-4 py-2 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 rounded-[8px] cursor-pointer"
+              className="px-4 py-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 rounded-[8px] cursor-pointer"
             >
               {uploadingPhoto ? "Uploading..." : "Upload Profile Photo"}
             </button>
@@ -1556,14 +1556,14 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Cash Ride Debt Threshold Alert Banner */}
         {isDebtBlocked && (
-          <div className="bg-red-50 dark:bg-red-950/30 text-[#B83A24] dark:text-[#E06A50] border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans shadow-sm">
+          <div className="bg-red-50 dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans shadow-sm">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-[8px] bg-[#B83A24] text-white flex items-center justify-center font-bold shrink-0">
+              <div className="w-10 h-10 rounded-[8px] bg-[#E34222] text-white flex items-center justify-center font-bold shrink-0">
                 <AlertTriangle size={20} />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#B83A24] dark:text-[#E06A50]">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">
                     Dispatch Blocked &bull; Platform Commission Dues Limit Exceeded
                   </p>
                   <span className="bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-200 text-[10px] font-mono px-2 py-0.5 font-bold uppercase rounded-[4px]">
@@ -1577,7 +1577,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
             <button
               onClick={() => router.push("/partner/wallet")}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#B83A24] hover:bg-[#9E2F1B] text-white text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-2 rounded-[8px] cursor-pointer shadow-sm"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#E34222] hover:bg-[#9E2F1B] text-white text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center gap-2 rounded-[8px] cursor-pointer shadow-sm"
             >
               <WalletIcon size={14} /> Settle Dues Now
             </button>
@@ -1647,7 +1647,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 </p>
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] uppercase tracking-wider ${
                   (shiftSummary?.cancellationRate ?? 0) > 10
-                    ? "text-[#B83A24] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50"
+                    ? "text-[#E34222] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50"
                     : "text-[#123D32] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60"
                 }`}>
                   {shiftSummary?.acceptanceRate ?? 100}% accept
@@ -1663,7 +1663,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         {/* Cooldown Alert Banner */}
         {shiftSummary?.isCooldownActive && shiftSummary?.dispatchBlockedUntil && (
           <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 flex items-center gap-3">
-            <AlertTriangle className="text-[#B83A24] dark:text-[#E06A50] flex-shrink-0" size={20} />
+            <AlertTriangle className="text-[#E34222] dark:text-[#E06A50] flex-shrink-0" size={20} />
             <div className="text-xs">
               <p className="text-red-900 dark:text-red-200 font-bold uppercase tracking-wide">Dispatch Cooldown Active</p>
               <p className="text-red-800 dark:text-red-300 text-[11px] mt-0.5 font-medium">
@@ -1690,7 +1690,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 >
                   <div className="flex items-start gap-3">
                     <AlertTriangle
-                      className={isExpired ? "text-[#B83A24] dark:text-[#E06A50] mt-0.5 flex-shrink-0" : "text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"}
+                      className={isExpired ? "text-[#E34222] dark:text-[#E06A50] mt-0.5 flex-shrink-0" : "text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"}
                       size={18}
                     />
                     <div>
@@ -1720,8 +1720,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     onClick={() => router.push("/partner/onboard/documents")}
                     className={`text-xs font-semibold uppercase tracking-wider px-4 py-2 rounded-[8px] transition whitespace-nowrap self-start sm:self-center cursor-pointer shadow-sm ${
                       isExpired
-                        ? "bg-[#B83A24] hover:bg-[#9E2F1B] text-white"
-                        : "bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-[#FAF7F0]"
+                        ? "bg-[#E34222] hover:bg-[#9E2F1B] text-white"
+                        : "bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0]"
                     }`}
                   >
                     Renew Document
@@ -1752,9 +1752,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
 
             {isDebtBlocked && (
-              <div className="mt-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-[#B83A24] dark:text-[#E06A50] text-xs font-medium flex items-center justify-between gap-2">
+              <div className="mt-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-[#E34222] dark:text-[#E06A50] text-xs font-medium flex items-center justify-between gap-2">
                 <span className="truncate font-mono text-[11px]">Dues limit reached (₹{platformDues.toFixed(2)} / ₹{maxAllowedPlatformDues})</span>
-                <Link href="/partner/wallet" className="underline font-bold text-[#B83A24] dark:text-[#E06A50] shrink-0 text-xs uppercase">
+                <Link href="/partner/wallet" className="underline font-bold text-[#E34222] dark:text-[#E06A50] shrink-0 text-xs uppercase">
                   Settle
                 </Link>
               </div>
@@ -1979,7 +1979,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                             isCompleted
                               ? "bg-emerald-100 dark:bg-[#1D3428] text-[#123D32] dark:text-[#347858]"
                               : isCancelled
-                              ? "bg-red-100 dark:bg-red-950/40 text-[#B83A24] dark:text-[#E06A50]"
+                              ? "bg-red-100 dark:bg-red-950/40 text-[#E34222] dark:text-[#E06A50]"
                               : "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300"
                           }`}
                         >
@@ -2019,7 +2019,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                           </span>
                         )}
                         {isCancelled && (
-                          <span className="text-[#B83A24] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded-[4px] border border-red-200 dark:border-red-900/50 flex items-center gap-1 font-semibold">
+                          <span className="text-[#E34222] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded-[4px] border border-red-200 dark:border-red-900/50 flex items-center gap-1 font-semibold">
                             ✕ {trip.cancellationReason || "Cancelled"}
                             {trip.cancellationFeeApplied ? " • ₹40 Driver Compensation" : " • Free cancel"}
                           </span>
@@ -2097,7 +2097,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     </div>
                     <div className="flex gap-3 items-start">
                       <div className="flex-shrink-0 pt-1">
-                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#B83A24] dark:bg-[#E06A50] border-2 border-white dark:border-[#17211B] shadow-sm" />
+                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#E34222] dark:bg-[#E06A50] border-2 border-white dark:border-[#17211B] shadow-sm" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider mb-0.5">{t("booking.drop", "Drop Location")}</p>
@@ -2152,7 +2152,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <button
                     onClick={() => handleRequestAction(pendingRequest._id, "accept")}
                     disabled={processingAction !== null}
-                    className="flex-1 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-[#FAF7F0] py-3 rounded-[8px] text-xs uppercase tracking-wider font-bold active:scale-[0.98] transition-all shadow-md disabled:opacity-40 cursor-pointer"
+                    className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-3 rounded-[8px] text-xs uppercase tracking-wider font-bold active:scale-[0.98] transition-all shadow-md disabled:opacity-40 cursor-pointer"
                   >
                     {processingAction === "accept" ? (
                       <Loader2 className="animate-spin w-4 h-4 mx-auto text-white" />

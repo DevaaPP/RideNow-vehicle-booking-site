@@ -1436,7 +1436,10 @@ export default function RouteMap({
 
       {/* ── BOTTOM RIGHT CONTROLS (RE-CENTER CROSSHAIR & ZOOM) ── */}
       <div
-        className="absolute bottom-6 right-4 z-20 flex flex-col gap-2"
+        className="absolute right-4 z-20 flex flex-col gap-2 transition-all duration-300"
+        style={{
+          bottom: bottomPadding && bottomPadding > 40 ? `${Math.min(bottomPadding + 14, 280)}px` : "24px",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Re-center / Locate Crosshair Button */}
@@ -1444,25 +1447,25 @@ export default function RouteMap({
           onClick={handleRecenter}
           aria-label="Re-center on route"
           title="Re-center view"
-          className="w-9 h-9 bg-white border border-zinc-300 rounded-none flex items-center justify-center text-zinc-900 shadow-sm hover:bg-zinc-100 transition-all cursor-pointer"
+          className="w-9 h-9 bg-white dark:bg-[#17211B] border border-zinc-300 dark:border-[#34443A] rounded-[8px] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] shadow-sm hover:bg-[#F7F1E5] dark:hover:bg-[#1E2B23] transition-all cursor-pointer"
         >
-          <Crosshair size={18} className="text-zinc-900" />
+          <Crosshair size={18} className="text-[#046A38] dark:text-[#90C8A8]" />
         </button>
 
         {/* Zoom In & Out */}
-        <div className="flex flex-col bg-white border border-zinc-300 rounded-none overflow-hidden shadow-sm">
+        <div className="flex flex-col bg-white dark:bg-[#17211B] border border-zinc-300 dark:border-[#34443A] rounded-[8px] overflow-hidden shadow-sm">
           <button
             onClick={() => mapRef.current?.zoomIn()}
             aria-label="Zoom in"
-            className="w-9 h-9 flex items-center justify-center text-zinc-800 hover:text-black hover:bg-zinc-100 transition cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center text-zinc-800 dark:text-[#F3F1E8] hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#1E2B23] transition cursor-pointer"
           >
             <Plus size={15} />
           </button>
-          <div className="h-px bg-zinc-200" />
+          <div className="h-px bg-zinc-200 dark:bg-[#34443A]" />
           <button
             onClick={() => mapRef.current?.zoomOut()}
             aria-label="Zoom out"
-            className="w-9 h-9 flex items-center justify-center text-zinc-800 hover:text-black hover:bg-zinc-100 transition cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center text-zinc-800 dark:text-[#F3F1E8] hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#1E2B23] transition cursor-pointer"
           >
             <Minus size={15} />
           </button>

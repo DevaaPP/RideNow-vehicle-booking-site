@@ -492,7 +492,7 @@ export default function PartnerDocumentsPage() {
 
         {/* ERROR */}
         {error && (
-          <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-[#B83A24] dark:text-[#E06A50] bg-[#B83A24]/10 dark:bg-red-950/30 p-3 rounded-[8px] border border-[#B83A24] dark:border-red-900/50 font-mono">
+          <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-[#E34222] dark:text-[#E06A50] bg-[#E34222]/10 dark:bg-red-950/30 p-3 rounded-[8px] border border-[#E34222] dark:border-red-900/50 font-mono">
             <AlertCircle size={15} className="shrink-0" />
             <p>{error}</p>
           </div>

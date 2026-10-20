@@ -89,8 +89,8 @@ export default function MyBookingsPage() {
       completed: "bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border border-[#DED7CA] dark:border-[#28664D]/30",
       requested: "bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800",
       awaiting_payment: "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800",
-      cancelled: "bg-[#faebe8] dark:bg-red-950/30 text-[#B83A24] dark:text-[#E06A50] border border-[#B83A24]/30 dark:border-red-900/50",
-      rejected: "bg-[#faebe8] dark:bg-red-950/30 text-[#B83A24] dark:text-[#E06A50] border border-[#B83A24]/30 dark:border-red-900/50",
+      cancelled: "bg-[#faebe8] dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] border border-[#E34222]/30 dark:border-red-900/50",
+      rejected: "bg-[#faebe8] dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] border border-[#E34222]/30 dark:border-red-900/50",
       expired: "bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#696B64] dark:text-[#929D93] border border-[#DED7CA] dark:border-[#29372E]",
     };
     return colors[status] || "bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#696B64] dark:text-[#929D93] border border-[#DED7CA] dark:border-[#29372E]";
@@ -164,7 +164,7 @@ export default function MyBookingsPage() {
               <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1">Ready for a ride? Book one now!</p>
               <button 
                 onClick={() => window.location.href = "/book"}
-                className="mt-5 bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white px-5 py-2.5 rounded-[8px] text-sm font-bold transition active:scale-95 shadow-xs cursor-pointer"
+                className="mt-5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white px-5 py-2.5 rounded-[8px] text-sm font-bold transition active:scale-95 shadow-xs cursor-pointer"
               >
                 Book a Ride
               </button>
@@ -243,10 +243,10 @@ export default function MyBookingsPage() {
                       {/* DROP */}
                       <div className="flex items-start gap-2.5 sm:gap-3">
                         <div className="flex-shrink-0 w-6 h-6 bg-[#faebe8] dark:bg-red-950/30 rounded-full flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3 h-3 text-[#B83A24] dark:text-[#E06A50]" />
+                          <MapPin className="w-3 h-3 text-[#E34222] dark:text-[#E06A50]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[10px] sm:text-xs font-bold text-[#B83A24] dark:text-[#E06A50] uppercase tracking-wider">DROP</span>
+                          <span className="text-[10px] sm:text-xs font-bold text-[#E34222] dark:text-[#E06A50] uppercase tracking-wider">DROP</span>
                           <p className="text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] mt-0.5 leading-relaxed">
                             {booking.dropAddress}
                           </p>
@@ -348,7 +348,7 @@ export default function MyBookingsPage() {
                               window.location.href = `/ride/${booking._id}`;
                             }
                           }}
-                          className="flex items-center gap-1 text-xs sm:text-sm font-bold text-white bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] px-3 sm:px-4 py-1.5 transition-colors cursor-pointer rounded-[8px] shadow-xs"
+                          className="flex items-center gap-1 text-xs sm:text-sm font-bold text-white bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] px-3 sm:px-4 py-1.5 transition-colors cursor-pointer rounded-[8px] shadow-xs"
                         >
                           <span>View Details</span>
                           <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

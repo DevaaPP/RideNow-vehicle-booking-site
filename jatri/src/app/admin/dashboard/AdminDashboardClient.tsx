@@ -113,7 +113,7 @@ export default function AdminDashboardClient() {
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="text-xs font-semibold text-[#696B64] hover:text-[#B83A24] transition-colors border border-[#DED7CA] px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] shadow-xs active:scale-95"
+              className="text-xs font-semibold text-[#696B64] hover:text-[#E34222] transition-colors border border-[#DED7CA] px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] shadow-xs active:scale-95"
             >
               Logout
             </button>
@@ -150,7 +150,7 @@ export default function AdminDashboardClient() {
         <StatusAreaChart stats={stats}/>
         <AdminEarningsChart/>
 
-        <div className="bg-white rounded-2xl p-1.5 sm:p-2 shadow-md border border-gray-100 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none">
+        <div className="bg-white rounded-[12px] p-1.5 sm:p-2 shadow-md border border-gray-100 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none">
           <TabButton active={activeTab === "kyc"} count={videoKycReviews.length}
             onClick={() => setActiveTab("kyc")} icon={<Video size={14} className="sm:w-[15px] sm:h-[15px]" />}>
             Video KYC
@@ -193,7 +193,7 @@ function TabButton({ active, onClick, children, icon, count }: any) {
     <motion.button
       onClick={onClick}
       whileTap={{ scale: 0.97 }}
-      className={`relative flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 select-none shrink-0
+      className={`relative flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-[8px] sm:rounded-[12px] text-xs sm:text-sm font-semibold transition-all duration-200 select-none shrink-0
         ${active
           ? "bg-neutral-950 text-white shadow-md shadow-black/20"
           : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
@@ -247,9 +247,9 @@ function ContentList({ data, type }: any) {
   if (data.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className="bg-white rounded-2xl py-16 text-center border border-dashed border-gray-200 shadow-sm"
+        className="bg-white rounded-[12px] py-16 text-center border border-dashed border-gray-200 shadow-sm"
       >
-        <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center mx-auto mb-4">
+        <div className="w-12 h-12 rounded-[8px] bg-green-50 flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 size={22} className="text-green-500" />
         </div>
         <p className="font-bold text-gray-800 text-base">All caught up!</p>
@@ -287,10 +287,10 @@ function ContentList({ data, type }: any) {
                   : `/admin/vendors/${item._id}`
               )
             }
-            className="bg-white border border-gray-100 rounded-xl sm:rounded-2xl p-3.5 sm:px-5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-sm transition-all cursor-pointer select-none"
+            className="bg-white border border-gray-100 rounded-[8px] sm:rounded-[12px] p-3.5 sm:px-5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-sm transition-all cursor-pointer select-none"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 ${avColor}`}>
+              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-[8px] flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 ${avColor}`}>
                 {initials}
               </div>
               <div className="min-w-0 flex-1">
@@ -316,7 +316,7 @@ function ContentList({ data, type }: any) {
                       e.stopPropagation();
                       router.push(`/video-kyc/${item.videoKycRoomId}`);
                     }}
-                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors"
+                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-[8px] bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors"
                   >
                     <Video size={13} /> Join Call
                   </motion.button>
@@ -326,7 +326,7 @@ function ContentList({ data, type }: any) {
                       e.stopPropagation();
                       startKyc(item._id);
                     }}
-                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold transition-colors"
+                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-[8px] bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold transition-colors"
                   >
                     <Video size={13} /> Start KYC
                   </motion.button>
@@ -341,7 +341,7 @@ function ContentList({ data, type }: any) {
                         : `/admin/vendors/${item._id}`
                     );
                   }}
-                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-[8px] bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold transition-colors"
                 >
                   Review <ArrowRight size={13} />
                 </motion.button>
@@ -415,18 +415,18 @@ function Kpi({
       whileHover={{ y: -3, boxShadow: "0 12px 30px rgba(0,0,0,0.08)" }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       onClick={onClick}
-      className={`bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-gray-100 shadow-sm
+      className={`bg-white rounded-[8px] sm:rounded-[12px] p-3.5 sm:p-5 border border-gray-100 shadow-sm
         cursor-pointer select-none relative overflow-hidden group ${cfg.cardHover}`}
     >
       <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
-        rounded-xl sm:rounded-2xl ${cfg.iconBg}`} style={{ zIndex: 0 }} />
+        rounded-[8px] sm:rounded-[12px] ${cfg.iconBg}`} style={{ zIndex: 0 }} />
 
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-2 sm:mb-4">
           <motion.div
             whileHover={{ rotate: -6, scale: 1.1 }}
             transition={{ type: "spring", stiffness: 400 }}
-            className={`w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center ${cfg.iconBg} ${cfg.iconColor}`}
+            className={`w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-[8px] flex items-center justify-center ${cfg.iconBg} ${cfg.iconColor}`}
           >
             {icon}
           </motion.div>
@@ -513,7 +513,7 @@ function PricingConfigEditor() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-3xl p-12 text-center border text-zinc-500 font-medium flex items-center justify-center gap-3">
+      <div className="bg-white rounded-[14px] p-12 text-center border text-zinc-500 font-medium flex items-center justify-center gap-3">
         <Clock className="animate-spin text-zinc-400" size={18} />
         Loading pricing configurations...
       </div>
@@ -521,7 +521,7 @@ function PricingConfigEditor() {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-gray-100 space-y-6">
+    <div className="bg-white rounded-[14px] p-6 sm:p-8 shadow-lg border border-gray-100 space-y-6">
       <div>
         <h3 className="text-xl font-bold text-gray-900">Dynamic Fare Pricing</h3>
         <p className="text-sm text-gray-500 mt-1">Configure the base rates, distance charges, duration charges, and multipliers for each category.</p>
@@ -551,7 +551,7 @@ function PricingConfigEditor() {
                     type="number"
                     value={config.baseFare}
                     onChange={(e) => handleUpdate(idx, "baseFare", Number(e.target.value))}
-                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -560,7 +560,7 @@ function PricingConfigEditor() {
                     type="number"
                     value={config.pricePerKm}
                     onChange={(e) => handleUpdate(idx, "pricePerKm", Number(e.target.value))}
-                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -569,7 +569,7 @@ function PricingConfigEditor() {
                     type="number"
                     value={config.pricePerMinute}
                     onChange={(e) => handleUpdate(idx, "pricePerMinute", Number(e.target.value))}
-                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -579,7 +579,7 @@ function PricingConfigEditor() {
                     step="0.1"
                     value={config.multiplier}
                     onChange={(e) => handleUpdate(idx, "multiplier", Number(e.target.value))}
-                    className="w-16 border rounded-xl px-2 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-16 border rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -588,7 +588,7 @@ function PricingConfigEditor() {
                     type="number"
                     value={config.minDistance !== undefined ? config.minDistance : 0}
                     onChange={(e) => handleUpdate(idx, "minDistance", Number(e.target.value))}
-                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -597,7 +597,7 @@ function PricingConfigEditor() {
                     type="number"
                     value={config.maxDistance !== undefined ? config.maxDistance : 9999}
                     onChange={(e) => handleUpdate(idx, "maxDistance", Number(e.target.value))}
-                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -605,7 +605,7 @@ function PricingConfigEditor() {
                   <button
                     onClick={() => handleSave(idx)}
                     disabled={savingId === config.vehicleType}
-                    className="bg-black text-white hover:bg-neutral-900 font-bold px-4 py-2 rounded-xl text-xs transition disabled:opacity-50"
+                    className="bg-[#046A38] text-white hover:bg-[#03532C] font-bold px-4 py-2 rounded-[8px] text-xs transition disabled:opacity-50"
                   >
                     {savingId === config.vehicleType ? "Saving..." : "Save"}
                   </button>

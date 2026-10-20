@@ -22,7 +22,7 @@ export default function PrivacyPolicyPage() {
       <section className="bg-[#123D32] dark:bg-[#0D3027] text-white pt-28 sm:pt-36 pb-14 px-4 sm:px-6 lg:px-8 border-b border-[#0D3027] dark:border-[#1E2B23]">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#F7F1E5] text-xs font-bold uppercase tracking-wider mb-4">
-            <ShieldCheck size={14} className="text-[#B83A24] dark:text-[#E06A50]" />
+            <ShieldCheck size={14} className="text-[#E34222] dark:text-[#E06A50]" />
             <span>DPDP Act 2023 & MoRTH Guidelines 2025 Compliant</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">
@@ -170,7 +170,7 @@ export default function PrivacyPolicyPage() {
         {/* 6. Grievance Officer */}
         <section className="bg-[#E5EBDD] dark:bg-[#17211B] rounded-[14px] p-6 sm:p-8 border border-[#cdd6c3] dark:border-[#34443A] text-[#123D32] dark:text-[#F3F1E8] shadow-2xs">
           <h2 className="font-serif text-xl sm:text-2xl font-bold mb-2 flex items-center gap-2 text-[#123D32] dark:text-[#F3F1E8]">
-            <HelpCircle size={20} className="text-[#B83A24] dark:text-[#E06A50]" /> 6. Grievance Officer & Statutory Disclosures
+            <HelpCircle size={20} className="text-[#E34222] dark:text-[#E06A50]" /> 6. Grievance Officer & Statutory Disclosures
           </h2>
           <p className="text-xs mb-4 text-[#123D32]/85 dark:text-[#B8C2B8] leading-relaxed">
             In compliance with the Digital Personal Data Protection Act, 2023, Consumer Protection (E-Commerce) Rules, 2020, and the Motor Vehicle Aggregator Guidelines 2025:
