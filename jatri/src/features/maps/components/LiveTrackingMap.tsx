@@ -139,7 +139,7 @@ function createDriverMarkerEl(vehicleType: VehicleType = "car", etaMinutes?: num
   return { container, vehicleEl, etaBadge };
 }
 
-/* ─── PICKUP PIN (MATCHES /BOOK BRUTALIST CALLOUT) ───────────────────── */
+/* ─── PICKUP PIN (JAATRI EMERALD & WARM IVORY DESIGN) ───────────────── */
 function createPickupPinEl(locationName?: string): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-default select-none flex flex-col items-center pointer-events-auto";
@@ -149,25 +149,25 @@ function createPickupPinEl(locationName?: string): HTMLElement {
   const cleanTitle = rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle;
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.35));transform:translateY(3px);">
-      <!-- Elevated Callout Badge (Floats clean above route line) -->
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(18,61,50,0.2));transform:translateY(3px);">
+      <!-- Elevated Callout Badge (Jaatri Emerald & Ivory Design) -->
       <div style="
-        background: #09090b;
-        color: #ffffff;
+        background: #FAF7F0;
+        color: #10251C;
         padding: 5px 10px;
-        border-radius: 2px;
+        border-radius: 8px;
         font-size: 10px;
         font-weight: 800;
         letter-spacing: -0.01em;
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        border: 1.5px solid #ffffff;
+        box-shadow: 0 4px 12px rgba(18,61,50,0.15);
+        border: 1.5px solid #DED7CA;
         display: flex;
         align-items: center;
         gap: 6px;
       ">
-        <span style="width:6px;height:6px;border-radius:1px;background:#ffffff;display:inline-block;flex-shrink:0;"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:#046A38;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(4,106,56,0.25);"></span>
         <span>${cleanTitle}</span>
       </div>
 
@@ -175,25 +175,24 @@ function createPickupPinEl(locationName?: string): HTMLElement {
       <div style="
         width: 2px;
         height: 6px;
-        background: #09090b;
-        box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
+        background: #046A38;
       "></div>
 
-      <!-- Precision Road Contact Anchor Square -->
+      <!-- Precision Road Contact Anchor Circle -->
       <div style="
-        width: 6px;
-        height: 6px;
-        background: #09090b;
-        border-radius: 1px;
+        width: 7px;
+        height: 7px;
+        background: #046A38;
+        border-radius: 50%;
         border: 1.5px solid #ffffff;
-        box-shadow: 0 0 0 1px #09090b;
+        box-shadow: 0 0 0 1px #046A38;
       "></div>
     </div>
   `;
   return el;
 }
 
-/* ─── DROP PIN (MATCHES /BOOK BRUTALIST CALLOUT) ─────────────────────── */
+/* ─── DROP PIN (JAATRI VERMILION & FOREST DESIGN) ─────────────────────── */
 function createDropPinEl(locationName?: string): HTMLElement {
   const el = document.createElement("div");
   el.className = "cursor-default select-none flex flex-col items-center pointer-events-auto";
@@ -203,25 +202,25 @@ function createDropPinEl(locationName?: string): HTMLElement {
   const cleanTitle = rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle;
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));transform:translateY(2px);">
-      <!-- Elevated Callout Badge (Floats clean above route line) -->
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(227,66,34,0.22));transform:translateY(2px);">
+      <!-- Elevated Callout Badge (Jaatri Assamese Vermilion Accent) -->
       <div style="
-        background: #ffffff;
-        color: #09090b;
+        background: #123D32;
+        color: #FAF7F0;
         padding: 5px 10px;
-        border-radius: 2px;
+        border-radius: 8px;
         font-size: 10px;
         font-weight: 800;
         letter-spacing: -0.01em;
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        border: 1.5px solid #09090b;
+        box-shadow: 0 4px 12px rgba(18,61,50,0.25);
+        border: 1.5px solid #123D32;
         display: flex;
         align-items: center;
         gap: 6px;
       ">
-        <span style="width:6px;height:6px;border-radius:1px;border:1.5px solid #09090b;background:#ffffff;display:inline-block;flex-shrink:0;"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:#E34222;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(227,66,34,0.35);"></span>
         <span>${cleanTitle}</span>
       </div>
 
@@ -229,18 +228,17 @@ function createDropPinEl(locationName?: string): HTMLElement {
       <div style="
         width: 2px;
         height: 6px;
-        background: #09090b;
-        box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
+        background: #E34222;
       "></div>
 
-      <!-- Precision Road Contact Anchor Square -->
+      <!-- Precision Road Contact Anchor Circle -->
       <div style="
-        width: 6px;
-        height: 6px;
-        background: #ffffff;
-        border-radius: 1px;
-        border: 1.5px solid #09090b;
-        box-shadow: 0 0 0 1px #ffffff;
+        width: 7px;
+        height: 7px;
+        background: #E34222;
+        border-radius: 50%;
+        border: 1.5px solid #ffffff;
+        box-shadow: 0 0 0 1px #E34222;
       "></div>
     </div>
   `;
@@ -274,7 +272,7 @@ function setupRouteLayers(map: maplibregl.Map): boolean {
         type: "line",
         source: "trip-route",
         layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": "#09090b", "line-width": 5.5, "line-opacity": 1.0 },
+        paint: { "line-color": "#046A38", "line-width": 5.5, "line-opacity": 1.0 },
       });
     }
 
@@ -301,7 +299,7 @@ function setupRouteLayers(map: maplibregl.Map): boolean {
         source: "driver-route",
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": "#71717a",
+          "line-color": "#123D32",
           "line-width": 4.5,
           "line-opacity": 1.0,
           "line-dasharray": [1.5, 2],
@@ -521,12 +519,14 @@ export default function LiveTrackingMap({
     if (!map) return;
 
     if (pickupLocation && typeof pickupLocation[0] === "number" && typeof pickupLocation[1] === "number") {
+      const pinEl = createPickupPinEl(pickupAddress);
       if (!pickupMarkerRef.current) {
-        pickupMarkerRef.current = new maplibregl.Marker({ element: createPickupPinEl(pickupAddress), anchor: "bottom" })
+        pickupMarkerRef.current = new maplibregl.Marker({ element: pinEl, anchor: "bottom" })
           .setLngLat([pickupLocation[1], pickupLocation[0]])
           .addTo(map);
       } else {
         pickupMarkerRef.current.setLngLat([pickupLocation[1], pickupLocation[0]]);
+        pickupMarkerRef.current.getElement().innerHTML = pinEl.innerHTML;
       }
     } else if (pickupMarkerRef.current) {
       pickupMarkerRef.current.remove();
@@ -534,12 +534,14 @@ export default function LiveTrackingMap({
     }
 
     if (dropLocation && typeof dropLocation[0] === "number" && typeof dropLocation[1] === "number") {
+      const pinEl = createDropPinEl(dropAddress);
       if (!dropMarkerRef.current) {
-        dropMarkerRef.current = new maplibregl.Marker({ element: createDropPinEl(dropAddress), anchor: "bottom" })
+        dropMarkerRef.current = new maplibregl.Marker({ element: pinEl, anchor: "bottom" })
           .setLngLat([dropLocation[1], dropLocation[0]])
           .addTo(map);
       } else {
         dropMarkerRef.current.setLngLat([dropLocation[1], dropLocation[0]]);
+        dropMarkerRef.current.getElement().innerHTML = pinEl.innerHTML;
       }
     } else if (dropMarkerRef.current) {
       dropMarkerRef.current.remove();
@@ -887,7 +889,7 @@ export default function LiveTrackingMap({
         <path
           ref={svgDriverCoreRef}
           d=""
-          stroke="#0284c7"
+          stroke="#123D32"
           strokeWidth="4.5"
           strokeDasharray="6, 8"
           strokeLinecap="round"
@@ -895,7 +897,7 @@ export default function LiveTrackingMap({
           fill="none"
           opacity="0.95"
         />
-        {/* Trip route (solid Google Maps blue with white halo) */}
+        {/* Trip route (Jaatri Emerald with white halo casing) */}
         <path
           ref={svgTripCasingRef}
           d=""
@@ -909,7 +911,7 @@ export default function LiveTrackingMap({
         <path
           ref={svgTripCoreRef}
           d=""
-          stroke="#09090b"
+          stroke="#046A38"
           strokeWidth="5.5"
           strokeLinecap="round"
           strokeLinejoin="round"

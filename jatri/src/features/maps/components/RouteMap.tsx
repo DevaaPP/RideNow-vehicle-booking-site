@@ -410,6 +410,7 @@ export default function RouteMap({
   const [pinDetails, setPinDetails] = useState<any>(null);
   const [isPinGeocoding, setIsPinGeocoding] = useState(false);
   const reverseGeocodeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pinGeocodeTokenRef = useRef<number>(0);
 
   // Sync coords strictly from explicit parent coordinates
   useEffect(() => {
@@ -611,8 +612,12 @@ export default function RouteMap({
         clearTimeout(reverseGeocodeTimerRef.current);
       }
 
+      const token = ++pinGeocodeTokenRef.current;
+      const targetMode = activePinMode;
+
       reverseGeocodeTimerRef.current = setTimeout(async () => {
         const res = await reverseGeocodeFull(lat, lng);
+        if (token !== pinGeocodeTokenRef.current) return;
         setPinAddress(res.address);
         setPinDetails(res.details);
         setIsPinGeocoding(false);
@@ -634,26 +639,41 @@ export default function RouteMap({
     if (!map) return;
 
     if (activePinMode && activePinMode !== prevActivePinModeRef.current) {
+      const token = ++pinGeocodeTokenRef.current;
+      const targetMode = activePinMode;
+
       if (activePinMode === "pickup") {
         const target: [number, number] = p1 ? [p1[1], p1[0]] : [91.7516, 26.1884];
         map.easeTo({ center: target, zoom: 16, duration: 600 });
-        setPinAddress(pickup || "Moving map to pinpoint pickup...");
-        setIsPinGeocoding(true);
-        reverseGeocodeFull(target[1], target[0]).then((res) => {
-          setPinAddress(res.address);
-          setPinDetails(res.details);
-          setIsPinGeocoding(false);
-        });
+        if (pickup) {
+          setPinAddress(pickup);
+          if (p1) setPinDetails({ name: pickup.split(",")[0], formattedAddress: pickup, coordinates: p1 });
+        } else {
+          setPinAddress("Moving map to pinpoint pickup...");
+          setIsPinGeocoding(true);
+          reverseGeocodeFull(target[1], target[0]).then((res) => {
+            if (token !== pinGeocodeTokenRef.current) return;
+            setPinAddress(res.address);
+            setPinDetails(res.details);
+            setIsPinGeocoding(false);
+          });
+        }
       } else if (activePinMode === "drop") {
         const target: [number, number] = p2 ? [p2[1], p2[0]] : (p1 ? [p1[1], p1[0]] : [91.7516, 26.1884]);
         map.easeTo({ center: target, zoom: 16, duration: 600 });
-        setPinAddress(drop || "Moving map to pinpoint drop...");
-        setIsPinGeocoding(true);
-        reverseGeocodeFull(target[1], target[0]).then((res) => {
-          setPinAddress(res.address);
-          setPinDetails(res.details);
-          setIsPinGeocoding(false);
-        });
+        if (drop && p2) {
+          setPinAddress(drop);
+          setPinDetails({ name: drop.split(",")[0], formattedAddress: drop, coordinates: p2 });
+        } else {
+          setPinAddress("Moving map to pinpoint drop...");
+          setIsPinGeocoding(true);
+          reverseGeocodeFull(target[1], target[0]).then((res) => {
+            if (token !== pinGeocodeTokenRef.current) return;
+            setPinAddress(res.address);
+            setPinDetails(res.details);
+            setIsPinGeocoding(false);
+          });
+        }
       }
     }
     prevActivePinModeRef.current = activePinMode;
@@ -669,7 +689,15 @@ export default function RouteMap({
     let address = pinAddress;
     let details = pinDetails;
 
-    if (!address || address.includes("Moving map")) {
+    const detailsCoords = details?.coordinates;
+    const isStaleOrMismatch =
+      !address ||
+      address.includes("Moving map") ||
+      !detailsCoords ||
+      Math.abs(detailsCoords[0] - center.lat) > 0.002 ||
+      Math.abs(detailsCoords[1] - center.lng) > 0.002;
+
+    if (isStaleOrMismatch) {
       const res = await reverseGeocodeFull(center.lat, center.lng);
       address = res.address;
       details = res.details;
@@ -679,7 +707,7 @@ export default function RouteMap({
       setP1(confirmedCoords);
       onCoordinatesChange?.(confirmedCoords, p2);
       onConfirmPinSelection?.("pickup", confirmedCoords, address, details);
-      if (onChange) onChange(address, drop, confirmedCoords, p2, details?.countrycode || "in", details);
+      if (onChange) onChange(address, drop, confirmedCoords, p2, details?.countrycode || "in", details, undefined);
     } else if (activePinMode === "drop") {
       setP2(confirmedCoords);
       onCoordinatesChange?.(p1, confirmedCoords);

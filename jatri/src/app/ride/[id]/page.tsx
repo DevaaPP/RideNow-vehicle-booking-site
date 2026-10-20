@@ -922,6 +922,8 @@ export default function RidePage() {
           driverLocation={driverPos}
           pickupLocation={pickupPos}
           dropLocation={dropPos}
+          pickupAddress={booking?.pickupAddress}
+          dropAddress={booking?.dropAddress}
           status={mapStatus}
           vehicleType={booking?.vehicle?.type ?? "car"}
           etaMinutes={displayEta}

@@ -564,14 +564,12 @@ export default function BookPage() {
       setPickup(drop);
       setPickupLat(dropLat);
       setPickupLng(dropLng);
+      setPickupDetails(dropDetails);
 
       setDrop(prevPickup);
       setDropLat(prevLat);
       setDropLng(prevLng);
-
-      if (!prevPickup && prevDetails) {
-        setPickupDetails(null);
-      }
+      setDropDetails(prevDetails);
     }
     setPickupResults([]);
     setDropResults([]);
@@ -1204,7 +1202,7 @@ export default function BookPage() {
       if (p1Details) {
         setPickupDetails(p1Details);
       } else {
-        setPickupDetails({
+        setPickupDetails((prev: any) => prev || {
           name: p.split(",")[0],
           formattedAddress: p,
           coordinates: [c1[0], c1[1]],
@@ -1217,7 +1215,7 @@ export default function BookPage() {
       if (p2Details) {
         setDropDetails(p2Details);
       } else {
-        setDropDetails({
+        setDropDetails((prev: any) => prev || {
           name: d.split(",")[0],
           formattedAddress: d,
           coordinates: [c2[0], c2[1]],

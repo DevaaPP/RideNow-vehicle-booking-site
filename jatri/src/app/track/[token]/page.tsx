@@ -140,6 +140,8 @@ export default function PublicTrackPage() {
             driverLocation={driverPos}
             pickupLocation={pickupPos}
             dropLocation={dropPos}
+            pickupAddress={booking?.pickupAddress}
+            dropAddress={booking?.dropAddress}
             status={mapStatus}
             onStats={({ durationToPickup, durationToDrop }: any) => {
               setEta(Math.round(mapStatus === "arriving" ? durationToPickup : durationToDrop));
