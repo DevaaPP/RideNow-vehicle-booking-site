@@ -187,67 +187,72 @@ export default function FleetPage() {
                 key={category.id}
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: idx * 0.04 }}
+                transition={{ duration: 0.32, delay: idx * 0.04 }}
                 className="h-full"
               >
                 <Link
                   href={`/book?vehicle=${category.id}&fresh=true`}
                   aria-label={`${category.name}: ${category.badge}, ${category.capacity}. ${category.price}. Tap to book directly.`}
-                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] sm:rounded-[14px] p-2.5 sm:p-5 lg:p-6 flex flex-col justify-between h-full group hover:border-[#046A38] dark:hover:border-[#90C8A8]/60 hover:shadow-md transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] overflow-hidden flex flex-col justify-between h-full group hover:border-[#046A38] dark:hover:border-[#90C8A8]/60 hover:shadow-md transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                 >
-                  <div>
-                    {/* Category Image */}
-                    <div className="relative w-full h-24 sm:h-36 lg:h-40 bg-[#F7F1E5] dark:bg-[#101713] rounded-[8px] sm:rounded-[10px] mb-2 sm:mb-3.5 overflow-hidden flex items-center justify-center p-1 sm:p-2 border border-[#DED7CA]/60 dark:border-[#34443A]/60">
-                      <Image
-                        src={category.image}
-                        alt={category.name}
-                        fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-contain p-1 sm:p-2 group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
+                  {/* Top Edge-to-Edge Heroic Vehicle Artwork with Overlay Badges */}
+                  <div className="relative w-full h-32 sm:h-44 overflow-hidden bg-[#F7F1E5] dark:bg-[#101713] border-b border-[#DED7CA]/60 dark:border-[#34443A]/60">
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      fill
+                      unoptimized
+                      priority={idx < 4}
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                    />
 
-                    {/* Header info */}
-                    <div className="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
-                      <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#E34222] truncate">
+                    {/* Integrated Overlay Badges (Zero Wasted Space) */}
+                    <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none">
+                      <span className="text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider text-white bg-[#E34222]/90 backdrop-blur-xs px-2 py-0.5 rounded-full shadow-2xs truncate max-w-[62%]">
                         {category.badge}
                       </span>
-                      <span className="text-[8.5px] sm:text-[11px] font-semibold text-[#123D32] dark:text-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] px-1.5 sm:px-2 py-0.5 rounded-full shrink-0">
-                        {category.capacity}
+                      <span className="text-[8px] sm:text-[9.5px] font-semibold text-[#123D32] dark:text-[#F3F1E8] bg-[#FAF7F0]/90 dark:bg-[#17211B]/90 backdrop-blur-xs border border-[#DED7CA]/60 dark:border-[#34443A]/60 px-1.5 sm:px-2 py-0.5 rounded-full shadow-2xs shrink-0">
+                        {category.capacity.replace(" Passengers", " Seats").replace(" Passenger", " Seat")}
                       </span>
                     </div>
-
-                    <h3 className="font-serif text-sm sm:text-xl text-[#10251C] dark:text-[#F3F1E8] font-bold sm:font-normal mb-0.5 sm:mb-1.5 truncate group-hover:text-[#046A38] dark:group-hover:text-[#90C8A8] transition-colors">
-                      {category.name}
-                    </h3>
-                    <p className="text-[#696B64] dark:text-[#929D93] text-[10.5px] sm:text-xs leading-snug sm:leading-relaxed mb-2 sm:mb-4 line-clamp-1 sm:line-clamp-2 min-h-0 sm:min-h-[32px]">
-                      {category.description}
-                    </p>
                   </div>
 
-                  {/* Pricing & CTA */}
-                  <div className="pt-2 sm:pt-4 border-t border-[#DED7CA]/70 dark:border-[#34443A]/70 flex items-center justify-between mt-auto">
+                  {/* Card Content & Action Area */}
+                  <div className="p-2.5 sm:p-4 flex flex-col justify-between flex-1">
                     <div>
-                      <span className="text-[9px] sm:text-[11px] text-[#696B64] dark:text-[#929D93] block leading-tight">
-                        <span className="sm:hidden">From</span>
-                        <span className="hidden sm:inline">Transparent rate</span>
-                      </span>
-                      <p className="text-[#10251C] dark:text-[#F3F1E8] text-xs sm:text-sm font-extrabold sm:font-bold tracking-tight">
-                        <span className="hidden sm:inline">Starting from </span>
-                        {category.price.replace("Starting from ", "")}
+                      <h3 className="font-serif text-sm sm:text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] truncate mb-0.5 group-hover:text-[#046A38] dark:group-hover:text-[#90C8A8] transition-colors">
+                        {category.name}
+                      </h3>
+                      <p className="text-[#696B64] dark:text-[#929D93] text-[10.5px] sm:text-xs leading-snug line-clamp-1 mb-2.5">
+                        {category.description}
                       </p>
                     </div>
 
-                    {/* Mobile Direct Click Indicator */}
-                    <div className="sm:hidden w-6 h-6 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#046A38] dark:text-[#90C8A8] flex items-center justify-center shrink-0 group-hover:bg-[#046A38] group-hover:text-white transition-colors">
-                      <ArrowRight size={11} strokeWidth={2.4} />
-                    </div>
+                    {/* Pricing & Direct Tap CTA */}
+                    <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#34443A]/60 flex items-center justify-between mt-auto">
+                      <div>
+                        <span className="text-[8.5px] sm:text-[10px] text-[#696B64] dark:text-[#929D93] block leading-tight">
+                          <span className="sm:hidden">From</span>
+                          <span className="hidden sm:inline">Transparent rate</span>
+                        </span>
+                        <p className="text-[#10251C] dark:text-[#F3F1E8] text-xs sm:text-sm font-extrabold sm:font-bold tracking-tight">
+                          <span className="hidden sm:inline">Starting from </span>
+                          {category.price.replace("Starting from ", "")}
+                        </p>
+                      </div>
 
-                    {/* Desktop Book CTA Button */}
-                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#046A38] group-hover:bg-[#03532C] dark:bg-[#058A48] dark:group-hover:bg-[#046A38] text-white text-xs font-bold transition shadow-2xs">
-                      <span>Book</span>
-                      <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
-                    </span>
+                      {/* Direct Click Affordance on Mobile */}
+                      <div className="sm:hidden w-6 h-6 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#046A38] dark:text-[#90C8A8] flex items-center justify-center shrink-0 group-hover:bg-[#046A38] group-hover:text-white transition-colors shadow-2xs">
+                        <ArrowRight size={11} strokeWidth={2.4} />
+                      </div>
+
+                      {/* Desktop Book CTA Button */}
+                      <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#046A38] group-hover:bg-[#03532C] dark:bg-[#058A48] dark:group-hover:bg-[#046A38] text-white text-xs font-bold transition shadow-2xs">
+                        <span>Book</span>
+                        <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                      </span>
+                    </div>
                   </div>
                 </Link>
               </motion.div>
