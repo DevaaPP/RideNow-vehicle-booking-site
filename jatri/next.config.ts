@@ -41,7 +41,8 @@ const securityHeaders = [
   },
   {
     key: "Permissions-Policy",
-    value: "camera=(self), microphone=(self), geolocation=(self), payment=(self)",
+    value:
+      "camera=(self), microphone=(self), geolocation=(self), payment=*, accelerometer=(self \"https://*.razorpay.com\" \"https://checkout.razorpay.com\"), gyroscope=(self \"https://*.razorpay.com\" \"https://checkout.razorpay.com\")",
   },
   {
     key: "Content-Security-Policy",
