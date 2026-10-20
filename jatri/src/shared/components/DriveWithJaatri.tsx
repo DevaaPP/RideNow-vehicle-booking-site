@@ -32,6 +32,7 @@ export default function DriveWithJaatri() {
           alt="Drive with Jaatri - Assamese Driver Partner with Car and Brahmaputra River"
           fill
           priority
+          quality={95}
           sizes="100vw"
           className="object-cover object-[85%_center] sm:object-[80%_center] md:object-[82%_center] lg:object-center"
         />

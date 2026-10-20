@@ -64,6 +64,11 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   /* config options here */
   poweredByHeader: false,
+  images: {
+    formats: ["image/avif", "image/webp"],
+    qualities: [50, 75, 80, 85, 90, 94, 95, 100],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+  },
   experimental: {
     optimizePackageImports: ["lucide-react", "recharts"],
   },
