@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     await connectDb();
     const session = await auth();
 
-    if (!session || !session.user?.email) {
+    if (!session?.user?.id && !session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       body.idempotencyKey ||
       `PAY_BOOKING_${bookingId}`;
 
-    const user = await User.findOne({ email: session.user.email });
+    const user = session.user.id ? await User.findById(session.user.id) : await User.findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

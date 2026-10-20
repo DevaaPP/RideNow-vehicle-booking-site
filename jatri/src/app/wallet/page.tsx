@@ -2,7 +2,7 @@
 
 
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
@@ -57,10 +57,15 @@ export default function WalletPage() {
   const [topupError, setTopupError] = useState<string | null>(null);
   const [topupSuccessMsg, setTopupSuccessMsg] = useState<string | null>(null);
 
+  const userDataRef = useRef(userData);
+  useEffect(() => {
+    userDataRef.current = userData;
+  }, [userData]);
+
   /* Fetch Wallet Data */
-  const fetchWallet = useCallback(async () => {
+  const fetchWallet = useCallback(async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const res = await fetch("/api/wallet", {
         cache: "no-store",
         headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
@@ -75,8 +80,19 @@ export default function WalletPage() {
         setSummary(data.summary || { totalAdded: 0, totalSpent: 0, transactionCount: 0 });
         setTransactions(data.transactions || []);
 
-        if (userData) {
-          dispatch(setUserData({ ...userData, walletBalance: data.balance || 0, outstandingAmount: data.outstandingAmount || 0 }));
+        const currentUser = userDataRef.current;
+        if (
+          currentUser &&
+          (currentUser.walletBalance !== data.balance ||
+            currentUser.outstandingAmount !== data.outstandingAmount)
+        ) {
+          dispatch(
+            setUserData({
+              ...currentUser,
+              walletBalance: data.balance || 0,
+              outstandingAmount: data.outstandingAmount || 0,
+            })
+          );
         }
       }
     } catch (err) {
@@ -84,7 +100,7 @@ export default function WalletPage() {
     } finally {
       setLoading(false);
     }
-  }, [userData, dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     fetchWallet();
@@ -170,6 +186,10 @@ export default function WalletPage() {
       };
 
       const paymentObject = new (window as any).Razorpay(options);
+      paymentObject.on("payment.failed", function (resp: any) {
+        setProcessingTopup(false);
+        setTopupError(resp?.error?.description || "Payment failed or was cancelled");
+      });
       paymentObject.open();
     } catch (err: any) {
       console.error("Topup error:", err);

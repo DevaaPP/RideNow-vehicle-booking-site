@@ -47,15 +47,15 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value:
       "default-src 'self'; " +
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.razorpay.com https://checkout.razorpay.com https://cdn.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.zegocloud.com; " +
       "img-src 'self' blob: data: https:; " +
-      "connect-src 'self' https: wss: ws:; " +
+      "connect-src 'self' https: wss: ws: https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com; " +
       "font-src 'self' data: https://fonts.gstatic.com; " +
-      "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
+      "frame-src 'self' https://*.razorpay.com https://checkout.razorpay.com https://api.razorpay.com https://cdn.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
       "media-src 'self' blob: data: https://*.zegocloud.com https://*.zego.im; " +
       "base-uri 'self'; " +
-      "form-action 'self' https://checkout.razorpay.com; " +
+      "form-action 'self' https://*.razorpay.com https://checkout.razorpay.com; " +
       "frame-ancestors 'self'; " +
       "object-src 'none';",
   },

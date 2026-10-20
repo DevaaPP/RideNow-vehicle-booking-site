@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     await connectDb();
     const session = await auth();
 
-    if (!session || !session.user?.email) {
+    if (!session?.user?.id && !session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -40,7 +40,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Retrieve user early to verify order ownership
-    const user = await User.findOne({ email: session.user.email });
+    const user = session.user.id
+      ? await User.findById(session.user.id)
+      : await User.findOne({ email: session.user.email });
+
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -61,8 +64,6 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Authoritative amount: fetch from Razorpay, never trust the client ──
-    // The order amount is the single source of truth. We look it up server-side
-    // so a tampered client cannot credit an arbitrary balance.
     let orderAmountPaise: number;
     try {
       const order = await razorpay.orders.fetch(razorpay_order_id);

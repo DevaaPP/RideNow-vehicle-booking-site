@@ -13,14 +13,16 @@ export async function GET(req: NextRequest) {
     await connectDb();
     const session = await auth();
 
-    if (!session || !session.user?.email) {
+    if (!session?.user?.id && !session?.user?.email) {
       return NextResponse.json(
         { message: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    const user = await User.findOne({ email: session.user.email }).select("_id name email walletBalance outstandingAmount role");
+    const user = session.user.id
+      ? await User.findById(session.user.id).select("_id name email walletBalance outstandingAmount role")
+      : await User.findOne({ email: session.user.email }).select("_id name email walletBalance outstandingAmount role");
 
     if (!user) {
       return NextResponse.json(

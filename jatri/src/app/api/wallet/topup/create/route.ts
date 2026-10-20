@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     await connectDb();
     const session = await auth();
 
-    if (!session || !session.user?.email) {
+    if (!session?.user?.id && !session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -30,16 +30,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await User.findOne({ email: session.user.email }).select("_id email name");
+    const user = session.user.id
+      ? await User.findById(session.user.id).select("_id email name mobileNumber")
+      : await User.findOne({ email: session.user.email }).select("_id email name mobileNumber");
+
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const effectiveKeyId =
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+      process.env.RAZORPAY_KEY_ID ||
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
+      "";
+
+    if (!process.env.RAZORPAY_KEY_SECRET || !effectiveKeyId) {
+      console.error("[WalletTopup] RAZORPAY_KEY_SECRET or RAZORPAY_KEY_ID is missing in environment variables");
+      return NextResponse.json(
+        {
+          error: "Razorpay payment gateway credentials are not configured on the server. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.",
+        },
+        { status: 500 }
+      );
     }
 
     // Razorpay receipt max 40 chars
     const receipt = `topup_${user._id.toString().slice(-12)}_${Date.now().toString().slice(-6)}`;
 
     const order = await razorpay.orders.create({
-      amount: parsedAmount * 100, // paise
+      amount: parsedAmount * 100, // in paise
       currency: "INR",
       receipt,
       notes: {
@@ -47,12 +66,6 @@ export async function POST(req: NextRequest) {
         type: "wallet_topup",
       },
     });
-
-    const effectiveKeyId =
-      process.env.RAZORPAY_KEY_ID ||
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-      "";
 
     return NextResponse.json({
       success: true,
@@ -62,7 +75,10 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("POST /api/wallet/topup/create error:", error);
-    const rzpDescription = error?.error?.description || error?.message || "Failed to create topup order";
+    const rzpDescription =
+      error?.error?.description ||
+      error?.message ||
+      "Failed to create payment order with Razorpay";
     return NextResponse.json(
       { error: rzpDescription, details: error?.error || null },
       { status: 500 }
