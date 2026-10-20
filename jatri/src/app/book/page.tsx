@@ -1393,15 +1393,15 @@ export default function BookPage() {
   const renderLocationInputs = () => (
     <div className="space-y-2.5 relative z-40">
       {locationError && (
-        <div className="p-3.5 bg-zinc-950 border border-zinc-800 text-white rounded-none text-xs space-y-2.5 shadow-md">
+        <div className="p-3.5 bg-[#FAF7F0] dark:bg-[#17211B] border border-amber-300 dark:border-amber-700/50 text-[#10251C] dark:text-[#F3F1E8] rounded-[10px] text-xs space-y-2.5 shadow-xs">
           <div className="flex items-start justify-between gap-2.5">
             <div className="flex items-start gap-2.5 min-w-0">
-              <div className="w-6 h-6 rounded-none bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 rounded-[8px] bg-amber-500/20 border border-amber-500/40 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <LocateFixed size={13} />
               </div>
               <div className="min-w-0">
-                <p className="font-extrabold text-[11px] uppercase tracking-wider text-white">Location Access Needed</p>
-                <p className="text-[11px] text-zinc-300 leading-snug mt-0.5">
+                <p className="font-bold text-[11px] uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">Location Access Needed</p>
+                <p className="text-[11px] text-[#696B64] dark:text-[#929D93] leading-snug mt-0.5">
                   Allow location access to auto-detect your pickup point, or update your browser site settings.
                 </p>
               </div>
@@ -1412,19 +1412,19 @@ export default function BookPage() {
                 setLocationError(null);
                 setShowLocationSettingsGuide(false);
               }}
-              className="text-zinc-400 hover:text-white transition p-1 cursor-pointer flex-shrink-0"
+              className="text-[#696B64] hover:text-[#10251C] dark:hover:text-white transition p-1 cursor-pointer flex-shrink-0"
               title="Dismiss"
             >
               <X size={14} />
             </button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-800">
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#DED7CA] dark:border-[#29372E]">
             <button
               type="button"
               onClick={locateCurrentLocation}
               disabled={locating}
-              className="px-3 py-1.5 bg-white text-zinc-950 hover:bg-zinc-200 text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="px-3 py-1.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] text-white text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
             >
               <LocateFixed size={11} className={locating ? "animate-spin" : ""} />
               <span>{locating ? "Detecting..." : "Ask Permission Again"}</span>
@@ -1433,9 +1433,9 @@ export default function BookPage() {
             <button
               type="button"
               onClick={() => setShowLocationSettingsGuide(true)}
-              className="px-3 py-1.5 bg-zinc-850 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-[8px] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#29372E] text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
-              <Settings size={11} className="text-zinc-400" />
+              <Settings size={11} className="text-[#696B64] dark:text-[#929D93]" />
               <span>Site Settings Guide</span>
             </button>
 
@@ -1956,15 +1956,15 @@ export default function BookPage() {
 
       {/* Recommended Pickup Selector UI */}
       {smartPickups.length > 0 && (
-        <div className="p-3 bg-emerald-50/90 border border-emerald-300 rounded-none shadow-none">
+        <div className="p-3 bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] shadow-xs">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-none bg-emerald-600" />
-              <p className="text-[11px] font-black uppercase text-emerald-900 tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#046A38]" />
+              <p className="text-[11px] font-bold uppercase text-[#10251C] dark:text-[#F3F1E8] tracking-wider">
                 📍 Recommended Pickups
               </p>
             </div>
-            <span className="text-[10px] text-emerald-800 font-bold">Suggested</span>
+            <span className="text-[10px] text-[#046A38] dark:text-[#347858] font-bold">Suggested</span>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {smartPickups.map((spot) => {
@@ -1974,14 +1974,14 @@ export default function BookPage() {
                   key={spot.id}
                   type="button"
                   onClick={() => handleSelectSmartPickup(spot)}
-                  className={`flex-shrink-0 text-left p-2 rounded-none border transition-colors max-w-[200px] cursor-pointer ${
+                  className={`flex-shrink-0 text-left p-2 rounded-[8px] border transition-colors max-w-[200px] cursor-pointer ${
                     isSelected
-                      ? "bg-emerald-700 text-white border-emerald-700"
-                      : "bg-white text-zinc-900 border-emerald-300 hover:border-emerald-500"
+                      ? "bg-[#046A38] text-white border-[#046A38]"
+                      : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#29372E] hover:border-[#046A38]"
                   }`}
                 >
-                  <p className="font-extrabold text-[11px] leading-tight truncate">{spot.spotName}</p>
-                  <p className={`text-[9px] mt-0.5 truncate ${isSelected ? "text-emerald-100" : "text-zinc-500"}`}>
+                  <p className="font-bold text-[11px] leading-tight truncate">{spot.spotName}</p>
+                  <p className={`text-[9px] mt-0.5 truncate ${isSelected ? "text-white/80" : "text-[#696B64] dark:text-[#929D93]"}`}>
                     {spot.venueName} • 🚶 {spot.walkingTimeText}
                   </p>
                 </button>
@@ -1991,21 +1991,21 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* ── SERVICE MODE TOGGLE (SHARP GEOMETRY • INDIAN SUPER-APP) ── */}
-      <div className="bg-zinc-100 dark:bg-[#1E2B23] p-1 rounded-none flex items-center gap-1 border border-zinc-300 dark:border-[#34443A]">
+      {/* ── SERVICE MODE TOGGLE (JAATRI DESIGN SYSTEM) ── */}
+      <div className="bg-[#FAF7F0] dark:bg-[#17211B] p-1 rounded-[10px] flex items-center gap-1 border border-[#DED7CA] dark:border-[#29372E] shadow-xs">
         <button
           type="button"
           onClick={() => {
             setServiceMode("passenger");
             if (vehicle === "loading" || vehicle === "truck") setVehicle("car");
           }}
-          className={`flex-1 py-2 px-3 rounded-none text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`flex-1 py-2 px-3 rounded-[8px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             serviceMode === "passenger"
-              ? "bg-zinc-950 dark:bg-[#123D32] text-white shadow-xs"
-              : "text-zinc-700 dark:text-[#B8C2B8] hover:text-black dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-[#202B24]"
+              ? "bg-[#046A38] text-white shadow-xs"
+              : "text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-white hover:bg-[#EFE9DC]/60 dark:hover:bg-[#202B24]"
           }`}
         >
-          <Car size={13} className={serviceMode === "passenger" ? "text-emerald-400" : ""} />
+          <Car size={14} className={serviceMode === "passenger" ? "text-white" : "text-[#046A38]"} />
           <span className="tracking-tight">Daily Rides & Taxi</span>
         </button>
         <button
@@ -2014,37 +2014,37 @@ export default function BookPage() {
             setServiceMode("logistics");
             if (vehicle !== "loading" && vehicle !== "truck") setVehicle("loading");
           }}
-          className={`flex-1 py-2 px-3 rounded-none text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`flex-1 py-2 px-3 rounded-[8px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             serviceMode === "logistics"
-              ? "bg-zinc-950 dark:bg-[#123D32] text-white shadow-xs"
-              : "text-zinc-700 dark:text-[#B8C2B8] hover:text-black dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-[#202B24]"
+              ? "bg-[#046A38] text-white shadow-xs"
+              : "text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-white hover:bg-[#EFE9DC]/60 dark:hover:bg-[#202B24]"
           }`}
         >
-          <Package size={13} className={serviceMode === "logistics" ? "text-amber-400" : ""} />
+          <Package size={14} className={serviceMode === "logistics" ? "text-white" : "text-[#123D32]"} />
           <span className="tracking-tight">Express Cargo & Mini Truck</span>
         </button>
       </div>
 
       {/* ── SMART VEHICLE MATCHING WIDGET ── */}
-      <div className="bg-zinc-50 dark:bg-[#17211B] border border-zinc-300 dark:border-[#34443A] rounded-none p-3">
+      <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] p-3 shadow-xs">
         <div className="flex items-center justify-between">
           <button
             type="button"
             onClick={() => setShowSmartMatcher(!showSmartMatcher)}
-            className="flex items-center gap-1.5 text-left group"
+            className="flex items-center gap-1.5 text-left group cursor-pointer"
           >
-            <Sparkles size={14} className="text-emerald-600 dark:text-[#90C8A8] flex-shrink-0 animate-pulse" />
-            <span className="text-[11px] font-black uppercase tracking-wider text-zinc-900 dark:text-[#F3F1E8] group-hover:text-emerald-700 dark:group-hover:text-[#90C8A8] transition">
+            <Sparkles size={14} className="text-[#046A38] dark:text-[#347858] flex-shrink-0 animate-pulse" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] group-hover:text-[#046A38] transition">
               Smart Ride Matcher
             </span>
-            <span className="text-[10px] text-zinc-400 dark:text-[#929D93] font-bold ml-1">
+            <span className="text-[10px] text-[#696B64] dark:text-[#929D93] font-medium ml-1">
               {showSmartMatcher ? "Hide" : "Find best vehicle"}
             </span>
           </button>
           <button
             type="button"
             onClick={() => setShowSmartMatcher(!showSmartMatcher)}
-            className="text-zinc-400 dark:text-[#929D93] hover:text-zinc-600 dark:hover:text-[#F3F1E8] p-1"
+            className="text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] p-1 cursor-pointer"
           >
             {showSmartMatcher ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
@@ -2056,13 +2056,13 @@ export default function BookPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="mt-3 pt-3 border-t border-emerald-100 dark:border-[#34443A] space-y-3"
+              className="mt-3 pt-3 border-t border-[#DED7CA] dark:border-[#29372E] space-y-3"
             >
               {serviceMode === "passenger" ? (
                 <>
                   {/* Passengers Chip selector */}
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-[#929D93] mb-1.5 block">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93] mb-1.5 block">
                       How many passengers?
                     </label>
                     <div className="flex gap-1.5">
@@ -2071,10 +2071,10 @@ export default function BookPage() {
                           key={num}
                           type="button"
                           onClick={() => setSmartPassengers(num)}
-                          className={`flex-1 py-1.5 rounded-none text-xs font-bold border transition cursor-pointer ${
+                          className={`flex-1 py-1.5 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
                             smartPassengers === num
-                              ? "bg-zinc-950 dark:bg-[#123D32] text-white border-zinc-950 dark:border-[#123D32] shadow-xs"
-                              : "bg-white dark:bg-[#1E2B23] text-zinc-700 dark:text-[#B8C2B8] border-zinc-300 dark:border-[#34443A] hover:bg-zinc-100 dark:hover:bg-[#202B24]"
+                              ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
+                              : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#29372E] hover:border-[#046A38]"
                           }`}
                         >
                           {num === 6 ? "5–6 Pax" : `${num} Pax`}
@@ -2085,7 +2085,7 @@ export default function BookPage() {
 
                   {/* Luggage Chip selector */}
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-[#929D93] mb-1.5 block">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93] mb-1.5 block">
                       How much luggage?
                     </label>
                     <div className="flex gap-1.5">
@@ -2100,10 +2100,10 @@ export default function BookPage() {
                           key={lug.id}
                           type="button"
                           onClick={() => setSmartLuggage(lug.id)}
-                          className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
+                          className={`flex-1 py-1.5 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
                             smartLuggage === lug.id
-                              ? "bg-zinc-900 dark:bg-[#123D32] text-white border-zinc-900 dark:border-[#123D32] shadow-xs"
-                              : "bg-white dark:bg-[#1E2B23] text-zinc-700 dark:text-[#B8C2B8] border-zinc-200 dark:border-[#34443A] hover:bg-zinc-50 dark:hover:bg-[#202B24]"
+                              ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
+                              : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#29372E] hover:border-[#046A38]"
                           }`}
                         >
                           {lug.label}
@@ -2114,7 +2114,7 @@ export default function BookPage() {
 
                   {/* Preference Chip selector */}
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-[#929D93] mb-1.5 block">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93] mb-1.5 block">
                       Your priority
                     </label>
                     <div className="flex gap-1.5">
@@ -2128,10 +2128,10 @@ export default function BookPage() {
                           key={pref.id}
                           type="button"
                           onClick={() => setSmartPreference(pref.id)}
-                          className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
+                          className={`flex-1 py-1.5 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
                             smartPreference === pref.id
-                              ? "bg-zinc-900 dark:bg-[#123D32] text-white border-zinc-900 dark:border-[#123D32] shadow-xs"
-                              : "bg-white dark:bg-[#1E2B23] text-zinc-700 dark:text-[#B8C2B8] border-zinc-200 dark:border-[#34443A] hover:bg-zinc-50 dark:hover:bg-[#202B24]"
+                              ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
+                              : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#29372E] hover:border-[#046A38]"
                           }`}
                         >
                           {pref.label}
@@ -2143,7 +2143,7 @@ export default function BookPage() {
               ) : (
                 /* Logistics Cargo Weight selector */
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-[#929D93] mb-1.5 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93] mb-1.5 block">
                     Estimated Cargo Weight
                   </label>
                   <div className="flex gap-1.5">
@@ -2157,10 +2157,10 @@ export default function BookPage() {
                         key={w.wt}
                         type="button"
                         onClick={() => setCargoWeightKg(w.wt)}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition ${
+                        className={`flex-1 py-1.5 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
                           cargoWeightKg === w.wt
-                            ? "bg-zinc-900 dark:bg-[#123D32] text-white border-zinc-900 dark:border-[#123D32] shadow-xs"
-                            : "bg-white dark:bg-[#1E2B23] text-zinc-700 dark:text-[#B8C2B8] border-zinc-200 dark:border-[#34443A] hover:bg-zinc-50 dark:hover:bg-[#202B24]"
+                            ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
+                            : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#29372E] hover:border-[#046A38]"
                         }`}
                       >
                         {w.label}
@@ -2172,22 +2172,22 @@ export default function BookPage() {
 
               {/* Recommendation Result Banner */}
               {smartMatchResult && (
-                <div className="p-2.5 bg-emerald-100/60 dark:bg-[#1D3428] border border-emerald-300 dark:border-[#28664D] rounded-xl flex items-center justify-between gap-2">
+                <div className="p-2.5 bg-[#E5EBDD] dark:bg-[#1D3428] border border-[#DED7CA] dark:border-[#28664D] rounded-[10px] flex items-center justify-between gap-2 shadow-xs">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1 text-[10px] font-black text-emerald-800 dark:text-[#90C8A8] uppercase">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-[#123D32] dark:text-[#90C8A8] uppercase">
                       <span>⭐ Recommended Match:</span>
                       <span className="font-extrabold underline">
                         {VEHICLE_OPTIONS[smartMatchResult.vehicleId]?.label}
                       </span>
                     </div>
-                    <p className="text-[11px] text-zinc-700 dark:text-[#B8C2B8] leading-snug truncate mt-0.5 font-medium">
+                    <p className="text-[11px] text-[#696B64] dark:text-[#B8C2B8] leading-snug truncate mt-0.5 font-medium">
                       {smartMatchResult.reason}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setVehicle(smartMatchResult.vehicleId)}
-                    className="flex-shrink-0 px-2.5 py-1 bg-emerald-700 dark:bg-[#28664D] hover:bg-emerald-800 dark:hover:bg-[#347858] text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition"
+                    className="flex-shrink-0 px-2.5 py-1 bg-[#046A38] hover:bg-[#03532C] text-white rounded-[8px] text-[10px] font-bold uppercase tracking-wider transition cursor-pointer shadow-xs"
                   >
                     Select
                   </button>
@@ -2378,24 +2378,24 @@ export default function BookPage() {
       </div>
 
       {/* Itemized Fare Receipt Accordion */}
-      <div className="bg-white dark:bg-[#17211B] border border-zinc-300 dark:border-[#34443A] rounded-none p-3.5 space-y-2 shadow-none">
+      <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] p-3.5 space-y-2 shadow-xs">
         <button
           type="button"
           onClick={() => setShowFareReceipt(!showFareReceipt)}
           className="w-full flex items-center justify-between text-left cursor-pointer"
         >
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-none bg-zinc-100 dark:bg-[#1E2B23] border border-zinc-200 dark:border-[#34443A] flex items-center justify-center text-zinc-700 dark:text-[#B8C2B8] flex-shrink-0">
+            <div className="w-7 h-7 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#123D32] dark:text-[#347858] flex-shrink-0">
               <FileText size={14} />
             </div>
             <div>
-              <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-zinc-900 dark:text-[#F3F1E8] block leading-tight">
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wide text-[#10251C] dark:text-[#F3F1E8] block leading-tight">
                 Fare Breakdown
               </span>
-              <span className="text-[11px] text-zinc-500 dark:text-[#929D93] font-medium">Upfront guaranteed pricing</span>
+              <span className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium">Upfront guaranteed pricing</span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 text-zinc-900 dark:text-[#F3F1E8] text-base sm:text-lg font-black tabular-nums">
+          <div className="flex items-center gap-1.5 text-[#10251C] dark:text-[#F3F1E8] text-base sm:text-lg font-black tabular-nums">
             <span>₹{currentBreakdown.totalFare}</span>
             {showFareReceipt ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </div>
@@ -2407,15 +2407,15 @@ export default function BookPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="pt-2.5 border-t border-zinc-200 dark:border-[#34443A] space-y-2 text-xs text-zinc-600 dark:text-[#B8C2B8] font-medium"
+              className="pt-2.5 border-t border-[#DED7CA] dark:border-[#34443A] space-y-2 text-xs text-[#696B64] dark:text-[#B8C2B8] font-medium"
             >
               <div className="flex justify-between">
                 <span>Base Fare</span>
-                <span className="font-bold text-zinc-900 dark:text-[#F3F1E8]">₹{currentBreakdown.baseFare}</span>
+                <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{currentBreakdown.baseFare}</span>
               </div>
               <div className="flex justify-between text-[11px]">
                 <span>Distance Fare ({currentBreakdown.distanceKm} km × ₹{currentBreakdown.pricePerKm}/km)</span>
-                <span className="font-bold text-zinc-900 dark:text-[#F3F1E8]">₹{currentBreakdown.distanceFare}</span>
+                <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{currentBreakdown.distanceFare}</span>
               </div>
               {currentBreakdown.surgeAmount > 0 && (
                 <div className="flex justify-between text-[11px] text-amber-600 dark:text-amber-400 font-bold">
@@ -2425,21 +2425,21 @@ export default function BookPage() {
               )}
               <div className="flex justify-between text-[11px]">
                 <span>Platform Tech Fee</span>
-                <span className="font-bold text-zinc-900 dark:text-[#F3F1E8]">₹{currentBreakdown.platformFee}</span>
+                <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{currentBreakdown.platformFee}</span>
               </div>
               <div className="flex justify-between text-[11px]">
                 <span>Govt GST / Taxes (5%)</span>
-                <span className="font-bold text-zinc-900 dark:text-[#F3F1E8]">₹{currentBreakdown.taxes}</span>
+                <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{currentBreakdown.taxes}</span>
               </div>
               {currentBreakdown.isStudentDiscountApplied && (
-                <div className="flex justify-between text-[11px] text-emerald-700 dark:text-[#90C8A8] font-black pt-1 border-t border-emerald-100 dark:border-[#28664D]/50">
+                <div className="flex justify-between text-[11px] text-[#046A38] dark:text-[#90C8A8] font-bold pt-1 border-t border-[#DED7CA] dark:border-[#28664D]/50">
                   <span>🎓 Student Pass Discount (-10%)</span>
                   <span>-₹{currentBreakdown.studentDiscount}</span>
                 </div>
               )}
-              <div className="pt-2 border-t border-dashed border-zinc-200 dark:border-[#34443A] flex items-center justify-between text-[10px] text-zinc-500 dark:text-[#929D93]">
+              <div className="pt-2 border-t border-dashed border-[#DED7CA] dark:border-[#34443A] flex items-center justify-between text-[10px] text-[#696B64] dark:text-[#929D93]">
                 <span>Payment Accepted:</span>
-                <span className="font-bold text-zinc-800 dark:text-[#F3F1E8]">⚡ UPI (GPay/PhonePe) • Cash • Card</span>
+                <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">⚡ UPI (GPay/PhonePe) • Cash • Card</span>
               </div>
             </motion.div>
           )}
@@ -2447,14 +2447,14 @@ export default function BookPage() {
       </div>
 
       {/* Student Pass Banner & Verification Modal */}
-      <div className="p-3 bg-zinc-950 dark:bg-[#1E2B23] text-white rounded-none border border-zinc-950 dark:border-[#34443A] flex items-center justify-between">
+      <div className="p-3 bg-[#123D32] dark:bg-[#1E2B23] text-white rounded-[10px] border border-[#123D32] dark:border-[#34443A] flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-none bg-zinc-900 dark:bg-[#17211B] text-amber-400 flex items-center justify-center border border-zinc-800 dark:border-[#34443A] flex-shrink-0">
+          <div className="w-7 h-7 rounded-[8px] bg-[#0D3027] dark:bg-[#17211B] text-amber-400 flex items-center justify-center border border-[#28664D]/40 dark:border-[#34443A] flex-shrink-0">
             <GraduationCap size={15} />
           </div>
           <div>
-            <p className="text-xs sm:text-sm font-extrabold tracking-tight">Student Pass (10% OFF)</p>
-            <p className="text-[11px] text-zinc-400 dark:text-[#929D93] font-medium">
+            <p className="text-xs sm:text-sm font-bold tracking-tight text-[#FAF7F0]">Student Pass (10% OFF)</p>
+            <p className="text-[11px] text-[#A3B8B0] dark:text-[#929D93] font-medium">
               {isStudent ? "Active & Applied" : "Save 10% with college email"}
             </p>
           </div>
@@ -2463,7 +2463,7 @@ export default function BookPage() {
           <button
             type="button"
             onClick={() => setShowStudentForm(true)}
-            className="px-2.5 py-1 bg-amber-400 text-zinc-950 font-black text-[11px] rounded-none hover:bg-amber-300 transition cursor-pointer"
+            className="px-2.5 py-1 bg-[#E5EBDD] text-[#123D32] hover:bg-white font-bold text-[11px] rounded-[6px] transition cursor-pointer shadow-xs"
           >
             Verify
           </button>
@@ -2482,8 +2482,8 @@ export default function BookPage() {
       />
 
       {/* Contact Mobile Input Row (Indian Standard) */}
-      <div className="flex items-center gap-2.5 bg-white dark:bg-[#1E2B23] border border-zinc-300 dark:border-[#34443A] rounded-none px-3.5 py-2 min-h-[46px] shadow-none focus-within:border-zinc-950 dark:focus-within:border-[#90C8A8] transition-all">
-        <span className="text-xs sm:text-sm font-extrabold text-zinc-800 dark:text-[#F3F1E8] bg-zinc-100 dark:bg-[#17211B] border border-zinc-300 dark:border-[#34443A] px-2 py-1 rounded-none flex items-center gap-1 flex-shrink-0 select-none">
+      <div className="flex items-center gap-2.5 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] px-3.5 py-2 min-h-[46px] shadow-xs focus-within:border-[#046A38] dark:focus-within:border-[#90C8A8] transition-all">
+        <span className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] px-2 py-1 rounded-[6px] flex items-center gap-1 flex-shrink-0 select-none">
           +91
         </span>
         <input
@@ -2491,15 +2491,15 @@ export default function BookPage() {
           value={mobile}
           onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
           placeholder="Enter 10-digit mobile number"
-          className="flex-1 bg-transparent text-xs sm:text-sm font-bold text-zinc-900 dark:text-[#F3F1E8] placeholder:text-zinc-400 dark:placeholder:text-[#929D93] outline-none tabular-nums min-w-[120px]"
+          className="flex-1 bg-transparent text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] placeholder:text-[#696B64] dark:placeholder:text-[#929D93] outline-none tabular-nums min-w-[120px]"
         />
         {mobile.length === 10 ? (
-          <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 dark:text-[#90C8A8] bg-emerald-50 dark:bg-[#1D3428] px-2 py-0.5 rounded-none border border-emerald-300 dark:border-[#28664D] flex-shrink-0">
-            <CheckCircle2 size={13} className="text-emerald-700 dark:text-[#90C8A8]" />
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#123D32] dark:text-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] px-2 py-0.5 rounded-[6px] border border-[#DED7CA] dark:border-[#28664D] flex-shrink-0">
+            <CheckCircle2 size={13} className="text-[#046A38] dark:text-[#90C8A8]" />
             Verified
           </span>
         ) : (
-          <span className="text-[11px] font-bold text-zinc-400 dark:text-[#929D93] flex-shrink-0">
+          <span className="text-[11px] font-medium text-[#696B64] dark:text-[#929D93] flex-shrink-0">
             OTP on arrival
           </span>
         )}
@@ -2954,14 +2954,14 @@ export default function BookPage() {
               initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.98, opacity: 0 }}
-              className="bg-white dark:bg-[#17211B] rounded-none p-6 max-w-sm w-full shadow-2xl border border-zinc-300 dark:border-[#34443A] text-center space-y-4"
+              className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-6 max-w-sm w-full shadow-2xl border border-[#DED7CA] dark:border-[#29372E] text-center space-y-4"
             >
-              <div className="w-12 h-12 rounded-none bg-zinc-100 dark:bg-[#1E2B23] text-zinc-900 dark:text-[#F3F1E8] border border-zinc-300 dark:border-[#34443A] flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-[8px] bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center justify-center mx-auto">
                 <AlertTriangle size={24} />
               </div>
               <div className="space-y-1.5">
-                <h3 className="text-base font-black text-zinc-900 dark:text-[#F3F1E8] tracking-tight uppercase">Service unavailable</h3>
-                <p className="text-xs text-zinc-600 dark:text-[#B8C2B8] font-medium leading-relaxed">
+                <h3 className="text-base font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight uppercase">Service unavailable</h3>
+                <p className="text-xs text-[#696B64] dark:text-[#929D93] font-medium leading-relaxed">
                   {effectiveDistance > 500
                     ? `Selected route (${effectiveDistance} km) exceeds our maximum service radius of 500 km. Please select a closer destination.`
                     : "We currently do not operate trips on this route or location. Please adjust your pickup or drop location."}
@@ -2970,7 +2970,7 @@ export default function BookPage() {
               <button
                 type="button"
                 onClick={() => setShowServiceUnavailableModal(false)}
-                className="w-full py-3 rounded-none bg-zinc-950 dark:bg-[#28664D] hover:bg-black dark:hover:bg-[#347858] text-white text-xs font-black uppercase tracking-wider transition cursor-pointer"
+                className="w-full py-2.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer shadow-xs"
               >
                 Got it
               </button>
@@ -2987,62 +2987,62 @@ export default function BookPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-[#17211B] rounded-none p-5 sm:p-6 max-w-md w-full shadow-2xl border border-zinc-300 dark:border-[#34443A] relative space-y-4"
+              className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-5 sm:p-6 max-w-md w-full shadow-2xl border border-[#DED7CA] dark:border-[#29372E] relative space-y-4"
             >
-              <div className="flex items-start justify-between border-b border-zinc-200 dark:border-[#34443A] pb-3">
+              <div className="flex items-start justify-between border-b border-[#DED7CA] dark:border-[#29372E] pb-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-none bg-zinc-950 dark:bg-[#1E2B23] text-white flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-[8px] bg-[#123D32] dark:bg-[#1E2B23] text-white flex items-center justify-center flex-shrink-0">
                     <Settings size={16} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-zinc-950 dark:text-[#F3F1E8] uppercase tracking-tight font-heading">
+                    <h3 className="text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-tight font-heading">
                       Enable Location Access
                     </h3>
-                    <p className="text-[11px] text-zinc-500 dark:text-[#929D93] font-medium">Browser permission steps</p>
+                    <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium">Browser permission steps</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowLocationSettingsGuide(false)}
-                  className="text-zinc-400 hover:text-black dark:hover:text-white transition p-1 cursor-pointer"
+                  className="text-[#696B64] hover:text-[#10251C] dark:hover:text-white transition p-1 cursor-pointer"
                   title="Close"
                 >
                   <X size={16} />
                 </button>
               </div>
 
-              <div className="space-y-2 text-xs text-zinc-700 dark:text-[#B8C2B8]">
-                <div className="p-3 bg-zinc-50 dark:bg-[#1E2B23] border border-zinc-200 dark:border-[#34443A] flex items-start gap-3">
-                  <span className="w-5 h-5 bg-zinc-950 dark:bg-[#123D32] text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">1</span>
+              <div className="space-y-2 text-xs text-[#10251C] dark:text-[#F3F1E8]">
+                <div className="p-3 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] flex items-start gap-3 shadow-xs">
+                  <span className="w-5 h-5 bg-[#123D32] text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">1</span>
                   <p className="text-[11px] leading-relaxed">
                     Look for the <strong>Padlock 🔒</strong> or <strong>Tune/Sliders ⚙️</strong> icon in your browser address bar next to the website URL.
                   </p>
                 </div>
-                <div className="p-3 bg-zinc-50 dark:bg-[#1E2B23] border border-zinc-200 dark:border-[#34443A] flex items-start gap-3">
-                  <span className="w-5 h-5 bg-zinc-950 dark:bg-[#123D32] text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">2</span>
+                <div className="p-3 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] flex items-start gap-3 shadow-xs">
+                  <span className="w-5 h-5 bg-[#123D32] text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">2</span>
                   <p className="text-[11px] leading-relaxed">
                     Click <strong>&quot;Permissions&quot;</strong> or <strong>&quot;Site settings&quot;</strong>.
                   </p>
                 </div>
-                <div className="p-3 bg-zinc-50 dark:bg-[#1E2B23] border border-zinc-200 dark:border-[#34443A] flex items-start gap-3">
-                  <span className="w-5 h-5 bg-zinc-950 dark:bg-[#123D32] text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">3</span>
+                <div className="p-3 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] flex items-start gap-3 shadow-xs">
+                  <span className="w-5 h-5 bg-[#123D32] text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">3</span>
                   <p className="text-[11px] leading-relaxed">
-                    Find <strong>&quot;Location&quot;</strong> and switch from &quot;Block&quot; to <strong className="text-emerald-700 dark:text-[#90C8A8]">&quot;Allow&quot;</strong>.
+                    Find <strong>&quot;Location&quot;</strong> and switch from &quot;Block&quot; to <strong className="text-[#046A38] dark:text-[#90C8A8]">&quot;Allow&quot;</strong>.
                   </p>
                 </div>
-                <div className="p-3 bg-zinc-50 dark:bg-[#1E2B23] border border-zinc-200 dark:border-[#34443A] flex items-start gap-3">
-                  <span className="w-5 h-5 bg-zinc-950 dark:bg-[#123D32] text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">4</span>
+                <div className="p-3 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] flex items-start gap-3 shadow-xs">
+                  <span className="w-5 h-5 bg-[#123D32] text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">4</span>
                   <p className="text-[11px] leading-relaxed">
                     Return here and click <strong>&quot;Ask Permission Again&quot;</strong>.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-zinc-200 dark:border-[#34443A] flex items-center justify-end gap-2">
+              <div className="pt-2 border-t border-[#DED7CA] dark:border-[#29372E] flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowLocationSettingsGuide(false)}
-                  className="px-4 py-2 border border-zinc-300 dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-zinc-100 dark:hover:bg-[#202B24] text-zinc-800 dark:text-[#F3F1E8] text-xs font-bold transition cursor-pointer"
+                  className="px-4 py-2 border border-[#DED7CA] dark:border-[#29372E] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold rounded-[8px] transition cursor-pointer"
                 >
                   Close
                 </button>
@@ -3052,7 +3052,7 @@ export default function BookPage() {
                     setShowLocationSettingsGuide(false);
                     locateCurrentLocation();
                   }}
-                  className="px-4 py-2 bg-zinc-950 dark:bg-[#28664D] hover:bg-black dark:hover:bg-[#347858] text-white text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 bg-[#046A38] hover:bg-[#03532C] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition cursor-pointer flex items-center gap-1.5 shadow-xs"
                 >
                   <LocateFixed size={12} />
                   <span>Ask Permission Again</span>

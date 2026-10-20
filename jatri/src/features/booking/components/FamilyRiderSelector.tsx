@@ -78,17 +78,17 @@ export default function FamilyRiderSelector({
       <button
         type="button"
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition border border-zinc-200"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#17211B] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold transition border border-[#DED7CA] dark:border-[#29372E] shadow-xs cursor-pointer"
       >
-        <Users size={14} className="text-zinc-600" />
+        <Users size={14} className="text-[#046A38] dark:text-[#347858]" />
         <span>
           {selectedFamilyMember ? `For: ${selectedFamilyMember.name}` : "For Me"}
         </span>
       </button>
 
       {dropdownOpen && (
-        <div className="absolute left-0 mt-2 w-64 bg-white border border-zinc-200 rounded-2xl shadow-xl p-2 z-50">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-3 py-1.5">
+        <div className="absolute left-0 mt-2 w-64 bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] shadow-xl p-2 z-50">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93] px-3 py-1.5">
             Who is riding?
           </p>
 
@@ -98,8 +98,8 @@ export default function FamilyRiderSelector({
               onSelectRider(null);
               setDropdownOpen(false);
             }}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
-              !selectedFamilyMember ? "bg-zinc-900 text-white" : "hover:bg-zinc-50 text-zinc-800"
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-[8px] text-xs font-semibold transition cursor-pointer ${
+              !selectedFamilyMember ? "bg-[#046A38] text-white" : "hover:bg-[#EFE9DC]/60 dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8]"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -119,8 +119,8 @@ export default function FamilyRiderSelector({
                   onSelectRider(m);
                   setDropdownOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition mt-1 ${
-                  active ? "bg-zinc-900 text-white" : "hover:bg-zinc-50 text-zinc-800"
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-[8px] text-xs font-semibold transition mt-1 cursor-pointer ${
+                  active ? "bg-[#046A38] text-white" : "hover:bg-[#EFE9DC]/60 dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8]"
                 }`}
               >
                 <div className="flex items-center gap-2 truncate">

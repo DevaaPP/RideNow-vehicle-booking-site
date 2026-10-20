@@ -18,27 +18,27 @@ export default function ScheduleRidePicker({
   minScheduledTime,
 }: ScheduleRidePickerProps) {
   return (
-    <div className="bg-zinc-50 border border-zinc-200/80 rounded-2xl p-2.5 mb-3">
-      <div className="flex bg-zinc-200/70 p-1 rounded-xl gap-1">
+    <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] p-2 mb-3 shadow-xs">
+      <div className="flex bg-[#EFE9DC] dark:bg-[#101713] p-1 rounded-[8px] gap-1">
         <button
           type="button"
           onClick={() => onModeChange("now")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
             bookingMode === "now"
-              ? "bg-white text-zinc-900 shadow-xs"
-              : "text-zinc-600 hover:text-zinc-900"
+              ? "bg-white dark:bg-[#1E2B23] text-[#123D32] dark:text-[#F3F1E8] shadow-xs"
+              : "text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-white"
           }`}
         >
-          <Clock size={13} />
+          <Clock size={13} className={bookingMode === "now" ? "text-[#046A38]" : ""} />
           <span>Ride Now</span>
         </button>
         <button
           type="button"
           onClick={() => onModeChange("schedule")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
             bookingMode === "schedule"
-              ? "bg-amber-500 text-zinc-950 font-black shadow-xs"
-              : "text-zinc-600 hover:text-zinc-900"
+              ? "bg-[#046A38] text-white font-bold shadow-xs"
+              : "text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-white"
           }`}
         >
           <Calendar size={13} />
@@ -47,8 +47,8 @@ export default function ScheduleRidePicker({
       </div>
 
       {bookingMode === "schedule" && (
-        <div className="mt-2.5 pt-2 border-t border-zinc-200/80 px-1 space-y-1">
-          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+        <div className="mt-2.5 pt-2 border-t border-[#DED7CA] dark:border-[#29372E] px-1 space-y-1">
+          <label className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider block">
             Pickup Date & Time (Min 25 min ahead)
           </label>
           <input
@@ -56,7 +56,7 @@ export default function ScheduleRidePicker({
             value={scheduledTime}
             min={minScheduledTime}
             onChange={(e) => onTimeChange(e.target.value)}
-            className="w-full text-xs font-bold bg-white border border-zinc-300 rounded-xl px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900"
+            className="w-full text-xs font-bold bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] px-3 py-2 text-[#10251C] dark:text-[#F3F1E8] outline-none focus:border-[#046A38]"
           />
         </div>
       )}

@@ -54,45 +54,44 @@ function createPickupEl(locationName?: string, durationMin?: number | null): HTM
   const etaBadge = durationMin && durationMin > 0 ? ` • ${durationMin} min` : "";
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.35));transform:translateY(3px);">
-      <!-- Elevated Callout Badge (Floats clean above route line) -->
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(18,61,50,0.18));transform:translateY(3px);">
+      <!-- Elevated Callout Badge (Jaatri Emerald & Ivory Design) -->
       <div style="
-        background: #09090b;
-        color: #ffffff;
+        background: #FAF7F0;
+        color: #10251C;
         padding: 5px 10px;
-        border-radius: 2px;
+        border-radius: 8px;
         font-size: 10px;
         font-weight: 800;
         letter-spacing: -0.01em;
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        border: 1.5px solid #ffffff;
+        box-shadow: 0 4px 12px rgba(18,61,50,0.15);
+        border: 1.5px solid #DED7CA;
         display: flex;
         align-items: center;
         gap: 6px;
       ">
-        <span style="width:6px;height:6px;border-radius:1px;background:#ffffff;display:inline-block;flex-shrink:0;"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:#046A38;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(4,106,56,0.2);"></span>
         <span>${cleanTitle}</span>
-        ${etaBadge ? `<span style="opacity:0.8;font-size:9px;font-weight:600;">${etaBadge}</span>` : ""}
+        ${etaBadge ? `<span style="color:#046A38;font-size:9px;font-weight:700;">${etaBadge}</span>` : ""}
       </div>
 
-      <!-- Hairline Elevated Stem (passes clean over route casing) -->
+      <!-- Hairline Elevated Stem -->
       <div style="
         width: 2px;
         height: 6px;
-        background: #09090b;
-        box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
+        background: #046A38;
       "></div>
 
-      <!-- Precision Road Contact Anchor Square -->
+      <!-- Precision Road Contact Anchor Circle -->
       <div style="
-        width: 6px;
-        height: 6px;
-        background: #09090b;
-        border-radius: 1px;
+        width: 7px;
+        height: 7px;
+        background: #046A38;
+        border-radius: 50%;
         border: 1.5px solid #ffffff;
-        box-shadow: 0 0 0 1px #09090b;
+        box-shadow: 0 0 0 1px #046A38;
       "></div>
     </div>
   `;
@@ -108,25 +107,25 @@ function createDropEl(locationName?: string): HTMLElement {
   const cleanTitle = rawTitle && rawTitle.length > 0 ? (rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle) : "Drop";
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));transform:translateY(2px);">
-      <!-- Elevated Callout Badge (Floats clean above route line) -->
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(227,66,34,0.18));transform:translateY(2px);">
+      <!-- Elevated Callout Badge (Jaatri Assamese Vermilion Accent) -->
       <div style="
-        background: #ffffff;
-        color: #09090b;
+        background: #123D32;
+        color: #FAF7F0;
         padding: 5px 10px;
-        border-radius: 2px;
+        border-radius: 8px;
         font-size: 10px;
         font-weight: 800;
         letter-spacing: -0.01em;
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        border: 1.5px solid #09090b;
+        box-shadow: 0 4px 12px rgba(18,61,50,0.25);
+        border: 1.5px solid #123D32;
         display: flex;
         align-items: center;
         gap: 6px;
       ">
-        <span style="width:6px;height:6px;border-radius:1px;border:1.5px solid #09090b;background:#ffffff;display:inline-block;flex-shrink:0;"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:#E34222;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(227,66,34,0.35);"></span>
         <span>${cleanTitle}</span>
       </div>
 
@@ -134,18 +133,17 @@ function createDropEl(locationName?: string): HTMLElement {
       <div style="
         width: 2px;
         height: 6px;
-        background: #09090b;
-        box-shadow: -0.5px 0 0 0.5px #ffffff, 0.5px 0 0 0.5px #ffffff;
+        background: #E34222;
       "></div>
 
-      <!-- Precision Road Contact Anchor Square -->
+      <!-- Precision Road Contact Anchor Circle -->
       <div style="
-        width: 6px;
-        height: 6px;
-        background: #ffffff;
-        border-radius: 1px;
-        border: 1.5px solid #09090b;
-        box-shadow: 0 0 0 1px #ffffff;
+        width: 7px;
+        height: 7px;
+        background: #E34222;
+        border-radius: 50%;
+        border: 1.5px solid #ffffff;
+        box-shadow: 0 0 0 1px #E34222;
       "></div>
     </div>
   `;
@@ -156,18 +154,18 @@ function createStopEl(index: number): HTMLElement {
   const el = document.createElement("div");
   el.style.zIndex = "1000";
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.25));">
+    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 8px rgba(18,61,50,0.2));">
       <div style="
-        background:#09090b;color:#ffffff;
-        padding:3px 8px;border-radius:2px;
+        background:#123D32;color:#FAF7F0;
+        padding:3px 8px;border-radius:6px;
         font-size:9px;font-weight:900;
         white-space:nowrap;
-        border:1.5px solid #ffffff;
-        box-shadow:0 2px 8px rgba(0,0,0,0.25);
+        border:1.5px solid #DED7CA;
+        box-shadow:0 2px 8px rgba(0,0,0,0.2);
       ">STOP ${index + 1}</div>
-      <div style="width:2px;height:6px;background:#09090b;"></div>
+      <div style="width:2px;height:6px;background:#123D32;"></div>
       <div style="
-        width:6px;height:6px;background:#09090b;border-radius:1px;
+        width:7px;height:7px;background:#123D32;border-radius:50%;
         border:1.5px solid #ffffff;
       "></div>
     </div>
@@ -338,7 +336,7 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
       });
     }
 
-    // Core road polyline — vivid blue route line
+    // Core road polyline — Jaatri Emerald brand line
     if (!map.getLayer("route-core")) {
       map.addLayer({
         id: "route-core",
@@ -346,7 +344,7 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
         source: "route-source",
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": "#09090b",
+          "line-color": "#046A38",
           "line-width": 5.5,
           "line-opacity": 1.0,
         },
@@ -1204,11 +1202,11 @@ export default function RouteMap({
           fill="none"
           opacity="1.0"
         />
-        {/* Primary route core (luxury obsidian / midnight carbon) */}
+        {/* Primary route core (Jaatri Emerald interactive brand line) */}
         <path
           ref={svgCoreRef}
           d=""
-          stroke="#09090b"
+          stroke="#046A38"
           strokeWidth="5.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -1234,15 +1232,17 @@ export default function RouteMap({
                 transition={{ type: "spring", stiffness: 450, damping: 25 }}
                 className="flex flex-col items-center pointer-events-none"
               >
-                {/* Floating Callout Badge */}
+                {/* Floating Callout Badge (Jaatri Design System) */}
                 <div
-                  className="px-3 py-1 rounded-none text-[10px] font-black uppercase tracking-wider text-white shadow-2xl flex items-center gap-1.5 border border-zinc-800 bg-zinc-950"
+                  className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold tracking-tight text-[#FAF7F0] shadow-xl flex items-center gap-2 border border-[#426457]/40 bg-[#123D32]"
                 >
-                  {activePinMode === "pickup" ? (
-                    <span className="w-2 h-2 rounded-none bg-white flex-shrink-0" />
-                  ) : (
-                    <span className="w-2 h-2 rounded-none border border-white bg-transparent flex-shrink-0" />
-                  )}
+                  <span
+                    className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                      activePinMode === "pickup"
+                        ? "bg-[#046A38] shadow-[0_0_6px_rgba(4,106,56,0.6)]"
+                        : "bg-[#E34222] shadow-[0_0_6px_rgba(227,66,34,0.6)]"
+                    }`}
+                  />
                   <span>{activePinMode === "pickup" ? "Move Map to Set Pickup" : "Move Map to Set Drop"}</span>
                 </div>
 
@@ -1253,7 +1253,7 @@ export default function RouteMap({
                     viewBox="0 0 48 48"
                     width="44"
                     height="44"
-                    className="fill-zinc-950"
+                    className={activePinMode === "pickup" ? "fill-[#046A38]" : "fill-[#E34222]"}
                   >
                     <path d="M 24 4 C 18.486 4 14 8.486 14 14 C 14 19.003129 17.696643 23.147695 22.5 23.875 L 22.5 42.5 A 1.50015 1.50015 0 1 0 25.5 42.5 L 25.5 23.875 C 30.303357 23.147695 34 19.003129 34 14 C 34 8.486 29.514 4 24 4 z M 21.5 10 C 22.328 10 23 10.672 23 11.5 C 23 12.328 22.328 13 21.5 13 C 20.672 13 20 12.328 20 11.5 C 20 10.672 20.672 10 21.5 10 z" />
                   </svg>
@@ -1262,7 +1262,7 @@ export default function RouteMap({
 
               {/* Dynamic Ground Shadow underneath the needle */}
               <div
-                className={`w-3.5 h-1.5 bg-zinc-950/40 rounded-none filter blur-[1px] transition-all duration-200 ${
+                className={`w-3.5 h-1.5 bg-[#123D32]/40 rounded-full filter blur-[1px] transition-all duration-200 ${
                   isMapMoving ? "scale-75 opacity-25 translate-y-2" : "scale-100 opacity-60 translate-y-0"
                 }`}
               />
@@ -1278,40 +1278,40 @@ export default function RouteMap({
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-white border border-zinc-300 rounded-none shadow-2xl p-4 flex flex-col gap-3 isolate"
+            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] shadow-2xl p-4 flex flex-col gap-3 isolate"
             style={{ zIndex: 2000 }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                {activePinMode === "pickup" ? (
-                  <span className="w-2.5 h-2.5 rounded-none bg-zinc-950 flex-shrink-0" />
-                ) : (
-                  <span className="w-2.5 h-2.5 rounded-none border-2 border-zinc-950 bg-white flex-shrink-0" />
-                )}
-                <span className="text-xs font-black uppercase tracking-wider text-zinc-900">
+                <span
+                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                    activePinMode === "pickup" ? "bg-[#046A38]" : "bg-[#E34222]"
+                  }`}
+                />
+                <span className="text-xs font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
                   {activePinMode === "pickup" ? "Confirm Pickup Point" : "Confirm Drop-off Point"}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={handleCancelPin}
-                className="w-6 h-6 rounded-none bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 transition flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-[8px] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] border border-[#DED7CA] dark:border-[#29372E] text-[#696B64] hover:text-[#10251C] transition flex items-center justify-center cursor-pointer"
                 title="Cancel"
               >
-                <X size={13} />
+                <X size={14} />
               </button>
             </div>
 
-            <div className="bg-zinc-50 rounded-none p-2.5 border border-zinc-200/80 flex items-start gap-2">
-              <MapPin size={15} className="text-zinc-600 shrink-0 mt-0.5" />
+            <div className="bg-white dark:bg-[#1E2B23] rounded-[8px] p-2.5 border border-[#DED7CA] dark:border-[#29372E] flex items-start gap-2 shadow-xs">
+              <MapPin size={15} className={`shrink-0 mt-0.5 ${activePinMode === "pickup" ? "text-[#046A38]" : "text-[#E34222]"}`} />
               <div className="flex-1 min-w-0">
                 {isPinGeocoding ? (
-                  <div className="flex items-center gap-2 text-zinc-500 text-xs">
-                    <Loader2 size={13} className="animate-spin text-zinc-700" />
+                  <div className="flex items-center gap-2 text-[#696B64] text-xs">
+                    <Loader2 size={13} className="animate-spin text-[#123D32] dark:text-[#347858]" />
                     <span>Resolving address...</span>
                   </div>
                 ) : (
-                  <p className="text-xs font-semibold text-zinc-800 leading-snug line-clamp-2">
+                  <p className="text-xs font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug line-clamp-2">
                     {pinAddress || "Move map to choose location"}
                   </p>
                 )}
@@ -1334,19 +1334,19 @@ export default function RouteMap({
                     type="button"
                     onClick={handleConfirmPin}
                     disabled={isConfirmDisabled}
-                    className={`flex-1 py-2.5 px-4 rounded-none text-xs font-black uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    className={`flex-1 py-2.5 px-4 rounded-[8px] text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
                       isConfirmDisabled
-                        ? "bg-zinc-200 text-zinc-400 border border-zinc-300 cursor-not-allowed shadow-none"
-                        : "bg-zinc-950 hover:bg-black text-white shadow-md active:scale-95"
+                        ? "bg-[#DED7CA] text-[#696B64] cursor-not-allowed shadow-none"
+                        : "bg-[#046A38] hover:bg-[#03532C] text-white active:scale-95"
                     }`}
                   >
-                    <Check size={14} className={isConfirmDisabled ? "text-zinc-400" : "text-emerald-400"} />
+                    <Check size={14} />
                     <span>Confirm Location</span>
                   </button>
                   <button
                     type="button"
                     onClick={handleCancelPin}
-                    className="py-2.5 px-3.5 rounded-none border border-zinc-300 text-xs font-bold bg-white text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
+                    className="py-2.5 px-3.5 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] text-xs font-semibold bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] transition cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1367,23 +1367,23 @@ export default function RouteMap({
                 initial={{ opacity: 0, y: -8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-white/95 backdrop-blur-xs border border-zinc-300 px-2.5 py-1 md:px-3.5 md:py-1.5 shadow-sm rounded-none"
+                className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-[#FAF7F0]/95 backdrop-blur-xs border border-[#DED7CA] dark:border-[#34443A] px-2.5 py-1.5 md:px-3.5 md:py-2 shadow-sm rounded-[8px]"
               >
                 {isRouting ? (
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-zinc-950 animate-pulse rounded-none" />
-                    <span className="text-zinc-900 text-[11px] md:text-xs font-bold">Finding fastest route...</span>
+                    <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-[#046A38] animate-pulse rounded-full" />
+                    <span className="text-[#10251C] dark:text-[#F3F1E8] text-[11px] md:text-xs font-bold">Finding fastest route...</span>
                   </div>
                 ) : (
                   <>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-zinc-950 text-[11px] md:text-xs font-black">
+                      <span className="text-[#10251C] dark:text-[#F3F1E8] text-[11px] md:text-xs font-black">
                         {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
                       </span>
-                      <span className="text-zinc-500 text-[10px] md:text-xs font-bold">({km} km)</span>
+                      <span className="text-[#696B64] dark:text-[#929D93] text-[10px] md:text-xs font-bold">({km} km)</span>
                     </div>
-                    <span className="w-px h-3 bg-zinc-200" />
-                    <span className="text-[9px] md:text-[10px] text-zinc-950 font-black uppercase tracking-wider bg-zinc-100 px-1.5 md:px-2 py-0.5 border border-zinc-300 rounded-none">
+                    <span className="w-px h-3 bg-[#DED7CA] dark:bg-[#34443A]" />
+                    <span className="text-[9px] md:text-[10px] text-[#123D32] dark:text-[#347858] font-bold uppercase tracking-wider bg-[#E5EBDD] dark:bg-[#1E2B23] px-1.5 md:px-2 py-0.5 border border-[#DED7CA] dark:border-[#28664D]/40 rounded-[6px]">
                       Fastest Route
                     </span>
                   </>
@@ -1393,7 +1393,7 @@ export default function RouteMap({
           </AnimatePresence>
 
           {/* Pinpoint Selector Pill (Hidden on mobile when route is already active to prevent map overlaps) */}
-          <div className={`pointer-events-auto items-center gap-1 bg-white border border-zinc-300 p-1 shadow-sm rounded-none ${
+          <div className={`pointer-events-auto items-center gap-1 bg-[#FAF7F0]/95 backdrop-blur-xs border border-[#DED7CA] dark:border-[#34443A] p-1 shadow-sm rounded-[8px] ${
             p1 && p2 ? "hidden md:flex" : "flex"
           }`}>
             <button
@@ -1402,9 +1402,9 @@ export default function RouteMap({
                 setActivePinMode("pickup");
                 onSelectionModeChange?.("pickup");
               }}
-              className="px-2.5 py-1 text-xs font-black transition-all flex items-center gap-1.5 text-zinc-800 hover:text-black hover:bg-zinc-100 rounded-none cursor-pointer"
+              className="px-2.5 py-1 text-xs font-bold transition-all flex items-center gap-1.5 text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#E5EBDD] dark:hover:bg-[#1E2B23] rounded-[6px] cursor-pointer"
             >
-              <span className="w-2.5 h-2.5 bg-zinc-950 flex-shrink-0 rounded-none" />
+              <span className="w-2.5 h-2.5 bg-[#046A38] flex-shrink-0 rounded-full" />
               <span>Pin Pickup</span>
             </button>
 
@@ -1414,9 +1414,9 @@ export default function RouteMap({
                 setActivePinMode("drop");
                 onSelectionModeChange?.("drop");
               }}
-              className="px-2.5 py-1 text-xs font-black transition-all flex items-center gap-1.5 text-zinc-800 hover:text-black hover:bg-zinc-100 rounded-none cursor-pointer"
+              className="px-2.5 py-1 text-xs font-bold transition-all flex items-center gap-1.5 text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#E5EBDD] dark:hover:bg-[#1E2B23] rounded-[6px] cursor-pointer"
             >
-              <span className="w-2.5 h-2.5 border-2 border-zinc-950 bg-white flex-shrink-0 rounded-none" />
+              <span className="w-2.5 h-2.5 bg-[#E34222] flex-shrink-0 rounded-full" />
               <span>Pin Drop</span>
             </button>
 
@@ -1425,7 +1425,7 @@ export default function RouteMap({
                 type="button"
                 onClick={handleReset}
                 title="Reset pins"
-                className="p-1 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all rounded-none cursor-pointer"
+                className="p-1 text-[#696B64] hover:text-[#10251C] hover:bg-[#E5EBDD] dark:hover:bg-[#1E2B23] transition-all rounded-[6px] cursor-pointer"
               >
                 <RotateCcw size={13} />
               </button>
