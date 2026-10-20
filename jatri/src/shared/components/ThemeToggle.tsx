@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Sun, Moon, Laptop, ChevronDown, Check } from "lucide-react";
+import { Sun, Moon, Laptop, ChevronDown, Check, X } from "lucide-react";
 import { useTheme, Theme } from "@/context/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -14,6 +14,7 @@ export default function ThemeToggle({
 }) {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
+  const [dropdownDirection, setDropdownDirection] = useState<"down" | "up">("down");
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,6 +26,18 @@ export default function ThemeToggle({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (open && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const screenHeight = window.innerHeight;
+      if (rect.bottom + 220 > screenHeight && rect.top > 220) {
+        setDropdownDirection("up");
+      } else {
+        setDropdownDirection("down");
+      }
+    }
+  }, [open]);
 
   const THEME_OPTIONS: { id: Theme; label: string; icon: typeof Sun }[] = [
     { id: "system", label: "Auto (Device)", icon: Laptop },
@@ -84,14 +97,17 @@ export default function ThemeToggle({
         />
       </button>
 
+      {/* ─── DESKTOP DROPDOWN (Auto-detects viewport bounds and flips up/down) ─── */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+            initial={{ opacity: 0, scale: 0.95, y: dropdownDirection === "up" ? 4 : -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+            exit={{ opacity: 0, scale: 0.95, y: dropdownDirection === "up" ? 4 : -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-44 rounded-[12px] bg-white dark:bg-[#17211B] border border-zinc-200 dark:border-[#34443A] shadow-xl overflow-hidden z-50 p-1.5"
+            className={`hidden sm:block absolute right-0 ${
+              dropdownDirection === "up" ? "bottom-full mb-2" : "top-full mt-2"
+            } w-44 rounded-[12px] bg-white dark:bg-[#17211B] border border-zinc-200 dark:border-[#34443A] shadow-xl overflow-hidden z-50 p-1.5`}
           >
             <div className="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-[#929D93]">
               Appearance
@@ -122,6 +138,77 @@ export default function ThemeToggle({
               );
             })}
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── MOBILE BOTTOM-SHEET MODAL (100% Guaranteed Zero Viewport Overflow) ─── */}
+      <AnimatePresence>
+        {open && (
+          <div className="sm:hidden fixed inset-0 z-[99999] flex flex-col justify-end bg-black/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setOpen(false)}
+              className="absolute inset-0"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative bg-white dark:bg-[#17211B] rounded-t-3xl p-5 shadow-2xl border-t border-zinc-200 dark:border-[#34443A] w-full max-h-[85vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+            >
+              <div className="w-12 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full mx-auto mb-4" />
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-[#29372E] mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-zinc-100 dark:bg-[#1E2B23] flex items-center justify-center text-zinc-800 dark:text-[#F3F1E8]">
+                    <CurrentIcon size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-zinc-900 dark:text-[#F3F1E8]">Appearance &amp; Theme</h3>
+                    <p className="text-[11px] text-zinc-500 dark:text-[#929D93] font-medium">Select your display preference</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-[#1E2B23] text-zinc-500 dark:text-[#929D93] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-[#202B24] active:scale-95"
+                  aria-label="Close"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+
+              <div className="space-y-1.5 pt-1">
+                {THEME_OPTIONS.map((opt) => {
+                  const isSelected = opt.id === theme;
+                  const Icon = opt.icon;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        setTheme(opt.id);
+                        setOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3.5 rounded-2xl text-sm flex items-center justify-between transition-colors ${
+                        isSelected
+                          ? "bg-zinc-900 dark:bg-[#28664D] text-white font-bold shadow-sm"
+                          : "bg-zinc-50 dark:bg-[#1E2B23] hover:bg-zinc-100 dark:hover:bg-[#202B24] text-zinc-800 dark:text-[#F3F1E8]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon size={18} className={isSelected ? "text-emerald-400" : "text-zinc-500 dark:text-[#929D93]"} />
+                        <span className="font-bold text-base">{opt.label}</span>
+                      </div>
+                      {isSelected && <Check size={18} className="text-white" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

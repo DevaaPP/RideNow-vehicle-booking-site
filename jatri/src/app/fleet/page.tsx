@@ -216,9 +216,9 @@ export default function FleetPage() {
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                       className={`object-cover ${
                         category.id === "scooty"
-                          ? "object-[center_28%] -translate-y-1.5 sm:-translate-y-2 scale-105 group-hover:scale-110"
-                          : "object-center group-hover:scale-105"
-                      } transition-transform duration-300`}
+                          ? "object-[center_82%]"
+                          : "object-center"
+                      } group-hover:scale-105 transition-transform duration-300`}
                     />
 
                     {/* Integrated Overlay Badges (Promo/Discount placeholder & Cargo Weight only) */}
