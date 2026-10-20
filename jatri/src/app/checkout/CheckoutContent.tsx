@@ -853,8 +853,6 @@ export default function CheckoutContent() {
 
         {/* ── UNIFIED BOOKING FLOW (ALL IN ONE TYPE) ── */}
         <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] overflow-hidden shadow-sm">
-          {/* Top accent bar */}
-          <div className="h-1 bg-[#123D32] dark:bg-[#28664D]" />
 
           {/* ══ 1. VEHICLE & TOTAL FARE SUMMARY ROW ══ */}
           <div className="p-4 sm:p-6 border-b border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] flex items-center justify-between gap-4">

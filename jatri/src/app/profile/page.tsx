@@ -37,17 +37,21 @@ import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import { useTranslation } from "@/context/LanguageContext";
 import { validateStudentEmail } from "@/lib/studentVerification";
+import { useSession } from "next-auth/react";
+import AuthModal from "@/features/auth/components/AuthModal";
 
 export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { userData } = useSelector((state: RootState) => state.user);
+  const { data: session, status: sessionStatus } = useSession();
   const { t } = useTranslation();
 
   const [name, setName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   /* ── STUDENT PROGRAM STATE ── */
   const [studentData, setStudentData] = useState<any | null>(null);
@@ -308,16 +312,35 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Profile Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-hidden"
-        >
-          {/* Top banner strip */}
-          <div className="h-1.5 bg-[#123D32] dark:bg-[#28664D] w-full" />
-
-          <form onSubmit={handleSave} className="p-4 sm:p-8 space-y-5 sm:space-y-6">
+        {!userData && !session?.user && sessionStatus === "unauthenticated" ? (
+          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] p-8 text-center shadow-xs">
+            <div className="w-16 h-16 rounded-[12px] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#046A38] dark:text-[#A8E0C0] flex items-center justify-center mx-auto mb-4">
+              <User size={30} />
+            </div>
+            <h2 className="text-xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] mb-2">
+              Sign in to your Jaatri Account
+            </h2>
+            <p className="text-sm text-[#696B64] dark:text-[#B8C2B8] mb-6 max-w-sm mx-auto">
+              Manage your personal credentials, student passes, family ride members, and data privacy settings.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(true)}
+              className="px-6 py-3 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] text-white font-bold text-sm shadow-xs transition active:scale-95 cursor-pointer"
+            >
+              Sign In with Mobile
+            </button>
+            <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
+          </div>
+        ) : (
+          <>
+            {/* Profile Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-hidden"
+            >
+              <form onSubmit={handleSave} className="p-4 sm:p-8 space-y-5 sm:space-y-6">
             
             {/* Header Avatar info */}
             <div className="flex items-center gap-3.5 sm:gap-4 pb-5 sm:pb-6 border-b border-[#DED7CA]/60 dark:border-[#34443A]">
@@ -449,7 +472,6 @@ export default function ProfilePage() {
           transition={{ delay: 0.05 }}
           className="mt-6 sm:mt-8 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-hidden"
         >
-          <div className="h-1.5 bg-[#123D32] dark:bg-[#28664D] w-full" />
           <div className="p-4 sm:p-8 space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#DED7CA]/60 dark:border-[#34443A]">
               <div className="flex items-center gap-3">
@@ -600,7 +622,6 @@ export default function ProfilePage() {
           transition={{ delay: 0.1 }}
           className="mt-6 sm:mt-8 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-hidden"
         >
-          <div className="h-1.5 bg-[#123D32] dark:bg-[#28664D] w-full" />
           <div className="p-4 sm:p-8 space-y-5 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-[#DED7CA]/60 dark:border-[#34443A]">
               <div className="flex items-center gap-3">
@@ -770,7 +791,6 @@ export default function ProfilePage() {
           transition={{ delay: 0.15 }}
           className="mt-6 sm:mt-8 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-hidden"
         >
-          <div className="h-1.5 bg-[#E34222] dark:bg-[#E06A50] w-full" />
           <div className="p-4 sm:p-8 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#DED7CA]/60 dark:border-[#34443A]">
               <div className="flex items-center gap-3">
@@ -812,6 +832,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </motion.div>
+        </>
+        )}
 
         {/* 🗑️ ACCOUNT DELETION CONFIRMATION MODAL */}
         <AnimatePresence>

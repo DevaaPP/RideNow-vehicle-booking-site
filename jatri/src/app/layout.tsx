@@ -6,6 +6,7 @@ import InitUser from "@/initUser";
 import Provider from "@/Provider";
 import PhoneLinkModal from "@/features/auth/components/PhoneLinkModal";
 import CookieConsent from "@/shared/components/CookieConsent";
+import MobileBottomNav from "@/shared/components/MobileBottomNav";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
@@ -157,6 +158,7 @@ export default function RootLayout({
                 <main id="main-content" className="flex-1 w-full flex flex-col">
                   {children}
                 </main>
+                <MobileBottomNav />
               </StoreProvider>
             </LanguageProvider>
           </ThemeProvider>
