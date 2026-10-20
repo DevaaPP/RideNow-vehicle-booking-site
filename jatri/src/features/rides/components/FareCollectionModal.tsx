@@ -4,14 +4,13 @@ import React from "react";
 import {
   IndianRupee,
   CheckCircle2,
-  AlertTriangle,
   Banknote,
   CreditCard,
   X,
   ArrowRight,
   ShieldCheck,
   User,
-  Car,
+  Wallet,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -25,6 +24,8 @@ interface FareCollectionModalProps {
     adminCommission?: number;
     paymentStatus: string;
     paymentMethod?: string;
+    walletAmountPaid?: number;
+    cashAmountDue?: number;
     user?: any;
     driver?: any;
     pickupAddress?: string;
@@ -41,129 +42,166 @@ export default function FareCollectionModal({
 }: FareCollectionModalProps) {
   if (!isOpen || !booking) return null;
 
-  const grossFare = booking.fare || 0;
-  const adminCommission = booking.adminCommission || Math.round(grossFare * 0.1);
-  const netPartnerPayout = booking.partnerAmount || (grossFare - adminCommission);
+  const grossFare = Math.round(Number(booking.fare)) || 0;
+  const adminCommission =
+    typeof booking.adminCommission === "number" && booking.adminCommission >= 0
+      ? Math.round(booking.adminCommission)
+      : Math.round(grossFare * 0.15);
+  const netPartnerPayout =
+    typeof booking.partnerAmount === "number" && booking.partnerAmount >= 0
+      ? Math.round(booking.partnerAmount)
+      : Math.max(0, grossFare - adminCommission);
+
   const isCash = booking.paymentStatus === "cash" || booking.paymentMethod === "cash";
-  const walletPaid = (booking as any).walletAmountPaid || 0;
-  const cashAmountDue = typeof (booking as any).cashAmountDue === "number" && (booking as any).cashAmountDue >= 0
-    ? (booking as any).cashAmountDue
-    : (isCash ? Math.max(0, grossFare - walletPaid) : 0);
+  const walletPaid = Math.round(Number((booking as any).walletAmountPaid || 0));
+  const cashAmountDue =
+    typeof (booking as any).cashAmountDue === "number" && (booking as any).cashAmountDue >= 0
+      ? Math.round((booking as any).cashAmountDue)
+      : isCash
+      ? Math.max(0, grossFare - walletPaid)
+      : 0;
+
   const customerName = booking.user?.name || "Customer";
   const driverName = booking.driver?.name || "Driver Partner";
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 backdrop-blur-xs p-3.5 sm:p-4 overflow-y-auto">
         <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: 20 }}
+          initial={{ opacity: 0, scale: 0.94, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, y: 20 }}
-          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-md bg-white border-4 border-zinc-950 rounded-none shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] overflow-hidden my-auto select-none"
+          exit={{ opacity: 0, scale: 0.94, y: 16 }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-md bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[16px] shadow-2xl overflow-hidden my-auto select-none"
         >
           {/* Top Header Strip */}
-          <div className="bg-zinc-950 px-5 py-4 flex items-center justify-between text-white">
+          <div className="bg-[#123D32] dark:bg-[#0D3027] px-5 py-3.5 flex items-center justify-between text-white">
             <div className="flex items-center gap-2">
-              <span className={`w-3 h-3 rounded-none ${isCash ? "bg-amber-400" : "bg-emerald-400"}`} />
-              <h2 className="text-sm font-black uppercase tracking-wider font-mono">
-                {perspective === "vendor" ? "Drop-off Completed • Payment Due" : "Ride Completed • Fare Due"}
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${
+                  isCash && cashAmountDue > 0 ? "bg-amber-400" : "bg-emerald-400"
+                }`}
+              />
+              <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider font-sans">
+                {perspective === "vendor"
+                  ? "Drop-off Completed • Payment Summary"
+                  : "Trip Completed • Payment Summary"}
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="w-7 h-7 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer"
               aria-label="Close"
             >
               <X size={15} />
             </button>
           </div>
 
-          <div className="p-5 sm:p-6 space-y-5">
+          <div className="p-4 sm:p-6 space-y-4">
             {/* Focal Big Fare Callout Box */}
-            <div className="bg-zinc-50 border-2 border-zinc-950 p-5 text-center space-y-1 relative">
-              <span className="text-[11px] font-black uppercase tracking-widest text-zinc-600 block">
-                {perspective === "vendor"
-                  ? "Price Customer Has To Pay"
-                  : "Total Amount To Pay"}
+            <div className="bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-4 text-center space-y-1 relative shadow-2xs">
+              <span className="text-[10.5px] font-bold uppercase tracking-widest text-[#696B64] dark:text-[#929D93] block">
+                {isCash && cashAmountDue > 0
+                  ? perspective === "vendor"
+                    ? "Cash Amount to Collect"
+                    : "Amount to Pay in Cash"
+                  : "Total Paid Digitally"}
               </span>
-              <div className="flex items-center justify-center text-4xl sm:text-5xl font-black text-zinc-950 font-mono tracking-tight">
-                <IndianRupee size={36} className="stroke-[3] mr-0.5" />
-                <span>{grossFare}</span>
+
+              <div className="flex items-center justify-center text-3xl sm:text-4xl font-extrabold text-[#10251C] dark:text-[#F3F1E8] font-mono tracking-tight">
+                <IndianRupee size={28} className="stroke-[2.5] mr-0.5" />
+                <span>{isCash && cashAmountDue > 0 ? cashAmountDue : grossFare}</span>
               </div>
-              <p className="text-xs text-zinc-500 font-semibold mt-1">
-                Gross Trip Fare (Inclusive of GST & Platform fees)
+
+              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium">
+                {walletPaid > 0 && cashAmountDue > 0
+                  ? `Total Trip Fare: ₹${grossFare} (₹${walletPaid} paid via Wallet)`
+                  : "Gross Trip Fare (Inclusive of GST & Platform fees)"}
               </p>
             </div>
 
             {/* Directive Cash / Online Alert Banner */}
-            {isCash ? (
-              <div className="bg-amber-50 border-2 border-amber-500 p-4 text-left space-y-1.5 shadow-sm">
-                <div className="flex items-center gap-2 text-amber-900 font-black text-sm uppercase tracking-tight">
-                  <Banknote size={18} className="text-amber-700 flex-shrink-0" />
+            {isCash && cashAmountDue > 0 ? (
+              <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-[10px] p-3.5 text-left space-y-1 shadow-2xs">
+                <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold text-xs uppercase tracking-tight">
+                  <Banknote size={17} className="text-amber-700 dark:text-amber-400 shrink-0" />
                   <span>
                     {perspective === "vendor"
-                      ? `Collect ₹${cashAmountDue} in Cash from Rider`
-                      : `Please Pay ₹${cashAmountDue} in Cash to Driver`}
+                      ? `Collect ₹${cashAmountDue} Cash from Rider`
+                      : `Please Pay ₹${cashAmountDue} Cash to Driver`}
                   </span>
                 </div>
-                <p className="text-xs text-amber-900/90 font-medium leading-snug">
+                <p className="text-[11px] text-amber-900/90 dark:text-amber-300/90 font-medium leading-relaxed">
                   {walletPaid > 0 && (
-                    <span className="block font-bold text-emerald-800 mb-1">
+                    <span className="block font-bold text-emerald-800 dark:text-emerald-400 mb-0.5">
                       ✓ ₹{walletPaid} already paid via Jaatri Wallet.
                     </span>
                   )}
                   {perspective === "vendor"
-                    ? `Payment mode is ${walletPaid > 0 ? "PARTIAL CASH" : "CASH"}. Please collect ₹${cashAmountDue} from ${customerName} before departure. Your commission will be reconciled in wallet.`
-                    : `Please hand over ₹${cashAmountDue} cash directly to ${driverName}. No additional tip or fees are compulsory.`}
+                    ? `Payment mode is ${
+                        walletPaid > 0 ? "PARTIAL CASH" : "CASH"
+                      }. Please collect ₹${cashAmountDue} from ${customerName}. Platform commission will be automatically reconciled in your Driver Wallet.`
+                    : `Please hand over ₹${cashAmountDue} cash directly to ${driverName}. No additional tip or fees are required.`}
                 </p>
               </div>
             ) : (
-              <div className="bg-emerald-50 border-2 border-emerald-500 p-4 text-left space-y-1.5 shadow-sm">
-                <div className="flex items-center gap-2 text-emerald-950 font-black text-sm uppercase tracking-tight">
-                  <CheckCircle2 size={18} className="text-emerald-700 flex-shrink-0" />
+              <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-[10px] p-3.5 text-left space-y-1 shadow-2xs">
+                <div className="flex items-center gap-2 text-emerald-950 dark:text-emerald-200 font-bold text-xs uppercase tracking-tight">
+                  <CheckCircle2 size={17} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
                   <span>
                     {perspective === "vendor"
                       ? "Do Not Collect Cash — Paid Online"
                       : "Paid Online — No Cash Required"}
                   </span>
                 </div>
-                <p className="text-xs text-emerald-900 font-medium leading-snug">
+                <p className="text-[11px] text-emerald-900/90 dark:text-emerald-300/90 font-medium leading-relaxed">
                   {perspective === "vendor"
-                    ? `Customer paid ₹${grossFare} digitally. Guaranteed net payout of ₹${netPartnerPayout} is already credited to your RideNow wallet.`
-                    : "Payment of ₹" + grossFare + " was processed digitally. You are all set to go!"}
+                    ? `Customer paid ₹${grossFare} digitally. Guaranteed net payout of ₹${netPartnerPayout} is recorded in your Driver Wallet.`
+                    : `Your payment of ₹${grossFare} was successfully processed digitally. You are all set!`}
                 </p>
               </div>
             )}
 
-            {/* Reconciliation Breakdown (Especially valuable for Vendor) */}
+            {/* Reconciliation Breakdown */}
             {perspective === "vendor" ? (
-              <div className="bg-zinc-100 border border-zinc-300 p-3.5 space-y-2 text-xs">
-                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+              <div className="bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] p-3.5 space-y-1.5 text-xs">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">
                   Driver Earnings Breakdown
                 </p>
-                <div className="flex justify-between text-zinc-700 font-semibold">
-                  <span>Customer Gross Fare:</span>
-                  <span className="font-mono text-zinc-950">₹{grossFare}</span>
+                <div className="flex justify-between text-[#10251C] dark:text-[#F3F1E8]">
+                  <span className="text-[#696B64] dark:text-[#929D93]">Customer Gross Fare:</span>
+                  <span className="font-mono font-bold">₹{grossFare}</span>
                 </div>
-                <div className="flex justify-between text-zinc-600 font-medium">
-                  <span>Platform Commission (10%):</span>
-                  <span className="font-mono text-rose-600">-₹{adminCommission}</span>
+                {walletPaid > 0 && (
+                  <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
+                    <span>Paid via Customer Wallet:</span>
+                    <span className="font-mono font-bold">+₹{walletPaid}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-[#E34222] dark:text-[#E06A50]">
+                  <span>Platform Commission (15%):</span>
+                  <span className="font-mono font-bold">-₹{adminCommission}</span>
                 </div>
-                <div className="pt-2 border-t border-zinc-300 flex justify-between text-emerald-800 font-black text-sm">
-                  <span>Your Net Guaranteed Earning:</span>
-                  <span className="font-mono text-emerald-700">₹{netPartnerPayout}</span>
+                <div className="pt-2 border-t border-[#DED7CA] dark:border-[#34443A] flex justify-between text-[#046A38] dark:text-[#90C8A8] font-extrabold text-sm">
+                  <span>Net Driver Earnings:</span>
+                  <span className="font-mono text-sm">₹{netPartnerPayout}</span>
                 </div>
               </div>
             ) : (
-              <div className="bg-zinc-100 border border-zinc-300 p-3.5 space-y-1.5 text-xs text-zinc-700">
-                <div className="flex items-center justify-between font-bold">
-                  <span>Driver Partner:</span>
-                  <span className="text-zinc-950">{driverName}</span>
+              <div className="bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] p-3.5 space-y-1.5 text-xs text-[#10251C] dark:text-[#F3F1E8]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#696B64] dark:text-[#929D93]">Driver Partner:</span>
+                  <span className="font-bold">{driverName}</span>
                 </div>
-                <div className="flex items-center justify-between text-zinc-600">
-                  <span>Payment Status:</span>
-                  <span className="font-mono font-bold uppercase text-zinc-900">{booking.paymentStatus || "confirmed"}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#696B64] dark:text-[#929D93]">Payment Method:</span>
+                  <span className="font-mono font-bold uppercase text-xs">
+                    {walletPaid > 0 && cashAmountDue > 0
+                      ? "Wallet + Cash"
+                      : isCash
+                      ? "Cash to Driver"
+                      : "Paid Online"}
+                  </span>
                 </div>
               </div>
             )}
@@ -171,10 +209,10 @@ export default function FareCollectionModal({
             {/* Confirmation CTA Button */}
             <button
               onClick={onClose}
-              className="w-full py-4 bg-zinc-950 hover:bg-black text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition active:scale-[0.99] cursor-pointer shadow-md"
+              className="w-full py-3 sm:py-3.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition active:scale-[0.98] cursor-pointer shadow-xs"
             >
-              <span>{perspective === "vendor" ? "Confirm Payment & Continue" : "Acknowledge & Finish"}</span>
-              <ArrowRight size={16} />
+              <span>{perspective === "vendor" ? "Confirm & Continue" : "Acknowledge & Rate Ride"}</span>
+              <ArrowRight size={15} />
             </button>
           </div>
         </motion.div>

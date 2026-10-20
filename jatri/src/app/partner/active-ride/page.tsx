@@ -21,6 +21,7 @@ import { IVehicle } from "@/models/vehicle.model";
 import RideChat from "@/features/rides/components/RideChat";
 import { haversineKm } from "@/lib/routeUtils";
 import { useWakeLock } from "@/shared/hooks/useWakeLock";
+import FareCollectionModal from "@/features/rides/components/FareCollectionModal";
 
 const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
@@ -1653,11 +1654,20 @@ function PanelContent({
    COMPLETED FULL SCREEN
 ══════════════════════════════════════════════════════════════════════ */
 function CompletedScreen({ booking }: { booking: IBooking }) {
+  const [showFareModal, setShowFareModal] = useState(true);
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
-      className="h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex flex-col overflow-y-auto transition-colors"
-    >
+    <>
+      <FareCollectionModal
+        isOpen={showFareModal}
+        onClose={() => setShowFareModal(false)}
+        booking={booking as any}
+        perspective="vendor"
+      />
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+        className="h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex flex-col overflow-y-auto transition-colors"
+      >
       <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-12">
 
         <motion.div
@@ -1757,6 +1767,7 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
         </motion.div>
       </div>
     </motion.div>
+    </>
   );
 }
 

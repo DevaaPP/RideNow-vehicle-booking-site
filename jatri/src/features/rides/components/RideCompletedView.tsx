@@ -15,6 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import FareCollectionModal from "@/features/rides/components/FareCollectionModal";
 
 interface RideCompletedViewProps {
   booking: any;
@@ -22,6 +23,7 @@ interface RideCompletedViewProps {
 
 export default function RideCompletedView({ booking }: RideCompletedViewProps) {
   const router = useRouter();
+  const [showFarePopup, setShowFarePopup] = useState(true);
   const [selectedRating, setSelectedRating] = useState(booking.rating || 0);
   const [submitted, setSubmitted] = useState(Boolean(booking.rating));
   const [submittingRating, setSubmittingRating] = useState(false);
@@ -93,6 +95,12 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
 
   return (
     <>
+      <FareCollectionModal
+        isOpen={showFarePopup}
+        onClose={() => setShowFarePopup(false)}
+        booking={booking}
+        perspective="rider"
+      />
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
