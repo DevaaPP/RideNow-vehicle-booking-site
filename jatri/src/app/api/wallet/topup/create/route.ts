@@ -38,17 +38,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const effectiveKeyId =
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+    const effectiveKeyId = (
       process.env.RAZORPAY_KEY_ID ||
       process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
-      "";
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+      ""
+    ).trim();
+    const effectiveSecret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
 
-    if (!process.env.RAZORPAY_KEY_SECRET || !effectiveKeyId) {
-      console.error("[WalletTopup] RAZORPAY_KEY_SECRET or RAZORPAY_KEY_ID is missing in environment variables");
+    if (
+      !effectiveSecret ||
+      !effectiveKeyId ||
+      effectiveKeyId.toLowerCase().startsWith("add your") ||
+      effectiveSecret.toLowerCase().startsWith("add your") ||
+      effectiveKeyId.includes("placeholder")
+    ) {
+      console.error("[WalletTopup] RAZORPAY_KEY_SECRET or RAZORPAY_KEY_ID is missing or still set to placeholder values");
       return NextResponse.json(
         {
-          error: "Razorpay payment gateway credentials are not configured on the server. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.",
+          error: "Razorpay payment gateway credentials are not configured. Please add valid RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Vercel Project Settings > Environment Variables.",
         },
         { status: 500 }
       );
@@ -75,12 +83,17 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("POST /api/wallet/topup/create error:", error);
-    const rzpDescription =
-      error?.error?.description ||
-      error?.message ||
-      "Failed to create payment order with Razorpay";
+    const rawMsg = error?.error?.description || error?.message || "";
+    let userMsg = "Failed to create payment order with Razorpay";
+
+    if (rawMsg.toLowerCase().includes("authentication failed")) {
+      userMsg = "Razorpay Gateway Authentication Failed. Your RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Vercel Environment Variables do not match or are invalid. Please copy the Key ID and Key Secret from your Razorpay Dashboard (Settings > API Keys) and update them in Vercel.";
+    } else if (rawMsg) {
+      userMsg = rawMsg;
+    }
+
     return NextResponse.json(
-      { error: rzpDescription, details: error?.error || null },
+      { error: userMsg, details: error?.error || null },
       { status: 500 }
     );
   }
