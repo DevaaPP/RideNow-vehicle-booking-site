@@ -522,7 +522,11 @@ export default function CheckoutContent() {
       const orderData = await orderRes.json();
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+        key:
+          process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
+          process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+          (orderData as any)?.keyId ||
+          "",
         amount: orderData.amount,
         currency: "INR",
         name: "RideNow",
