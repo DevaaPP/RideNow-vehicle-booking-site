@@ -8,7 +8,17 @@ import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import { VEHICLE_OPTIONS } from "@/lib/vehicleConfig";
 
-const FLEET_CATEGORIES = [
+interface FleetCategory {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  capacity: string;
+  promo?: string; // Placeholder for special promos, account-specific discounts, or seasonal offers
+}
+
+const FLEET_CATEGORIES: FleetCategory[] = [
   {
     id: "scooty",
     name: VEHICLE_OPTIONS.scooty.label,
@@ -16,7 +26,7 @@ const FLEET_CATEGORIES = [
     price: "Starting from ₹7/km",
     image: "/fleet/scooty.webp",
     capacity: "1 Passenger",
-    badge: "Eco City Glide",
+    promo: undefined, // E.g. "Flat 20% Off" for promo placeholders
   },
   {
     id: "bike",
@@ -25,7 +35,7 @@ const FLEET_CATEGORIES = [
     price: "Starting from ₹8/km",
     image: "/fleet/moto.webp",
     capacity: "1 Passenger",
-    badge: "Fast & Agile",
+    promo: undefined,
   },
   {
     id: "auto",
@@ -34,7 +44,7 @@ const FLEET_CATEGORIES = [
     price: "Starting from ₹11.5/km",
     image: "/fleet/auto.webp",
     capacity: "3 Passengers",
-    badge: "Everyday Transit",
+    promo: undefined,
   },
   {
     id: "mini",
@@ -43,7 +53,7 @@ const FLEET_CATEGORIES = [
     price: "Starting from ₹13.5/km",
     image: "/fleet/car-mini.webp",
     capacity: "4 Passengers (AC)",
-    badge: "Comfort Compact",
+    promo: undefined,
   },
   {
     id: "car",
@@ -52,7 +62,7 @@ const FLEET_CATEGORIES = [
     price: "Starting from ₹16.5/km",
     image: "/fleet/premier.webp",
     capacity: "4 Passengers (Sedan)",
-    badge: "Executive Sedan",
+    promo: undefined,
   },
   {
     id: "priority",
@@ -61,7 +71,7 @@ const FLEET_CATEGORIES = [
     price: "Starting from ₹21/km",
     image: "/fleet/suv.webp",
     capacity: "6 Passengers (SUV)",
-    badge: "Spacious XL",
+    promo: undefined,
   },
   {
     id: "loading",
@@ -70,7 +80,7 @@ const FLEET_CATEGORIES = [
     price: "Starting from ₹20/km",
     image: "/fleet/express-mini.webp",
     capacity: "Up to 500 kg Cargo",
-    badge: "Logistics Mini",
+    promo: undefined,
   },
   {
     id: "truck",
@@ -79,7 +89,7 @@ const FLEET_CATEGORIES = [
     price: "Starting from ₹35/km",
     image: "/fleet/freight.webp",
     capacity: "Up to 2,000 kg Freight",
-    badge: "Commercial Heavy",
+    promo: undefined,
   },
 ];
 
@@ -192,7 +202,7 @@ export default function FleetPage() {
               >
                 <Link
                   href={`/book?vehicle=${category.id}&fresh=true`}
-                  aria-label={`${category.name}: ${category.badge}, ${category.capacity}. ${category.price}. Tap to book directly.`}
+                  aria-label={`${category.name}: ${category.capacity}. ${category.price}. Tap to book directly.`}
                   className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] overflow-hidden flex flex-col justify-between h-full group hover:border-[#046A38] dark:hover:border-[#90C8A8]/60 hover:shadow-md transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                 >
                   {/* Top Edge-to-Edge Heroic Vehicle Artwork with Overlay Badges */}
@@ -204,33 +214,42 @@ export default function FleetPage() {
                       unoptimized
                       priority={idx < 4}
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                      className={`object-cover ${
+                        category.id === "scooty"
+                          ? "object-[center_28%] -translate-y-1.5 sm:-translate-y-2 scale-105 group-hover:scale-110"
+                          : "object-center group-hover:scale-105"
+                      } transition-transform duration-300`}
                     />
 
-                    {/* Integrated Overlay Badges (Zero Wasted Space) */}
-                    <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none">
-                      <span className="text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider text-white bg-[#E34222]/90 backdrop-blur-xs px-2 py-0.5 rounded-full shadow-2xs truncate max-w-[62%]">
-                        {category.badge}
-                      </span>
-                      <span className="text-[8px] sm:text-[9.5px] font-semibold text-[#123D32] dark:text-[#F3F1E8] bg-[#FAF7F0]/90 dark:bg-[#17211B]/90 backdrop-blur-xs border border-[#DED7CA]/60 dark:border-[#34443A]/60 px-1.5 sm:px-2 py-0.5 rounded-full shadow-2xs shrink-0">
-                        {category.capacity.replace(" Passengers", " Seats").replace(" Passenger", " Seat")}
-                      </span>
-                    </div>
+                    {/* Integrated Overlay Badges (Promo/Discount placeholder & Cargo Weight only) */}
+                    {(category.promo || category.capacity?.toLowerCase().includes("kg")) && (
+                      <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                        {category.promo ? (
+                          <span className="text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider text-white bg-[#E34222]/90 backdrop-blur-xs px-2 py-0.5 rounded-full shadow-2xs truncate max-w-[65%]">
+                            {category.promo}
+                          </span>
+                        ) : (
+                          <span />
+                        )}
+                        {category.capacity?.toLowerCase().includes("kg") ? (
+                          <span className="text-[8px] sm:text-[9.5px] font-semibold text-[#123D32] dark:text-[#F3F1E8] bg-[#FAF7F0]/90 dark:bg-[#17211B]/90 backdrop-blur-xs border border-[#DED7CA]/60 dark:border-[#34443A]/60 px-1.5 sm:px-2 py-0.5 rounded-full shadow-2xs shrink-0 ml-auto">
+                            {category.capacity.replace(" Cargo", "").replace(" Freight", "")}
+                          </span>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
 
                   {/* Card Content & Action Area */}
-                  <div className="p-2.5 sm:p-4 flex flex-col justify-between flex-1">
+                  <div className="p-2.5 sm:p-3.5 flex flex-col justify-between flex-1">
                     <div>
-                      <h3 className="font-serif text-sm sm:text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] truncate mb-0.5 group-hover:text-[#046A38] dark:group-hover:text-[#90C8A8] transition-colors">
+                      <h3 className="font-serif text-[13.5px] sm:text-base font-bold text-[#10251C] dark:text-[#F3F1E8] truncate group-hover:text-[#046A38] dark:group-hover:text-[#90C8A8] transition-colors">
                         {category.name}
                       </h3>
-                      <p className="text-[#696B64] dark:text-[#929D93] text-[10.5px] sm:text-xs leading-snug line-clamp-1 mb-2.5">
-                        {category.description}
-                      </p>
                     </div>
 
                     {/* Pricing & Direct Tap CTA */}
-                    <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#34443A]/60 flex items-center justify-between mt-auto">
+                    <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#34443A]/60 flex items-center justify-between mt-2">
                       <div>
                         <span className="text-[8.5px] sm:text-[10px] text-[#696B64] dark:text-[#929D93] block leading-tight">
                           <span className="sm:hidden">From</span>
