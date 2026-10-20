@@ -20,6 +20,7 @@ import {
   Tag,
   Car,
   Loader2,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import AuthModal from "@/features/auth/components/AuthModal";
 import { useDispatch, useSelector } from "react-redux";
@@ -805,10 +806,22 @@ function UberProfileDropdown({
             onClose();
             router.push("/profile");
           }}
-          className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#1E2B23] rounded-xl transition text-left"
+          className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#1E2B23] rounded-xl transition text-left cursor-pointer"
         >
           <UserIcon size={18} className="text-zinc-600 dark:text-[#929D93]" />
           <span>Manage account</span>
+          <ChevronRight size={16} className="ml-auto text-zinc-400 dark:text-zinc-600" />
+        </button>
+
+        <button
+          onClick={() => {
+            onClose();
+            router.push("/settings");
+          }}
+          className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#1E2B23] rounded-xl transition text-left cursor-pointer"
+        >
+          <SettingsIcon size={18} className="text-zinc-600 dark:text-[#929D93]" />
+          <span>Settings</span>
           <ChevronRight size={16} className="ml-auto text-zinc-400 dark:text-zinc-600" />
         </button>
 

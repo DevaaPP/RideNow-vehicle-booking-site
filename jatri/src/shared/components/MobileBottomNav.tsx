@@ -48,7 +48,7 @@ const DESTINATIONS: NavDestination[] = [
     defaultLabel: "Account",
     href: "/profile",
     icon: User,
-    isActive: (pathname) => pathname === "/profile" || pathname === "/wallet",
+    isActive: (pathname) => pathname === "/profile" || pathname === "/wallet" || pathname === "/settings",
   },
 ];
 

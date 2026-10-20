@@ -33,6 +33,7 @@ import {
   ChevronRight,
   CheckCircle2,
   LogOut,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
@@ -315,10 +316,19 @@ export default function ProfilePage() {
           >
             <ArrowLeft size={16} className="text-[#10251C] dark:text-[#F3F1E8]" />
           </motion.button>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-none">Account Profile</h1>
             <p className="text-[#696B64] dark:text-[#B8C2B8] text-xs font-bold mt-1 uppercase tracking-wider">Configure your credentials</p>
           </div>
+          <button
+            type="button"
+            onClick={() => router.push("/settings")}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] transition shadow-xs cursor-pointer shrink-0"
+            title="App Settings"
+          >
+            <SettingsIcon size={15} className="text-[#046A38] dark:text-[#058A48]" />
+            <span className="hidden sm:inline">Settings</span>
+          </button>
         </div>
 
         {!userData && !session?.user && sessionStatus === "unauthenticated" ? (

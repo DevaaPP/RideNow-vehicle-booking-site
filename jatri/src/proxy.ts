@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   "/faq",
   "/fleet",
   "/search",
+  "/settings",
 ];
 const PUBLIC_API_ROUTES = [
   "/api/auth",
