@@ -607,9 +607,7 @@ export default function RidePage() {
 
     const onConnect = () => {
       setIsSocketConnected(true);
-      if (passengerId) {
-        socket.emit("identity", passengerId);
-      }
+      fetchBooking(true);
     };
     const onDisconnect = () => setIsSocketConnected(false);
     const onConnectError = () => setIsSocketConnected(false);
@@ -618,30 +616,38 @@ export default function RidePage() {
     socket.on("disconnect", onDisconnect);
     socket.on("connect_error", onConnectError);
 
-    socket.on("driver-location", (data: any) => {
+    const handleDriverLocation = (data: any) => {
       if (data?.latitude && data?.longitude) {
         setDriverPos([data.latitude, data.longitude]);
       }
-    });
-    socket.on("booking-updated", (data: any) => {
-      setBooking(prev => prev ? { ...prev, ...data } : null);
-      /* close chat if ride moves past confirmed */
-      if (data.status && data.status !== "confirmed") setChatOpen(false);
-    });
-    socket.on("booking-status-update", (data: any) => {
+    };
+    const handleBookingUpdated = (data: any) => {
       setBooking(prev => prev ? { ...prev, ...data } : null);
       if (data.status && data.status !== "confirmed") setChatOpen(false);
-    });
-    socket.on("driver-assigned", (data: any) => {
+    };
+    const handleBookingStatusUpdate = (data: any) => {
+      setBooking(prev => prev ? { ...prev, ...data } : null);
+      if (data.status && data.status !== "confirmed") setChatOpen(false);
+    };
+    const handleDriverAssigned = (data: any) => {
       setBooking(prev => prev ? { ...prev, driver: data.driver, driverMobileNumber: data.driverMobileNumber } : null);
-    });
-    socket.on("auto-rematch-started", () => fetchBooking(true));
-    socket.on("auto-rematch-searching", () => fetchBooking(true));
-    socket.on("auto-rematch-success", () => fetchBooking(true));
-    socket.on("safety-checkin-updated", (data: any) => {
+    };
+    const handleRematchStarted = () => fetchBooking(true);
+    const handleRematchSearching = () => fetchBooking(true);
+    const handleRematchSuccess = () => fetchBooking(true);
+    const handleSafetyCheckin = (data: any) => {
       if (data.safetyStatus) setSafetyStatus(data.safetyStatus);
       if (data.isPanicActive) setBooking(prev => prev ? { ...prev, isPanicActive: true } : null);
-    });
+    };
+
+    socket.on("driver-location", handleDriverLocation);
+    socket.on("booking-updated", handleBookingUpdated);
+    socket.on("booking-status-update", handleBookingStatusUpdate);
+    socket.on("driver-assigned", handleDriverAssigned);
+    socket.on("auto-rematch-started", handleRematchStarted);
+    socket.on("auto-rematch-searching", handleRematchSearching);
+    socket.on("auto-rematch-success", handleRematchSuccess);
+    socket.on("safety-checkin-updated", handleSafetyCheckin);
 
     const handleIncomingCall = (data: any) => {
       if (data && data.callerRole === "driver") {
@@ -674,14 +680,14 @@ export default function RidePage() {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("connect_error", onConnectError);
-      socket.off("driver-location");
-      socket.off("booking-updated");
-      socket.off("booking-status-update");
-      socket.off("driver-assigned");
-      socket.off("auto-rematch-started");
-      socket.off("auto-rematch-searching");
-      socket.off("auto-rematch-success");
-      socket.off("safety-checkin-updated");
+      socket.off("driver-location", handleDriverLocation);
+      socket.off("booking-updated", handleBookingUpdated);
+      socket.off("booking-status-update", handleBookingStatusUpdate);
+      socket.off("driver-assigned", handleDriverAssigned);
+      socket.off("auto-rematch-started", handleRematchStarted);
+      socket.off("auto-rematch-searching", handleRematchSearching);
+      socket.off("auto-rematch-success", handleRematchSuccess);
+      socket.off("safety-checkin-updated", handleSafetyCheckin);
       socket.off("incoming-call", handleIncomingCall);
       socket.off("call-rejected", handleCallRejected);
       socket.off("call-ended", handleCallEnded);

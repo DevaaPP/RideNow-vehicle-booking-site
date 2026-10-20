@@ -380,8 +380,16 @@ export default function DriverRidePage() {
 
     const onConnect = () => {
       setIsSocketConnected(true);
-      if (driverId) {
-        socket.emit("identity", String(driverId));
+      // Re-fetch booking status on reconnect to catch any state transitions during network interruption
+      if (bookingIdStr) {
+        fetch(`/api/booking/${bookingIdStr}/status`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data?.status) {
+              setBooking((prev) => (prev ? { ...prev, status: data.status } : null));
+            }
+          })
+          .catch(() => {});
       }
     };
     const onDisconnect = () => setIsSocketConnected(false);
@@ -391,10 +399,17 @@ export default function DriverRidePage() {
     socket.on("disconnect", onDisconnect);
     socket.on("connect_error", onConnectError);
 
-    socket.on("driver-location", (d: any) => setDriverPos([d.latitude, d.longitude]));
-    socket.on("booking-updated", (data: any) => {
-      setBooking(prev => prev ? { ...prev, ...data } : null);
-    });
+    const handleDriverLocation = (d: any) => {
+      if (d?.latitude && d?.longitude) {
+        setDriverPos([d.latitude, d.longitude]);
+      }
+    };
+    const handleBookingUpdated = (data: any) => {
+      setBooking((prev) => (prev ? { ...prev, ...data } : null));
+    };
+
+    socket.on("driver-location", handleDriverLocation);
+    socket.on("booking-updated", handleBookingUpdated);
 
     const handleIncomingCall = (data: any) => {
       if (data && data.callerRole === "user") {
@@ -427,8 +442,8 @@ export default function DriverRidePage() {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("connect_error", onConnectError);
-      socket.off("driver-location");
-      socket.off("booking-updated");
+      socket.off("driver-location", handleDriverLocation);
+      socket.off("booking-updated", handleBookingUpdated);
       socket.off("incoming-call", handleIncomingCall);
       socket.off("call-rejected", handleCallRejected);
       socket.off("call-ended", handleCallEnded);

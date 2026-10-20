@@ -57,22 +57,25 @@ export default function VendorPendingPage() {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on("new-booking", (booking: Booking) => {
+    const handleNewBooking = (booking: Booking) => {
       setBookings((prev) => [booking, ...prev]);
       setActiveDispatch(booking);
       setTimeLeft(45);
-    });
+    };
 
-    socket.on("booking-updated", (data: any) => {
+    const handleBookingUpdated = (data: any) => {
       setBookings((prev) => prev.filter((b) => b._id !== data.bookingId));
       if (activeDispatch?._id === data.bookingId) {
         setActiveDispatch(null);
       }
-    });
+    };
+
+    socket.on("new-booking", handleNewBooking);
+    socket.on("booking-updated", handleBookingUpdated);
 
     return () => {
-      socket.off("new-booking");
-      socket.off("booking-updated");
+      socket.off("new-booking", handleNewBooking);
+      socket.off("booking-updated", handleBookingUpdated);
     };
   }, [activeDispatch?._id]);
 

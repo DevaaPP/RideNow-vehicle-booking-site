@@ -2,9 +2,8 @@
  * Server-Side Socket Emitter Helper
  * Dispatches real-time events to the standalone socket server with internal secret authentication.
  *
- * Requires SOCKET_INTERNAL_SECRET to be set in the environment.
- * Will warn loudly at emit time if it is missing rather than silently using a
- * fallback that could be guessed from the source tree.
+ * Requires SOCKET_INTERNAL_SECRET (or AUTH_SECRET) to be set in the environment.
+ * Rejects silent hardcoded fallbacks that could compromise production gateways.
  */
 
 export async function emitSocketEvent(params: {
@@ -22,7 +21,13 @@ export async function emitSocketEvent(params: {
 
   const internalSecret =
     process.env.SOCKET_INTERNAL_SECRET ||
-    "ridenow-internal-socket-secret-key-2026";
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET;
+
+  if (!internalSecret) {
+    console.error("[SocketEmit] FATAL: SOCKET_INTERNAL_SECRET or AUTH_SECRET is missing. Cannot emit authenticated socket events.");
+    return false;
+  }
 
   try {
     const res = await fetch(`${socketServer}/emit`, {
@@ -36,7 +41,7 @@ export async function emitSocketEvent(params: {
     });
 
     if (!res.ok) {
-      console.warn(`[SocketEmit] Server returned status ${res.status}`);
+      console.warn(`[SocketEmit] Socket gateway returned status ${res.status}`);
       return false;
     }
 

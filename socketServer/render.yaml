@@ -10,7 +10,13 @@ services:
         value: 8000
       - key: NEXT_BASE_URL
         sync: false
-        placeholder: "The URL of your frontend (e.g. http://localhost:3000 or your Vercel URL)"
+        placeholder: "The URL of your frontend (e.g. http://localhost:3000, https://ride-now-vehicle-booking-site.vercel.app)"
       - key: MONGODB_URI
         sync: false
-        placeholder: "Your MongoDB connection string"
+        placeholder: "Your MongoDB Atlas connection string (e.g. mongodb+srv://...)"
+      - key: SOCKET_INTERNAL_SECRET
+        sync: false
+        placeholder: "Cryptographic secret shared between Next.js (/emit & tokens) and SocketServer"
+      - key: AUTH_SECRET
+        sync: false
+        placeholder: "Optional fallback secret matching NextAuth AUTH_SECRET"

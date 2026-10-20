@@ -1,12 +1,48 @@
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
-let savedAuthData: { userId?: string; token?: string } = {};
-const activeBookingRooms = new Set<string>();
+let savedAuthData: { userId?: string; token?: string; trackingToken?: string } = {};
+const activeBookingRooms = new Map<string, string | undefined>(); // bookingId -> optional trackingToken
 let listenersAttached = false;
+let isFetchingToken = false;
 
-export const getSocket = (authData?: { userId?: string; token?: string }): Socket => {
-  if (authData?.userId || authData?.token) {
+/**
+ * Fetches an authenticated, HMAC-signed socket token from the Next.js API.
+ */
+export async function fetchSocketToken(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+  if (savedAuthData.token) return savedAuthData.token;
+  if (isFetchingToken) return null;
+
+  try {
+    isFetchingToken = true;
+    const res = await fetch("/api/socket/token", {
+      headers: { "Cache-Control": "no-cache" },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data?.success && data?.token) {
+      savedAuthData.token = data.token;
+      savedAuthData.userId = data.userId;
+      if (socket) {
+        socket.auth = { ...socket.auth, token: data.token, userId: data.userId };
+        if (socket.connected) {
+          socket.emit("authenticate", { token: data.token });
+        }
+      }
+      return data.token;
+    }
+    return null;
+  } catch (err) {
+    console.warn("[SocketClient] Failed to fetch socket token:", err);
+    return null;
+  } finally {
+    isFetchingToken = false;
+  }
+}
+
+export const getSocket = (authData?: { userId?: string; token?: string; trackingToken?: string }): Socket => {
+  if (authData?.userId || authData?.token || authData?.trackingToken) {
     savedAuthData = { ...savedAuthData, ...authData };
   }
 
@@ -26,28 +62,49 @@ export const getSocket = (authData?: { userId?: string; token?: string }): Socke
       randomizationFactor: 0.5,
       timeout: 10000,
       autoConnect: true,
-      auth: savedAuthData,
+      auth: (cb) => {
+        // Return latest saved authentication credentials
+        cb(savedAuthData);
+      },
     });
 
     // Auto-rejoin rooms and re-assert identity whenever connection is established or restored
     const reassertSubscriptions = () => {
       const currentSocket = socket;
       if (!currentSocket) return;
-      if (savedAuthData.userId) {
-        currentSocket.emit("identity", savedAuthData.userId);
+
+      // Re-authenticate if token exists
+      if (savedAuthData.token) {
+        currentSocket.emit("authenticate", { token: savedAuthData.token });
+      } else if (savedAuthData.userId) {
+        // Trigger lazy fetch for background token authentication
+        fetchSocketToken();
       }
-      activeBookingRooms.forEach((bookingId) => {
-        currentSocket.emit("join-booking", bookingId);
+
+      // Rejoin all active booking rooms
+      activeBookingRooms.forEach((trackingToken, bookingId) => {
+        if (trackingToken) {
+          currentSocket.emit("join-booking", { bookingId, trackingToken });
+        } else {
+          currentSocket.emit("join-booking", bookingId);
+        }
       });
     };
 
     socket.on("connect", reassertSubscriptions);
     socket.io.on("reconnect", reassertSubscriptions);
-  } else if (authData?.userId) {
+  } else if (authData?.token || authData?.userId) {
     socket.auth = { ...socket.auth, ...authData };
     if (socket.connected) {
-      socket.emit("identity", authData.userId);
+      if (authData.token) {
+        socket.emit("authenticate", { token: authData.token });
+      }
     }
+  }
+
+  // If we have userId but missing token, fetch token in background
+  if (savedAuthData.userId && !savedAuthData.token && typeof window !== "undefined") {
+    fetchSocketToken();
   }
 
   // Network and visibility change listeners: immediately re-connect on mobile network recovery
@@ -71,13 +128,18 @@ export const getSocket = (authData?: { userId?: string; token?: string }): Socke
 
 /**
  * Subscribes to a booking room with persistent auto-rejoin on reconnect.
+ * Supports public read-only tracking via optional trackingToken.
  */
-export const joinBookingRoom = (bookingId: string) => {
+export const joinBookingRoom = (bookingId: string, trackingToken?: string) => {
   if (!bookingId) return;
-  activeBookingRooms.add(bookingId);
+  activeBookingRooms.set(bookingId, trackingToken);
   const s = getSocket();
   if (s && s.connected) {
-    s.emit("join-booking", bookingId);
+    if (trackingToken) {
+      s.emit("join-booking", { bookingId, trackingToken });
+    } else {
+      s.emit("join-booking", bookingId);
+    }
   }
 };
 
@@ -87,4 +149,8 @@ export const joinBookingRoom = (bookingId: string) => {
 export const leaveBookingRoom = (bookingId: string) => {
   if (!bookingId) return;
   activeBookingRooms.delete(bookingId);
+  const s = socket;
+  if (s && s.connected) {
+    s.emit("leave-booking", bookingId);
+  }
 };

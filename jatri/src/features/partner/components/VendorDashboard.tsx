@@ -1075,41 +1075,46 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     // 3. Setup socket listener for incoming requests
     const activeUserId = userData?._id ? String(userData._id) : undefined;
     const socket = getSocket(activeUserId ? { userId: activeUserId } : undefined);
-    if (activeUserId) {
-      socket.emit("identity", activeUserId);
-    }
+
     const handleConnect = () => {
-      if (activeUserId) {
-        socket.emit("identity", activeUserId);
-      }
+      fetchPendingRequest();
+      checkActiveRide();
+      fetchShiftSummary();
     };
     socket.on("connect", handleConnect);
 
-    socket.on("new-booking", (booking: any) => {
+    const handleNewBooking = (booking: any) => {
       setPendingRequest(booking);
       playChime();
-    });
+    };
 
-    socket.on("new-scheduled-booking", (booking: any) => {
+    const handleNewScheduledBooking = (booking: any) => {
       setPendingRequest(booking);
       playChime();
-    });
+    };
 
-    socket.on("booking-updated", (data: any) => {
+    const handleBookingUpdated = (data: any) => {
       setPendingRequest((prev: any) => {
         if (prev && prev._id === data.bookingId) {
           return null;
         }
         return prev;
       });
-    });
+      fetchPendingRequest();
+      checkActiveRide();
+      fetchShiftSummary();
+    };
+
+    socket.on("new-booking", handleNewBooking);
+    socket.on("new-scheduled-booking", handleNewScheduledBooking);
+    socket.on("booking-updated", handleBookingUpdated);
 
     return () => {
       clearInterval(interval);
       socket.off("connect", handleConnect);
-      socket.off("new-booking");
-      socket.off("new-scheduled-booking");
-      socket.off("booking-updated");
+      socket.off("new-booking", handleNewBooking);
+      socket.off("new-scheduled-booking", handleNewScheduledBooking);
+      socket.off("booking-updated", handleBookingUpdated);
     };
   }, [userData?._id]);
 

@@ -83,7 +83,7 @@ const UserSchema = new Schema(
 
     currentVehicleType: {
       type: String,
-      enum: ["bike", "auto", "car", "loading", "truck"],
+      enum: ["scooty", "bike", "auto", "mini", "car", "priority", "loading", "truck"],
     },
 
     location: {

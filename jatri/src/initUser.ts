@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import useGetMe from './hooks/useGetMe'
 import { useEffect } from 'react'
-import { getSocket } from './lib/socket'
+import { getSocket, fetchSocketToken } from './lib/socket'
 
 function InitUser() {
   const { data: session, status } = useSession()
@@ -13,8 +13,8 @@ function InitUser() {
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.id) {
-      const socket = getSocket({ userId: session.user.id });
-      socket.emit("identity", session.user.id);
+      getSocket({ userId: session.user.id });
+      fetchSocketToken();
     }
   }, [status, session]);
 

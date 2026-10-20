@@ -588,15 +588,18 @@ export default function CheckoutContent() {
     if (!bookingId) return;
     const currentUid = userData?._id ? String(userData._id) : undefined;
     const socket = getSocket(currentUid ? { userId: currentUid } : undefined);
-    if (currentUid) {
-      socket.emit("identity", currentUid);
-    }
     joinBookingRoom(bookingId);
 
     const onConnect = () => {
-      if (userData?._id) {
-        socket.emit("identity", userData._id);
-      }
+      // Re-fetch authoritative status on reconnect to catch missed events
+      fetch(`/api/booking/${bookingId}/status`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.status) {
+            handleUpdate({ status: data.status });
+          }
+        })
+        .catch(() => {});
     };
     socket.on("connect", onConnect);
 
@@ -615,24 +618,27 @@ export default function CheckoutContent() {
       }
     };
 
-    socket.on("booking-updated", handleUpdate);
-    socket.on("booking-status-update", handleUpdate);
-
-    socket.on("auto-rematch-started", () => setStatus("auto_rematching"));
-    socket.on("auto-rematch-searching", () => setStatus("auto_rematching"));
-    socket.on("auto-rematch-success", () => {
+    const handleRematchStarted = () => setStatus("auto_rematching");
+    const handleRematchSearching = () => setStatus("auto_rematching");
+    const handleRematchSuccess = () => {
       setStatus("requested");
       setCountdown(45);
-    });
+    };
+
+    socket.on("booking-updated", handleUpdate);
+    socket.on("booking-status-update", handleUpdate);
+    socket.on("auto-rematch-started", handleRematchStarted);
+    socket.on("auto-rematch-searching", handleRematchSearching);
+    socket.on("auto-rematch-success", handleRematchSuccess);
 
     return () => {
       leaveBookingRoom(bookingId);
       socket.off("connect", onConnect);
       socket.off("booking-updated", handleUpdate);
       socket.off("booking-status-update", handleUpdate);
-      socket.off("auto-rematch-started");
-      socket.off("auto-rematch-searching");
-      socket.off("auto-rematch-success");
+      socket.off("auto-rematch-started", handleRematchStarted);
+      socket.off("auto-rematch-searching", handleRematchSearching);
+      socket.off("auto-rematch-success", handleRematchSuccess);
     };
   }, [bookingId, userData?._id]);
 

@@ -79,18 +79,29 @@ export default function PublicTrackPage() {
   useEffect(() => {
     if (!booking?._id) return;
     const bookingIdStr = String(booking._id);
+    const tokenStr = typeof token === "string" ? token : Array.isArray(token) ? token[0] : "";
     const socket = getSocket();
-    joinBookingRoom(bookingIdStr);
-    socket.on("driver-location", (data: any) => setDriverPos([data.latitude, data.longitude]));
-    socket.on("booking-updated", (data: any) => {
-      setBooking((prev: any) => prev ? { ...prev, ...data } : null);
-    });
+    joinBookingRoom(bookingIdStr, tokenStr);
+
+    const handleDriverLocation = (data: any) => {
+      if (data?.latitude && data?.longitude) {
+        setDriverPos([data.latitude, data.longitude]);
+      }
+    };
+
+    const handleBookingUpdated = (data: any) => {
+      setBooking((prev: any) => (prev ? { ...prev, ...data } : null));
+    };
+
+    socket.on("driver-location", handleDriverLocation);
+    socket.on("booking-updated", handleBookingUpdated);
+
     return () => {
       leaveBookingRoom(bookingIdStr);
-      socket.off("driver-location");
-      socket.off("booking-updated");
+      socket.off("driver-location", handleDriverLocation);
+      socket.off("booking-updated", handleBookingUpdated);
     };
-  }, [booking?._id]);
+  }, [booking?._id, token]);
 
   if (loading) {
     return (
