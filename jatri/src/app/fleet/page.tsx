@@ -133,47 +133,26 @@ export default function FleetPage() {
           </motion.div>
         </section>
 
-        {/* ================= FLEET STANDARDS GRID ================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 sm:mb-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {FLEET_STANDARDS.map((feature, idx) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.45, delay: idx * 0.08 }}
-                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-6 shadow-2xs hover:border-[#123D32]/40 dark:hover:border-[#90C8A8]/40 transition duration-200"
-                >
-                  <div className="w-11 h-11 rounded-[8px] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] flex items-center justify-center mb-4">
-                    <Icon size={22} />
-                  </div>
-                  <h3 className="font-bold text-base text-[#10251C] dark:text-[#F3F1E8] mb-2">{feature.title}</h3>
-                  <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm leading-relaxed">{feature.description}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </section>
-
         {/* ================= VEHICLE CATEGORIES SHOWCASE ================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 sm:mb-24">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-12">
             <div>
               <p className="text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#E34222] mb-2">
-                TRANSIT TIERS
+                TRANSIT TIERS & COMMUTE OPTIONS
               </p>
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-2">
                 Choose Your Vehicle Class
               </h2>
+              <p className="text-[#696B64] dark:text-[#929D93] text-sm sm:text-base leading-relaxed max-w-xl">
+                From micro-mobility two-wheelers for rapid city transit to comfortable family sedans and commercial logistics carriers across Assam.
+              </p>
             </div>
             <Link
               href="/book?fresh=true"
-              className="inline-flex items-center gap-2 text-sm font-bold text-[#123D32] dark:text-[#90C8A8] hover:text-[#0D3027] dark:hover:text-[#A8E0C0] group"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#123D32] dark:text-[#90C8A8] hover:text-[#0D3027] dark:hover:text-[#A8E0C0] group self-start sm:self-end shrink-0 py-2 px-3.5 rounded-[8px] bg-[#E5EBDD]/60 dark:bg-[#1D3428]/60 border border-[#cdd6c3]/60 dark:border-[#2D4E3A]/60 transition"
             >
               <span>Instant ride estimate</span>
-              <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform text-[#046A38] dark:text-[#90C8A8]" />
             </Link>
           </div>
 
@@ -228,6 +207,42 @@ export default function FleetPage() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </section>
+
+        {/* ================= FLEET STANDARDS GRID (REASSURANCE & TRUST) ================= */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 sm:mb-24">
+          <div className="max-w-3xl mb-8 sm:mb-12">
+            <p className="text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#E34222] mb-2">
+              VERIFIED MOBILITY STANDARDS
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-2">
+              Engineered for Safety, Speed &amp; Transparency
+            </h2>
+            <p className="text-[#696B64] dark:text-[#929D93] text-sm sm:text-base leading-relaxed">
+              Every trip on Jaatri is backed by multi-point physical inspections, real-time GPS telemetry, and honest upfront fare metrics.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {FLEET_STANDARDS.map((feature, idx) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.45, delay: idx * 0.08 }}
+                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-6 shadow-2xs hover:border-[#123D32]/40 dark:hover:border-[#90C8A8]/40 transition duration-200"
+                >
+                  <div className="w-11 h-11 rounded-[8px] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] flex items-center justify-center mb-4">
+                    <Icon size={22} />
+                  </div>
+                  <h3 className="font-bold text-base text-[#10251C] dark:text-[#F3F1E8] mb-2">{feature.title}</h3>
+                  <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm leading-relaxed">{feature.description}</p>
+                </motion.div>
+              );
+            })}
           </div>
         </section>
 
