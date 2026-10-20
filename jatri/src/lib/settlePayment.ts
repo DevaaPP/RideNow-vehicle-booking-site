@@ -13,21 +13,24 @@ import { Types } from "mongoose";
  *
  * CUSTOMER (pays ₹300)
  *    │
- *    ▼
- * RIDE PAYMENT (₹300)
- *    │
- *    ├── Platform Commission (15% = ₹45) ──► Recorded as COMMISSION
- *    │
- *    └── Driver Earnings (85% = ₹255)
- *             │
- *             ▼
- *       DRIVER WALLET (+₹255 Available Earnings)
- *             │
- *             ▼
- *        WITHDRAWAL (to verified Bank/UPI)
+ *    ├── 💵 Cash: collected by driver in hand
+ *    ├── 💳 Wallet: deducted from customer wallet
+ *    └── ⚡ Online: paid via Razorpay
  *
- * For Cash rides: Passenger pays ₹300 directly in driver's hand.
- * Platform commission (₹45) is debited from Driver Wallet.
+ * Split Payment Driver Reconciliation:
+ * 1. If customer uses wallet + cash:
+ *    - If walletAmountPaid > adminCommission:
+ *      Platform keeps its commission, and surplus (walletAmountPaid - adminCommission)
+ *      is credited to the Driver Wallet!
+ *    - If walletAmountPaid < adminCommission:
+ *      Wallet covers part of commission; the shortfall (adminCommission - walletAmountPaid)
+ *      is deducted from driver's wallet balance, with any remainder added to platformDues.
+ *    - If walletAmountPaid === adminCommission:
+ *      Platform commission is fully covered by wallet payment; driver keeps full cash collected.
+ * 2. If 100% Cash ride:
+ *    - Full platform commission is debited from Driver Wallet / added to platformDues.
+ * 3. If 100% Online / 100% Wallet / Split Online:
+ *    - Driver net earnings (85%) credited to Driver Wallet.
  */
 export async function settleCompletedRidePayment(bookingId: string | Types.ObjectId) {
   try {
@@ -53,16 +56,45 @@ export async function settleCompletedRidePayment(bookingId: string | Types.Objec
         ? Math.round(booking.partnerAmount)
         : defaultDriverEarning;
 
+    const walletPaid = Math.round(Number(booking.walletAmountPaid || 0));
+
     if (booking.paymentStatus === "cash") {
-      // 💵 CASH RIDE:
-      // Passenger handed 100% fare in cash to driver.
-      // Debit platform commission (10%) from Driver's Wallet via authoritative ledger service.
-      await debitDriverCashCommission({
-        bookingId: booking._id,
-        driverId: booking.driver,
-        fare,
-        adminCommission,
-      });
+      // 💵 CASH RIDE (or Split: Partial Wallet + Cash):
+      if (walletPaid > 0) {
+        // Customer used wallet balance along with cash!
+        // Rule: If wallet amount > commission, credit excess to driver after commission.
+        //       If wallet amount < commission, deduct from wallet balance and add rest to platform dues.
+        if (walletPaid > adminCommission) {
+          const surplusCredit = walletPaid - adminCommission;
+          await creditDriverRideEarnings({
+            bookingId: booking._id,
+            driverId: booking.driver,
+            fare,
+            adminCommission,
+            partnerAmount: surplusCredit,
+            paymentMethod: "wallet_split_surplus",
+          });
+        } else if (walletPaid < adminCommission) {
+          const commissionShortfall = adminCommission - walletPaid;
+          await debitDriverCashCommission({
+            bookingId: booking._id,
+            driverId: booking.driver,
+            fare,
+            adminCommission: commissionShortfall,
+          });
+        } else {
+          // walletPaid === adminCommission: platform commission fully covered by wallet payment.
+          // Driver collected exact net share in cash. No ledger deduction or dues needed.
+        }
+      } else {
+        // Standard 100% cash ride:
+        await debitDriverCashCommission({
+          bookingId: booking._id,
+          driverId: booking.driver,
+          fare,
+          adminCommission,
+        });
+      }
     } else {
       // 💳 ONLINE / UPI / CARD / WALLET RIDE:
       // Passenger paid online to RideNow; credit driver's share (85%) to Driver Wallet via ledger service.

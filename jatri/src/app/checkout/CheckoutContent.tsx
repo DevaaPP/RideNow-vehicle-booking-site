@@ -106,6 +106,7 @@ export default function CheckoutContent() {
   const [bookingId,     setBookingId]     = useState<string | null>(null);
   const [status,        setStatus]        = useState<Status>("idle");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | "wallet" | null>(null);
+  const [useWallet,     setUseWallet]     = useState<boolean>(false);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [countdown,     setCountdown]     = useState(60);
   const [rates,         setRates]         = useState<any>(null);
@@ -459,26 +460,11 @@ export default function CheckoutContent() {
     try {
       setLoading(true);
 
-      if (paymentMethod === "cash") {
-        const res = await fetch(`/api/booking/${bookingId}/confirm-payment`,{
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body:JSON.stringify({ method:"cash" })
-        });
+      const walletToDeduct = useWallet && (walletBalance || 0) > 0 ? Math.min(walletBalance || 0, fare) : 0;
+      const remainingFare = Math.max(0, fare - walletToDeduct);
 
-        const data = await res.json();
-
-        if (data.success || data.alreadyConfirmed) {
-          setStatus("confirmed");
-          window.location.href = `/ride/${bookingId}`;
-        } else {
-          alert(data.message || "Failed to confirm cash payment. Please retry.");
-        }
-
-        return;
-      }
-
-      if (paymentMethod === "wallet") {
+      // If full fare is covered by wallet or wallet payment chosen
+      if (remainingFare === 0 || paymentMethod === "wallet") {
         const res = await fetch("/api/wallet/pay", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -500,6 +486,29 @@ export default function CheckoutContent() {
           alert(data.error || "Wallet payment failed");
           return;
         }
+      }
+
+      if (paymentMethod === "cash") {
+        const res = await fetch(`/api/booking/${bookingId}/confirm-payment`,{
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({
+            method:"cash",
+            useWallet: walletToDeduct > 0,
+            walletAmount: walletToDeduct,
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success || data.alreadyConfirmed) {
+          setStatus("confirmed");
+          window.location.href = `/ride/${bookingId}`;
+        } else {
+          alert(data.message || "Failed to confirm cash payment. Please retry.");
+        }
+
+        return;
       }
 
       /* LOAD RAZORPAY SCRIPT */
@@ -1262,26 +1271,40 @@ export default function CheckoutContent() {
                       onSelect={(method) => setPaymentMethod(method)}
                       walletBalance={walletBalance}
                       fare={fare}
+                      useWallet={useWallet}
+                      onToggleWallet={(val) => {
+                        setUseWallet(val);
+                        if (val && walletBalance !== null && walletBalance >= fare) {
+                          setPaymentMethod("wallet");
+                        }
+                      }}
                     />
 
-                    <button
-                      type="button"
-                      disabled={!paymentMethod || loading}
-                      onClick={handlePaymentConfirm}
-                      className="w-full h-12 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-30 text-white font-bold text-xs uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
-                    >
-                      {loading ? (
-                        <><Loader2 size={16} className="animate-spin" /><span>Processing…</span></>
-                      ) : paymentMethod === "wallet" ? (
-                        <><Wallet size={15} /><span>Pay ₹{fare} from Wallet (1-Tap)</span></>
-                      ) : paymentMethod === "cash" ? (
-                        <><Banknote size={15} /><span>Confirm Cash Ride</span></>
-                      ) : paymentMethod === "online" ? (
-                        <><span>Proceed to Online Payment</span><ArrowRight size={15} /></>
-                      ) : (
-                        <span>Select a Payment Method</span>
-                      )}
-                    </button>
+                    {(() => {
+                      const walletDeduct = useWallet && (walletBalance || 0) > 0 ? Math.min(walletBalance || 0, fare) : 0;
+                      const remaining = Math.max(0, fare - walletDeduct);
+
+                      return (
+                        <button
+                          type="button"
+                          disabled={(!paymentMethod && remaining > 0) || loading}
+                          onClick={handlePaymentConfirm}
+                          className="w-full h-12 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-30 text-white font-bold text-xs uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
+                        >
+                          {loading ? (
+                            <><Loader2 size={16} className="animate-spin" /><span>Processing…</span></>
+                          ) : remaining === 0 || paymentMethod === "wallet" ? (
+                            <><Wallet size={15} /><span>Pay ₹{fare} from Wallet (1-Tap)</span></>
+                          ) : paymentMethod === "cash" ? (
+                            <><Banknote size={15} /><span>{walletDeduct > 0 ? `Pay ₹${walletDeduct} Wallet + ₹${remaining} Cash` : "Confirm Cash Ride"}</span></>
+                          ) : paymentMethod === "online" ? (
+                            <><span>{walletDeduct > 0 ? `Pay ₹${walletDeduct} Wallet + ₹${remaining} Online` : "Proceed to Online Payment"}</span><ArrowRight size={15} /></>
+                          ) : (
+                            <span>Select Cash or Online for ₹{remaining}</span>
+                          )}
+                        </button>
+                      );
+                    })()}
                   </motion.div>
                 )}
 

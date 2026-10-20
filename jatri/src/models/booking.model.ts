@@ -83,6 +83,9 @@ export interface IBooking extends Document {
   };
 
   fare: number;
+  walletAmountPaid?: number;
+  cashAmountDue?: number;
+  onlineAmountPaid?: number;
 
   status: BookingStatus;
   paymentStatus: PaymentStatus;
@@ -247,6 +250,9 @@ const BookingSchema = new Schema<IBooking>(
     
 
     fare: { type: Number, required: true },
+    walletAmountPaid: { type: Number, default: 0 },
+    cashAmountDue: { type: Number, default: 0 },
+    onlineAmountPaid: { type: Number, default: 0 },
 
     status: {
       type: String,

@@ -238,7 +238,7 @@ export default function PartnerWalletPage() {
       <div>
         <Nav />
 
-        <main className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 sm:pb-16">
+        <main className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-16">
           {/* BREADCRUMB / TOP HEADER */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>

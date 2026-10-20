@@ -45,6 +45,10 @@ export default function FareCollectionModal({
   const adminCommission = booking.adminCommission || Math.round(grossFare * 0.1);
   const netPartnerPayout = booking.partnerAmount || (grossFare - adminCommission);
   const isCash = booking.paymentStatus === "cash" || booking.paymentMethod === "cash";
+  const walletPaid = (booking as any).walletAmountPaid || 0;
+  const cashAmountDue = typeof (booking as any).cashAmountDue === "number" && (booking as any).cashAmountDue >= 0
+    ? (booking as any).cashAmountDue
+    : (isCash ? Math.max(0, grossFare - walletPaid) : 0);
   const customerName = booking.user?.name || "Customer";
   const driverName = booking.driver?.name || "Driver Partner";
 
@@ -99,14 +103,19 @@ export default function FareCollectionModal({
                   <Banknote size={18} className="text-amber-700 flex-shrink-0" />
                   <span>
                     {perspective === "vendor"
-                      ? `Collect ₹${grossFare} in Cash from Rider`
-                      : `Please Pay ₹${grossFare} in Cash to Driver`}
+                      ? `Collect ₹${cashAmountDue} in Cash from Rider`
+                      : `Please Pay ₹${cashAmountDue} in Cash to Driver`}
                   </span>
                 </div>
                 <p className="text-xs text-amber-900/90 font-medium leading-snug">
+                  {walletPaid > 0 && (
+                    <span className="block font-bold text-emerald-800 mb-1">
+                      ✓ ₹{walletPaid} already paid via Jaatri Wallet.
+                    </span>
+                  )}
                   {perspective === "vendor"
-                    ? `Payment mode is CASH. Please collect ₹${grossFare} from ${customerName} before departure. Your commission will be reconciled in wallet.`
-                    : `Please hand over ₹${grossFare} cash directly to ${driverName}. No additional tip or fees are compulsory.`}
+                    ? `Payment mode is ${walletPaid > 0 ? "PARTIAL CASH" : "CASH"}. Please collect ₹${cashAmountDue} from ${customerName} before departure. Your commission will be reconciled in wallet.`
+                    : `Please hand over ₹${cashAmountDue} cash directly to ${driverName}. No additional tip or fees are compulsory.`}
                 </p>
               </div>
             ) : (

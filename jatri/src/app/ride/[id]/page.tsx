@@ -47,6 +47,8 @@ interface BookingDetails {
   pickupLocation: { coordinates: [number, number] };
   dropLocation:   { coordinates: [number, number] };
   fare: number;
+  walletAmountPaid?: number;
+  cashAmountDue?: number;
   status: BookingStatus;
   paymentStatus: PaymentStatus;
   userMobileNumber: string;
@@ -1957,7 +1959,9 @@ function PanelContent({
               )}
               <div className="mt-2">
                 <span className="text-[10px] px-2 py-0.5 rounded-[6px] font-mono font-bold uppercase tracking-wider bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#D7AC62] border border-[#123D32]/10 dark:border-[#28664D]/30">
-                  {PAYMENT_LABEL[booking.paymentStatus as PaymentStatus]?.label || booking.paymentStatus}
+                  {booking.paymentStatus === "cash" && (booking.walletAmountPaid || 0) > 0
+                    ? `₹${booking.walletAmountPaid} Wallet + ₹${typeof booking.cashAmountDue === "number" ? booking.cashAmountDue : (booking.fare - (booking.walletAmountPaid || 0))} Cash`
+                    : PAYMENT_LABEL[booking.paymentStatus as PaymentStatus]?.label || booking.paymentStatus}
                 </span>
               </div>
             </div>

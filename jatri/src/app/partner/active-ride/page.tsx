@@ -1476,7 +1476,11 @@ function PanelContent({
                       {booking.paymentStatus === "cash" ? "Collect:" : "Fare:"}
                     </span>
                     <IndianRupee size={11} className="text-[#123D32] dark:text-[#347858]" />
-                    <span className="text-[#10251C] dark:text-[#F3F1E8] text-xs font-mono font-bold">{booking.fare}</span>
+                    <span className="text-[#10251C] dark:text-[#F3F1E8] text-xs font-mono font-bold">
+                      {booking.paymentStatus === "cash" && typeof booking.cashAmountDue === "number" && booking.cashAmountDue >= 0
+                        ? booking.cashAmountDue
+                        : booking.fare}
+                    </span>
                   </div>
                 </div>
                 {booking.paymentStatus && (
@@ -1486,10 +1490,16 @@ function PanelContent({
                         ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60"
                         : "bg-emerald-100 dark:bg-emerald-950/60 text-[#123D32] dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60"
                     }`}>
-                      {booking.paymentStatus === "cash" ? "Collect Cash on Drop" : "Paid Online"}
+                      {booking.paymentStatus === "cash"
+                        ? (booking.walletAmountPaid && booking.walletAmountPaid > 0
+                            ? `Split: ₹${booking.walletAmountPaid} Wallet Paid`
+                            : "Collect Cash on Drop")
+                        : "Paid Online"}
                     </span>
                     <span className="text-[10px] text-[#696B64] dark:text-[#929D93] font-mono">
-                      {booking.paymentStatus === "cash" ? `Rider pays ₹${booking.fare}` : "Wallet auto-credited"}
+                      {booking.paymentStatus === "cash"
+                        ? `Rider pays ₹${typeof booking.cashAmountDue === "number" && booking.cashAmountDue >= 0 ? booking.cashAmountDue : booking.fare} cash`
+                        : "Wallet auto-credited"}
                     </span>
                   </div>
                 )}
