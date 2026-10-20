@@ -12,7 +12,7 @@ import {
   User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2,
   Plane, Train, Building2, HeartPulse, AlertCircle, RotateCcw,
   Zap, ArrowDownUp, Settings, FileText, GripVertical,
-  Home
+  Home, LogIn
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,8 +20,10 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
 import nextDynamic from "next/dynamic";
 import { useSelector } from "react-redux";
+import { useSession } from "next-auth/react";
 import { RootState } from "@/redux/store";
 import useGetMe from "@/shared/hooks/useGetMe";
+import AuthModal from "@/features/auth/components/AuthModal";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { haversineKm as getHaversineDistance, DEFAULT_ROAD_TORTUOSITY_FACTOR } from "@/lib/routeUtils";
 import { validateServiceArea, getRecentDestinations, saveRecentDestination, RecentLocation } from "@/lib/serviceArea";
@@ -114,8 +116,30 @@ export default function BookPage() {
   const router = useRouter();
   const { t } = useTranslation();
 
+  const { data: session, status: sessionStatus } = useSession();
   const { userData } = useSelector((state: RootState) => state.user);
   useGetMe(true);
+
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const pendingCheckoutRef = useRef(false);
+
+  const isAuthenticated = Boolean(userData || session?.user);
+
+  // Prompt unauthenticated users to sign in when opening the booking page
+  useEffect(() => {
+    if (sessionStatus === "unauthenticated" && !isAuthenticated) {
+      setShowAuthModal(true);
+    }
+  }, [sessionStatus, isAuthenticated]);
+
+  // Seamless checkout transition if sign-in occurred right after clicking confirm
+  useEffect(() => {
+    if (pendingCheckoutRef.current && (userData || session?.user)) {
+      pendingCheckoutRef.current = false;
+      setShowAuthModal(false);
+      router.push("/checkout");
+    }
+  }, [userData, session?.user, router]);
 
   const [pickup,   setPickup]   = useState("");
   const [drop,     setDrop]     = useState("");
@@ -1356,6 +1380,12 @@ export default function BookPage() {
       console.warn("booking draft save error:", e);
     }
 
+    if (!userData && !session?.user) {
+      pendingCheckoutRef.current = true;
+      setShowAuthModal(true);
+      return;
+    }
+
     router.push("/checkout");
   };
 
@@ -2524,6 +2554,16 @@ export default function BookPage() {
                   {effectiveDistance} km
                 </span>
               )}
+              {!isAuthenticated && sessionStatus !== "loading" && (
+                <button
+                  type="button"
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-3 py-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs font-bold rounded-[8px] transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+                >
+                  <LogIn size={13} />
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -2720,6 +2760,18 @@ export default function BookPage() {
                 <ArrowLeft size={14} />
               </button>
             </div>
+
+            {/* Floating Top-Right Sign In CTA for Mobile when unauthenticated */}
+            {!isAuthenticated && sessionStatus !== "loading" && (
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(true)}
+                className="absolute top-3 right-3 z-30 h-8 px-3 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] text-white rounded-[8px] shadow-md flex items-center gap-1.5 text-xs font-bold pointer-events-auto transition active:scale-95 cursor-pointer"
+              >
+                <LogIn size={13} />
+                <span>Sign In</span>
+              </button>
+            )}
 
             {/* Stable Fullscreen Map: NEVER changes container height during gestures */}
             <div className="absolute inset-0 z-0 bg-zinc-100 dark:bg-[#101713]">
@@ -3010,6 +3062,15 @@ export default function BookPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* ══ AUTH MODAL (SIGN IN PROMPT) ══ */}
+      <AuthModal
+        open={showAuthModal}
+        onClose={() => {
+          setShowAuthModal(false);
+          pendingCheckoutRef.current = false;
+        }}
+      />
 
     </div>
   );

@@ -1,8 +1,6 @@
 "use client";
 
-
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   IndianRupee,
@@ -13,13 +11,19 @@ import {
   MapPin,
   Phone,
   FileText,
+  LogIn,
 } from "lucide-react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import { RideCardSkeleton } from "@/shared/components/skeletons/RideCardSkeleton";
 import TripDetailsModal from "@/features/booking/components/TripDetailsModal";
 import TripInvoiceModal from "@/features/booking/components/TripInvoiceModal";
+import AuthModal from "@/features/auth/components/AuthModal";
 
 interface Booking {
   _id: string;
@@ -56,31 +60,54 @@ interface Booking {
 }
 
 export default function MyBookingsPage() {
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+  const { userData } = useSelector((state: RootState) => state.user);
+
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedBookingForDetails, setSelectedBookingForDetails] = useState<any | null>(null);
   const [selectedBookingForInvoice, setSelectedBookingForInvoice] = useState<any | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const res = await axios.get("/api/user/bookings", {
-          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
-        });
-      
-        setBookings(res.data.bookings || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const isAuthenticated = Boolean(userData || session?.user);
 
-    fetchBookings();
+  const fetchBookings = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/user/bookings", {
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      });
+      setBookings(res.data.bookings || []);
+      setIsUnauthorized(false);
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        setIsUnauthorized(true);
+      }
+      console.error("Bookings fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    if (sessionStatus === "loading") return;
+
+    if (!isAuthenticated && sessionStatus === "unauthenticated") {
+      setIsUnauthorized(true);
+      setLoading(false);
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (isAuthenticated) {
+      fetchBookings();
+    }
+  }, [sessionStatus, isAuthenticated, fetchBookings]);
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -110,258 +137,254 @@ export default function MyBookingsPage() {
     ? bookings 
     : bookings.filter(b => b.status === statusFilter.toLowerCase());
 
+  const showAuthPrompt = !loading && sessionStatus !== "loading" && (isUnauthorized || !isAuthenticated);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F7F1E5] dark:bg-[#101713] justify-between font-sans">
       <Nav />
       <div className="flex-1 pt-24 sm:pt-28 pb-12">
         {/* HEADER - CENTERED CONTENT */}
         <div className="bg-[#FAF7F0] dark:bg-[#17211B] border-b border-[#DED7CA] dark:border-[#29372E]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto py-6 sm:py-8">
-            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">My Bookings</h1>
-            <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1">
-              {bookings.length} {bookings.length === 1 ? 'ride' : 'rides'} found
-            </p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto py-6 sm:py-8">
+              <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">My Bookings</h1>
+              <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1">
+                {showAuthPrompt
+                  ? "Sign in to view your rides, live tracking, and invoices"
+                  : `${bookings.length} ${bookings.length === 1 ? 'ride' : 'rides'} found`}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* MAIN CONTENT - CENTERED CARDS */}
-      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="max-w-3xl mx-auto">
-          
-          {/* FILTER BAR */}
-          <div className="flex justify-between items-center mb-5 sm:mb-6">
-            <div className="text-xs sm:text-sm text-[#696B64] dark:text-[#929D93]">
-              Showing <span className="text-[#10251C] dark:text-[#F3F1E8] font-bold">{filteredBookings.length}</span> bookings
-            </div>
-            <select 
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-white dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] px-3 py-1.5 text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] focus:outline-none focus:ring-2 focus:ring-[#123D32]/20 dark:focus:ring-[#28664D]/30"
-            >
-              <option>All</option>
-              <option>Scheduled</option>
-              <option>Confirmed</option>
-              <option>Completed</option>
-              <option>Requested</option>
-              <option>Cancelled</option>
-            </select>
-          </div>
+        {/* MAIN CONTENT - CENTERED CARDS */}
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="max-w-3xl mx-auto">
+            {/* SKELETON LOADING STATE */}
+            {(loading || sessionStatus === "loading") && (
+              <div className="py-2">
+                <RideCardSkeleton count={3} />
+              </div>
+            )}
 
-          {/* SKELETON LOADING STATE */}
-          {loading && (
-            <div className="py-2">
-              <RideCardSkeleton count={3} />
-            </div>
-          )}
+            {/* UNAUTHENTICATED STATE - PROMPT TO SIGN IN */}
+            {showAuthPrompt && (
+              <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] shadow-xs p-8 sm:p-12 text-center">
+                <div className="w-14 h-14 rounded-full bg-[#E5EBDD] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#28664D]/30 flex items-center justify-center mx-auto mb-4 text-[#046A38] dark:text-[#058A48]">
+                  <LogIn className="w-7 h-7" />
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">
+                  Sign in to view your bookings
+                </h2>
+                <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-2 max-w-md mx-auto leading-relaxed">
+                  Log in with your mobile number or Google account to track ongoing rides, view your past travel history, and download official GST invoices.
+                </p>
+                <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAuthModal(true)}
+                    className="w-full sm:w-auto bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white px-6 py-2.5 rounded-[8px] text-sm font-bold transition active:scale-95 shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>Sign In / Register</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/book")}
+                    className="w-full sm:w-auto bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#29372E] px-5 py-2.5 rounded-[8px] text-sm font-semibold transition cursor-pointer"
+                  >
+                    Book a Ride
+                  </button>
+                </div>
+              </div>
+            )}
 
-          {/* EMPTY STATE */}
-          {!loading && filteredBookings.length === 0 && (
-            <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] shadow-xs p-8 sm:p-12 text-center">
-              <Car className="w-12 h-12 text-[#123D32]/40 dark:text-[#347858]/40 mx-auto mb-3" />
-              <h3 className="text-lg sm:text-xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">No bookings found</h3>
-              <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1">Ready for a ride? Book one now!</p>
-              <button 
-                onClick={() => window.location.href = "/book"}
-                className="mt-5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white px-5 py-2.5 rounded-[8px] text-sm font-bold transition active:scale-95 shadow-xs cursor-pointer"
-              >
-                Book a Ride
-              </button>
-            </div>
-          )}
-
-          {/* BOOKINGS LIST */}
-          {!loading && filteredBookings.length > 0 && (
-            <div className="space-y-4">
-              {filteredBookings.map((booking, index) => (
-                <motion.div
-                  key={booking._id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] shadow-xs hover:border-[#123D32]/40 dark:hover:border-[#28664D]/50 hover:shadow-md transition-all overflow-hidden">
-                    
-                    {/* VEHICLE INFO WITH IMAGE */}
-                    <div className="flex items-start sm:items-center gap-3 p-3.5 sm:p-4 bg-white/70 dark:bg-[#101713]/70 border-b border-[#DED7CA] dark:border-[#29372E]">
-                      {/* VEHICLE IMAGE */}
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[8px] overflow-hidden bg-[#FAF7F0] dark:bg-[#17211B] flex-shrink-0 border border-[#DED7CA] dark:border-[#29372E]">
-                        {booking.vehicle?.imageUrl ? (
-                          <img 
-                            src={booking.vehicle.imageUrl} 
-                            alt={booking.vehicle.vehicleModel}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-[#FAF7F0] dark:bg-[#17211B]">
-                            <Car className="w-7 h-7 sm:w-8 sm:h-8 text-[#123D32]/60 dark:text-[#347858]/60" />
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* VEHICLE DETAILS */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center justify-between gap-1.5">
-                          <h3 className="font-bold text-sm sm:text-base text-[#10251C] dark:text-[#F3F1E8] truncate">
-                            {booking.vehicle?.vehicleModel || "Standard Vehicle"}
-                          </h3>
-                          <span className={`px-2 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium ${getStatusColor(booking.status)}`}>
-                            {booking.status.replace("_", " ")}
-                          </span>
-                        </div>
-                        <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#929D93] mt-0.5 truncate">
-                          {booking.driver?.name && !["requested", "searching_driver", "no_drivers_available", "expired"].includes(booking.status)
-                            ? `Driver: ${booking.driver.name}`
-                            : booking.status === "cancelled" || booking.status === "expired"
-                            ? "No driver assigned"
-                            : "Searching for nearby driver..."}
-                        </p>
-                        {booking.isScheduled && booking.scheduledPickupTime && (
-                          <div className="inline-flex items-center gap-1.5 bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border border-[#DED7CA] dark:border-[#29372E] text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-[6px] mt-1.5">
-                            <span>⏰ Scheduled: {formatDate(booking.scheduledPickupTime)}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* ADDRESS SECTION - CLEARLY LABELED */}
-                    <div className="p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
-                      {/* PICKUP */}
-                      <div className="flex items-start gap-2.5 sm:gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-[#E5EBDD] dark:bg-[#28664D]/20 rounded-full flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3 h-3 text-[#123D32] dark:text-[#347858]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-[10px] sm:text-xs font-bold text-[#123D32] dark:text-[#347858] uppercase tracking-wider">PICKUP</span>
-                          <p className="text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] mt-0.5 leading-relaxed">
-                            {booking.pickupAddress}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* DROP */}
-                      <div className="flex items-start gap-2.5 sm:gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-[#faebe8] dark:bg-red-950/30 rounded-full flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3 h-3 text-[#E34222] dark:text-[#E06A50]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-[10px] sm:text-xs font-bold text-[#E34222] dark:text-[#E06A50] uppercase tracking-wider">DROP</span>
-                          <p className="text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] mt-0.5 leading-relaxed">
-                            {booking.dropAddress}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* CONTACT NUMBERS SECTION */}
-                      <div className="pt-2.5 sm:pt-3 mt-2 border-t border-[#DED7CA]/60 dark:border-[#29372E] space-y-2">
-                        {/* USER MOBILE NUMBER */}
-                        {booking.userMobileNumber && (
-                          <div className="flex items-start gap-2.5 sm:gap-3">
-                            <div className="flex-shrink-0 w-6 h-6 bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-full flex items-center justify-center">
-                              <Phone className="w-3 h-3 text-[#123D32] dark:text-[#347858]" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <span className="text-[10px] sm:text-xs font-bold text-[#123D32] dark:text-[#347858] uppercase tracking-wider">YOUR NUMBER</span>
-                              <p className="text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
-                                {booking.userMobileNumber}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* DRIVER MOBILE NUMBER (ONLY SHOWN FOR CONFIRMED/ACTIVE ASSIGNED RIDES) */}
-                        {booking.driverMobileNumber && !["requested", "searching_driver", "no_drivers_available", "expired", "cancelled"].includes(booking.status) && (
-                          <div className="flex items-start gap-2.5 sm:gap-3">
-                            <div className="flex-shrink-0 w-6 h-6 bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-full flex items-center justify-center">
-                              <Phone className="w-3 h-3 text-[#696B64] dark:text-[#929D93]" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <span className="text-[10px] sm:text-xs font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider">DRIVER CONTACT</span>
-                              <p className="text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
-                                {(() => {
-                                  const cleaned = booking.driverMobileNumber.replace(/\D/g, "");
-                                  return cleaned.length >= 4 
-                                    ? `XXXXXX${cleaned.slice(-4)}`
-                                    : "Masked for Security";
-                                })()}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* DATE AND FARE */}
-                    <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white/70 dark:bg-[#101713]/70 border-t border-[#DED7CA] dark:border-[#29372E]">
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-[#696B64] dark:text-[#929D93]">
-                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#696B64] dark:text-[#929D93]" />
-                        <span>{formatDate(booking.createdAt)}</span>
-                      </div>
-                      <div className="flex items-center gap-1 font-bold text-[#10251C] dark:text-[#F3F1E8] text-sm sm:text-base font-mono">
-                        <IndianRupee className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#123D32] dark:text-[#347858]" />
-                        <span>₹{booking.fare}</span>
-                      </div>
-                    </div>
-
-                    {/* PAYMENT AND ACTION */}
-                    <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 sm:py-3 border-t border-[#DED7CA] dark:border-[#29372E]">
-                      <div className="flex items-center gap-1.5 sm:gap-2">
-                        <span className="text-[11px] sm:text-xs text-[#696B64] dark:text-[#929D93]">Payment:</span>
-                        
-                        {["cancelled", "expired", "rejected"].includes(booking.status) ? (
-                          <span className="text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-[#FAF7F0] dark:bg-[#17211B] text-[#696B64] dark:text-[#929D93] border border-[#DED7CA] dark:border-[#29372E] font-medium">
-                            Not Applicable
-                          </span>
-                        ) : (
-                          <span className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full border ${
-                            booking.paymentStatus === 'paid' 
-                              ? 'bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border-[#DED7CA] dark:border-[#28664D]/30 font-medium' 
-                              : 'bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800 font-medium'
-                          }`}>
-                            {booking.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {booking.status === "completed" && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedBookingForInvoice(booking);
-                              setShowInvoiceModal(true);
-                            }}
-                            className="flex items-center gap-1 text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] hover:text-[#123D32] dark:hover:text-[#347858] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] px-2.5 sm:px-3 py-1.5 transition-colors border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] cursor-pointer"
-                            title="Download Official GST Tax Invoice"
-                          >
-                            <FileText size={13} />
-                            <span>Invoice</span>
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (["completed", "cancelled"].includes(booking.status)) {
-                              setSelectedBookingForDetails(booking);
-                              setShowDetailsModal(true);
-                            } else {
-                              window.location.href = `/ride/${booking._id}`;
-                            }
-                          }}
-                          className="flex items-center gap-1 text-xs sm:text-sm font-bold text-white bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] px-3 sm:px-4 py-1.5 transition-colors cursor-pointer rounded-[8px] shadow-xs"
-                        >
-                          <span>View Details</span>
-                          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        </button>
-                      </div>
-                    </div>
+            {/* AUTHENTICATED CONTENT */}
+            {!loading && sessionStatus !== "loading" && !showAuthPrompt && (
+              <>
+                {/* FILTER BAR */}
+                <div className="flex justify-between items-center mb-5 sm:mb-6">
+                  <div className="text-xs sm:text-sm text-[#696B64] dark:text-[#929D93]">
+                    Showing <span className="text-[#10251C] dark:text-[#F3F1E8] font-bold">{filteredBookings.length}</span> bookings
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
+                  <select 
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="bg-white dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] px-3 py-1.5 text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] focus:outline-none focus:ring-2 focus:ring-[#123D32]/20 dark:focus:ring-[#28664D]/30"
+                  >
+                    <option>All</option>
+                    <option>Scheduled</option>
+                    <option>Confirmed</option>
+                    <option>Completed</option>
+                    <option>Requested</option>
+                    <option>Cancelled</option>
+                  </select>
+                </div>
+
+                {/* EMPTY STATE */}
+                {filteredBookings.length === 0 && (
+                  <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] shadow-xs p-8 sm:p-12 text-center">
+                    <Car className="w-12 h-12 text-[#123D32]/40 dark:text-[#347858]/40 mx-auto mb-3" />
+                    <h3 className="text-lg sm:text-xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">No bookings found</h3>
+                    <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1">Ready for a ride? Book one now!</p>
+                    <button 
+                      onClick={() => router.push("/book")}
+                      className="mt-5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white px-5 py-2.5 rounded-[8px] text-sm font-bold transition active:scale-95 shadow-xs cursor-pointer"
+                    >
+                      Book a Ride
+                    </button>
+                  </div>
+                )}
+
+                {/* BOOKINGS LIST */}
+                {filteredBookings.length > 0 && (
+                  <div className="space-y-4">
+                    {filteredBookings.map((booking, index) => (
+                      <motion.div
+                        key={booking._id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] shadow-xs hover:border-[#123D32]/40 dark:hover:border-[#28664D]/50 hover:shadow-md transition-all overflow-hidden">
+                          
+                          {/* VEHICLE INFO WITH IMAGE */}
+                          <div className="flex items-start sm:items-center gap-3 p-3.5 sm:p-4 bg-white/70 dark:bg-[#101713]/70 border-b border-[#DED7CA] dark:border-[#29372E]">
+                            {/* VEHICLE IMAGE */}
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[8px] overflow-hidden bg-[#FAF7F0] dark:bg-[#17211B] flex-shrink-0 border border-[#DED7CA] dark:border-[#29372E]">
+                              {booking.vehicle?.imageUrl ? (
+                                <img 
+                                  src={booking.vehicle.imageUrl} 
+                                  alt={booking.vehicle.vehicleModel}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-[#FAF7F0] dark:bg-[#17211B]">
+                                  <Car className="w-7 h-7 sm:w-8 sm:h-8 text-[#123D32]/60 dark:text-[#347858]/60" />
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* VEHICLE DETAILS */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center justify-between gap-1.5">
+                                <h3 className="font-bold text-sm sm:text-base text-[#10251C] dark:text-[#F3F1E8] truncate">
+                                  {booking.vehicle?.vehicleModel || "Standard Vehicle"}
+                                </h3>
+                                <span className={`px-2 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium ${getStatusColor(booking.status)}`}>
+                                  {booking.status.replace("_", " ")}
+                                </span>
+                              </div>
+                              <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#929D93] mt-0.5 truncate">
+                                {booking.driver?.name && !["requested", "searching_driver", "no_drivers_available", "expired"].includes(booking.status)
+                                  ? `Driver: ${booking.driver.name}`
+                                  : booking.status === "cancelled" || booking.status === "expired"
+                                  ? "No driver assigned"
+                                  : "Searching for nearby driver..."}
+                              </p>
+                              {booking.isScheduled && booking.scheduledPickupTime && (
+                                <div className="inline-flex items-center gap-1.5 bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border border-[#DED7CA] dark:border-[#29372E] text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-[6px] mt-1.5">
+                                  <span>⏰ Scheduled: {formatDate(booking.scheduledPickupTime)}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* ADDRESS SECTION - CLEARLY LABELED */}
+                          <div className="p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
+                            {/* PICKUP */}
+                            <div className="flex items-start gap-2.5 sm:gap-3">
+                              <div className="w-5 h-5 rounded-full bg-[#E5EBDD] dark:bg-[#28664D]/30 border border-[#DED7CA] dark:border-[#28664D]/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#347858]" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <span className="text-[10px] sm:text-xs font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider block">Pickup</span>
+                                <p className="text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] line-clamp-1">{booking.pickupAddress}</p>
+                              </div>
+                            </div>
+
+                            {/* DESTINATION */}
+                            <div className="flex items-start gap-2.5 sm:gap-3">
+                              <div className="w-5 h-5 rounded-full bg-red-100 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="w-2 h-2 rounded-full bg-red-500" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <span className="text-[10px] sm:text-xs font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider block">Destination</span>
+                                <p className="text-xs sm:text-sm text-[#10251C] dark:text-[#F3F1E8] line-clamp-1">{booking.dropAddress}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* METRICS ROW */}
+                          <div className="px-3.5 sm:px-4 py-2.5 bg-white/50 dark:bg-[#101713]/40 border-t border-[#DED7CA] dark:border-[#29372E] flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3.5 h-3.5 text-[#123D32] dark:text-[#347858]" />
+                              <span>{formatDate(booking.createdAt)}</span>
+                            </div>
+                            <div className="font-bold text-sm sm:text-base text-[#10251C] dark:text-[#F3F1E8] flex items-center">
+                              <IndianRupee size={14} className="mr-0.5" />
+                              {booking.fare}
+                            </div>
+                          </div>
+
+                          {/* FOOTER ACTIONS */}
+                          <div className="p-3.5 sm:p-4 bg-white/80 dark:bg-[#101713]/80 border-t border-[#DED7CA] dark:border-[#29372E] flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              {booking.status === "cancelled" || booking.status === "expired" ? (
+                                <span className="text-[11px] sm:text-xs px-2 py-0.5 rounded-full border bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#696B64] dark:text-[#929D93] border-[#DED7CA] dark:border-[#29372E] font-medium">
+                                  Not Applicable
+                                </span>
+                              ) : (
+                                <span className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full border ${
+                                  booking.paymentStatus === 'paid' 
+                                    ? 'bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border-[#DED7CA] dark:border-[#28664D]/30 font-medium' 
+                                    : 'bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800 font-medium'
+                                }`}>
+                                  {booking.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {booking.status === "completed" && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedBookingForInvoice(booking);
+                                    setShowInvoiceModal(true);
+                                  }}
+                                  className="flex items-center gap-1 text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] hover:text-[#123D32] dark:hover:text-[#347858] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] px-2.5 sm:px-3 py-1.5 transition-colors border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] cursor-pointer"
+                                  title="Download Official GST Tax Invoice"
+                                >
+                                  <FileText size={13} />
+                                  <span>Invoice</span>
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (["completed", "cancelled"].includes(booking.status)) {
+                                    setSelectedBookingForDetails(booking);
+                                    setShowDetailsModal(true);
+                                  } else {
+                                    router.push(`/ride/${booking._id}`);
+                                  }
+                                }}
+                                className="flex items-center gap-1 text-xs sm:text-sm font-bold text-white bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] px-3 sm:px-4 py-1.5 transition-colors cursor-pointer rounded-[8px] shadow-xs"
+                              >
+                                <span>View Details</span>
+                                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
       </div>
 
       {/* ══ TRIP DETAILS MODAL (UBER STYLE ROUTE & RECEIPT) ══ */}
@@ -381,6 +404,9 @@ export default function MyBookingsPage() {
         onClose={() => setShowInvoiceModal(false)}
         booking={selectedBookingForInvoice}
       />
+
+      {/* ══ AUTH MODAL ══ */}
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
       <Footer />
     </div>
