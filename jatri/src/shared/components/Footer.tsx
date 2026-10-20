@@ -27,7 +27,7 @@ export default function Footer() {
   return (
     <footer className="w-full bg-[#123D32] dark:bg-[#0A120E] text-[#F7F1E5] dark:text-[#F3F1E8] border-t border-[#426457]/50 dark:border-[#34443A] relative overflow-hidden">
       {/* Authentic Assamese Gamosa-inspired geometric woven border strip */}
-      <GamosaBorder height={8} accentColor="#E34222" className="opacity-90" />
+      <GamosaBorder height={18} accentColor="#E34222" />
 
       {/* MAIN FOOTER CONTENT */}
       <motion.div
