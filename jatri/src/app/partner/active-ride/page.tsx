@@ -56,6 +56,7 @@ export interface IBooking {
   partnerAmount?: number;
   status: BookingStatus;
   paymentStatus: PaymentStatus;
+  settlementStatus?: "pending" | "success" | "failed";
   paymentDeadline?: Date;
   userMobileNumber: string;
   driverMobileNumber: string;
@@ -1721,6 +1722,13 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
                 {booking.paymentStatus === "cash" ? "Cash (Keep Full Fare)" : "Online Wallet Credited"}
               </span>
             </div>
+
+            {booking.settlementStatus === "failed" && (
+              <div className="mt-3 p-3 rounded-[10px] bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
+                <span className="font-medium">Earnings settlement queued. Your driver wallet will refresh automatically.</span>
+              </div>
+            )}
           </div>
 
           {booking.user && (
