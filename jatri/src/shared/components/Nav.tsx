@@ -289,7 +289,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         className={`fixed top-0 left-0 w-full z-50 px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
           isHome && !isScrolled
             ? "bg-transparent border-transparent shadow-none text-[#10251C] dark:text-[#F3F1E8]"
-            : "bg-[#FAF7F0]/95 dark:bg-[#101713]/95 backdrop-blur-xl border-b border-[#DED7CA]/80 dark:border-[#34443A] shadow-[0_4px_20px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-[#10251C] dark:text-[#F3F1E8]"
+            : "bg-[#FAF7F0]/95 dark:bg-[#061A16]/95 backdrop-blur-xl border-b border-[#DED7CA]/80 dark:border-[#1E3E34] shadow-[0_4px_20px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-[#10251C] dark:text-[#F3F1E8]"
         }`}
       >
         <div className="max-w-7xl mx-auto h-[68px] sm:h-20 md:h-24 flex items-center justify-between transition-all duration-300">
@@ -313,7 +313,15 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 alt="Jaatri by RideNow"
                 width={260}
                 height={82}
-                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105 dark-logo-invert dark:brightness-0 dark:invert dark:opacity-95"
+                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105 block dark:hidden"
+                priority
+              />
+              <Image
+                src="/logojatri-dark.webp"
+                alt="Jaatri by RideNow"
+                width={260}
+                height={82}
+                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block"
                 priority
               />
             </Link>
@@ -453,7 +461,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     alt="Jaatri"
                     width={180}
                     height={66}
-                    className="h-10 w-auto object-contain dark-logo-invert dark:brightness-0 dark:invert dark:opacity-95"
+                    className="h-10 w-auto object-contain block dark:hidden"
+                  />
+                  <Image
+                    src="/logojatri-dark.webp"
+                    alt="Jaatri"
+                    width={180}
+                    height={66}
+                    className="h-10 w-auto object-contain hidden dark:block"
                   />
                 </Link>
 

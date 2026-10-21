@@ -18,6 +18,24 @@ const HIDDEN_PATTERNS = [
   /^\/partner\/active-ride/, // Driver operational turn-by-turn navigation
 ];
 
+// Audio Waveform Soundwave Icon matching reference dark-mode central button
+function AudioWaveformIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect x="2.5" y="8" width="2.2" height="8" rx="1.1" />
+      <rect x="6.8" y="4" width="2.2" height="16" rx="1.1" />
+      <rect x="11.1" y="6.5" width="2.2" height="11" rx="1.1" />
+      <rect x="15.4" y="2" width="2.2" height="20" rx="1.1" />
+      <rect x="19.7" y="8" width="2.2" height="8" rx="1.1" />
+    </svg>
+  );
+}
+
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { t } = useTranslation();
@@ -44,7 +62,7 @@ export default function MobileBottomNav() {
         {/* Vendor/Driver Mobile Dock */}
         <nav
           aria-label="Partner Mobile Bottom Navigation"
-          className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#FAF7F0]/95 dark:bg-[#121C17]/95 backdrop-blur-xl border-t border-[#DED7CA]/90 dark:border-[#2D3E33] shadow-[0_-4px_24px_rgba(18,61,50,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] transition-colors duration-200"
+          className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#FAF7F0]/95 dark:bg-[#061A16]/95 backdrop-blur-xl border-t border-[#DED7CA]/90 dark:border-[#1E3E34] shadow-[0_-4px_24px_rgba(18,61,50,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.6)] transition-colors duration-200"
           style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom, 0px))" }}
         >
           <div className="flex items-center justify-around h-[60px] px-2 max-w-lg mx-auto relative">
@@ -52,7 +70,7 @@ export default function MobileBottomNav() {
             <Link
               href="/partners/dashboard"
               className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] ${
-                pathname === "/partners/dashboard" ? "text-[#046A38] dark:text-[#A8E0C0]" : "text-[#696B64] dark:text-[#929D93]"
+                pathname === "/partners/dashboard" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
             >
               <Home size={20} strokeWidth={pathname === "/partners/dashboard" ? 2.5 : 1.9} />
@@ -63,7 +81,7 @@ export default function MobileBottomNav() {
             <Link
               href="/partner/pending-requests"
               className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] ${
-                pathname === "/partner/pending-requests" ? "text-[#046A38] dark:text-[#A8E0C0]" : "text-[#696B64] dark:text-[#929D93]"
+                pathname === "/partner/pending-requests" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
             >
               <ClipboardList size={20} strokeWidth={pathname === "/partner/pending-requests" ? 2.5 : 1.9} />
@@ -75,7 +93,7 @@ export default function MobileBottomNav() {
               <Link
                 href="/partner/active-ride"
                 aria-label="Partner Active Ride"
-                className="w-12 h-12 rounded-full bg-[#046A38] hover:bg-[#03532C] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[#121C17] shadow-[0_6px_20px_rgba(4,106,56,0.38)] active:scale-90 transition-transform"
+                className="w-13 h-13 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#0B2822] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[#061A16] dark:border-[2px] dark:border-[#34D399]/70 shadow-[0_6px_20px_rgba(4,106,56,0.38)] dark:shadow-[0_0_24px_rgba(52,211,153,0.5)] active:scale-90 transition-transform"
               >
                 <Navigation size={22} className="fill-white" />
               </Link>
@@ -85,7 +103,7 @@ export default function MobileBottomNav() {
             <Link
               href="/partner/bookings"
               className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] ${
-                pathname === "/partner/bookings" ? "text-[#046A38] dark:text-[#A8E0C0]" : "text-[#696B64] dark:text-[#929D93]"
+                pathname === "/partner/bookings" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
             >
               <Clock size={20} strokeWidth={pathname === "/partner/bookings" ? 2.5 : 1.9} />
@@ -96,7 +114,7 @@ export default function MobileBottomNav() {
             <Link
               href="/partner/wallet"
               className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] ${
-                pathname === "/partner/wallet" ? "text-[#046A38] dark:text-[#A8E0C0]" : "text-[#696B64] dark:text-[#929D93]"
+                pathname === "/partner/wallet" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
             >
               <Wallet size={20} strokeWidth={pathname === "/partner/wallet" ? 2.5 : 1.9} />
@@ -125,7 +143,7 @@ export default function MobileBottomNav() {
       {/* Fixed Mobile Bottom Navigation Dock */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#FAF7F0]/95 dark:bg-[#121C17]/95 backdrop-blur-xl border-t border-[#DED7CA]/90 dark:border-[#2D3E33] shadow-[0_-4px_24px_rgba(18,61,50,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] transition-colors duration-200"
+        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#FAF7F0]/95 dark:bg-[#061A16]/95 backdrop-blur-xl border-t border-[#DED7CA]/90 dark:border-[#1E3E34] shadow-[0_-4px_24px_rgba(18,61,50,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.6)] transition-colors duration-200"
         style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="flex items-center justify-between h-[60px] px-2 max-w-md mx-auto relative">
@@ -136,14 +154,14 @@ export default function MobileBottomNav() {
             aria-current={isHomeActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
               isHomeActive
-                ? "text-[#046A38] dark:text-[#A8E0C0]"
-                : "text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                ? "text-[#046A38] dark:text-[#34D399]"
+                : "text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F7F5ED]"
             }`}
           >
             <div
               className={`flex items-center justify-center transition-all duration-150 ${
                 isHomeActive
-                  ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#1D3428]"
+                  ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#0E352B]"
                   : "px-3 py-0.5"
               }`}
             >
@@ -151,7 +169,7 @@ export default function MobileBottomNav() {
             </div>
             <span
               className={`text-[10px] tracking-tight leading-tight mt-0.5 transition-colors ${
-                isHomeActive ? "font-bold text-[#046A38] dark:text-[#A8E0C0]" : "font-medium"
+                isHomeActive ? "font-bold text-[#046A38] dark:text-[#34D399]" : "font-medium"
               }`}
             >
               {t("nav.home", "Home")}
@@ -165,14 +183,14 @@ export default function MobileBottomNav() {
             aria-current={isServicesActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
               isServicesActive
-                ? "text-[#046A38] dark:text-[#A8E0C0]"
-                : "text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                ? "text-[#046A38] dark:text-[#34D399]"
+                : "text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F7F5ED]"
             }`}
           >
             <div
               className={`flex items-center justify-center transition-all duration-150 ${
                 isServicesActive
-                  ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#1D3428]"
+                  ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#0E352B]"
                   : "px-3 py-0.5"
               }`}
             >
@@ -180,21 +198,27 @@ export default function MobileBottomNav() {
             </div>
             <span
               className={`text-[10px] tracking-tight leading-tight mt-0.5 transition-colors ${
-                isServicesActive ? "font-bold text-[#046A38] dark:text-[#A8E0C0]" : "font-medium"
+                isServicesActive ? "font-bold text-[#046A38] dark:text-[#34D399]" : "font-medium"
               }`}
             >
               {t("nav.services", "Services")}
             </span>
           </Link>
 
-          {/* Position 3: Central Circular Elevated Action Button */}
+          {/* Position 3: Central Circular Elevated Action Button with Emerald Glow */}
           <div className="flex-1 flex justify-center items-center pointer-events-auto">
             <Link
               href="/book?fresh=true"
               aria-label="Book a Ride or Search Trips"
-              className="w-13 h-13 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[#121C17] shadow-[0_6px_20px_rgba(4,106,56,0.38)] active:scale-90 transition-transform cursor-pointer"
+              className="w-13 h-13 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#0B2822] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[2.5px] dark:border-[#34D399] shadow-[0_6px_20px_rgba(4,106,56,0.38)] dark:shadow-[0_0_24px_rgba(52,211,153,0.55)] active:scale-90 transition-all cursor-pointer group"
             >
-              <Car size={23} strokeWidth={2.4} />
+              {/* Audio Waveform icon in dark mode; Car icon in light mode */}
+              <span className="block dark:hidden">
+                <Car size={23} strokeWidth={2.4} />
+              </span>
+              <span className="hidden dark:block">
+                <AudioWaveformIcon className="w-6 h-6 text-white group-hover:scale-105 transition-transform" />
+              </span>
             </Link>
           </div>
 
@@ -205,14 +229,14 @@ export default function MobileBottomNav() {
             aria-current={isBookingsActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
               isBookingsActive
-                ? "text-[#046A38] dark:text-[#A8E0C0]"
-                : "text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                ? "text-[#046A38] dark:text-[#34D399]"
+                : "text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F7F5ED]"
             }`}
           >
             <div
               className={`flex items-center justify-center transition-all duration-150 ${
                 isBookingsActive
-                  ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#1D3428]"
+                  ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#0E352B]"
                   : "px-3 py-0.5"
               }`}
             >
@@ -220,7 +244,7 @@ export default function MobileBottomNav() {
             </div>
             <span
               className={`text-[10px] tracking-tight leading-tight mt-0.5 transition-colors ${
-                isBookingsActive ? "font-bold text-[#046A38] dark:text-[#A8E0C0]" : "font-medium"
+                isBookingsActive ? "font-bold text-[#046A38] dark:text-[#34D399]" : "font-medium"
               }`}
             >
               {t("nav.bookings", "Bookings")}
@@ -234,14 +258,14 @@ export default function MobileBottomNav() {
             aria-current={isAccountActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
               isAccountActive
-                ? "text-[#046A38] dark:text-[#A8E0C0]"
-                : "text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                ? "text-[#046A38] dark:text-[#34D399]"
+                : "text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F7F5ED]"
             }`}
           >
             <div
               className={`flex items-center justify-center transition-all duration-150 ${
                 isAccountActive
-                  ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#1D3428]"
+                  ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#0E352B]"
                   : "px-3 py-0.5"
               }`}
             >
@@ -249,7 +273,7 @@ export default function MobileBottomNav() {
             </div>
             <span
               className={`text-[10px] tracking-tight leading-tight mt-0.5 transition-colors ${
-                isAccountActive ? "font-bold text-[#046A38] dark:text-[#A8E0C0]" : "font-medium"
+                isAccountActive ? "font-bold text-[#046A38] dark:text-[#34D399]" : "font-medium"
               }`}
             >
               {t("nav.account", "Account")}

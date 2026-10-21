@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useSession } from "next-auth/react";
 import { RootState } from "@/redux/store";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   MapPin,
   ArrowRight,
@@ -91,6 +92,7 @@ export default function MobileHome({
   onAuthRequired?: () => void;
 }) {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
   const { userData } = useSelector((state: RootState) => state.user);
   const { data: session } = useSession();
 
@@ -183,7 +185,6 @@ export default function MobileHome({
       }
       router.push(`/book?drop=${encodeURIComponent(found.address)}&category=cars`);
     } else {
-      // If not configured, navigate to settings with hint or direct to booking
       router.push("/settings");
     }
   };
@@ -193,55 +194,87 @@ export default function MobileHome({
   };
 
   return (
-    <div className="w-full bg-[#FAF7F0] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] pb-10">
+    <div className="w-full bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] pb-10 transition-colors duration-300">
       {/* =========================================================================
           SECTION 3B: CINEMATIC ASSAMESE HERO
-          Warm sunset sky, Brahmaputra river valley, tea garden hills, road & vehicle
+          Light: Warm sunset sky over Brahmaputra valley
+          Dark: Moody twilight dusk sunset over mountain ridges with deep shadows
           ========================================================================= */}
       <section className="relative w-full overflow-hidden pt-20 sm:pt-24 pb-7 px-4 sm:px-6">
-        {/* Background Scenic Landscape Image */}
+        {/* Background Scenic Landscape Images (Light vs Dark) */}
         <div className="absolute inset-0 -z-10 w-full h-full">
-          <Image
-            src="/mobile-home/hero_landscape.webp"
-            alt="Scenic Assamese Landscape at Sunset"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center pointer-events-none brightness-[1.02] contrast-[1.01]"
-          />
-          {/* Subtle gradient vignette to guarantee readable typography without aggressive filter */}
-          <div
-            className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#FAF7F0]/40 via-transparent to-[#FAF7F0] dark:from-[#101713]/60 dark:via-transparent dark:to-[#101713]"
-            aria-hidden="true"
-          />
+          {/* Light Theme Landscape */}
+          <div className="relative w-full h-full block dark:hidden">
+            <Image
+              src="/mobile-home/hero_landscape.webp"
+              alt="Scenic Assamese Landscape at Sunset"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center pointer-events-none brightness-[1.02] contrast-[1.01]"
+            />
+            <div
+              className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#FAF7F0]/40 via-transparent to-[#FAF7F0]"
+              aria-hidden="true"
+            />
+          </div>
+
+          {/* Dark Theme Landscape */}
+          <div className="relative w-full h-full hidden dark:block">
+            <Image
+              src="/mobile-home/hero_landscape_dark.webp"
+              alt="Assamese Landscape at Twilight Dusk"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center pointer-events-none brightness-[1.05] contrast-[1.04]"
+            />
+            <div
+              className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#061A16]/50 via-transparent to-[#061A16]"
+              aria-hidden="true"
+            />
+          </div>
         </div>
 
         <div className="max-w-md mx-auto">
           {/* Tagline / Eyebrow */}
-          <div className="mb-2">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.14em] uppercase text-[#123D32] dark:text-[#A8E0C0] bg-white/75 dark:bg-[#17261F]/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#DED7CA]/70 dark:border-[#2D3E33] shadow-2xs">
-              <Sparkles size={11} className="text-[#046A38] dark:text-[#058A48]" />
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+            className="mb-2"
+          >
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.14em] uppercase text-[#123D32] dark:text-[#B9C8BF] bg-white/80 dark:bg-[#0B2822]/85 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs">
+              <Sparkles size={11} className="text-[#046A38] dark:text-[#34D399]" />
               <span>EXPLORE ASSAM, YOUR WAY</span>
             </span>
-          </div>
+          </motion.div>
 
           {/* Heading in display serif */}
-          <div className="mb-5">
-            <h1 className="font-serif text-[32px] sm:text-[36px] leading-[1.12] font-normal tracking-tight text-[#10251C] dark:text-[#F3F1E8] drop-shadow-xs">
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.05, ease: [0.32, 0.72, 0, 1] }}
+            className="mb-5"
+          >
+            <h1 className="font-serif text-[32px] sm:text-[36px] leading-[1.12] font-normal tracking-tight text-[#10251C] dark:text-[#FFFFFF] drop-shadow-xs">
               {greeting}
               {firstName ? `, ${firstName}` : ""}
               <br />
-              <span className="font-serif italic font-normal text-[#123D32] dark:text-[#D7AC62]">
+              <span className="font-serif italic font-normal text-[#123D32] dark:text-[#F7F5ED]">
                 Ready to move?
               </span>
             </h1>
-          </div>
+          </motion.div>
 
           {/* =========================================================================
               SECTION 3C: DESTINATION SEARCH BAR
-              Elevated, warm-white rounded card with pin icon, placeholder & circular action
+              Elevated, warm-white rounded card against both light & dark backgrounds
               ========================================================================= */}
-          <div
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: 6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: [0.32, 0.72, 0, 1] }}
             role="button"
             tabIndex={0}
             onClick={handleSearchClick}
@@ -249,27 +282,27 @@ export default function MobileHome({
               if (e.key === "Enter" || e.key === " ") handleSearchClick();
             }}
             aria-label="Search destination for booking a ride"
-            className="w-full bg-white dark:bg-[#1A261F] rounded-full shadow-[0_8px_25px_rgba(18,61,50,0.1)] dark:shadow-[0_8px_25px_rgba(0,0,0,0.45)] border border-[#DED7CA]/90 dark:border-[#2D3E33] p-1.5 pl-4 sm:pl-5 flex items-center justify-between cursor-pointer transition-all duration-200 active:scale-[0.98] select-none"
+            className="w-full bg-white dark:bg-[#FAF7F0] rounded-full shadow-[0_8px_25px_rgba(18,61,50,0.1)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)] border border-[#DED7CA]/90 dark:border-white/30 p-1.5 pl-4 sm:pl-5 flex items-center justify-between cursor-pointer transition-all duration-200 active:scale-[0.98] select-none"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <MapPin
                 size={20}
                 strokeWidth={2.4}
-                className="text-[#046A38] dark:text-[#058A48] shrink-0"
+                className="text-[#046A38] dark:text-[#046A38] shrink-0"
               />
-              <span className="text-[15px] sm:text-[16px] text-[#10251C]/75 dark:text-[#F3F1E8]/75 font-medium truncate">
+              <span className="text-[15px] sm:text-[16px] text-[#10251C]/80 font-medium truncate">
                 Where are you going?
               </span>
             </div>
 
             {/* Circular Forest Green Arrow Action */}
             <div
-              className="w-10 h-10 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95"
+              className="w-10 h-10 rounded-full bg-[#046A38] hover:bg-[#03532C] text-white flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95"
               aria-hidden="true"
             >
               <ArrowRight size={18} strokeWidth={2.5} />
             </div>
-          </div>
+          </motion.div>
 
           {/* =========================================================================
               SECTION 3D: SAVED-LOCATION SHORTCUTS
@@ -280,10 +313,10 @@ export default function MobileHome({
             <button
               type="button"
               onClick={() => handleShortcutClick("home")}
-              className="flex-1 min-w-0 bg-white/90 dark:bg-[#1A261F]/90 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#2D3E33] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#202B24]"
+              className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
             >
-              <HomeIcon size={14} className="text-[#046A38] dark:text-[#A8E0C0] shrink-0" />
-              <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F3F1E8] truncate">
+              <HomeIcon size={14} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
+              <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Home
               </span>
             </button>
@@ -292,10 +325,10 @@ export default function MobileHome({
             <button
               type="button"
               onClick={() => handleShortcutClick("work")}
-              className="flex-1 min-w-0 bg-white/90 dark:bg-[#1A261F]/90 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#2D3E33] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#202B24]"
+              className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
             >
-              <Briefcase size={14} className="text-[#046A38] dark:text-[#A8E0C0] shrink-0" />
-              <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F3F1E8] truncate">
+              <Briefcase size={14} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
+              <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Work
               </span>
             </button>
@@ -304,10 +337,10 @@ export default function MobileHome({
             <button
               type="button"
               onClick={() => handleShortcutClick("airport")}
-              className="flex-1 min-w-0 bg-white/90 dark:bg-[#1A261F]/90 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#2D3E33] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#202B24]"
+              className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
             >
-              <Plane size={14} className="text-[#046A38] dark:text-[#A8E0C0] shrink-0" />
-              <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F3F1E8] truncate">
+              <Plane size={14} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
+              <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Airport
               </span>
             </button>
@@ -316,10 +349,10 @@ export default function MobileHome({
             <button
               type="button"
               onClick={() => handleShortcutClick("add")}
-              className="flex-1 min-w-0 bg-white/90 dark:bg-[#1A261F]/90 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#2D3E33] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#202B24]"
+              className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
             >
-              <Plus size={14} className="text-[#046A38] dark:text-[#A8E0C0] shrink-0" />
-              <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F3F1E8] truncate">
+              <Plus size={14} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
+              <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Add
               </span>
             </button>
@@ -330,6 +363,7 @@ export default function MobileHome({
       {/* =========================================================================
           SECTION 3E: TWO-COLUMN SERVICE CARDS
           Car Rides, Outstation, Parcel & Cargo, Bus & Ferry
+          Deep forest-green surfaces in dark mode (#0B2822) with subtle border (#24483D)
           ========================================================================= */}
       <section className="max-w-md mx-auto px-4 sm:px-6 pt-2 pb-5">
         <div className="grid grid-cols-2 gap-3">
@@ -342,11 +376,11 @@ export default function MobileHome({
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") router.push(service.route);
               }}
-              className="bg-white dark:bg-[#17261F] rounded-[14px] p-3 sm:p-3.5 border border-[#DED7CA]/85 dark:border-[#2D3E33] shadow-[0_2px_8px_rgba(18,61,50,0.04)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] flex items-center justify-between gap-2.5 cursor-pointer transition-all duration-150 active:scale-[0.97] hover:border-[#046A38]/40 dark:hover:border-[#058A48]/40 group select-none"
+              className="bg-white dark:bg-[#0B2822] rounded-[14px] p-3 sm:p-3.5 border border-[#DED7CA]/85 dark:border-[#24483D] shadow-[0_2px_8px_rgba(18,61,50,0.04)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.4)] flex items-center justify-between gap-2.5 cursor-pointer transition-all duration-150 active:scale-[0.97] hover:border-[#046A38]/40 dark:hover:border-[#34D399]/40 group select-none"
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 {/* Service Thumbnail */}
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[10px] bg-[#FAF7F0] dark:bg-[#101713] border border-[#DED7CA]/60 dark:border-[#2D3E33] overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[10px] bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA]/60 dark:border-[#24483D] overflow-hidden shrink-0 flex items-center justify-center p-0.5">
                   <Image
                     src={service.image}
                     alt={service.title}
@@ -358,10 +392,10 @@ export default function MobileHome({
 
                 {/* Text Content */}
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-[13.5px] sm:text-[14px] font-bold leading-tight text-[#10251C] dark:text-[#F3F1E8] truncate">
+                  <h2 className="text-[13.5px] sm:text-[14px] font-bold leading-tight text-[#10251C] dark:text-[#F7F5ED] truncate">
                     {service.title}
                   </h2>
-                  <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium leading-tight mt-0.5 truncate">
+                  <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium leading-tight mt-0.5 truncate">
                     {service.subtitle}
                   </p>
                 </div>
@@ -370,7 +404,7 @@ export default function MobileHome({
               {/* Discreet Chevron */}
               <ChevronRight
                 size={16}
-                className="text-[#696B64]/70 dark:text-[#929D93]/70 group-hover:text-[#046A38] dark:group-hover:text-[#058A48] group-hover:translate-x-0.5 transition-all shrink-0"
+                className="text-[#696B64]/70 dark:text-[#B9C8BF]/70 group-hover:text-[#046A38] dark:group-hover:text-[#34D399] group-hover:translate-x-0.5 transition-all shrink-0"
               />
             </div>
           ))}
@@ -383,13 +417,13 @@ export default function MobileHome({
           ========================================================================= */}
       <section className="max-w-md mx-auto pt-3 pb-8">
         <div className="px-4 sm:px-6 flex items-center justify-between mb-3">
-          <h2 className="font-serif text-[18px] sm:text-[20px] font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+          <h2 className="font-serif text-[18px] sm:text-[20px] font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
             Popular Destinations
           </h2>
           <button
             type="button"
             onClick={() => router.push("/fleet")}
-            className="text-[12.5px] font-bold text-[#046A38] dark:text-[#058A48] hover:underline flex items-center gap-0.5 active:scale-95 transition"
+            className="text-[12.5px] font-bold text-[#046A38] dark:text-[#34D399] hover:underline flex items-center gap-0.5 active:scale-95 transition cursor-pointer"
           >
             <span>See all</span>
             <ChevronRight size={14} />
@@ -407,7 +441,7 @@ export default function MobileHome({
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") handleDestinationClick(dest);
               }}
-              className="relative w-[130px] sm:w-[145px] h-[175px] sm:h-[195px] rounded-[14px] overflow-hidden shrink-0 snap-start border border-[#DED7CA]/80 dark:border-[#2D3E33] shadow-[0_4px_12px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.4)] cursor-pointer group active:scale-[0.96] transition-transform select-none"
+              className="relative w-[130px] sm:w-[145px] h-[175px] sm:h-[195px] rounded-[14px] overflow-hidden shrink-0 snap-start border border-[#DED7CA]/80 dark:border-[#24483D] shadow-[0_4px_12px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.5)] cursor-pointer group active:scale-[0.96] transition-transform select-none"
             >
               {/* Destination Image */}
               <Image

@@ -77,7 +77,7 @@ export default function NotificationToggle({
         onClick={handleClick}
         disabled={loading}
         aria-label="Notifications"
-        className={`relative w-10 h-10 rounded-full bg-white/85 dark:bg-[#1E2B23]/85 backdrop-blur-md border border-[#DED7CA]/80 dark:border-[#34443A] shadow-xs text-[#10251C] dark:text-[#F3F1E8] flex items-center justify-center active:scale-95 transition hover:bg-white dark:hover:bg-[#202B24] cursor-pointer ${className}`}
+        className={`relative w-10 h-10 rounded-full bg-white/85 dark:bg-[#0B2822]/90 backdrop-blur-md border border-[#DED7CA]/80 dark:border-[#24483D] shadow-xs text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-center active:scale-95 transition hover:bg-white dark:hover:bg-[#10352C] cursor-pointer ${className}`}
         title={
           isSubscribed
             ? "Notifications Enabled (Tap to manage)"
@@ -85,15 +85,15 @@ export default function NotificationToggle({
         }
       >
         {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin text-[#046A38] dark:text-[#058A48]" />
+          <Loader2 className="w-4 h-4 animate-spin text-[#046A38] dark:text-[#34D399]" />
         ) : isSubscribed ? (
           <>
-            <BellRing size={18} className="text-[#046A38] dark:text-[#A8E0C0]" />
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#046A38] animate-pulse" />
+            <BellRing size={18} className="text-[#046A38] dark:text-[#34D399]" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#046A38] dark:bg-[#34D399] animate-pulse" />
           </>
         ) : (
           <>
-            <Bell size={18} className="text-[#10251C]/80 dark:text-[#F3F1E8]/85" />
+            <Bell size={18} className="text-[#10251C]/80 dark:text-[#F7F5ED]" />
             <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E34222]" />
           </>
         )}

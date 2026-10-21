@@ -1,8 +1,6 @@
-
 import { auth } from "@/auth";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
-
 
 import User from "@/models/user.model";
 import connectDb from "@/lib/db";
@@ -33,7 +31,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#F7F1E5] dark:bg-[#101713]">
+    <div className="w-full min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] transition-colors duration-300">
       <Nav />
       <GeoUpdater userId={session?.user?.id}/>
       <PublicHome />
