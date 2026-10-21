@@ -40,6 +40,58 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 
 ---
 
+## [2026-10-21]
+
+### Financial Architecture, Ledger & Settlements
+- **Atomic Race-Safe Wallet Ledger & Compound Indexes (`Niyar Huzuri`)**:
+  - Enforced a unique compound index `{ referenceId: 1, type: 1 }` on `WalletTransaction` to physically prevent duplicate credit transactions at the database level (`85c6c47`).
+  - Implemented atomic balance increment locks in `walletLedger.ts`, eliminating race conditions between concurrent trip completion settlements and wallet payouts (`85c6c47`).
+- **Resilient & Recoverable Trip Settlements (`Niyar Huzuri`)**:
+  - Added persistent `settlementStatus` (`"pending" | "settled" | "failed"`) and `settlementError` fields to the `Booking` schema (`6076cf6`).
+  - Transformed settlement failures from unhandled rejections into recoverable operational records, allowing trip completion while queuing settlement for retry (`6076cf6`).
+  - Added dedicated `/api/admin/booking/[id]/retry-settlement` operational endpoint for safely reconciling failed driver earnings without duplicate payouts (`9210fb1`).
+- **Distributed Redis Idempotency & Rate Limiting (`Niyar Huzuri`)**:
+  - Implemented distributed Redis idempotency locks on critical financial mutations (`/api/booking/[id]/complete`, `/api/wallet/pay`, `/api/wallet/topup/create`) (`4b95517`).
+  - Added financial route rate limiting to defend against replay and brute-force topup attempts (`4b95517`).
+- **Webhook Payment Verification Mirroring (`Niyar Huzuri`)**:
+  - Mirrored full client-side verification logic into Razorpay webhook handlers (`paymentService.ts`), ensuring asynchronous gateway webhooks run the identical ledger crediting, state machine transitions, socket emits, and WhatsApp notifications as synchronous checkout returns (`ed5aee8`).
+- **Split Wallet & Gateway Payments (`DevaaPP`)**:
+  - Enabled split wallet + online payment with automated driver commission reconciliation and instant settlement balance deduction (`5fe3e3a`).
+
+### Security & Cryptographic Hardening
+- **Cryptographic Share Tokens (`Niyar Huzuri`)**:
+  - Replaced pseudo-random `Math.random()` with `crypto.randomBytes(16).toString("hex")` for tamper-proof public live-ride tracking URLs (`1fefc77`).
+- **State Machine Authorization Pre-guards (`Niyar Huzuri`)**:
+  - Restructured `bookingStateMachine.ts` to enforce role and ownership checks strictly *before* returning idempotent state responses, closing unauthorized state-probing avenues (`01c9c67`).
+- **Production OTP Leak Prevention & Fail-Closed Delivery (`Niyar Huzuri`)**:
+  - Sanitized API response payloads to ensure `devOtp` is never leaked in production environments (`0c4c209`).
+  - Enforced strict fail-closed exceptions when external SMS/WhatsApp credentials are unconfigured or failing in production (`0c4c209`).
+- **Candidate Driver Eligibility Enforcement (`Niyar Huzuri`)**:
+  - Enforced strict vendor onboarding, background check, and vehicle documentation verification before allowing drivers to claim bookings via `/api/booking/[id]/accept` (`0be89b3`).
+- **Panic & Cancellation Route Guards (`Niyar Huzuri`)**:
+  - Added rigorous state machine guards and ownership validation to emergency panic and trip cancellation handlers (`98aa67c`).
+
+### Admin Operations & Observability
+- **Wallet Audit & Ledger Drift Resync (`Niyar Huzuri`)**:
+  - Built `/api/admin/wallet-audit` to detect discrepancies between cumulative ledger transactions and current wallet balances with automated drift recovery (`9210fb1`).
+- **Structured JSON Telemetry (`Niyar Huzuri`)**:
+  - Implemented centralized structured JSON logger (`src/lib/logger.ts`) with correlation IDs, latency metrics, and PII masking across payment and webhook pathways (`64242a1`).
+
+### Mobile Experience, Theme & Ergonomics
+- **Driver Touch Ergonomics & Safe-Area Bounds (`Niyar Huzuri`)**:
+  - Hardened mobile touch ergonomics on driver active ride screens (`partner/active-ride`) with $\ge 44\times 44\text{ px}$ targets, thumb-zone CTAs, and `env(safe-area-inset-bottom)` compliance (`82f8a86`).
+  - Added real-time settlement status indicators on driver completion screens and partner booking history (`129c24f`, `4b95517`).
+  - Improved touch targets and accessibility on `TripDetailsModal` and `TripInvoiceModal` (`98aa67c`).
+- **Mobile Homepage & Scenic Visual Identity (`DevaaPP`)**:
+  - Replaced low-res service thumbnails with high-resolution, gutter-free cropped WebP assets for Car Rides, Outstation, Parcel & Cargo, and Schedule Booking (`72e7c1d`).
+  - Restored Vehicle Fleets and "Drive with Jaatri" sections immediately following Popular Destinations on mobile (`ecee736`).
+  - Integrated cinematic Assamese landscape hero with high-contrast text and eliminated reload theme flash (FOUC) (`ecee736`).
+  - Globally removed legacy bus, ferry, and launch references in favor of advance Schedule Booking (`ab9929e`).
+  - Eliminated SSR React 418 hydration text mismatches and Framer Motion reduced-motion attribute warnings (`ae48dc9`, `305abc3`).
+  - Optimized Next.js `Image` size hints and deduplicated shared desktop/mobile DOM instances (`c07b4d2`).
+
+---
+
 ## [2026-10-15]
 
 ### Security & Access Control
