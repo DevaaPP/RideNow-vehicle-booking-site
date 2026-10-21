@@ -1,5 +1,6 @@
 "use client";
 
+import { HomeIcon } from "@/shared/components/icons/AppIcons";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -9,7 +10,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   User as UserIcon,
-  Home,
   Briefcase,
   Star,
   Lock,
@@ -354,7 +354,7 @@ export default function SettingsPage() {
           <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[14px] overflow-hidden divide-y divide-[#DED7CA]/70 dark:divide-[#29372E] shadow-2xs">
             {/* Home */}
             <SettingRow
-              icon={Home}
+              icon={HomeIcon}
               title="Home"
               subtitle={homeAddress || "Add home"}
               onClick={() => setActiveModal("home")}

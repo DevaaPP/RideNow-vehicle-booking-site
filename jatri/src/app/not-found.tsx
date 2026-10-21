@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
-import { Home, Car, Compass, ArrowLeft, ShieldCheck } from "lucide-react";
+import { HomeIcon } from "@/shared/components/icons/AppIcons";
+import { Car, Compass, ArrowLeft, ShieldCheck } from "lucide-react";
 
 export default function NotFound() {
   return (
@@ -37,7 +38,7 @@ export default function NotFound() {
               href="/"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] px-6 py-3 text-sm font-semibold text-[#FAF7F0] shadow-sm transition-all duration-200"
             >
-              <Home className="w-4 h-4" />
+              <HomeIcon size={16} />
               <span>Return Home</span>
             </Link>
 

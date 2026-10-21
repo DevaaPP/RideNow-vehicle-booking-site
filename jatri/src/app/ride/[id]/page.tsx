@@ -8,9 +8,9 @@ import {
   Star, MessageCircle, Clock, Zap,
   IndianRupee, XCircle, AlertCircle, AlertTriangle,
   CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
-  ShieldAlert, Siren, PhoneCall, Share2, Navigation, KeyRound,
-  Home
+  ShieldAlert, Siren, PhoneCall, Share2, Navigation, KeyRound
 } from "lucide-react";
+import { HomeIcon } from "@/shared/components/icons/AppIcons";
 import Link from "next/link";
 import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
@@ -946,7 +946,7 @@ export default function RidePage() {
             className="h-9 px-3 bg-[#FAF7F0]/95 hover:bg-[#FAF7F0] dark:bg-[#17211B]/95 dark:hover:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition"
             title="Back to Home"
           >
-            <Home size={14} className="text-[#123D32] dark:text-[#D7AC62]" />
+            <HomeIcon size={16} className="text-[#123D32] dark:text-[#D7AC62]" />
             <span>Home</span>
           </Link>
         </div>
@@ -983,7 +983,7 @@ export default function RidePage() {
                 className="inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.15em] uppercase text-[#E5EBDD]/80 hover:text-white transition"
                 title="Go to Home"
               >
-                <Home size={11} />
+                <HomeIcon size={14} />
                 <span>Home</span>
               </Link>
               <span className="text-[#E5EBDD]/40 text-xs">•</span>

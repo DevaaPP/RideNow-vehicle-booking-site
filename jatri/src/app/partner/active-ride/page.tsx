@@ -10,8 +10,9 @@ import {
   MapPin, Navigation, MessageCircle,
   AlertCircle, XCircle, AlertTriangle,
   Mic, MicOff, Volume2, PhoneOff, PhoneCall, Siren, ShieldAlert,
-  ExternalLink, Home
+  ExternalLink
 } from "lucide-react";
+import { HomeIcon } from "@/shared/components/icons/AppIcons";
 import Link from "next/link";
 import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
 import { useEffect, useRef, useState } from "react";
@@ -732,7 +733,7 @@ export default function DriverRidePage() {
               className="h-8 sm:h-9 px-2.5 sm:px-3 bg-[#FAF7F0]/95 hover:bg-[#FAF7F0] dark:bg-[#17211B]/95 dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-semibold backdrop-blur-sm transition"
               title="Home"
             >
-              <Home size={14} className="text-[#123D32] dark:text-[#347858]" />
+              <HomeIcon size={16} className="text-[#123D32] dark:text-[#347858]" />
               <span className="hidden sm:inline">Home</span>
             </Link>
             <Link
@@ -781,7 +782,7 @@ export default function DriverRidePage() {
                 className="inline-flex items-center gap-1 text-[11px] font-medium text-[#FAF7F0]/80 hover:text-[#FAF7F0] transition"
                 title="Go to Home"
               >
-                <Home size={11} />
+                <HomeIcon size={13} />
                 <span>Home</span>
               </Link>
               <span className="text-[#FAF7F0]/40 text-xs">•</span>

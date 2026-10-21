@@ -10,13 +10,13 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   MapPin,
   ArrowRight,
-  Home as HomeIcon,
   Briefcase,
   Plane,
   Plus,
   ChevronRight,
   Sparkles,
 } from "lucide-react";
+import { HomeIcon } from "@/shared/components/icons/AppIcons";
 
 interface SavedPlace {
   id: string;
@@ -315,7 +315,7 @@ export default function MobileHome({
               onClick={() => handleShortcutClick("home")}
               className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
             >
-              <HomeIcon size={14} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
+              <HomeIcon size={16} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
               <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Home
               </span>
@@ -327,7 +327,7 @@ export default function MobileHome({
               onClick={() => handleShortcutClick("work")}
               className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
             >
-              <Briefcase size={14} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
+              <Briefcase size={16} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
               <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Work
               </span>
@@ -339,7 +339,7 @@ export default function MobileHome({
               onClick={() => handleShortcutClick("airport")}
               className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
             >
-              <Plane size={14} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
+              <Plane size={16} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
               <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Airport
               </span>
@@ -351,7 +351,7 @@ export default function MobileHome({
               onClick={() => handleShortcutClick("add")}
               className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
             >
-              <Plus size={14} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
+              <Plus size={16} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
               <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Add
               </span>

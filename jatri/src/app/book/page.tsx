@@ -12,8 +12,9 @@ import {
   User, UserPlus, Check, Package, Sparkles, SlidersHorizontal, AlertTriangle, Loader2,
   Plane, Train, Building2, HeartPulse, AlertCircle, RotateCcw,
   Zap, ArrowDownUp, Settings, FileText, GripVertical,
-  Home, LogIn
+  LogIn
 } from "lucide-react";
+import { HomeIcon } from "@/shared/components/icons/AppIcons";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -2523,7 +2524,7 @@ export default function BookPage() {
                 aria-label="Go Home"
                 title="Go Home"
               >
-                <Home size={15} />
+                <HomeIcon size={15} />
               </Link>
               <button
                 type="button"
@@ -2688,7 +2689,7 @@ export default function BookPage() {
                     aria-label="Go Home"
                     title="Go Home"
                   >
-                    <Home size={14} />
+                    <HomeIcon size={14} />
                   </Link>
                   <button
                     type="button"
@@ -2746,7 +2747,7 @@ export default function BookPage() {
                 className="h-8 px-2.5 bg-white/95 dark:bg-[#17211B]/95 hover:bg-white dark:hover:bg-[#1E2B23] text-zinc-900 dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition"
                 title="Home"
               >
-                <Home size={13} />
+                <HomeIcon size={13} />
                 <span>Home</span>
               </Link>
               <button

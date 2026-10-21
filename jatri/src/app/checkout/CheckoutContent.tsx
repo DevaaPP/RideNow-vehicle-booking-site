@@ -7,9 +7,9 @@ import {
   Bike, Car, Truck, Loader2, CheckCircle2,
   XCircle, Clock, CreditCard, Banknote,
   ArrowRight, ArrowLeft, RotateCcw, AlertCircle, Wallet,
-  Users, UserPlus, Share2, IndianRupee, Package, Edit2,
-  Home
+  Users, UserPlus, Share2, IndianRupee, Package, Edit2
 } from "lucide-react";
+import { HomeIcon } from "@/shared/components/icons/AppIcons";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -836,7 +836,7 @@ export default function CheckoutContent() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-white dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold transition shadow-none cursor-pointer"
               title="Go to Home"
             >
-              <Home size={13} />
+              <HomeIcon size={13} />
               <span className="hidden sm:inline">Home</span>
             </Link>
             <Link
