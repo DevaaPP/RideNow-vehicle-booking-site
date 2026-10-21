@@ -8,6 +8,7 @@ import { getOrCreateWallet, generateTransactionId } from "@/lib/walletLedger";
 import { calculateCommissionSplit } from "@/lib/commission";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
+import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -161,7 +162,6 @@ export async function POST(req: NextRequest) {
     const { adminCommission, partnerAmount } = calculateCommissionSplit(pureRideFare);
 
     booking.paymentStatus = "paid";
-    booking.status = "confirmed";
 
     if (!booking.pickupOtp) {
       booking.pickupOtp = generateSecureOtp(4);
@@ -170,7 +170,25 @@ export async function POST(req: NextRequest) {
 
     booking.adminCommission = adminCommission + totalRecoveredDues;
     booking.partnerAmount = partnerAmount;
-    await booking.save();
+
+    // Transition booking state authoritatively via state machine
+    const transitionRes = await transitionBookingState({
+      bookingId: booking._id,
+      targetStatus: "confirmed",
+      actorRole: "user",
+      actorId: user._id,
+      payload: {
+        paymentStatus: "paid",
+        pickupOtp: booking.pickupOtp,
+        pickupOtpExpires: booking.pickupOtpExpires,
+        adminCommission: adminCommission + totalRecoveredDues,
+        partnerAmount,
+      },
+    });
+
+    if (transitionRes.booking) {
+      booking.status = transitionRes.booking.status;
+    }
 
     // Emit live socket event to driver and passenger
     try {
