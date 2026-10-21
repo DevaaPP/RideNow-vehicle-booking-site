@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import razorpay from "@/lib/razorpay";
 import User from "@/models/user.model";
+import { rateLimiter } from "@/lib/rateLimit";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -36,6 +37,14 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const limitCheck = rateLimiter.check(`wallet:topup:${user._id.toString()}`, 6, 60 * 1000);
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many top-up attempts. Please wait a minute before trying again." },
+        { status: 429 }
+      );
     }
 
     const effectiveKeyId = (

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   try {
     const idempotencyKey = idempotency.getKey(req);
     if (idempotencyKey) {
-      const cached = idempotency.get(idempotencyKey);
+      const cached = await idempotency.get(idempotencyKey);
       if (cached) {
         return NextResponse.json(cached.body, {
           status: cached.status,
@@ -525,7 +525,7 @@ export async function POST(req: Request) {
     };
 
     if (idempotencyKey) {
-      idempotency.set(idempotencyKey, 201, responsePayload);
+      await idempotency.set(idempotencyKey, 201, responsePayload);
     }
 
     return NextResponse.json(responsePayload, {

@@ -32,6 +32,7 @@ interface Booking {
   fare: number;
   status: string;
   paymentStatus: string;
+  settlementStatus?: "pending" | "success" | "failed";
   paymentMethod?: string;
   createdAt: string;
   startedAt?: string;
@@ -314,6 +315,22 @@ export default function PartnerBookingsPage() {
                         {booking.paymentMethod && (
                           <span className="text-[11px] sm:text-xs text-[#696B64] dark:text-[#929D93] capitalize">
                             • {booking.paymentMethod}
+                          </span>
+                        )}
+                        {booking.status === "completed" && (
+                          <span
+                            className={`text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-[6px] font-semibold border flex items-center gap-1 ${
+                              booking.settlementStatus === "failed"
+                                ? "bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800"
+                                : "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800"
+                            }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                booking.settlementStatus === "failed" ? "bg-amber-500 animate-pulse" : "bg-emerald-600"
+                              }`}
+                            />
+                            {booking.settlementStatus === "failed" ? "Queued" : "Settled"}
                           </span>
                         )}
                       </div>

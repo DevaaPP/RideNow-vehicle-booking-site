@@ -3,6 +3,7 @@ import connectDb from "@/lib/db";
 import { auth } from "@/auth";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { settleCompletedRidePayment } from "@/lib/settlePayment";
+import { rateLimiter } from "@/lib/rateLimit";
 
 export async function POST(
   req: NextRequest,
@@ -22,6 +23,14 @@ export async function POST(
 
   const actorRole = userRole === "admin" ? "admin" : "driver";
   const actorId = session.user.id;
+
+  const completeLimit = rateLimiter.check(`booking:complete:${actorId}`, 8, 60 * 1000);
+  if (!completeLimit.allowed) {
+    return NextResponse.json(
+      { message: "Too many completion attempts. Please wait a moment." },
+      { status: 429 }
+    );
+  }
 
   const body = await req.json().catch(() => ({}));
   const { otp, emergencyFallback, bypassReason } = body;

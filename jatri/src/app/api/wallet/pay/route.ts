@@ -9,6 +9,7 @@ import { calculateCommissionSplit } from "@/lib/commission";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
+import { rateLimiter } from "@/lib/rateLimit";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -46,6 +47,14 @@ export async function POST(req: NextRequest) {
     // ── Ownership check ────────────────────────────────────────────────────
     if (booking.user?.toString() !== user._id.toString()) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const payLimit = rateLimiter.check(`wallet:pay:${user._id.toString()}`, 10, 60 * 1000);
+    if (!payLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many payment attempts. Please wait a moment before trying again." },
+        { status: 429 }
+      );
     }
 
     // Idempotency: verify if this payment was already processed

@@ -1,11 +1,12 @@
 /**
- * RideNow Idempotency Engine (Phase 12)
+ * RideNow Distributed Idempotency Engine (Phase 12)
  *
  * Prevents duplicate transactions, double payments, and race-condition double-bookings
- * when clients retry API calls over unreliable mobile connections.
+ * across distributed serverless lambda instances using Upstash Redis with local Map fallback.
  */
+import { redisGet, redisSet } from "./redis";
 
-interface CachedIdempotentResponse {
+export interface CachedIdempotentResponse {
   status: number;
   body: any;
   headers?: Record<string, string>;
@@ -37,9 +38,18 @@ class IdempotencyEngine {
   }
 
   /**
-   * Retrieves any cached response for this key.
+   * Retrieves any cached response for this key from distributed Redis or local store.
    */
-  public get(key: string): CachedIdempotentResponse | null {
+  public async get(key: string): Promise<CachedIdempotentResponse | null> {
+    // 1. Try distributed Upstash Redis first
+    try {
+      const redisRecord = await redisGet<CachedIdempotentResponse>(`idemp:${key}`);
+      if (redisRecord && Date.now() <= redisRecord.expiresAt) {
+        return redisRecord;
+      }
+    } catch (_) {}
+
+    // 2. Fall back to local memory store
     const record = this.store.get(key);
     if (!record) return null;
 
@@ -52,28 +62,35 @@ class IdempotencyEngine {
   }
 
   /**
-   * Stores response under this idempotency key.
+   * Stores response under this idempotency key in both Redis and memory.
    * Default TTL is 24 hours (86,400,000 ms).
    */
-  public set(
+  public async set(
     key: string,
     status: number,
     body: any,
     headers?: Record<string, string>,
     ttlMs: number = 24 * 60 * 60 * 1000
-  ): void {
+  ): Promise<void> {
     const now = Date.now();
-    this.store.set(key, {
+    const record: CachedIdempotentResponse = {
       status,
       body,
       headers,
       createdAt: now,
       expiresAt: now + ttlMs,
-    });
+    };
+
+    this.store.set(key, record);
+
+    try {
+      const ttlSeconds = Math.max(60, Math.round(ttlMs / 1000));
+      await redisSet(`idemp:${key}`, record, ttlSeconds);
+    } catch (_) {}
   }
 
   /**
-   * Cleans up expired idempotency records.
+   * Cleans up expired idempotency records from memory.
    */
   private evict(): void {
     const now = Date.now();
