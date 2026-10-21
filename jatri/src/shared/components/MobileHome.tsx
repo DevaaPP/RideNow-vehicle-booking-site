@@ -200,43 +200,45 @@ export default function MobileHome({
           Light: Warm sunset sky over Brahmaputra valley
           Dark: Moody twilight dusk sunset over mountain ridges with deep shadows
           ========================================================================= */}
-      <section className="relative w-full overflow-hidden pt-20 sm:pt-24 pb-7 px-4 sm:px-6">
+      <section className="relative isolate w-full overflow-hidden pt-20 sm:pt-24 pb-7 px-4 sm:px-6">
         {/* Background Scenic Landscape Images (Light vs Dark) */}
-        <div className="absolute inset-0 -z-10 w-full h-full">
+        <div className="absolute inset-0 z-0 w-full h-full pointer-events-none select-none">
           {/* Light Theme Landscape */}
-          <div className="relative w-full h-full block dark:hidden">
+          <div className="relative w-full h-full block dark:hidden bg-[url('/mobile-home/hero_landscape.webp')] bg-cover bg-[center_35%]">
             <Image
               src="/mobile-home/hero_landscape.webp"
               alt="Scenic Assamese Landscape at Sunset"
               fill
               priority
-              sizes="100vw"
-              className="object-cover object-center pointer-events-none brightness-[1.02] contrast-[1.01]"
+              sizes="(max-width: 768px) 100vw, 480px"
+              className="object-cover object-[center_35%] pointer-events-none"
             />
+            {/* Subtle natural gradient: preserves the golden sky and feathers into ivory at bottom */}
             <div
-              className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#FAF7F0]/40 via-transparent to-[#FAF7F0]"
+              className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FAF7F0]/20 to-[#FAF7F0]"
               aria-hidden="true"
             />
           </div>
 
           {/* Dark Theme Landscape */}
-          <div className="relative w-full h-full hidden dark:block">
+          <div className="relative w-full h-full hidden dark:block bg-[url('/mobile-home/hero_landscape_dark.webp')] bg-cover bg-[center_35%]">
             <Image
               src="/mobile-home/hero_landscape_dark.webp"
               alt="Assamese Landscape at Twilight Dusk"
               fill
               priority
-              sizes="100vw"
-              className="object-cover object-center pointer-events-none brightness-[1.05] contrast-[1.04]"
+              sizes="(max-width: 768px) 100vw, 480px"
+              className="object-cover object-[center_35%] pointer-events-none"
             />
+            {/* Subtle natural gradient: preserves twilight mountains and feathers into dark forest at bottom */}
             <div
-              className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#061A16]/50 via-transparent to-[#061A16]"
+              className="absolute inset-0 bg-gradient-to-b from-transparent via-[#061A16]/25 to-[#061A16]"
               aria-hidden="true"
             />
           </div>
         </div>
 
-        <div className="max-w-md mx-auto">
+        <div className="relative z-10 max-w-md mx-auto">
           {/* Tagline / Eyebrow */}
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0, y: -6 }}
