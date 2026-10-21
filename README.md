@@ -1,153 +1,145 @@
-# 🚗 RideNow – Next-Generation Urban Mobility & Vehicle Booking Platform
+# 🚗 Jaatri (যাত্ৰী) / RideNow — Hyperlocal Urban Mobility & Logistics Platform
 
 <p align="center">
   <a href="https://ride-now-vehicle-booking-site.vercel.app" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/🚀%20Live%20Web%20App-Launch%20RideNow-10b981?style=for-the-badge&logo=safari&logoColor=white" alt="Live Demo" />
+    <img src="https://img.shields.io/badge/🚀%20Live%20Web%20App-Launch%20Jaatri-046A38?style=for-the-badge&logo=safari&logoColor=white" alt="Live Demo" />
   </a>
   <a href="https://github.com/niyar18/RideNow-vehicle-booking-site">
     <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
   </a>
   <img src="https://img.shields.io/badge/Next.js%2016-Turbopack-black?style=for-the-badge&logo=next.js" alt="Next.js 16" />
+  <img src="https://img.shields.io/badge/React%2019-Enabled-61DAFB?style=for-the-badge&logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS v4" />
 </p>
 
 ---
 
-### 🌐 Live Application Link
-> **Experience RideNow Live**: [**https://ride-now-vehicle-booking-site.vercel.app**](https://ride-now-vehicle-booking-site.vercel.app)  
-> Anyone visiting this repository can click the button or link above to directly explore instant vehicle bookings, WhatsApp & SMS OTP authentication, live driver dispatch, and the driver wallet.
+### 🌐 Live Application
+> **Experience Jaatri Live**: [**https://ride-now-vehicle-booking-site.vercel.app**](https://ride-now-vehicle-booking-site.vercel.app)  
+> Full-featured ride-hailing and parcel logistics across Northeast India (Guwahati, Shillong, Kaziranga, Majuli, and beyond). Includes WhatsApp & SMS authentication, live driver dispatch, MapLibre GL vector tracking, and driver wallet settlements.
 
 ---
 
-## 🌟 Key Platform Features
+## 🌟 Platform Capabilities
 
-### 1. 👥 Group Ride Splitting
-- Split trip fares seamlessly among friends and colleagues with unique invite tokens.
-- Dynamic per-passenger fare calculation updating in real time as participants join or decline.
-- Visual passenger roster and payment contribution tracking.
+### 1. 🛞 Comprehensive Multi-Tier Fleet
+Support for 8 distinct transport categories tailored for Northeast India's topography:
+- **Scooty & Moto**: Rapid single-passenger intra-city travel through dense urban corridors.
+- **Auto Rickshaw**: Economical point-to-point transit.
+- **Car Mini & Premier**: Compact sedans and premium air-conditioned city transit.
+- **Car XL / Priority SUV**: High-capacity family and all-terrain hill journeys.
+- **Express Mini & Freight Truck**: On-demand cargo logistics, goods movement, and commercial dispatch.
 
-### 2. 📍 Smart Pickup Spot Suggester
-- AI-inspired pickup recommendation engine for transit hubs, airports, corporate tech parks, and commercial centers.
-- Automatically calculates pedestrian walking time and distance to optimized pickup gates for faster dispatch.
-- Visual badge highlighting fast-dispatch spots with one-click selection.
+### 2. 🗺️ Flexible Booking Modes
+- **Instant City Rides**: Automated broadcast dispatch matching nearby online drivers in parallel.
+- **Advance Scheduled Reservations**: Date & time picker with automated 45-minute pre-dispatch buffer.
+- **Outstation & Inter-District Travel**: Specialized point-to-point routes between key hubs (e.g., Guwahati to Shillong, Jorhat, Tezpur).
+- **Parcel & Cargo Delivery**: Dedicated commercial logistics booking with weight tiering and payload management.
 
-### 3. 🔄 Auto-Rematch Driver Failover
-- Automated multi-driver dispatch cascade when a driver rejects or times out on a trip request.
-- Real-time status sync via WebSockets with visual countdown timer and seamless rematch progression.
-- Graceful fallbacks ensuring riders are never left stranded.
+### 3. 🛡️ Rider Safety & Cryptographic Security
+- **Dual-Stage CSPRNG OTP Verification**: 4-digit cryptographically secure pickup PIN and drop PIN preventing unauthorized ride start or premature completion.
+- **Masked Calling & In-Ride WebRTC Audio**: Virtualized calling protects user phone numbers during pickups; direct in-ride audio powered by ZegoCloud.
+- **Emergency Panic / SOS**: One-tap trigger dispatching instant alerts, real-time GPS coordinates, and vehicle details to the safety response center.
+- **Cryptographic Live Trip Sharing**: Tamper-proof public tracking URLs (`/track/[token]`) generated via `crypto.randomBytes(16)` with zero credential leaks.
 
-### 4. 🛡️ In-Ride Safety Monitor & Live SOS
-- Automated safety check-in prompts triggered during extended trip stops or unexpected route deviations.
-- One-tap Emergency SOS panic button broadcasting instant alerts with live GPS coordinates to the safety operations center.
-- Continuous rider peace-of-mind with real-time trip status tracking.
+### 4. 💰 Financial Architecture & Driver Ledger
+- **Race-Safe Wallet Ledger**: Unique compound indexing (`{ referenceId: 1, type: 1 }`) and atomic balance increment locks physically eliminate double credits.
+- **Distributed Redis Idempotency**: Upstash Redis distributed locks and rate limiting protect payment completion, checkout verification, and wallet top-ups.
+- **Resilient Trip Settlements**: Decoupled settlement state (`pending | settled | failed`) ensures ride completion never crashes on gateway delays, with dedicated admin retry (`/api/admin/booking/[id]/retry-settlement`) and automated ledger audit reconciliation (`/api/admin/wallet-audit`).
+- **Flexible Payments & Dues Recovery**: Razorpay UPI/cards, split wallet + online checkout, cash trip commission accounting, and automated platform dues enforcement (₹300 cap).
 
-### 5. 🏷️ Transparent Fare Breakdown Engine
-- Complete, crystal-clear fare transparency prior to booking confirmation.
-- Interactive fare breakdown itemizing base fare, distance charges, night travel allowance, surge multiplier, student concessions, and platform fees.
+### 5. 👥 Community & Social Mobility
+- **Group Ride Fare Splitting**: Invite link generator allowing passengers to split trip costs dynamically with real-time contribution tracking.
+- **Family & Corporate Linked Accounts**: Shared billing with monthly trip spending caps and per-ride authorization controls.
+- **Student Verification & Concessions**: Domain verification (`.edu`, `.ac.in`) offering instant digital pass verification and daily commute discounts.
+- **Smart Pickup Spot Suggester**: Walk-time calculation to optimal airport gates, transit centers, and commercial hubs.
 
-### 6. 🎓 Student Verification & Discount Mode
-- Dedicated student verification portal validating accredited institutional domains (`.edu`, `.ac.in`).
-- Automated 15% promotional discount applied across daily campus commutes.
-- Instant digital student verification badge.
-
-### 7. 🗺️ Multi-Stop Route Planner & Fare Matrix
-- Add, reorder, and remove multiple waypoints along the journey.
-- Real-time route polyline rendering and cumulative distance computation via Haversine geometry.
-- Individual stop arrival estimation and multi-drop itinerary management.
-
-### 8. 👨‍👩‍👧 Family & Corporate Linked Accounts
-- Centralized billing supporting primary account holders and authorized secondary members.
-- Configurable monthly trip spending caps with per-ride balance verification.
-- Instant member invitation and real-time wallet deduction.
-
-### 9. 📅 Scheduled Rides Dispatch Calendar
-- Advance ride reservations with integrated date and time picker.
-- Automated 45-minute pre-dispatch buffer transitioning scheduled bookings into active driver matchmaking queues.
-- Rider calendar management with instant cancellation or rescheduling capabilities.
-
-### 10. 📹 Live Video KYC & Partner Onboarding
-- Comprehensive multi-step driver partner registration with vehicle inspection and document uploads.
-- Real-time WebRTC Video KYC powered by ZegoCloud with live audio/video test and admin verification room.
-- Role-based admin approval and rejection workflows.
-
-### 11. 🔐 Dual-Stage OTP Trip Verification
-- Dynamic 4-digit pickup PIN for ride commencement and cryptographically secure (CSPRNG) drop PIN for trip finalization.
-- Integrated anti-brute force protection with automated 5-minute lockout on repeated failures.
-- Direct passenger-driver socket notification on OTP verification with instant state progression.
-
-### 12. ⚡ Resilient Telemetry & Adaptive Polling Fallback
-- Reconnection-resilient WebSocket architecture with automatic booking room rejoining upon network reconnects.
-- Adaptive 6-second polling fallback activating whenever cellular data stutters in underground or remote routes.
-- Mobile wake-lock engagement preventing driver screen dimming during active turn-by-turn navigation.
-
-### 13. 💰 Driver Wallet & Platform Dues Enforcement
-- Built-in Driver Wallet with automated 20% platform commission deductions.
-- Strict platform dues ceiling (₹300 cap) on cash trips with warning banners and duty toggle lock preventing debt accumulation.
-- 1-Tap UPI / Razorpay dues settlement restoring immediate driver dispatch eligibility.
-
-### 14. 📲 WhatsApp & SMS Authentication Engine
-- Passwordless mobile login supporting both Meta WhatsApp Cloud API and SMS OTP channels.
-- Full clipboard paste support, auto-focus digit progression, and automatic dev/simulated fallback.
-- NextAuth v5 session integration linking phone accounts with Google OAuth identities seamlessly.
+### 6. 📱 Mobile-First Native Experience
+- **Touch-First Ergonomics**: Strict 44×44px minimum touch targets, thumb-zone primary CTAs, dynamic viewports (`100dvh`), and safe-area inset preservation (`env(safe-area-inset-bottom)`).
+- **Assam Scenic Visual Identity**: Warm ivory (`#FAF7F0`), forest green (`#123D32`), and primary emerald (`#046A38`) palette with dark twilight theme and zero reload flash (FOUC-free).
+- **Network Resilience**: 6-second adaptive polling fallback activating automatically during cellular dips in remote or underground routes.
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer | Technologies |
+| Domain | Technologies |
 |---|---|
-| **Frontend** | [Next.js 16](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/), [Lucide React](https://lucide.dev/) |
+| **Frontend Framework** | [Next.js 16](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/) |
+| **Styling & Design System** | [Tailwind CSS v4](https://tailwindcss.com/), [Lucide React](https://lucide.dev/), CSS custom properties |
 | **State Management** | [Redux Toolkit](https://redux-toolkit.js.org/) |
-| **Backend & APIs** | Next.js Route Handlers, [Mongoose ODM](https://mongoosejs.com/) |
-| **Database** | [MongoDB](https://www.mongodb.com/) (Atlas or local instance) |
-| **Authentication** | [NextAuth.js v5](https://authjs.dev/) (Credentials, Google OAuth) |
-| **Realtime Telemetry** | [Socket.IO](https://socket.io/) (Node.js microservice + Client) |
-| **Mapping & Routing** | [Leaflet](https://leafletjs.com/), [React-Leaflet](https://react-leaflet.js.org/), OpenStreetMap |
-| **Payment Gateway** | [Razorpay](https://razorpay.com/) (Checkout & HMAC signature verification) |
-| **Video Infrastructure** | [ZegoCloud WebRTC UIKit](https://www.zegocloud.com/) |
-| **Media Storage** | [Cloudinary](https://cloudinary.com/) |
-| **Email Service** | [Resend](https://resend.com/) |
+| **Database & ODM** | [MongoDB Atlas](https://www.mongodb.com/), [Mongoose 9](https://mongoosejs.com/) (19 domain models) |
+| **Realtime Telemetry** | Standalone [Socket.IO 4](https://socket.io/) microservice on Node.js / Express 5 |
+| **Maps & Spatial Routing** | [MapLibre GL](https://maplibre.org/), OSRM & Valhalla routing, OpenStreetMap vector tiles |
+| **Authentication** | [NextAuth.js v5](https://authjs.dev/), Google OAuth, WhatsApp Cloud API & SMS OTP |
+| **Payment Gateway** | [Razorpay](https://razorpay.com/) (Checkout & HMAC webhook verification) |
+| **Distributed Locks & Cache** | [Upstash Redis](https://upstash.com/) (Idempotency locks, rate limiters) |
+| **Audio & Video Infrastructure** | [ZegoCloud WebRTC](https://www.zegocloud.com/) (In-ride calling & Driver Video KYC) |
+| **Media & Storage** | [Cloudinary](https://cloudinary.com/) (Driver licenses, vehicle inspection photos) |
+| **Transactional Email** | [Resend](https://resend.com/) |
 
 ---
 
 ## 📁 Repository Structure
 
 ```text
-RideNow-vehicle-booking-site/
-├── jatri/                     # Next.js 16 Full-Stack Application
-│   ├── public/                # Static assets, branding, and icons
+RideNow/
+├── jatri/                         # Next.js 16 Full-Stack Web Application
+│   ├── public/                    # Production-optimized WebP assets, logos, and manifest
+│   │   ├── explore/               # Explore destination & activity card imagery
+│   │   ├── fleet/                 # Canonical vehicle artwork (8 tiers)
+│   │   └── mobile-home/           # Scenic Assamese hero visuals & service cards
 │   ├── src/
-│   │   ├── app/               # App Router pages and REST API routes
-│   │   │   ├── admin/         # Admin fleet management and KYC verification
-│   │   │   ├── api/           # Protected API routes (bookings, auth, payments, partners)
-│   │   │   ├── book/          # Multi-step ride booking & vehicle selector
-│   │   │   ├── checkout/      # Razorpay payment & ride confirmation
-│   │   │   ├── partner/       # Driver partner onboarding portal
-│   │   │   ├── video-kyc/     # ZegoCloud WebRTC verification room
-│   │   │   └── ...
-│   │   ├── components/        # Reusable React components & maps
-│   │   ├── lib/               # Utility modules (fareEngine, routeUtils, db, razorpay)
-│   │   ├── models/            # Mongoose schemas (User, Vehicle, Booking, FareConfig)
-│   │   ├── redux/             # Redux Toolkit store & user slices
-│   │   ├── auth.ts            # NextAuth configuration and callbacks
-│   │   └── proxy.ts           # Route protection & role middleware
-│   ├── .env.example           # Environment template for frontend/API
-│   └── package.json           # Frontend dependencies & scripts
+│   │   ├── app/                   # App Router pages and 40+ REST API routes
+│   │   │   ├── admin/             # Operations, KYC approvals, and wallet audit consoles
+│   │   │   ├── api/               # Protected REST API routes (booking, auth, wallet, kyc)
+│   │   │   ├── book/              # Multi-step ride booking & vehicle selector
+│   │   │   ├── checkout/          # Razorpay payment & ride confirmation
+│   │   │   ├── partner/           # Driver partner onboarding portal & active ride UI
+│   │   │   └── video-kyc/         # ZegoCloud WebRTC verification room
+│   │   ├── features/              # Modular domain features (auth, booking, rides, driver, maps)
+│   │   ├── shared/                # Reusable cross-feature components and layouts
+│   │   ├── lib/                   # Core domain engines:
+│   │   │   ├── bookingStateMachine.ts  # Transition matrix with role pre-guards
+│   │   │   ├── driverMatchingEngine.ts # Parallel broadcast dispatch engine
+│   │   │   ├── fareEngine.ts           # Dynamic fare calculation & rate matrices
+│   │   │   ├── walletLedger.ts         # Double-entry atomic ledger & payout locks
+│   │   │   ├── paymentService.ts       # Razorpay webhook and payment verification
+│   │   │   └── logger.ts               # Centralized structured JSON telemetry
+│   │   ├── models/                # 19 Mongoose Schemas (User, Vehicle, Booking, Wallet, etc.)
+│   │   ├── redux/                 # Redux Toolkit store & user slices
+│   │   ├── auth.ts                # NextAuth v5 configuration and callbacks
+│   │   └── proxy.ts               # Edge route protection & role middleware
+│   └── package.json
 │
-├── socketServer/              # Standalone Realtime WebSocket Service
-│   ├── server.js              # Socket.IO event handler for driver GPS & trip updates
-│   └── package.json           # WebSocket microservice dependencies
+├── socketServer/                  # Standalone Realtime WebSocket Service
+│   ├── index.js                   # Socket.IO event handler for driver GPS & trip updates
+│   ├── test/                      # Socket integration test suites
+│   └── package.json
 │
-├── scripts/                   # Database validation & test utility scripts
-├── .gitignore                 # Top-level repository ignore rules
-├── .env.example               # Root environment variable documentation
-└── README.md                  # Comprehensive platform documentation
+├── docs/                          # Authoritative Architecture Intelligence Maps
+│   └── architecture/
+│       ├── overview.md            # System topology and deployment boundaries
+│       ├── mobile-first.md        # Mobile ergonomics, viewports, and safe areas
+│       ├── routes.md              # Complete App Router inventory & authorization
+│       ├── data-flow.md           # Booking lifecycle, dispatch, and socket events
+│       ├── data-models.md         # 19 Mongoose models, indexes, and relations
+│       ├── integrations.md        # Razorpay, ZegoCloud, Upstash, Cloudinary
+│       ├── design-system.md       # Color tokens, typography, and corner radii
+│       ├── testing.md             # Verification procedures and test checklists
+│       ├── known-issues.md        # Technical debt resolutions and architectural fixes
+│       └── code-index.md          # Symbol index for critical engines and handlers
+│
+├── CHANGELOG.md                   # Chronological grouped release changelog
+├── AGENTS.md                      # Agent Operating System & Repository Guide
+└── README.md                      # Master platform documentation
 ```
 
 ---
 
-## ⚙️ Environment Variables
+## ⚙️ Environment Configuration
 
-Create a `.env.local` file inside the `jatri/` directory (see [.env.example](.env.example)):
+Create a `.env.local` file inside `jatri/` using [.env.example](jatri/.env.example) as a baseline:
 
 ```env
 # Database
@@ -156,6 +148,7 @@ MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/jatri?retryWrite
 # NextAuth Authentication
 AUTH_SECRET=your_generated_secret_base64_string
 NEXTAUTH_SECRET=your_generated_secret_base64_string
+NEXTAUTH_URL=http://localhost:3000
 
 # Google OAuth (Optional)
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
@@ -165,68 +158,82 @@ GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 RAZORPAY_KEY_ID=rzp_test_yourKeyId
 RAZORPAY_KEY_SECRET=your_razorpay_secret
 NEXT_PUBLIC_RAZORPAY_KEY=rzp_test_yourKeyId
+RAZORPAY_WEBHOOK_SECRET=your_razorpay_webhook_secret
 
-# Realtime WebSocket Server
+# Upstash Redis (Distributed locks & rate limiting)
+UPSTASH_REDIS_REST_URL=https://your-instance.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your_upstash_token
+
+# Realtime WebSocket Microservice
 NEXT_PUBLIC_SOCKET_SERVER=http://localhost:5000
 
-# Cloudinary Media Storage
+# Cloudinary Media Storage (Driver KYC & Vehicle Docs)
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
-# ZegoCloud Video KYC
+# ZegoCloud (In-Ride Audio & Video KYC)
 ZEGO_APP_ID=1234567890
 ZEGO_SERVER_SECRET=your_zego_server_secret
 NEXT_PUBLIC_ZEGO_APP_ID=1234567890
 
-# Email Delivery (Resend)
+# Transactional Email (Resend)
 RESEND_API_KEY=re_your_api_key
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Local Development Setup
 
-### 1. Clone Repository
+### 1. Clone & Install
 ```bash
 git clone https://github.com/niyar18/RideNow-vehicle-booking-site.git
 cd RideNow-vehicle-booking-site
+
+# Install Next.js frontend dependencies
+npm --prefix jatri install
+
+# Install WebSocket server dependencies
+npm --prefix socketServer install
 ```
 
-### 2. Start the Real-time Socket Service
+### 2. Run the Real-time Socket Server
 ```bash
-cd socketServer
-npm install
-npm run dev # Runs on port 5000
+npm --prefix socketServer run dev
+# Microservice starts on http://localhost:5000
 ```
 
-### 3. Start the Next.js Web Application
-In a separate terminal window:
+### 3. Run the Next.js Web Application
+In a second terminal window:
 ```bash
-cd jatri
-npm install
-npm run dev # Runs on http://localhost:3000
+npm --prefix jatri run dev
+# Web application starts on http://localhost:3000
 ```
 
-### 4. Build for Production
+### 4. Code Quality & Production Verification
 ```bash
-cd jatri
-npm run build
-npm run start
+# Typecheck TypeScript across all App Router routes (0 errors)
+npm --prefix jatri run typecheck
+
+# Verify Next.js production build with Turbopack
+npm --prefix jatri run build
 ```
 
 ---
 
-## 🔐 Role-Based Access & Admin Panel
+## 🔐 Role-Based Access Control
 
-RideNow features three role levels enforced by middleware (`src/proxy.ts`):
-- **User (Rider)**: Access to booking, ride history, group rides, safety SOS, and family accounts.
-- **Vendor (Driver Partner)**: Access to vehicle onboarding, trip dispatch acceptance, OTP verification, and earnings dashboard.
-- **Admin**: Access to fleet management, driver document approvals, live video KYC verification, and dynamic pricing rules.
+Jaatri enforces role-based security via edge middleware ([`jatri/src/proxy.ts`](file:///d:/git/RideNow/jatri/src/proxy.ts)):
+- **User (Rider)**: On-demand bookings, scheduled rides, outstation, cargo, safety SOS, wallet top-ups, and group ride invitations.
+- **Vendor (Driver Partner)**: Vehicle registration, KYC submission, parallel dispatch acceptance, turn-by-turn navigation, and earnings withdrawals.
+- **Admin**: Fleet inventory, partner verification, Video KYC room authorization, settlement retries, and wallet ledger audits.
 
-To grant administrative access to a user account, set `"role": "admin"` on the user document in MongoDB.
+To elevate an account for local administrative access, update the MongoDB user document:
+```json
+{ "role": "admin" }
+```
 
 ---
 
 ## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
