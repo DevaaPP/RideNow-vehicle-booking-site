@@ -107,41 +107,7 @@ export async function transitionBookingState(ctx: TransitionContext): Promise<Tr
 
   const currentStatus = currentBooking.status;
 
-  // 1. Idempotency Check (If already in target state, return duplicate success)
-  if (currentStatus === targetStatus) {
-    return {
-      success: true,
-      booking: currentBooking,
-      previousStatus: currentStatus,
-      currentStatus: targetStatus,
-      isDuplicateCall: true,
-      message: `Booking is already in state '${targetStatus}'.`,
-    };
-  }
-
-  // 2. Terminal State Check
-  if (["completed", "cancelled", "expired", "no_drivers_available"].includes(currentStatus)) {
-    return {
-      success: false,
-      previousStatus: currentStatus,
-      currentStatus,
-      message: `Cannot transition booking ${bookingId} from terminal state '${currentStatus}' to '${targetStatus}'.`,
-      errorCode: "TERMINAL_STATE",
-    };
-  }
-
-  // 3. Allowed Transition Check
-  if (!isValidTransition(currentStatus, targetStatus)) {
-    return {
-      success: false,
-      previousStatus: currentStatus,
-      currentStatus,
-      message: `Invalid state transition from '${currentStatus}' to '${targetStatus}'.`,
-      errorCode: "INVALID_TRANSITION",
-    };
-  }
-
-  // 4. Role Authorization Check
+  // 1. Role Authorization Check (Guards unauthorized roles from inspecting state via idempotency)
   if (!isAuthorizedForTransition(targetStatus, actorRole)) {
     return {
       success: false,
@@ -152,7 +118,7 @@ export async function transitionBookingState(ctx: TransitionContext): Promise<Tr
     };
   }
 
-  // 5. Driver Ownership Authorization Check
+  // 2. Driver Ownership Authorization Check
   if (actorRole === "driver") {
     if (!actorId) {
       return {
@@ -187,7 +153,7 @@ export async function transitionBookingState(ctx: TransitionContext): Promise<Tr
     }
   }
 
-  // 6. User Ownership Authorization Check
+  // 3. User Ownership Authorization Check
   if (actorRole === "user") {
     if (!actorId) {
       return {
@@ -208,6 +174,40 @@ export async function transitionBookingState(ctx: TransitionContext): Promise<Tr
         errorCode: "UNAUTHORIZED",
       };
     }
+  }
+
+  // 4. Idempotency Check (Only reachable by authorized actors)
+  if (currentStatus === targetStatus) {
+    return {
+      success: true,
+      booking: currentBooking,
+      previousStatus: currentStatus,
+      currentStatus: targetStatus,
+      isDuplicateCall: true,
+      message: `Booking is already in state '${targetStatus}'.`,
+    };
+  }
+
+  // 5. Terminal State Check
+  if (["completed", "cancelled", "expired", "no_drivers_available"].includes(currentStatus)) {
+    return {
+      success: false,
+      previousStatus: currentStatus,
+      currentStatus,
+      message: `Cannot transition booking ${bookingId} from terminal state '${currentStatus}' to '${targetStatus}'.`,
+      errorCode: "TERMINAL_STATE",
+    };
+  }
+
+  // 6. Allowed Transition Check
+  if (!isValidTransition(currentStatus, targetStatus)) {
+    return {
+      success: false,
+      previousStatus: currentStatus,
+      currentStatus,
+      message: `Invalid state transition from '${currentStatus}' to '${targetStatus}'.`,
+      errorCode: "INVALID_TRANSITION",
+    };
   }
 
   // 7. Atomic Mongo Update for Concurrency Protection
