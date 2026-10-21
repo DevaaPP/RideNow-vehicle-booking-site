@@ -15,15 +15,15 @@ export default function DriveWithJaatri() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-[#F7F1E5] dark:bg-[#101713] overflow-hidden min-h-[490px] sm:min-h-[520px] lg:min-h-[550px] xl:min-h-[570px] flex items-center py-12 sm:py-14 lg:py-16 px-4 sm:px-6 lg:px-8"
+      className="relative w-full bg-[#FAF7F0] dark:bg-[#061A16] overflow-hidden min-h-[440px] sm:min-h-[500px] lg:min-h-[540px] flex items-center py-10 sm:py-14 lg:py-16 px-4 sm:px-6 lg:px-8"
       aria-label="Drive with Jaatri Driver Partnership"
     >
       {/* ================= ATMOSPHERIC TOP & BOTTOM DISSOLVES ================= */}
       {/* Subtle top fade that visually connects the image with the preceding fleet section */}
-      <div className="absolute top-0 left-0 right-0 h-14 sm:h-20 bg-gradient-to-b from-[#F7F1E5] via-[#F7F1E5]/60 to-transparent dark:from-[#101713] dark:via-[#101713]/60 pointer-events-none z-10" />
+      <div className="absolute top-0 left-0 right-0 h-12 sm:h-16 bg-gradient-to-b from-[#FAF7F0] via-[#FAF7F0]/60 to-transparent dark:from-[#061A16] dark:via-[#061A16]/60 pointer-events-none z-10" />
 
       {/* Restrained bottom fade so the photograph blends naturally into the next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-18 bg-gradient-to-t from-[#F7F1E5] via-[#F7F1E5]/50 to-transparent dark:from-[#101713] dark:via-[#101713]/50 pointer-events-none z-10" />
+      <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-16 bg-gradient-to-t from-[#FAF7F0] via-[#FAF7F0]/50 to-transparent dark:from-[#061A16] dark:via-[#061A16]/50 pointer-events-none z-10" />
 
       {/* ================= FULL-BLEED PHOTOGRAPHIC COMPOSITION ================= */}
       <div className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden">
@@ -41,8 +41,8 @@ export default function DriveWithJaatri() {
             - Mobile: Strong vertical and horizontal ivory fade to keep stacked copy perfectly legible.
             - Desktop: Strong left fade fading cleanly into transparent on the right to showcase the driver & branded sedan.
         */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F7F1E5] via-[#F7F1E5]/80 via-40% to-[#F7F1E5]/90 dark:from-[#101713] dark:via-[#101713]/85 dark:via-40% dark:to-[#101713]/95 sm:hidden" />
-        <div className="absolute inset-0 hidden sm:block bg-gradient-to-r from-[#F7F1E5] via-[#F7F1E5]/95 via-35% to-transparent sm:via-[#F7F1E5]/90 sm:via-42% md:via-[#F7F1E5]/75 md:via-48% lg:via-[#F7F1E5]/25 lg:via-55% lg:to-transparent dark:from-[#101713] dark:via-[#101713]/95 dark:sm:via-[#101713]/90 dark:md:via-[#101713]/75 dark:lg:via-[#101713]/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F0] via-[#FAF7F0]/85 via-35% to-[#FAF7F0] dark:from-[#061A16] dark:via-[#061A16]/85 dark:via-35% dark:to-[#061A16] sm:hidden" />
+        <div className="absolute inset-0 hidden sm:block bg-gradient-to-r from-[#FAF7F0] via-[#FAF7F0]/95 via-35% to-transparent sm:via-[#FAF7F0]/90 sm:via-42% md:via-[#FAF7F0]/75 md:via-48% lg:via-[#FAF7F0]/25 lg:via-55% lg:to-transparent dark:from-[#061A16] dark:via-[#061A16]/95 dark:sm:via-[#061A16]/90 dark:md:via-[#061A16]/75 dark:lg:via-[#061A16]/30" />
       </div>
 
       {/* ================= CONTENT CONTAINER (Grid-aligned with max-w-7xl) ================= */}
@@ -54,12 +54,12 @@ export default function DriveWithJaatri() {
             initial={{ opacity: 0, y: 14 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex items-center gap-3 mb-2 sm:mb-2.5"
+            className="flex items-center gap-2.5 mb-2 sm:mb-2.5"
           >
-            <span className="text-xs sm:text-[13px] lg:text-[14px] font-semibold uppercase tracking-[0.16em] text-[#E34222] dark:text-[#E06A50]">
+            <div className="h-[2px] w-6 sm:w-8 bg-[#E34222] dark:bg-[#E06A50] rounded-full" />
+            <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.18em] text-[#E34222] dark:text-[#E06A50]">
               {t("partnerSection.eyebrow", "FOR OUR DRIVER PARTNERS")}
             </span>
-            <span className="w-8 sm:w-12 h-[1.5px] bg-[#E34222]/70 dark:bg-[#E06A50]/70 rounded-full" />
           </motion.div>
 
           {/* Main Heading: DM Serif Display in dark forest ink (#10251C) with Assamese vermilion brush stroke */}
@@ -69,10 +69,8 @@ export default function DriveWithJaatri() {
             transition={{ duration: 0.55, delay: 0.05, ease: "easeOut" }}
             style={{
               fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif",
-              fontSize: "clamp(2.5rem, 4.8vw + 0.5rem, 4.25rem)",
-              lineHeight: 1.02,
             }}
-            className="font-normal text-[#10251C] dark:text-[#F3F1E8] tracking-tight whitespace-nowrap sm:whitespace-normal"
+            className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-[1.08] whitespace-nowrap sm:whitespace-normal"
           >
             {t("partnerSection.titlePrefix", "Drive with")}{" "}
             <span className="relative inline-block">
@@ -82,7 +80,7 @@ export default function DriveWithJaatri() {
                 viewBox="0 0 100 12"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="absolute -bottom-1.5 sm:-bottom-2 left-0 w-full h-[8px] sm:h-[10px] text-[#E34222] dark:text-[#E06A50] pointer-events-none"
+                className="absolute -bottom-1 sm:-bottom-1.5 left-0 w-full h-[6px] sm:h-[8px] text-[#E34222] dark:text-[#E06A50] pointer-events-none"
                 preserveAspectRatio="none"
               >
                 <path
@@ -95,68 +93,68 @@ export default function DriveWithJaatri() {
             </span>
           </motion.h2>
 
-          {/* Supporting Headline: Inter, 22-26px, Deep Forest Green */}
+          {/* Supporting Headline: Inter, Deep Forest Green */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
           >
-            <p className="text-lg sm:text-[22px] lg:text-[25px] font-bold text-[#123D32] dark:text-[#388463] mt-3 sm:mt-4 leading-snug tracking-tight">
+            <p className="text-base sm:text-xl lg:text-[22px] font-bold text-[#123D32] dark:text-[#34D399] mt-2.5 sm:mt-3 leading-snug tracking-tight">
               {t("partnerSection.headline", "Your vehicle. Your earnings. Your freedom.")}
             </p>
-            {/* Description: Muted Charcoal (#555D57) */}
-            <p className="text-sm sm:text-base lg:text-[17px] text-[#555D57] dark:text-[#B8C2B8] font-normal mt-1.5 sm:mt-2 leading-relaxed max-w-lg">
+            {/* Description */}
+            <p className="text-xs sm:text-sm lg:text-[15px] text-[#696B64] dark:text-[#B9C8BF] font-normal mt-1 leading-relaxed max-w-lg">
               {t("partnerSection.subtext", "Join Jaatri and move Assam forward, one ride at a time.")}
             </p>
           </motion.div>
 
-          {/* Coordinated Premium Feature Row */}
+          {/* Coordinated Mobile-Native Feature Cards */}
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-6 sm:mt-7"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-5 sm:mt-6"
           >
             {/* Benefit 1: Direct payouts */}
-            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 dark:bg-[#17211B]/90 dark:sm:bg-[#1E2B23]/70 backdrop-blur-xs border border-[#123D32]/15 dark:border-[#34443A] rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
-              <div className="w-10 h-10 rounded-[8px] bg-[#123D32]/10 dark:bg-[#28664D]/25 border border-[#123D32]/15 dark:border-[#34443A] text-[#123D32] dark:text-[#388463] flex items-center justify-center shrink-0">
-                <Wallet className="w-5 h-5 text-[#123D32] dark:text-[#388463]" strokeWidth={2.2} />
+            <div className="bg-white/95 dark:bg-[#0B2822]/95 border border-[#DED7CA]/85 dark:border-[#24483D] rounded-[12px] p-3 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+              <div className="w-9 h-9 rounded-[8px] bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA]/70 dark:border-[#24483D] text-[#046A38] dark:text-[#34D399] flex items-center justify-center shrink-0">
+                <Wallet className="w-4 h-4 text-[#046A38] dark:text-[#34D399]" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
-                <h4 className="text-sm font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug tracking-tight truncate">
+                <h4 className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug tracking-tight truncate">
                   {t("partnerSection.card1Title", "Direct payouts")}
                 </h4>
-                <p className="text-xs text-[#555D57] dark:text-[#929D93] font-medium leading-tight mt-0.5">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium leading-tight mt-0.5">
                   {t("partnerSection.card1Desc", "100% driver pay")}
                 </p>
               </div>
             </div>
 
             {/* Benefit 2: Flexible hours */}
-            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 dark:bg-[#17211B]/90 dark:sm:bg-[#1E2B23]/70 backdrop-blur-xs border border-[#123D32]/15 dark:border-[#34443A] rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
-              <div className="w-10 h-10 rounded-[8px] bg-[#123D32]/10 dark:bg-[#28664D]/25 border border-[#123D32]/15 dark:border-[#34443A] text-[#123D32] dark:text-[#388463] flex items-center justify-center shrink-0">
-                <CalendarClock className="w-5 h-5 text-[#123D32] dark:text-[#388463]" strokeWidth={2.2} />
+            <div className="bg-white/95 dark:bg-[#0B2822]/95 border border-[#DED7CA]/85 dark:border-[#24483D] rounded-[12px] p-3 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+              <div className="w-9 h-9 rounded-[8px] bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA]/70 dark:border-[#24483D] text-[#046A38] dark:text-[#34D399] flex items-center justify-center shrink-0">
+                <CalendarClock className="w-4 h-4 text-[#046A38] dark:text-[#34D399]" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
-                <h4 className="text-sm font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug tracking-tight truncate">
+                <h4 className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug tracking-tight truncate">
                   {t("partnerSection.card2Title", "Flexible hours")}
                 </h4>
-                <p className="text-xs text-[#555D57] dark:text-[#929D93] font-medium leading-tight mt-0.5">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium leading-tight mt-0.5">
                   {t("partnerSection.card2Desc", "Drive on your schedule")}
                 </p>
               </div>
             </div>
 
             {/* Benefit 3: A local service */}
-            <div className="bg-[#FAF7F0]/90 sm:bg-[#E5EBDD]/60 dark:bg-[#17211B]/90 dark:sm:bg-[#1E2B23]/70 backdrop-blur-xs border border-[#123D32]/15 dark:border-[#34443A] rounded-[8px] p-3 sm:px-3.5 sm:py-3.5 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)]">
-              <div className="w-10 h-10 rounded-[8px] bg-[#123D32]/10 dark:bg-[#28664D]/25 border border-[#123D32]/15 dark:border-[#34443A] text-[#123D32] dark:text-[#388463] flex items-center justify-center shrink-0">
-                <Users className="w-5 h-5 text-[#123D32] dark:text-[#388463]" strokeWidth={2.2} />
+            <div className="bg-white/95 dark:bg-[#0B2822]/95 border border-[#DED7CA]/85 dark:border-[#24483D] rounded-[12px] p-3 flex items-center gap-3 shadow-[0_2px_8px_rgba(18,61,50,0.03)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+              <div className="w-9 h-9 rounded-[8px] bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA]/70 dark:border-[#24483D] text-[#046A38] dark:text-[#34D399] flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4 text-[#046A38] dark:text-[#34D399]" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
-                <h4 className="text-sm font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug tracking-tight truncate">
+                <h4 className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug tracking-tight truncate">
                   {t("partnerSection.card3Title", "A local service")}
                 </h4>
-                <p className="text-xs text-[#555D57] dark:text-[#929D93] font-medium leading-tight mt-0.5">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium leading-tight mt-0.5">
                   {t("partnerSection.card3Desc", "Built for Assam, by Assam")}
                 </p>
               </div>
@@ -168,15 +166,15 @@ export default function DriveWithJaatri() {
             initial={{ opacity: 0, y: 18 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-            className="flex flex-wrap items-center gap-5 sm:gap-7 mt-8 sm:mt-9"
+            className="flex flex-wrap items-center gap-4 sm:gap-6 mt-6 sm:mt-7"
           >
             {/* Primary CTA */}
             <Link
               href="/partner/onboard/vehicle"
-              className="group inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-semibold text-base transition-all duration-200 active:scale-[0.97] shadow-[0_4px_16px_rgba(18,61,50,0.22)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="group inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#046A38] dark:hover:bg-[#03532C] text-white font-bold text-sm sm:text-base transition-all duration-200 active:scale-[0.97] shadow-[0_4px_16px_rgba(4,106,56,0.22)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <span>{t("partnerSection.ctaPrimary", "Become a Jaatri Partner")}</span>
-              <ArrowRight className="w-4 h-4 text-[#D7AC62] transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.5} />
+              <ArrowRight className="w-4 h-4 text-[#FAF7F0] transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.5} />
             </Link>
 
             {/* Secondary CTA */}

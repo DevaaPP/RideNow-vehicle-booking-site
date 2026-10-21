@@ -31,7 +31,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] transition-colors duration-300">
+    <div className="w-full min-h-screen bg-[#FAF7F0] dark:bg-[#061A16]">
       <Nav />
       <GeoUpdater userId={session?.user?.id}/>
       <PublicHome />

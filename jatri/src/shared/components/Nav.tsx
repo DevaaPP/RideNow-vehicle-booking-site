@@ -292,7 +292,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             : "bg-[#FAF7F0]/95 dark:bg-[#061A16]/95 backdrop-blur-xl border-b border-[#DED7CA]/80 dark:border-[#1E3E34] shadow-[0_4px_20px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-[#10251C] dark:text-[#F3F1E8]"
         }`}
       >
-        <div className="max-w-7xl mx-auto h-[68px] sm:h-20 md:h-24 flex items-center justify-between transition-all duration-300">
+        <div className="max-w-7xl mx-auto h-[68px] sm:h-20 md:h-24 pt-1 sm:pt-0 flex items-center justify-between transition-all duration-300">
           {/* LEFT: BRAND LOGO */}
           <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
             <Link

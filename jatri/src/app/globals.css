@@ -136,6 +136,13 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
+  background-color: #F7F1E5;
+  color: #10251C;
+}
+
+html.dark {
+  background-color: #101713;
+  color: #F3F1E8;
 }
 
 body {

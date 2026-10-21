@@ -194,89 +194,87 @@ export default function MobileHome({
   };
 
   return (
-    <div className="w-full bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] pb-10 transition-colors duration-300">
+    <div className="w-full bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] pb-10">
       {/* =========================================================================
           SECTION 3B: CINEMATIC ASSAMESE HERO
           Light: Warm sunset sky over Brahmaputra valley
           Dark: Moody twilight dusk sunset over mountain ridges with deep shadows
+          Generous vertical scenic window keeping the road & SUV clear
           ========================================================================= */}
-      <section className="relative isolate w-full overflow-hidden pt-20 sm:pt-24 pb-7 px-4 sm:px-6">
+      <section className="relative isolate w-full overflow-hidden pt-22 sm:pt-26 pb-5 px-4 sm:px-6 min-h-[480px] sm:min-h-[520px] flex flex-col justify-between">
         {/* Background Scenic Landscape Images (Light vs Dark) */}
         <div className="absolute inset-0 z-0 w-full h-full pointer-events-none select-none">
           {/* Light Theme Landscape */}
-          <div className="relative w-full h-full block dark:hidden bg-[url('/mobile-home/hero_landscape.webp')] bg-cover bg-[center_35%]">
+          <div className="relative w-full h-full block dark:hidden bg-[url('/mobile-home/hero_landscape.webp')] bg-cover bg-[center_40%]">
             <Image
               src="/mobile-home/hero_landscape.webp"
               alt="Scenic Assamese Landscape at Sunset"
               fill
               priority
               sizes="(max-width: 768px) 100vw, 480px"
-              className="object-cover object-[center_35%] pointer-events-none"
+              className="object-cover object-[center_40%] pointer-events-none"
             />
-            {/* Subtle natural gradient: preserves the golden sky and feathers into ivory at bottom */}
+            {/* Top-left soft shadow for text contrast + bottom natural fade into ivory */}
             <div
-              className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FAF7F0]/20 to-[#FAF7F0]"
+              className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-[#FAF7F0]"
               aria-hidden="true"
             />
           </div>
 
           {/* Dark Theme Landscape */}
-          <div className="relative w-full h-full hidden dark:block bg-[url('/mobile-home/hero_landscape_dark.webp')] bg-cover bg-[center_35%]">
+          <div className="relative w-full h-full hidden dark:block bg-[url('/mobile-home/hero_landscape_dark.webp')] bg-cover bg-[center_40%]">
             <Image
               src="/mobile-home/hero_landscape_dark.webp"
               alt="Assamese Landscape at Twilight Dusk"
               fill
               priority
               sizes="(max-width: 768px) 100vw, 480px"
-              className="object-cover object-[center_35%] pointer-events-none"
+              className="object-cover object-[center_40%] pointer-events-none"
             />
-            {/* Subtle natural gradient: preserves twilight mountains and feathers into dark forest at bottom */}
+            {/* Top-left soft shadow for text contrast + bottom natural fade into dark forest */}
             <div
-              className="absolute inset-0 bg-gradient-to-b from-transparent via-[#061A16]/25 to-[#061A16]"
+              className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#061A16]"
               aria-hidden="true"
             />
           </div>
         </div>
 
-        <div className="relative z-10 max-w-md mx-auto">
-          {/* Tagline / Eyebrow */}
-          <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-            className="mb-2"
-          >
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.14em] uppercase text-[#123D32] dark:text-[#B9C8BF] bg-white/80 dark:bg-[#0B2822]/85 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs">
-              <Sparkles size={11} className="text-[#046A38] dark:text-[#34D399]" />
-              <span>EXPLORE ASSAM, YOUR WAY</span>
-            </span>
-          </motion.div>
-
-          {/* Heading in display serif */}
+        {/* TOP: Greeting & Eyebrow in the sky */}
+        <div className="relative z-10 max-w-md mx-auto w-full pt-1 sm:pt-2">
+          {/* Main Heading in display serif */}
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.05, ease: [0.32, 0.72, 0, 1] }}
-            className="mb-5"
+            transition={{ duration: 0.45, ease: [0.32, 0.72, 0, 1] }}
           >
-            <h1 className="font-serif text-[32px] sm:text-[36px] leading-[1.12] font-normal tracking-tight text-[#10251C] dark:text-[#FFFFFF] drop-shadow-xs">
+            <h1 className="font-serif text-[32px] sm:text-[36px] leading-[1.12] font-normal tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">
               {greeting}
               {firstName ? `, ${firstName}` : ""}
               <br />
-              <span className="font-serif italic font-normal text-[#123D32] dark:text-[#F7F5ED]">
+              <span className="font-serif italic font-normal text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">
                 Ready to move?
               </span>
             </h1>
           </motion.div>
 
-          {/* =========================================================================
-              SECTION 3C: DESTINATION SEARCH BAR
-              Elevated, warm-white rounded card against both light & dark backgrounds
-              ========================================================================= */}
+          {/* Tagline / Eyebrow directly underneath headline, matching reference */}
+          <motion.p
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08, ease: [0.32, 0.72, 0, 1] }}
+            className="mt-2 text-[11px] sm:text-[11.5px] font-bold tracking-[0.18em] uppercase text-white/95 drop-shadow-[0_1px_6px_rgba(0,0,0,0.75)]"
+          >
+            EXPLORE ASSAM, YOUR WAY
+          </motion.p>
+        </div>
+
+        {/* BOTTOM: Destination search bar & shortcuts positioned lower down so road & vehicle remain clear */}
+        <div className="relative z-10 max-w-md mx-auto w-full mt-auto pt-8">
+          {/* SECTION 3C: DESTINATION SEARCH BAR */}
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: [0.32, 0.72, 0, 1] }}
+            transition={{ duration: 0.4, delay: 0.12, ease: [0.32, 0.72, 0, 1] }}
             role="button"
             tabIndex={0}
             onClick={handleSearchClick}
@@ -284,7 +282,7 @@ export default function MobileHome({
               if (e.key === "Enter" || e.key === " ") handleSearchClick();
             }}
             aria-label="Search destination for booking a ride"
-            className="w-full bg-white dark:bg-[#FAF7F0] rounded-full shadow-[0_8px_25px_rgba(18,61,50,0.1)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)] border border-[#DED7CA]/90 dark:border-white/30 p-1.5 pl-4 sm:pl-5 flex items-center justify-between cursor-pointer transition-all duration-200 active:scale-[0.98] select-none"
+            className="w-full bg-white dark:bg-[#FAF7F0] rounded-full shadow-[0_8px_25px_rgba(18,61,50,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.65)] border border-[#DED7CA]/90 dark:border-white/30 p-1.5 pl-4 sm:pl-5 flex items-center justify-between cursor-pointer transition-all duration-200 active:scale-[0.98] select-none"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <MapPin
@@ -306,11 +304,8 @@ export default function MobileHome({
             </div>
           </motion.div>
 
-          {/* =========================================================================
-              SECTION 3D: SAVED-LOCATION SHORTCUTS
-              Four compact shortcut pills: Home, Work, Airport, Add
-              ========================================================================= */}
-          <div className="mt-4 flex items-center justify-between gap-1.5 sm:gap-2">
+          {/* SECTION 3D: SAVED-LOCATION SHORTCUTS */}
+          <div className="mt-3.5 flex items-center justify-between gap-1.5 sm:gap-2">
             {/* Home Shortcut */}
             <button
               type="button"

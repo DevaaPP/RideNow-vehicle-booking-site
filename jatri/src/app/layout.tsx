@@ -121,21 +121,36 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${dmSerifDisplay.variable} ${outfit.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${dmSerifDisplay.variable} ${outfit.variable}`}
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  var stored = localStorage.getItem('ridenow_theme');
-                  var isDark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches) || (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  var stored = null;
+                  try {
+                    stored = localStorage.getItem('ridenow_theme');
+                  } catch(e) {}
+                  if (!stored) {
+                    var m = document.cookie.match(/(?:^|;\\s*)ridenow_theme=([^;]+)/);
+                    if (m) stored = decodeURIComponent(m[1]);
+                  }
+                  var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  var isDark = stored === 'dark' || ((!stored || stored === 'system') && systemDark);
+                  var root = document.documentElement;
                   if (isDark) {
-                    document.documentElement.classList.add('dark');
-                    document.documentElement.style.colorScheme = 'dark';
+                    root.classList.add('dark');
+                    root.classList.remove('light');
+                    root.style.colorScheme = 'dark';
                   } else {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.style.colorScheme = 'light';
+                    root.classList.remove('dark');
+                    root.classList.add('light');
+                    root.style.colorScheme = 'light';
                   }
                 } catch(e) {}
               })();
@@ -147,7 +162,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased bg-[#F7F1E5] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] w-full min-h-screen font-sans flex flex-col transition-colors duration-200">
+      <body className="antialiased bg-[#F7F1E5] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] w-full min-h-screen font-sans flex flex-col">
         <Provider>
           <ThemeProvider>
             <LanguageProvider>

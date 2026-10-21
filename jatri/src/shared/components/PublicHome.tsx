@@ -13,10 +13,12 @@ export default function PublicHome() {
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
-    <main className="w-full pt-0 bg-[#FAF7F0] dark:bg-[#061A16] transition-colors duration-300">
-      {/* 📱 MOBILE HOMEPAGE (<768px): Premium Light & Dark Theme Assamese Hero, Search Pill, Shortcuts, 2-Col Service Cards, Destinations */}
+    <main className="w-full pt-0 bg-[#FAF7F0] dark:bg-[#061A16]">
+      {/* 📱 MOBILE HOMEPAGE (<768px): Hero, Shortcuts, 2-Col Services, Popular Destinations, Vehicle Fleets, Drive with Jaatri */}
       <div className="block md:hidden">
         <MobileHome onAuthRequired={() => setAuthOpen(true)} />
+        <VehicleCategoriesSlider />
+        <DriveWithJaatri />
       </div>
 
       {/* 💻 DESKTOP HOMEPAGE (>=768px): Strictly preserved desktop hero, interactive search widget, vehicle slider & drive partner banner */}
