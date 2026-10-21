@@ -31,7 +31,7 @@ export async function POST(
   const actorRole = userRole === "admin" ? "admin" : "driver";
   const actorId = session.user.id;
 
-  const existingBooking = await Booking.findById(id).select("paymentStatus fare pickupOtp driver status");
+  const existingBooking = await Booking.findById(id).select("paymentStatus fare pickupOtp driver status candidateDrivers");
   if (!existingBooking) {
     return NextResponse.json({ message: "Booking not found" }, { status: 404 });
   }
@@ -49,6 +49,20 @@ export async function POST(
       booking: existingBooking,
       isDuplicate: true,
     });
+  }
+
+  // 1.5. Candidate Driver Verification: Ensure this driver was offered/dispatched this ride
+  if (actorRole === "driver" && actorId) {
+    const candidates: string[] = (existingBooking.candidateDrivers || []).map((c: any) => c.toString());
+    if (candidates.length > 0 && !candidates.includes(actorId.toString())) {
+      return NextResponse.json(
+        {
+          message: "You are not an eligible candidate for this ride request.",
+          errorCode: "NOT_A_CANDIDATE",
+        },
+        { status: 403 }
+      );
+    }
   }
 
   // 2. Concurrency Safety: Ensure driver is not already committed to another active trip within fresh window
