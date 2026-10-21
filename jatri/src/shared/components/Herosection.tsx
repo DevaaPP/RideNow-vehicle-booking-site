@@ -224,7 +224,7 @@ export default function HeroSection({
         fill
         priority
         quality={94}
-        sizes="100vw"
+        sizes="(min-width: 768px) 100vw, 1px"
         className="object-cover object-top sm:object-center pointer-events-none"
       />
       {/* Controlled, soft atmospheric gradient overlay to preserve natural golden river tones while ensuring high text contrast */}

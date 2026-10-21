@@ -33,7 +33,7 @@ export default function DriveWithJaatri() {
           fill
           priority
           quality={95}
-          sizes="100vw"
+          sizes="(max-width: 1280px) 100vw, 1280px"
           className="object-cover object-[85%_center] sm:object-[80%_center] md:object-[82%_center] lg:object-center"
         />
 

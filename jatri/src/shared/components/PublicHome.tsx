@@ -14,19 +14,19 @@ export default function PublicHome() {
 
   return (
     <main className="w-full pt-0 bg-[#FAF7F0] dark:bg-[#061A16]">
-      {/* 📱 MOBILE HOMEPAGE (<768px): Hero, Shortcuts, 2-Col Services, Popular Destinations, Vehicle Fleets, Drive with Jaatri */}
+      {/* 📱 MOBILE HOMEPAGE (<768px): Hero, Shortcuts, 2-Col Services, Popular Destinations */}
       <div className="block md:hidden">
         <MobileHome onAuthRequired={() => setAuthOpen(true)} />
-        <VehicleCategoriesSlider />
-        <DriveWithJaatri />
       </div>
 
-      {/* 💻 DESKTOP HOMEPAGE (>=768px): Strictly preserved desktop hero, interactive search widget, vehicle slider & drive partner banner */}
+      {/* 💻 DESKTOP HOMEPAGE (>=768px): Hero with interactive search widget */}
       <div className="hidden md:block">
         <HeroSection onAuthRequired={() => setAuthOpen(true)} />
-        <VehicleCategoriesSlider />
-        <DriveWithJaatri />
       </div>
+
+      {/* 🚗 SHARED SECTIONS (Mobile & Desktop): Single-instance vehicle slider & drive partner banner */}
+      <VehicleCategoriesSlider />
+      <DriveWithJaatri />
 
       <AuthModal
         open={authOpen}

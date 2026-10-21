@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navigation, ArrowRight, User, Car, Clock, ShieldCheck } from "lucide-react";
@@ -15,10 +16,17 @@ export default function ActiveRideBanner({
   variant = "floating",
   onActiveRideFound,
 }: ActiveRideBannerProps) {
+  const { data: session, status: authStatus } = useSession();
   const [activeBooking, setActiveBooking] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchActiveRide = async () => {
+  const fetchActiveRide = useCallback(async () => {
+    if (!session?.user?.id) {
+      setActiveBooking(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/booking/my-active");
       const data = await res.json();
@@ -34,9 +42,16 @@ export default function ActiveRideBanner({
     } finally {
       setLoading(false);
     }
-  };
+  }, [session?.user?.id, onActiveRideFound]);
 
   useEffect(() => {
+    if (authStatus === "loading") return;
+    if (!session?.user?.id) {
+      setLoading(false);
+      setActiveBooking(null);
+      return;
+    }
+
     fetchActiveRide();
 
     const socket = getSocket();
@@ -62,7 +77,7 @@ export default function ActiveRideBanner({
       socket.off("auto-rematch-success", fetchActiveRide);
       clearInterval(interval);
     };
-  }, []);
+  }, [authStatus, session?.user?.id, fetchActiveRide]);
 
   if (loading || !activeBooking) return null;
 
