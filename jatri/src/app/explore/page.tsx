@@ -385,7 +385,6 @@ export default function ExplorePage() {
         {/* =========================================================================
             SECTION C: 2-COLUMN SERVICE DISCOVERY GRID (6 CARDS)
             Daily Rides, Outstation, Airport Transfers, Schedule, Group, Cargo
-            (No bus or ferry ticket services)
             ========================================================================= */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {EXPLORE_SERVICES.map((service, index) => {

@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
         const text = `${rawCat} ${name}`.toLowerCase();
         if (text.includes("airport") || text.includes("aerodrome") || text.includes("terminal") || text.includes("airfield")) return "airport";
         if (text.includes("station") || text.includes("railway") || text.includes("junction") || text.includes("metro") || text.includes("platform")) return "train_station";
-        if (text.includes("bus") || text.includes("stand") || text.includes("isbt")) return "bus_station";
+        if (text.includes("bus") || text.includes("stand") || text.includes("isbt")) return "transit_station";
         if (text.includes("hospital") || text.includes("clinic") || text.includes("medical") || text.includes("health") || text.includes("pharmacy")) return "hospital";
         if (text.includes("college") || text.includes("university") || text.includes("school") || text.includes("institute") || text.includes("campus") || text.includes("academy")) return "education";
         if (text.includes("mall") || text.includes("market") || text.includes("bazaar") || text.includes("plaza") || text.includes("store") || text.includes("supermarket")) return "shopping";

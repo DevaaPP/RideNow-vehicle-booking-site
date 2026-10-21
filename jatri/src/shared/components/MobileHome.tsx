@@ -78,11 +78,11 @@ const SERVICES = [
     route: "/book?category=trucks&serviceMode=logistics",
   },
   {
-    id: "bus_ferry",
-    title: "Bus & Ferry",
-    subtitle: "Travel across",
-    image: "/mobile-home/service_bus_ferry.webp",
-    route: "/fleet",
+    id: "schedule",
+    title: "Schedule Booking",
+    subtitle: "For car, rental & cargo",
+    image: "/mobile-home/service_schedule.webp",
+    route: "/book?reserve=true",
   },
 ];
 
@@ -362,7 +362,7 @@ export default function MobileHome({
 
       {/* =========================================================================
           SECTION 3E: TWO-COLUMN SERVICE CARDS
-          Car Rides, Outstation, Parcel & Cargo, Bus & Ferry
+          Car Rides, Outstation, Parcel & Cargo, Schedule Booking
           Deep forest-green surfaces in dark mode (#0B2822) with subtle border (#24483D)
           ========================================================================= */}
       <section className="max-w-md mx-auto px-4 sm:px-6 pt-2 pb-5">

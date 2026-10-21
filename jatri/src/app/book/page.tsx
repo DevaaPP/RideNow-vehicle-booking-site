@@ -80,7 +80,7 @@ const getCategoryIcon = (category?: string, name?: string) => {
   if (c.includes("aeroway") || c.includes("airport") || n.includes("airport") || n.includes("aerodrome")) return "✈️";
   if (c.includes("station") || c.includes("railway") || n.includes("station") || n.includes("train")) return "🚆";
   if (c.includes("subway") || c.includes("metro") || n.includes("metro")) return "🚇";
-  if (c.includes("bus") || n.includes("bus") || n.includes("isbt") || n.includes("stand")) return "🚌";
+  if (c.includes("bus") || n.includes("bus") || n.includes("isbt") || n.includes("stand")) return "📍";
   if (c.includes("hospital") || c.includes("clinic") || c.includes("health") || n.includes("hospital") || n.includes("pharmacy")) return "🏥";
   if (c.includes("university") || c.includes("college") || c.includes("school") || n.includes("college") || n.includes("university") || n.includes("institute")) return "🎓";
   if (c.includes("shop") || c.includes("mall") || c.includes("supermarket") || n.includes("mall") || n.includes("bazaar") || n.includes("market")) return "🛍️";
