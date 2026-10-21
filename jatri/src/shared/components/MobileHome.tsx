@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useSession } from "next-auth/react";
 import { RootState } from "@/redux/store";
-import { motion, useReducedMotion } from "framer-motion";
 import {
   MapPin,
   ArrowRight,
@@ -92,7 +91,6 @@ export default function MobileHome({
   onAuthRequired?: () => void;
 }) {
   const router = useRouter();
-  const shouldReduceMotion = useReducedMotion();
   const { userData } = useSelector((state: RootState) => state.user);
   const { data: session } = useSession();
 
@@ -245,11 +243,7 @@ export default function MobileHome({
         {/* TOP: Greeting & Eyebrow in the sky */}
         <div className="relative z-10 max-w-md mx-auto w-full pt-1 sm:pt-2">
           {/* Main Heading in display serif */}
-          <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.32, 0.72, 0, 1] }}
-          >
+          <div>
             <h1
               suppressHydrationWarning
               className="font-serif text-[32px] sm:text-[36px] leading-[1.12] font-normal tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]"
@@ -263,26 +257,18 @@ export default function MobileHome({
                 Ready to move?
               </span>
             </h1>
-          </motion.div>
+          </div>
 
           {/* Tagline / Eyebrow directly underneath headline, matching reference */}
-          <motion.p
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.08, ease: [0.32, 0.72, 0, 1] }}
-            className="mt-2 text-[11px] sm:text-[11.5px] font-bold tracking-[0.18em] uppercase text-white/95 drop-shadow-[0_1px_6px_rgba(0,0,0,0.75)]"
-          >
+          <p className="mt-2 text-[11px] sm:text-[11.5px] font-bold tracking-[0.18em] uppercase text-white/95 drop-shadow-[0_1px_6px_rgba(0,0,0,0.75)]">
             EXPLORE ASSAM, YOUR WAY
-          </motion.p>
+          </p>
         </div>
 
         {/* BOTTOM: Destination search bar & shortcuts positioned lower down so road & vehicle remain clear */}
         <div className="relative z-10 max-w-md mx-auto w-full mt-auto pt-8">
           {/* SECTION 3C: DESTINATION SEARCH BAR */}
-          <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: 6 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.12, ease: [0.32, 0.72, 0, 1] }}
+          <div
             role="button"
             tabIndex={0}
             onClick={handleSearchClick}
@@ -310,7 +296,7 @@ export default function MobileHome({
             >
               <ArrowRight size={18} strokeWidth={2.5} />
             </div>
-          </motion.div>
+          </div>
 
           {/* SECTION 3D: SAVED-LOCATION SHORTCUTS */}
           <div className="mt-3.5 flex items-center justify-between gap-1.5 sm:gap-2">

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Search,
   LocateFixed,
@@ -87,7 +87,6 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
 export default function ExplorePage() {
   const router = useRouter();
   const { t } = useTranslation();
-  const shouldReduceMotion = useReducedMotion();
 
   const [query, setQuery] = useState("");
   const [isLocating, setIsLocating] = useState(false);
@@ -355,31 +354,21 @@ export default function ExplorePage() {
             ========================================================================= */}
         <div className="mb-6">
           {/* Eyebrow Tagline */}
-          <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-            className="mb-2"
-          >
+          <div className="mb-2">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.14em] uppercase text-[#123D32] dark:text-[#B9C8BF] bg-white/80 dark:bg-[#0B2822]/85 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs">
               <Sparkles size={11} className="text-[#046A38] dark:text-[#34D399]" />
               <span>EXPLORE ASSAM, YOUR WAY</span>
             </span>
-          </motion.div>
+          </div>
 
           {/* Heading */}
-          <motion.h1
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.05, ease: [0.32, 0.72, 0, 1] }}
-            className="font-serif text-[32px] sm:text-[38px] leading-[1.1] font-normal tracking-tight text-[#10251C] dark:text-[#FFFFFF]"
-          >
+          <h1 className="font-serif text-[32px] sm:text-[38px] leading-[1.1] font-normal tracking-tight text-[#10251C] dark:text-[#FFFFFF]">
             Not just a ride
             <br />
             <span className="font-serif italic text-[#123D32] dark:text-[#F7F5ED]">
               A fuller journey.
             </span>
-          </motion.h1>
+          </h1>
         </div>
 
         {/* =========================================================================
@@ -390,15 +379,8 @@ export default function ExplorePage() {
           {EXPLORE_SERVICES.map((service, index) => {
             const Icon = service.icon;
             return (
-              <motion.div
+              <div
                 key={service.id}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.35,
-                  delay: 0.08 + index * 0.04,
-                  ease: [0.32, 0.72, 0, 1],
-                }}
                 role="button"
                 tabIndex={0}
                 onClick={() => router.push(service.route)}
@@ -445,7 +427,7 @@ export default function ExplorePage() {
                     <ArrowRight size={14} strokeWidth={2.5} />
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -454,10 +436,7 @@ export default function ExplorePage() {
             SECTION D: WEEKEND GETAWAYS BANNER
             Wide scenic banner navigating to destination discovery / getaway bookings
             ========================================================================= */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.35, ease: [0.32, 0.72, 0, 1] }}
+        <div
           role="button"
           tabIndex={0}
           onClick={handleGetawaysClick}
@@ -501,7 +480,7 @@ export default function ExplorePage() {
               <ArrowRight size={18} strokeWidth={2.4} />
             </div>
           </div>
-        </motion.div>
+        </div>
       </main>
 
       {/* Desktop Footer (hidden on mobile, visible on desktop) */}
