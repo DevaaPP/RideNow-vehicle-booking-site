@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
@@ -456,7 +457,7 @@ export async function POST(req: Request) {
       driverMobileNumber: "",
       candidateDrivers: sortedCandidates.map((c) => c._id),
       currentDriverIndex: 0,
-      shareToken: `rt_${Math.random().toString(36).substring(2, 10)}${Date.now().toString(36)}`,
+      shareToken: `rt_${crypto.randomBytes(16).toString("hex")}`,
       isSmartPickup: Boolean(isSmartPickup),
       smartPickupDetails:
         isSmartPickup && smartPickupDetails
