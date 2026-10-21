@@ -117,6 +117,52 @@ export async function creditDriverRideEarnings(params: {
   }
 
   const balanceAfter = balanceBefore + netWithdrawableCredit;
+  const earningTxnId = generateTransactionId("TXN_EARN");
+  const commissionTxnId = generateTransactionId("TXN_COM");
+  const idempotencyKey = `earn_${driverId}_${bookingId}`;
+
+  // Reserve transaction first to atomically lock against race conditions via unique index
+  let earningTxn;
+  try {
+    earningTxn = await WalletTransaction.create({
+      transactionId: earningTxnId,
+      idempotencyKey,
+      walletId: wallet._id,
+      userId: driverId,
+      rideId: bookingId,
+      bookingId,
+      type: "credit",
+      transactionType: "EARNING",
+      category: "partner_earning",
+      amount: netEarnings,
+      balanceBefore,
+      balanceAfter: balanceBefore + netEarnings,
+      platformDuesBefore: currentDues,
+      platformDuesAfter: remainingDues,
+      description: `Driver earnings (${Math.round((netEarnings / fare) * 100)}%) for ride #${bookingId.toString().slice(-6)}`,
+      status: "pending",
+      metadata: {
+        grossFare: fare,
+        commission,
+        netEarnings,
+        duesSettled,
+      },
+    });
+  } catch (err: any) {
+    if (err?.code === 11000) {
+      const existing = await WalletTransaction.findOne({
+        userId: driverId,
+        bookingId,
+        transactionType: "EARNING",
+      });
+      return {
+        alreadyProcessed: true,
+        transactionId: existing?.transactionId || earningTxnId,
+        message: "Driver earnings already credited for this ride",
+      };
+    }
+    throw err;
+  }
 
   // Atomic wallet update: credit withdrawable earnings, deduct settled dues, update lifetime counters
   await Wallet.findByIdAndUpdate(wallet._id, {
@@ -133,32 +179,9 @@ export async function creditDriverRideEarnings(params: {
     walletBalance: balanceAfter,
   });
 
-  const earningTxnId = generateTransactionId("TXN_EARN");
-  const commissionTxnId = generateTransactionId("TXN_COM");
-
-  // Record EARNING transaction
-  await WalletTransaction.create({
-    transactionId: earningTxnId,
-    walletId: wallet._id,
-    userId: driverId,
-    rideId: bookingId,
-    bookingId,
-    type: "credit",
-    transactionType: "EARNING",
-    category: "partner_earning",
-    amount: netEarnings,
-    balanceBefore,
-    balanceAfter: balanceBefore + netEarnings,
-    platformDuesBefore: currentDues,
-    platformDuesAfter: remainingDues,
-    description: `Driver earnings (${Math.round((netEarnings / fare) * 100)}%) for ride #${bookingId.toString().slice(-6)}`,
-    status: "success",
-    metadata: {
-      grossFare: fare,
-      commission,
-      netEarnings,
-      duesSettled,
-    },
+  // Finalize EARNING transaction status to success
+  await WalletTransaction.findByIdAndUpdate(earningTxn._id, {
+    $set: { status: "success" },
   });
 
   // If dues were auto-settled from earnings, log audit transaction
@@ -261,29 +284,47 @@ export async function debitDriverCashCommission(params: {
   const balanceBefore = wallet.balance || 0;
   const duesBefore = wallet.platformDues || 0;
 
-  // Log physical CASH_COLLECTION in driver's hand
+  // Log physical CASH_COLLECTION in driver's hand with unique lock
   const cashTxnId = generateTransactionId("TXN_CASH");
-  await WalletTransaction.create({
-    transactionId: cashTxnId,
-    walletId: wallet._id,
-    userId: driverId,
-    rideId: bookingId,
-    bookingId,
-    type: "credit",
-    transactionType: "CASH_COLLECTION",
-    category: "cash_collection",
-    amount: fare,
-    balanceBefore,
-    balanceAfter: balanceBefore,
-    platformDuesBefore: duesBefore,
-    platformDuesAfter: duesBefore,
-    description: `Cash collected by driver (₹${fare}) for ride #${bookingId.toString().slice(-6)}`,
-    status: "success",
-    metadata: {
-      grossFare: fare,
-      cashReceived: true,
-    },
-  });
+  const cashIdempotencyKey = `cash_col_${driverId}_${bookingId}`;
+  try {
+    await WalletTransaction.create({
+      transactionId: cashTxnId,
+      idempotencyKey: cashIdempotencyKey,
+      walletId: wallet._id,
+      userId: driverId,
+      rideId: bookingId,
+      bookingId,
+      type: "credit",
+      transactionType: "CASH_COLLECTION",
+      category: "cash_collection",
+      amount: fare,
+      balanceBefore,
+      balanceAfter: balanceBefore,
+      platformDuesBefore: duesBefore,
+      platformDuesAfter: duesBefore,
+      description: `Cash collected by driver (₹${fare}) for ride #${bookingId.toString().slice(-6)}`,
+      status: "success",
+      metadata: {
+        grossFare: fare,
+        cashReceived: true,
+      },
+    });
+  } catch (err: any) {
+    if (err?.code === 11000) {
+      const existing = await WalletTransaction.findOne({
+        userId: driverId,
+        bookingId,
+        transactionType: "COMMISSION",
+      });
+      return {
+        alreadyProcessed: true,
+        transactionId: existing?.transactionId || cashTxnId,
+        message: "Commission already recorded for this cash ride",
+      };
+    }
+    throw err;
+  }
 
   let balanceAfter = balanceBefore;
   let duesAfter = duesBefore;

@@ -222,6 +222,25 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
 WalletTransactionSchema.index({ userId: 1, createdAt: -1 });
 WalletTransactionSchema.index({ walletId: 1, createdAt: -1 });
 WalletTransactionSchema.index({ bookingId: 1, transactionType: 1 });
+WalletTransactionSchema.index(
+  { userId: 1, bookingId: 1, transactionType: 1 },
+  {
+    unique: true,
+    sparse: true,
+    partialFilterExpression: {
+      bookingId: { $type: "objectId" },
+      transactionType: {
+        $in: [
+          "EARNING",
+          "COMMISSION",
+          "CASH_COLLECTION",
+          "REFUND",
+          "CANCELLATION_COMPENSATION",
+        ],
+      },
+    },
+  }
+);
 
 const WalletTransaction =
   mongoose.models.WalletTransaction ||
