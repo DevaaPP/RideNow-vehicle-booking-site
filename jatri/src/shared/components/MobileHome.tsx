@@ -60,28 +60,28 @@ const SERVICES = [
     id: "car",
     title: "Car Rides",
     subtitle: "Anywhere in Assam",
-    image: "/mobile-home/service_car.webp",
+    image: "/mobile-home/jaatri-car-rides.webp",
     route: "/book?category=cars",
   },
   {
     id: "outstation",
     title: "Outstation",
     subtitle: "Explore beyond",
-    image: "/mobile-home/service_outstation.webp",
+    image: "/mobile-home/jaatri-outstation.webp",
     route: "/book?category=cars&service=outstation",
   },
   {
     id: "cargo",
     title: "Parcel & Cargo",
     subtitle: "Send with trust",
-    image: "/mobile-home/service_cargo.webp",
+    image: "/mobile-home/jaatri-parcel-cargo.webp",
     route: "/book?category=trucks&serviceMode=logistics",
   },
   {
     id: "schedule",
     title: "Schedule Booking",
     subtitle: "For car, rental & cargo",
-    image: "/mobile-home/service_schedule.webp",
+    image: "/mobile-home/jaatri-schedule-booking.webp",
     route: "/book?reserve=true",
   },
 ];
@@ -377,12 +377,13 @@ export default function MobileHome({
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 {/* Service Thumbnail */}
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[10px] bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA]/60 dark:border-[#24483D] overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-[10px] bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA]/60 dark:border-[#24483D] overflow-hidden shrink-0 flex items-center justify-center p-0.5">
                   <Image
                     src={service.image}
                     alt={service.title}
-                    width={48}
-                    height={48}
+                    width={56}
+                    height={56}
+                    sizes="(max-width: 640px) 48px, 52px"
                     className="w-full h-full object-cover object-center rounded-[8px]"
                   />
                 </div>
