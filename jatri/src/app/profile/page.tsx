@@ -73,6 +73,9 @@ export default function ProfilePage() {
   const [submittingStudent, setSubmittingStudent] = useState(false);
   const [studentError, setStudentError] = useState<string | null>(null);
   const [verifiedResult, setVerifiedResult] = useState<any | null>(null);
+  const [studentOtp, setStudentOtp] = useState("");
+  const [studentRequiresOtp, setStudentRequiresOtp] = useState(false);
+  const [studentResendCooldown, setStudentResendCooldown] = useState(0);
 
   /* ── FAMILY ACCOUNT STATE ── */
   const [family, setFamily] = useState<any | null>(null);
@@ -173,6 +176,11 @@ export default function ProfilePage() {
         );
         return;
       }
+
+      if (studentRequiresOtp && (!studentOtp.trim() || studentOtp.trim().length < 6)) {
+        setStudentError("Please enter the 6-digit confirmation code.");
+        return;
+      }
     } else if (verifyMethod === "student_id") {
       if (!studentFullName.trim() || !studentIdNumber.trim()) {
         setStudentError("Please provide your full student name and Student ID / Roll number.");
@@ -187,7 +195,7 @@ export default function ProfilePage() {
 
     try {
       setSubmittingStudent(true);
-      const res = await axios.post("/api/user/verify-student", {
+      const payload: any = {
         method: verifyMethod,
         institutionName: institutionName.trim(),
         eduEmail: eduEmail.trim(),
@@ -195,12 +203,37 @@ export default function ProfilePage() {
         studentIdNumber: studentIdNumber.trim(),
         documentType,
         academicYear,
-      });
+      };
+
+      if (verifyMethod === "institutional_email") {
+        if (!studentRequiresOtp) {
+          payload.action = "send_otp";
+        } else {
+          payload.action = "verify_otp";
+          payload.otp = studentOtp.trim();
+        }
+      }
+
+      const res = await axios.post("/api/user/verify-student", payload);
 
       if (res.data.success) {
-        setVerifiedResult(res.data);
-        setStudentStep(3);
-        fetchStudentStatus();
+        if (res.data.requiresOtp) {
+          setStudentRequiresOtp(true);
+          setStudentResendCooldown(60);
+          const timer = setInterval(() => {
+            setStudentResendCooldown((prev) => {
+              if (prev <= 1) {
+                clearInterval(timer);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        } else {
+          setVerifiedResult(res.data);
+          setStudentStep(3);
+          fetchStudentStatus();
+        }
       } else {
         setStudentError(res.data.message || "Verification failed. Please check your details.");
       }
@@ -519,6 +552,16 @@ export default function ProfilePage() {
                     <Check size={14} className="text-[#123D32] dark:text-[#A3E635]" />
                     {t("student.verified", "Status: Verified")}
                   </span>
+                ) : studentData?.status === "pending" ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-300 text-xs font-bold">
+                    <Clock size={14} className="text-amber-600 dark:text-amber-400 animate-pulse" />
+                    Status: Pending Review
+                  </span>
+                ) : studentData?.status === "rejected" ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs font-bold">
+                    <AlertCircle size={14} className="text-[#E34222] dark:text-[#E06A50]" />
+                    Status: Not Approved
+                  </span>
                 ) : studentData?.status === "expired" ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs font-bold">
                     <AlertCircle size={14} className="text-[#E34222] dark:text-[#E06A50]" />
@@ -585,6 +628,43 @@ export default function ProfilePage() {
                     </span>
                   </div>
                 )}
+              </div>
+            ) : studentData?.status === "pending" ? (
+              <div className="p-4 bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-[10px] space-y-2">
+                <div className="flex items-center gap-2 text-amber-900 dark:text-amber-300 font-bold text-sm">
+                  <Clock size={16} className="text-amber-600 dark:text-amber-400" />
+                  Student Application Under Administrative Review
+                </div>
+                <p className="text-xs text-amber-800 dark:text-amber-400 leading-relaxed">
+                  Your student credentials for <b>{studentData.verification?.institutionName || "your institution"}</b> have been submitted. An administrator will review and verify your enrollment within 24–48 hours.
+                </p>
+                <div className="pt-1 text-[11px] text-amber-700 dark:text-amber-500 font-medium">
+                  Submitted Method: {studentData.verification?.verificationMethod === "student_id" ? "Student ID Card" : "Enrollment / Bonafide Document"}
+                </div>
+              </div>
+            ) : studentData?.status === "rejected" ? (
+              <div className="p-4 bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 text-[#E34222] dark:text-[#E06A50] font-bold text-sm">
+                    <AlertCircle size={16} className="text-[#E34222] dark:text-[#E06A50]" />
+                    Verification Request Not Approved
+                  </div>
+                  <p className="text-xs text-[#E34222] dark:text-[#E06A50] mt-1">
+                    Reason: {studentData.verification?.rejectionReason || "Could not verify credentials with official records."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStudentStep(1);
+                    setStudentRequiresOtp(false);
+                    setStudentOtp("");
+                    setShowStudentModal(true);
+                  }}
+                  className="shrink-0 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold px-4 py-2.5 rounded-[8px] shadow-xs transition cursor-pointer"
+                >
+                  Re-apply
+                </button>
               </div>
             ) : studentData?.status === "expired" ? (
               <div className="p-4 bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1118,21 +1198,64 @@ export default function ProfilePage() {
                 {studentStep === 2 && (
                   <form onSubmit={handleVerifyStudent} className="space-y-4">
                     {verifyMethod === "institutional_email" ? (
-                      <div>
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B8C2B8] block mb-1.5">
-                          Institutional Email Address *
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={eduEmail}
-                          onChange={(e) => setEduEmail(e.target.value)}
-                          placeholder="e.g. yourname@university.edu or .ac.in"
-                          className="w-full px-4 py-3 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#101713] text-sm font-semibold text-[#10251C] dark:text-[#F3F1E8] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B8C2B8]/40 focus:border-[#123D32] dark:focus:border-[#28664D] outline-none"
-                        />
-                        <p className="text-[10px] text-[#696B64] dark:text-[#B8C2B8] mt-1">
-                          Must be an accredited institutional email (.edu, .ac.in, .edu.in, .ac.uk, etc.)
-                        </p>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B8C2B8] block mb-1.5">
+                            Institutional Email Address *
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            disabled={studentRequiresOtp}
+                            value={eduEmail}
+                            onChange={(e) => setEduEmail(e.target.value)}
+                            placeholder="e.g. yourname@university.edu or .ac.in"
+                            className="w-full px-4 py-3 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#101713] text-sm font-semibold text-[#10251C] dark:text-[#F3F1E8] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B8C2B8]/40 focus:border-[#123D32] dark:focus:border-[#28664D] outline-none disabled:opacity-60"
+                          />
+                          <p className="text-[10px] text-[#696B64] dark:text-[#B8C2B8] mt-1">
+                            Must be an accredited institutional email (.edu, .ac.in, .edu.in, .ac.uk, etc.)
+                          </p>
+                        </div>
+
+                        {studentRequiresOtp && (
+                          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-[10px] space-y-2">
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-[#123D32] dark:text-emerald-300 block">
+                              Enter 6-Digit Email Code *
+                            </label>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              autoComplete="one-time-code"
+                              maxLength={6}
+                              placeholder="· · · · · ·"
+                              value={studentOtp}
+                              onChange={(e) => setStudentOtp(e.target.value.replace(/\D/g, ""))}
+                              className="w-full px-4 py-3 text-center text-xl tracking-[0.4em] font-mono font-bold rounded-[8px] border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] outline-none"
+                              autoFocus
+                              required
+                            />
+                            <div className="flex items-center justify-between text-xs pt-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setStudentRequiresOtp(false);
+                                  setStudentOtp("");
+                                }}
+                                className="text-zinc-500 hover:underline cursor-pointer"
+                              >
+                                Edit Email
+                              </button>
+                              <button
+                                type="button"
+                                disabled={studentResendCooldown > 0}
+                                onClick={handleVerifyStudent}
+                                className="text-[#046A38] dark:text-emerald-400 font-bold hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
+                              >
+                                {studentResendCooldown > 0 ? `Resend in ${studentResendCooldown}s` : "Resend Code"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ) : verifyMethod === "student_id" ? (
                       <div className="space-y-3">
@@ -1237,13 +1360,12 @@ export default function ProfilePage() {
                         {submittingStudent ? (
                           <>
                             <Loader2 size={15} className="animate-spin" />
-                            Verifying...
+                            {studentRequiresOtp ? "Verifying..." : "Sending..."}
                           </>
+                        ) : verifyMethod === "institutional_email" ? (
+                          studentRequiresOtp ? "Verify & Activate" : "Send Verification Code"
                         ) : (
-                          <>
-                            <Check size={15} />
-                            Verify Student Status
-                          </>
+                          "Submit for Review"
                         )}
                       </button>
                     </div>
@@ -1259,10 +1381,14 @@ export default function ProfilePage() {
 
                     <div>
                       <h4 className="text-base font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">
-                        {t("student.verified", "Student Status VERIFIED ✓")}
+                        {verifiedResult?.status === "pending"
+                          ? "Application Submitted for Review ⏳"
+                          : t("student.verified", "Student Status VERIFIED ✓")}
                       </h4>
                       <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] mt-1">
-                        10% discount (up to ₹50 per eligible ride) is now active!
+                        {verifiedResult?.status === "pending"
+                          ? "Our administrative team will review your student credentials within 24–48 hours."
+                          : "10% discount (up to ₹50 per eligible ride) is now active for 12 months!"}
                       </p>
                     </div>
 

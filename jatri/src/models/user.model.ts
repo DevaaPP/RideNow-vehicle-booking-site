@@ -104,13 +104,16 @@ socketId:string | null
     studentIdNumber?: string;
     eduEmail?: string;
     documentType?: string;
+    documentUrl?: string;
     academicYear?: string;
+    submittedAt?: Date;
     verifiedAt?: Date;
     expiresAt?: Date;
     verificationReference?: string;
     rejectionReason?: string;
     activationOtp?: string;
     activationOtpExpiresAt?: Date;
+    activationOtpSentAt?: Date;
     activationOtpFailedAttempts?: number;
   };
   studentDetails?: {
@@ -358,13 +361,16 @@ const UserSchema = new Schema<IUser>(
       studentIdNumber: { type: String, trim: true },
       eduEmail: { type: String, trim: true, lowercase: true },
       documentType: { type: String, trim: true },
+      documentUrl: { type: String, trim: true },
       academicYear: { type: String, trim: true },
+      submittedAt: { type: Date },
       verifiedAt: { type: Date },
       expiresAt: { type: Date, index: true },
       verificationReference: { type: String, trim: true },
       rejectionReason: { type: String, trim: true },
       activationOtp: { type: String },
       activationOtpExpiresAt: { type: Date },
+      activationOtpSentAt: { type: Date },
       activationOtpFailedAttempts: { type: Number, default: 0 },
     },
     studentDetails: {

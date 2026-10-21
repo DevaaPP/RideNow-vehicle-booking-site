@@ -132,7 +132,15 @@ export function validateStudentEmail(email: string): StudentDomainValidationResu
     };
   }
 
+  const localPart = parts[0].trim();
   const domain = parts[1].trim();
+  if (!localPart || localPart.length === 0) {
+    return {
+      isValid: false,
+      domain,
+      reason: "Email username (local-part) cannot be empty.",
+    };
+  }
   if (!domain || domain.length < 4 || !domain.includes(".")) {
     return {
       isValid: false,
