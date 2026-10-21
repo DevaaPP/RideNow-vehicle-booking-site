@@ -17,6 +17,7 @@ import { calculateCommissionSplit } from "@/lib/commission";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { recoverCustomerOutstandingDues } from "@/lib/cancellationEngine";
 import { Types } from "mongoose";
+import logger from "@/lib/logger";
 
 export interface CreateOrderParams {
   bookingId: string;
@@ -236,8 +237,13 @@ export async function verifyPayment(params: VerifyPaymentParams) {
         paidAmount: booking.cancellationDuesIncluded,
         bookingId: booking._id,
       });
-    } catch (recErr) {
-      console.error("Failed to recover customer outstanding dues on payment verification:", recErr);
+    } catch (recErr: any) {
+      logger.error("payment.verify.dues_recovery_failed", {
+        bookingId: String(booking._id),
+        userId: String(booking.user),
+        amount: booking.cancellationDuesIncluded,
+        error: recErr?.message || String(recErr),
+      });
     }
   }
 
@@ -327,8 +333,13 @@ export async function handleRazorpayWebhook(
                 paidAmount: booking.cancellationDuesIncluded,
                 bookingId: booking._id,
               });
-            } catch (recErr) {
-              console.error("[webhook] Failed to recover customer outstanding dues:", recErr);
+            } catch (recErr: any) {
+              logger.error("payment.webhook.dues_recovery_failed", {
+                bookingId: String(booking._id),
+                userId: String(booking.user),
+                amount: booking.cancellationDuesIncluded,
+                error: recErr?.message || String(recErr),
+              });
             }
           }
 
@@ -360,8 +371,11 @@ export async function handleRazorpayWebhook(
                 directBookingId: booking._id.toString(),
               });
             }
-          } catch (sockErr) {
-            console.warn("[webhook] Socket emit failed (safely ignored):", sockErr);
+          } catch (sockErr: any) {
+            logger.warn("payment.webhook.socket_emit_failed", {
+              bookingId: String(booking._id),
+              error: sockErr?.message || String(sockErr),
+            });
           }
 
           // Web push to user
@@ -373,8 +387,12 @@ export async function handleRazorpayWebhook(
                 body: `Your ride is confirmed. Pickup OTP: ${booking.pickupOtp}`,
                 url: `/ride/${booking._id}`,
               });
-            } catch (pushErr) {
-              console.warn("[webhook] Push notification failed (safely ignored):", pushErr);
+            } catch (pushErr: any) {
+              logger.warn("payment.webhook.push_notification_failed", {
+                bookingId: String(booking._id),
+                userId: String(booking.user),
+                error: pushErr?.message || String(pushErr),
+              });
             }
           }
         }

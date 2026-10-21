@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleRazorpayWebhook } from "@/lib/paymentService";
+import logger from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,9 +11,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (error: any) {
-    console.error("[Razorpay Webhook Error]:", error);
+    logger.error("payment.webhook.processing_error", {
+      error: error?.message || String(error),
+      stack: error?.stack,
+    });
     return NextResponse.json(
-      { error: error.message || "Failed to process webhook" },
+      { error: error?.message || "Failed to process webhook" },
       { status: 400 }
     );
   }

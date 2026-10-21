@@ -7,6 +7,7 @@ import {
 import { calculateCommissionSplit } from "@/lib/commission";
 import { recoverCustomerOutstandingDues } from "@/lib/cancellationEngine";
 import { Types } from "mongoose";
+import logger from "@/lib/logger";
 
 /**
  * Ride Payment Settlement Architecture:
@@ -128,8 +129,13 @@ export async function settleCompletedRidePayment(
           paidAmount: booking.cancellationDuesIncluded,
           bookingId: booking._id,
         });
-      } catch (recErr) {
-        console.error("Failed to recover customer outstanding dues in settleCompletedRidePayment:", recErr);
+      } catch (recErr: any) {
+        logger.error("settlement.cancellation_dues_recovery_failed", {
+          bookingId: String(booking._id),
+          userId: String(booking.user),
+          amount: booking.cancellationDuesIncluded,
+          error: recErr?.message || String(recErr),
+        });
       }
     }
 
@@ -140,15 +146,29 @@ export async function settleCompletedRidePayment(
       settlementError: null,
     });
 
+    logger.info("settlement.completed", {
+      bookingId: String(bookingId),
+      driverId: String(booking.driver),
+      paymentStatus: booking.paymentStatus,
+      fare: booking.fare,
+    });
+
     return { success: true, settlementStatus: "success" };
   } catch (err: any) {
-    console.error("[settlePayment] CRITICAL: Settlement failed for booking", bookingId, err);
+    logger.critical("settlement.failed", {
+      bookingId: String(bookingId),
+      error: err?.message || String(err),
+      stack: err?.stack,
+    });
     await Booking.findByIdAndUpdate(bookingId, {
       settlementStatus: "failed",
       settlementError: String(err?.message || err),
       settlementFailedAt: new Date(),
     }).catch((markErr) => {
-      console.error("[settlePayment] Failed to persist failed settlement status:", markErr);
+      logger.critical("settlement.persist_failed_status_error", {
+        bookingId: String(bookingId),
+        error: markErr?.message || String(markErr),
+      });
     });
 
     return {
