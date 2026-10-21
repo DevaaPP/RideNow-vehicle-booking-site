@@ -99,12 +99,15 @@ export default function MobileHome({
   const currentUser = userData || session?.user;
   const firstName = currentUser?.name?.trim()?.split(" ")[0] || "";
 
-  // Dynamic greeting based on actual time of day
-  const greeting = useMemo(() => {
+  const [mounted, setMounted] = useState(false);
+  const [greeting, setGreeting] = useState("Good Day");
+
+  useEffect(() => {
+    setMounted(true);
     const hour = new Date().getHours();
-    if (hour >= 4 && hour < 12) return "Good Morning";
-    if (hour >= 12 && hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    if (hour >= 4 && hour < 12) setGreeting("Good Morning");
+    else if (hour >= 12 && hour < 17) setGreeting("Good Afternoon");
+    else setGreeting("Good Evening");
   }, []);
 
   // Saved places from localStorage
@@ -247,9 +250,14 @@ export default function MobileHome({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.32, 0.72, 0, 1] }}
           >
-            <h1 className="font-serif text-[32px] sm:text-[36px] leading-[1.12] font-normal tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">
-              {greeting}
-              {firstName ? `, ${firstName}` : ""}
+            <h1
+              suppressHydrationWarning
+              className="font-serif text-[32px] sm:text-[36px] leading-[1.12] font-normal tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]"
+            >
+              <span suppressHydrationWarning>
+                {mounted ? greeting : "Good Day"}
+                {mounted && firstName ? `, ${firstName}` : ""}
+              </span>
               <br />
               <span className="font-serif italic font-normal text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">
                 Ready to move?

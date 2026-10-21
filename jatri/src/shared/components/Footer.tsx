@@ -244,7 +244,7 @@ export default function Footer() {
 
           {/* Tier 2: Clean Sub-divider & Legal Copyright Sign-off */}
           <div className="pt-3 border-t border-[#426457]/40 dark:border-[#29372E] flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#C4D2C8]/75 dark:text-[#B8C2B8]/75 gap-2 text-center sm:text-left">
-            <p>
+            <p suppressHydrationWarning>
               © {new Date().getFullYear()} {t("footer.allRights", "RideNow Mobility Technologies Pvt. Ltd. All rights reserved.")}
             </p>
             <p className="text-[#C4D2C8]/50 dark:text-[#B8C2B8]/50">
