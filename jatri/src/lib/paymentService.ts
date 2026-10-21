@@ -301,7 +301,82 @@ export async function handleRazorpayWebhook(
             booking.pickupOtp = generateSecureOtp(4);
             booking.pickupOtpExpires = new Date(Date.now() + 60 * 60 * 1000);
           }
+          booking.adminCommission = paymentDoc.platformRevenue;
+          booking.partnerAmount = paymentDoc.driverEarnings;
           await booking.save();
+
+          // Full state reconciliation via booking state machine
+          await transitionBookingState({
+            bookingId: booking._id,
+            targetStatus: "confirmed",
+            actorRole: "system",
+            payload: {
+              paymentStatus: "paid",
+              pickupOtp: booking.pickupOtp,
+              pickupOtpExpires: booking.pickupOtpExpires,
+              adminCommission: paymentDoc.platformRevenue,
+              partnerAmount: paymentDoc.driverEarnings,
+            },
+          });
+
+          // Recover customer outstanding cancellation dues if included in this ride
+          if (booking.user && booking.cancellationDuesIncluded && booking.cancellationDuesIncluded > 0) {
+            try {
+              await recoverCustomerOutstandingDues({
+                userId: booking.user,
+                paidAmount: booking.cancellationDuesIncluded,
+                bookingId: booking._id,
+              });
+            } catch (recErr) {
+              console.error("[webhook] Failed to recover customer outstanding dues:", recErr);
+            }
+          }
+
+          // Emit real-time updates to rider and driver
+          try {
+            const { emitSocketEvent } = await import("@/lib/socketServerEmit");
+            if (booking.driver) {
+              await emitSocketEvent({
+                userId: booking.driver.toString(),
+                event: "booking-updated",
+                data: {
+                  bookingId: booking._id.toString(),
+                  status: "confirmed",
+                  paymentStatus: "paid",
+                },
+                directBookingId: booking._id.toString(),
+              });
+            }
+            if (booking.user) {
+              await emitSocketEvent({
+                userId: booking.user.toString(),
+                event: "booking-updated",
+                data: {
+                  bookingId: booking._id.toString(),
+                  status: "confirmed",
+                  paymentStatus: "paid",
+                  pickupOtp: booking.pickupOtp,
+                },
+                directBookingId: booking._id.toString(),
+              });
+            }
+          } catch (sockErr) {
+            console.warn("[webhook] Socket emit failed (safely ignored):", sockErr);
+          }
+
+          // Web push to user
+          if (booking.user) {
+            try {
+              const { sendPushToUser } = await import("@/lib/webPush");
+              await sendPushToUser(booking.user.toString(), {
+                title: "Payment Confirmed! 🚗",
+                body: `Your ride is confirmed. Pickup OTP: ${booking.pickupOtp}`,
+                url: `/ride/${booking._id}`,
+              });
+            } catch (pushErr) {
+              console.warn("[webhook] Push notification failed (safely ignored):", pushErr);
+            }
+          }
         }
       }
     }
