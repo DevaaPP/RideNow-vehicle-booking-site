@@ -97,7 +97,17 @@ export async function POST(
     }
 
     /* Settle commission and driver wallet earnings */
-    await settleCompletedRidePayment(booking._id);
+    const settlementResult = await settleCompletedRidePayment(booking._id);
+    if (!settlementResult.success && settlementResult.settlementStatus === "failed") {
+      console.error(`[complete] Settlement flagged as pending/failed for booking ${booking._id}:`, settlementResult.error);
+      return NextResponse.json({
+        success: true,
+        booking,
+        isDuplicate: transitionRes.isDuplicateCall,
+        settlementPending: true,
+        warning: "Ride completed successfully. Earnings settlement is queued and will update shortly.",
+      });
+    }
   }
 
   return NextResponse.json({ success: true, booking, isDuplicate: transitionRes.isDuplicateCall });

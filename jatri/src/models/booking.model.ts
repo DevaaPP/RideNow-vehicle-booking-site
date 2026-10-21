@@ -28,6 +28,8 @@ export type PaymentStatus =
   | "cash"
   | "failed";
 
+export type SettlementStatus = "pending" | "success" | "failed";
+
 export interface IGroupMember {
   user?: Types.ObjectId;
   name: string;
@@ -107,6 +109,11 @@ export interface IBooking extends Document {
   dropOtpLockedUntil?: Date | null;
   dropOtpBypassed?: boolean;
   dropOtpBypassReason?: string;
+
+  settlementStatus?: SettlementStatus;
+  settlementError?: string | null;
+  settlementFailedAt?: Date | null;
+  settledAt?: Date | null;
 
   candidateDrivers: Types.ObjectId[];
   currentDriverIndex: number;
@@ -268,6 +275,24 @@ partnerAmount: {
   type: Number,
   default: 0,
 },
+    settlementStatus: {
+      type: String,
+      enum: ["pending", "success", "failed"],
+      default: "pending",
+      index: true,
+    },
+    settlementError: {
+      type: String,
+      default: null,
+    },
+    settlementFailedAt: {
+      type: Date,
+      default: null,
+    },
+    settledAt: {
+      type: Date,
+      default: null,
+    },
     paymentStatus: {
       type: String,
       default: "pending",

@@ -32,15 +32,27 @@ import { Types } from "mongoose";
  * 3. If 100% Online / 100% Wallet / Split Online:
  *    - Driver net earnings (85%) credited to Driver Wallet.
  */
-export async function settleCompletedRidePayment(bookingId: string | Types.ObjectId) {
+export interface SettlementResult {
+  success: boolean;
+  settlementStatus: "success" | "failed" | "skipped";
+  error?: string;
+}
+
+export async function settleCompletedRidePayment(
+  bookingId: string | Types.ObjectId
+): Promise<SettlementResult> {
   try {
     await connectDb();
 
     const booking = await Booking.findById(bookingId);
-    if (!booking || !booking.driver) return;
+    if (!booking || !booking.driver) {
+      return { success: false, settlementStatus: "skipped", error: "Booking or driver not found" };
+    }
 
     const fare = Math.round(Number(booking.fare)) || 0;
-    if (fare <= 0) return;
+    if (fare <= 0) {
+      return { success: true, settlementStatus: "skipped" };
+    }
 
     // Platform commission via authoritative commission engine (15% standard or booking value)
     const { adminCommission: defaultCommission, partnerAmount: defaultDriverEarning } =
@@ -120,7 +132,29 @@ export async function settleCompletedRidePayment(bookingId: string | Types.Objec
         console.error("Failed to recover customer outstanding dues in settleCompletedRidePayment:", recErr);
       }
     }
-  } catch (err) {
-    console.error("Error in settleCompletedRidePayment:", err);
+
+    // Flag booking as authoritatively settled
+    await Booking.findByIdAndUpdate(bookingId, {
+      settlementStatus: "success",
+      settledAt: new Date(),
+      settlementError: null,
+    });
+
+    return { success: true, settlementStatus: "success" };
+  } catch (err: any) {
+    console.error("[settlePayment] CRITICAL: Settlement failed for booking", bookingId, err);
+    await Booking.findByIdAndUpdate(bookingId, {
+      settlementStatus: "failed",
+      settlementError: String(err?.message || err),
+      settlementFailedAt: new Date(),
+    }).catch((markErr) => {
+      console.error("[settlePayment] Failed to persist failed settlement status:", markErr);
+    });
+
+    return {
+      success: false,
+      settlementStatus: "failed",
+      error: err?.message || "Settlement failed",
+    };
   }
 }
