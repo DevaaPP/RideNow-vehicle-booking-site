@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutGrid, Clock, User, Car, Navigation, ClipboardList, Wallet } from "lucide-react";
+import { Home, Compass, Clock, User, Car, Navigation, ClipboardList, Wallet } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -93,7 +93,7 @@ export default function MobileBottomNav() {
               <Link
                 href="/partner/active-ride"
                 aria-label="Partner Active Ride"
-                className="w-13 h-13 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#0B2822] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[#061A16] dark:border-[2px] dark:border-[#34D399]/70 shadow-[0_6px_20px_rgba(4,106,56,0.38)] dark:shadow-[0_0_24px_rgba(52,211,153,0.5)] active:scale-90 transition-transform"
+                className="w-13 h-13 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#0B2822] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[2px] dark:border-[#34D399]/70 shadow-[0_6px_20px_rgba(4,106,56,0.38)] dark:shadow-[0_0_24px_rgba(52,211,153,0.5)] active:scale-90 transition-transform"
               >
                 <Navigation size={22} className="fill-white" />
               </Link>
@@ -126,9 +126,14 @@ export default function MobileBottomNav() {
     );
   }
 
-  // Passenger / Consumer 5-Position Dock matching Reference Screenshot
+  // Passenger / Consumer 5-Position Dock matching Reference Screenshot:
+  // 1. Home ("/")
+  // 2. Explore ("/explore")
+  // 3. Central Action (ride search / booking)
+  // 4. Bookings ("/bookings")
+  // 5. Account ("/profile")
   const isHomeActive = pathname === "/";
-  const isServicesActive = pathname === "/fleet" || pathname === "/search";
+  const isExploreActive = pathname === "/explore" || pathname === "/fleet" || pathname === "/search";
   const isBookingsActive = pathname === "/bookings";
   const isAccountActive = pathname === "/profile" || pathname === "/wallet" || pathname === "/settings";
 
@@ -176,32 +181,32 @@ export default function MobileBottomNav() {
             </span>
           </Link>
 
-          {/* Position 2: Services */}
+          {/* Position 2: Explore */}
           <Link
-            href="/fleet"
-            aria-label="Services"
-            aria-current={isServicesActive ? "page" : undefined}
+            href="/explore"
+            aria-label="Explore"
+            aria-current={isExploreActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
-              isServicesActive
+              isExploreActive
                 ? "text-[#046A38] dark:text-[#34D399]"
                 : "text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F7F5ED]"
             }`}
           >
             <div
               className={`flex items-center justify-center transition-all duration-150 ${
-                isServicesActive
+                isExploreActive
                   ? "px-3 py-0.5 rounded-full bg-[#DDEBE0] dark:bg-[#0E352B]"
                   : "px-3 py-0.5"
               }`}
             >
-              <LayoutGrid size={20} strokeWidth={isServicesActive ? 2.5 : 1.9} />
+              <Compass size={20} strokeWidth={isExploreActive ? 2.5 : 1.9} />
             </div>
             <span
               className={`text-[10px] tracking-tight leading-tight mt-0.5 transition-colors ${
-                isServicesActive ? "font-bold text-[#046A38] dark:text-[#34D399]" : "font-medium"
+                isExploreActive ? "font-bold text-[#046A38] dark:text-[#34D399]" : "font-medium"
               }`}
             >
-              {t("nav.services", "Services")}
+              {t("nav.explore", "Explore")}
             </span>
           </Link>
 

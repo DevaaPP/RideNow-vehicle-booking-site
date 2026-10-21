@@ -422,7 +422,7 @@ export default function MobileHome({
           </h2>
           <button
             type="button"
-            onClick={() => router.push("/fleet")}
+            onClick={() => router.push("/explore")}
             className="text-[12.5px] font-bold text-[#046A38] dark:text-[#34D399] hover:underline flex items-center gap-0.5 active:scale-95 transition cursor-pointer"
           >
             <span>See all</span>
