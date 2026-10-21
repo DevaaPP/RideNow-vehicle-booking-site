@@ -71,10 +71,10 @@ export default function TripInvoiceModal({
             </button>
             <button
               onClick={onClose}
-              className="w-7 h-7 rounded-[8px] bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer"
+              className="w-10 h-10 sm:w-8 sm:h-8 rounded-[8px] bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer"
               aria-label="Close"
             >
-              <X size={15} />
+              <X size={18} />
             </button>
           </div>
         </div>

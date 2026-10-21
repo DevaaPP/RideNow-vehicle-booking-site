@@ -11,6 +11,7 @@ import {
 import { sendPushToUser } from "@/lib/webPush";
 import { haversineDistance } from "@/lib/routeUtils";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
+import { transitionBookingState } from "@/lib/bookingStateMachine";
 
 export async function GET(
   req: NextRequest,
@@ -228,15 +229,28 @@ export async function POST(
     console.error("Cancellation ledger settlement error:", settleErr);
   }
 
-  // 3️⃣ Update booking status & cancellation metadata
-  booking.status = "cancelled";
-  booking.cancelledBy = cancelledBy;
-  booking.cancellationReason = reason;
-  booking.cancellationFee = cancellationFee;
-  booking.cancellationFeeApplied = cancellationFeeApplied;
-  booking.cancelledAt = new Date();
+  // 3️⃣ Transition booking status authoritatively via state machine
+  const transitionRes = await transitionBookingState({
+    bookingId: booking._id,
+    targetStatus: "cancelled",
+    actorId: currentUserId,
+    actorRole: cancelledBy,
+    payload: {
+      cancelledBy,
+      cancellationReason: reason,
+      cancellationFee,
+      cancellationFeeApplied,
+      driverCompensation: driverCompCredited,
+      isPlatformAdvance: booking.isPlatformAdvance,
+      outstandingAccrued,
+      paymentStatus: isPrepaid ? "refunded" : booking.paymentStatus,
+      cancelledAt: new Date(),
+    },
+  });
 
-  await booking.save();
+  if (transitionRes.booking) {
+    booking.status = transitionRes.booking.status;
+  }
 
   // 4️⃣ Emit real-time Socket events
   try {

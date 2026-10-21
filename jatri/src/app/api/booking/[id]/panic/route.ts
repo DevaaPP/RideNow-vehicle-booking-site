@@ -12,6 +12,31 @@ export async function POST(
     const session = await auth();
     const id = (await context.params).id;
 
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized: Sign in required to trigger emergency SOS" },
+        { status: 401 }
+      );
+    }
+
+    const Booking = (await import("@/models/booking.model")).default;
+    const booking = await Booking.findById(id).select("user driver status").lean();
+    if (!booking) {
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+
+    const currentUserId = session.user.id.toString();
+    const isPassenger = booking.user?.toString() === currentUserId;
+    const isDriver = booking.driver?.toString() === currentUserId;
+    const isAdmin = session.user.role === "admin";
+
+    if (!isPassenger && !isDriver && !isAdmin) {
+      return NextResponse.json(
+        { error: "Forbidden: You are not a party to this booking" },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const reason = body.reason || "Emergency SOS Panic button pressed";
     const coordinates = Array.isArray(body.coordinates) ? body.coordinates : undefined;

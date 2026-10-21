@@ -212,10 +212,10 @@ export default function TripDetailsModal({
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] transition-colors cursor-pointer"
+              className="w-10 h-10 sm:w-8 sm:h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] transition-colors cursor-pointer"
               aria-label="Back"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={18} />
             </button>
             <h2 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
               Trip Details
@@ -460,11 +460,11 @@ export default function TripDetailsModal({
                     key={star}
                     type="button"
                     onClick={() => handleRate(star)}
-                    className="p-1 hover:scale-110 transition cursor-pointer"
+                    className="w-10 h-10 flex items-center justify-center hover:scale-110 active:scale-95 transition cursor-pointer"
                     aria-label={`Rate ${star} stars`}
                   >
                     <Star
-                      size={20}
+                      size={22}
                       className={`${
                         star <= userRating
                           ? "text-[#D7AC62] fill-[#D7AC62]"
@@ -493,7 +493,7 @@ export default function TripDetailsModal({
         <div className="p-3 bg-[#FAF7F0] dark:bg-[#17211B] border-t border-[#DED7CA] dark:border-[#34443A] flex items-center justify-end">
           <button
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold rounded-[8px] transition cursor-pointer"
+            className="w-full sm:w-auto px-6 py-3 min-h-[44px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold rounded-[8px] transition cursor-pointer flex items-center justify-center"
           >
             Done
           </button>
