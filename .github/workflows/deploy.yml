@@ -31,6 +31,11 @@ jobs:
           cd jatri
           npm run typecheck
 
+      - name: Run Behavioral Test Suite
+        run: |
+          cd jatri
+          npm run test
+
       - name: Verify Production Build
         run: |
           cd jatri
