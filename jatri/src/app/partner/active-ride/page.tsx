@@ -624,7 +624,7 @@ export default function DriverRidePage() {
 
   /* No active booking */
   if (!booking) return (
-    <div className="h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex flex-col items-center justify-center px-6 transition-colors">
+    <div className="min-h-[100dvh] w-full bg-[#F7F1E5] dark:bg-[#101713] flex flex-col items-center justify-center px-6 transition-colors pb-[max(24px,env(safe-area-inset-bottom))]">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -831,7 +831,7 @@ export default function DriverRidePage() {
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
           className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-t-[20px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] dark:border-[#34443A] flex flex-col"
-          animate={{ height: expanded ? "82vh" : PEEK_H }}
+          animate={{ height: expanded ? "min(85dvh, 85vh)" : `calc(${status === "requested" ? 140 : 200}px + env(safe-area-inset-bottom, 0px))` }}
           transition={{ type: "spring", stiffness: 340, damping: 34 }}
         >
           {/* Interactive Drag Handle Header */}
@@ -911,8 +911,10 @@ export default function DriverRidePage() {
                   </div>
                 </div>
                 <button
+                  type="button"
+                  aria-label="Close cancellation dialog"
                   onClick={() => setShowCancelConfirm(false)}
-                  className="w-7 h-7 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] flex items-center justify-center text-[#696B64] dark:text-[#929D93] transition cursor-pointer"
+                  className="w-10 h-10 min-h-[44px] rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] flex items-center justify-center text-[#696B64] dark:text-[#929D93] transition cursor-pointer"
                 >
                   ✕
                 </button>
@@ -983,7 +985,7 @@ export default function DriverRidePage() {
                           key={r}
                           type="button"
                           onClick={() => setSelectedDriverReason(r)}
-                          className={`w-full text-left px-3.5 py-2.5 rounded-[8px] text-xs transition-all flex items-center justify-between border cursor-pointer ${
+                          className={`w-full text-left px-3.5 py-3 min-h-[44px] rounded-[8px] text-xs transition-all flex items-center justify-between border cursor-pointer ${
                             isSelected
                               ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] border-[#123D32] dark:border-[#28664D] font-semibold"
                               : "bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#34443A]"
@@ -1120,7 +1122,7 @@ export default function DriverRidePage() {
                   setActiveCall(null);
                   zegoCallJoined.current = false;
                 }}
-                className="mt-4 bg-[#E34222] hover:bg-[#9E2F1B] text-white font-semibold text-xs uppercase tracking-wider px-6 py-2.5 rounded-[8px] transition active:scale-95 cursor-pointer shadow-sm"
+                className="mt-4 bg-[#E34222] hover:bg-[#9E2F1B] text-white font-semibold text-xs uppercase tracking-wider px-6 py-3 min-h-[44px] rounded-[8px] transition active:scale-95 cursor-pointer shadow-sm flex items-center justify-center"
               >
                 End / Close Call
               </button>
@@ -1163,7 +1165,7 @@ export default function DriverRidePage() {
                     }
                     setIncomingCall(null);
                   }}
-                  className="flex-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 font-semibold py-3 rounded-[8px] text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 font-semibold py-3 min-h-[44px] rounded-[8px] text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
                 >
                   <PhoneOff size={16} /> Decline
                 </button>
@@ -1176,7 +1178,7 @@ export default function DriverRidePage() {
                     setIncomingCall(null);
                     setActiveCall({ isOpen: true });
                   }}
-                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] font-semibold py-3 rounded-[8px] text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] font-semibold py-3 min-h-[44px] rounded-[8px] text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all cursor-pointer"
                 >
                   <PhoneCall size={16} /> Answer
                 </button>
@@ -1205,12 +1207,12 @@ function ActionBar({
 }: any) {
   if (status === "requested") {
     return (
-      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] px-4 py-3 flex gap-2">
+      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] px-4 py-3 flex gap-2" style={{ paddingBottom: "max(12px, calc(env(safe-area-inset-bottom, 0px) + 8px))" }}>
         <button
           type="button"
           onClick={onDeclineRide}
           disabled={actionPending}
-          className="flex-1 bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] py-3 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50"
+          className="flex-1 bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50"
         >
           Decline
         </button>
@@ -1218,7 +1220,7 @@ function ActionBar({
           type="button"
           onClick={onAcceptRide}
           disabled={actionPending}
-          className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-3 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
+          className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
         >
           <CheckCircle2 size={15} />
           <span>{actionPending ? "Accepting..." : "Accept Ride"}</span>
@@ -1239,13 +1241,13 @@ function ActionBar({
     : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(targetAddress || "")}&travelmode=driving`;
 
   return (
-    <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] px-4 py-3">
+    <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] px-4 py-3" style={{ paddingBottom: "max(12px, calc(env(safe-area-inset-bottom, 0px) + 8px))" }}>
       {/* 🧭 Turn-by-Turn GPS Navigation Action */}
       <a
         href={navUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full mb-2.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] active:scale-[0.98] text-[#FAF7F0] py-3 px-4 rounded-[8px] font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+        className="w-full mb-2.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] active:scale-[0.98] text-[#FAF7F0] py-3 px-4 min-h-[44px] rounded-[8px] font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
       >
         <Navigation size={14} className="fill-[#FAF7F0]" />
         <span>Navigate in Maps ({isStarted ? "To Drop" : "To Pickup"})</span>
@@ -1259,7 +1261,7 @@ function ActionBar({
           <motion.button key="arrived"
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             onClick={async () => { await sendPickupOtp(); setOtpMode(true); }}
-            className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] active:scale-[0.98] text-[#FAF7F0] py-3.5 rounded-[8px] font-semibold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            className="w-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] active:scale-[0.98] text-[#FAF7F0] py-3.5 min-h-[44px] rounded-[8px] font-semibold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
           >
             <MapPin size={15} /> I&apos;ve Arrived at Pickup <ArrowRight size={14} className="ml-1" />
           </motion.button>
@@ -1279,7 +1281,7 @@ function ActionBar({
             <div className="p-4 space-y-3">
               <p className="text-xs text-[#696B64] dark:text-[#929D93] font-medium">Ask customer for their 4-digit PIN to start ride.</p>
               <div className="flex justify-center">
-                <input type="text" inputMode="numeric" maxLength={4} value={otp}
+                <input type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={otp}
                   onChange={e => { setOtp(e.target.value.replace(/\D/g, "")); setOtpError(""); }}
                   placeholder="· · · ·"
                   className="w-48 border border-[#DED7CA] dark:border-[#34443A] focus:border-[#123D32] dark:focus:border-[#28664D] rounded-[8px] px-4 py-2 text-center text-2xl tracking-[0.5em] font-mono font-bold outline-none transition-colors bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]"
@@ -1288,10 +1290,10 @@ function ActionBar({
               {otpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#E34222] dark:text-[#E06A50] text-xs text-center font-bold">{otpError}</motion.p>}
               <div className="flex gap-2">
                 <button onClick={() => { setOtpMode(false); setOtp(""); setOtpError(""); }}
-                  className="flex-1 border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
+                  className="flex-1 border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
                 >Cancel</button>
                 <button onClick={handleVerifyOtp} disabled={loadingOtp || otp.length < 4}
-                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-[#FAF7F0] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                 >
                   {loadingOtp ? <span className="flex items-center justify-center gap-2"><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Verifying…</span> : "Verify OTP"}
                 </button>
@@ -1337,7 +1339,7 @@ function ActionBar({
             <div className="p-4 space-y-3">
               <p className="text-xs text-[#696B64] dark:text-[#929D93] font-medium">Ask customer for their drop PIN to end the ride.</p>
               <div className="flex justify-center">
-                <input type="text" inputMode="numeric" maxLength={4} value={dropOtp}
+                <input type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={dropOtp}
                   onChange={e => { setDropOtp(e.target.value.replace(/\D/g, "")); setDropOtpError(""); }}
                   placeholder="· · · ·"
                   className="w-48 border border-[#DED7CA] dark:border-[#34443A] focus:border-[#123D32] dark:focus:border-[#28664D] rounded-[8px] px-4 py-2 text-center text-2xl tracking-[0.5em] font-mono font-bold outline-none transition-colors bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]"
@@ -1346,10 +1348,10 @@ function ActionBar({
               {dropOtpError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#E34222] dark:text-[#E06A50] text-xs text-center font-bold">{dropOtpError}</motion.p>}
               <div className="flex gap-2">
                 <button onClick={() => { setDropOtpMode(false); setDropOtp(""); setDropOtpError(""); }}
-                  className="flex-1 border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
+                  className="flex-1 border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer"
                 >Cancel</button>
                 <button onClick={handleVerifyDropOtp} disabled={loadingDropOtp || dropOtp.length < 4}
-                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                  className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-[#FAF7F0] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                 >
                   {loadingDropOtp ? <span className="flex items-center justify-center gap-2"><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Verifying…</span> : "Complete Ride"}
                 </button>
@@ -1396,7 +1398,7 @@ function PanelContent({
               type="button"
               onClick={onDeclineRide}
               disabled={actionPending}
-              className="flex-1 bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50"
+              className="flex-1 bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50"
             >
               Decline
             </button>
@@ -1404,7 +1406,7 @@ function PanelContent({
               type="button"
               onClick={onAcceptRide}
               disabled={actionPending}
-              className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
+              className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition cursor-pointer active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
             >
               <CheckCircle2 size={15} />
               <span>{actionPending ? "Accepting..." : "Accept Ride"}</span>
@@ -1512,14 +1514,14 @@ function PanelContent({
               <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-[#DED7CA] dark:border-[#34443A]">
                 <button
                   onClick={onCallClick}
-                  className="flex items-center justify-center gap-1.5 bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all py-2 rounded-[8px] text-xs font-semibold uppercase tracking-wider cursor-pointer shadow-sm"
+                  className="flex items-center justify-center gap-1.5 bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all py-2.5 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider cursor-pointer shadow-sm"
                 >
                   <Phone size={13} className="text-[#123D32] dark:text-[#347858]" /> <span>Call</span>
                 </button>
                 {booking.userMobileNumber ? (
                   <a
                     href={`tel:${booking.userMobileNumber}`}
-                    className="flex items-center justify-center gap-1.5 bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all py-2 rounded-[8px] text-xs font-semibold uppercase tracking-wider cursor-pointer text-center shadow-sm"
+                    className="flex items-center justify-center gap-1.5 bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#1E2B23] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all py-2.5 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider cursor-pointer text-center shadow-sm"
                     title="Direct Cellular Phone Call"
                   >
                     <PhoneCall size={13} className="text-[#123D32] dark:text-[#347858]" /> <span>Phone</span>
@@ -1618,7 +1620,7 @@ function PanelContent({
         <div className="mx-4 lg:mx-6 mt-2 pt-2 border-t border-[#DED7CA] dark:border-[#34443A] flex gap-2">
           <a
             href="tel:112"
-            className="flex-1 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-[#E34222] dark:text-[#E06A50] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+            className="flex-1 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-[#E34222] dark:text-[#E06A50] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
           >
             <Siren size={14} className="text-[#E34222] dark:text-[#E06A50]" />
             Police (112)
@@ -1639,7 +1641,7 @@ function PanelContent({
                 }
               }
             }}
-            className="flex-1 bg-[#10251C] hover:bg-black dark:bg-[#1E2B23] dark:hover:bg-[#28664D] text-[#FAF7F0] py-2.5 rounded-[8px] text-xs font-semibold uppercase tracking-wider border border-[#10251C] dark:border-[#34443A] transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99] shadow-sm"
+            className="flex-1 bg-[#10251C] hover:bg-black dark:bg-[#1E2B23] dark:hover:bg-[#28664D] text-[#FAF7F0] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold uppercase tracking-wider border border-[#10251C] dark:border-[#34443A] transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99] shadow-sm"
           >
             <ShieldAlert size={14} className="text-amber-400" />
             Safety SOS
@@ -1667,7 +1669,7 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
       />
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
-        className="h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex flex-col overflow-y-auto transition-colors"
+        className="min-h-[100dvh] w-full bg-[#F7F1E5] dark:bg-[#101713] flex flex-col overflow-y-auto transition-colors pb-[max(24px,env(safe-area-inset-bottom))]"
       >
       <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-12">
 
