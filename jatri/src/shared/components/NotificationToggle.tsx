@@ -8,7 +8,7 @@ export default function NotificationToggle({
   variant = "button",
   className = "",
 }: {
-  variant?: "button" | "banner";
+  variant?: "button" | "banner" | "circular";
   className?: string;
 }) {
   const [mounted, setMounted] = useState(false);
@@ -67,6 +67,37 @@ export default function NotificationToggle({
           )}
         </button>
       </div>
+    );
+  }
+
+  if (variant === "circular") {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        aria-label="Notifications"
+        className={`relative w-10 h-10 rounded-full bg-white/85 dark:bg-[#1E2B23]/85 backdrop-blur-md border border-[#DED7CA]/80 dark:border-[#34443A] shadow-xs text-[#10251C] dark:text-[#F3F1E8] flex items-center justify-center active:scale-95 transition hover:bg-white dark:hover:bg-[#202B24] cursor-pointer ${className}`}
+        title={
+          isSubscribed
+            ? "Notifications Enabled (Tap to manage)"
+            : "Enable Trip Notifications"
+        }
+      >
+        {loading ? (
+          <Loader2 className="w-4 h-4 animate-spin text-[#046A38] dark:text-[#058A48]" />
+        ) : isSubscribed ? (
+          <>
+            <BellRing size={18} className="text-[#046A38] dark:text-[#A8E0C0]" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#046A38] animate-pulse" />
+          </>
+        ) : (
+          <>
+            <Bell size={18} className="text-[#10251C]/80 dark:text-[#F3F1E8]/85" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E34222]" />
+          </>
+        )}
+      </button>
     );
   }
 

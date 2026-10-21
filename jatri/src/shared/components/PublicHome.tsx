@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import HeroSection from "@/shared/components/Herosection";
 import VehicleCategoriesSlider from "@/features/booking/components/VehicleCategoriesSlider";
 import DriveWithJaatri from "@/shared/components/DriveWithJaatri";
+import MobileHome from "@/shared/components/MobileHome";
 
 const AuthModal = dynamic(() => import("@/features/auth/components/AuthModal"), { ssr: false });
 
@@ -12,10 +13,18 @@ export default function PublicHome() {
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
-    <main className="w-full pt-0 bg-[#F7F1E5] dark:bg-[#101713]">
-      <HeroSection onAuthRequired={() => setAuthOpen(true)} />
-      <VehicleCategoriesSlider />
-      <DriveWithJaatri />
+    <main className="w-full pt-0 bg-[#FAF7F0] dark:bg-[#101713]">
+      {/* 📱 MOBILE HOMEPAGE (<768px): Premium Light-Theme Assamese Hero, Search Pill, Shortcuts, 2-Col Service Cards, Destinations */}
+      <div className="block md:hidden">
+        <MobileHome onAuthRequired={() => setAuthOpen(true)} />
+      </div>
+
+      {/* 💻 DESKTOP HOMEPAGE (>=768px): Strictly preserved desktop hero, interactive search widget, vehicle slider & drive partner banner */}
+      <div className="hidden md:block">
+        <HeroSection onAuthRequired={() => setAuthOpen(true)} />
+        <VehicleCategoriesSlider />
+        <DriveWithJaatri />
+      </div>
 
       <AuthModal
         open={authOpen}
