@@ -107,6 +107,14 @@ class SMSProvider implements OTPProvider {
     }
 
     // 3. Fallback to dev console logging
+    if (process.env.NODE_ENV === "production") {
+      console.error("SMS API credentials missing or unconfigured in production environment");
+      return {
+        success: false,
+        error: "SMS service is unconfigured in production",
+      };
+    }
+
     console.log("\n=======================================================");
     console.log(`📱 [SMS OTP - DEV/FALLBACK] To: +91${tenDigits}`);
     console.log(`🔐 Verification Code: ${otp}`);

@@ -89,18 +89,29 @@ export async function POST(req: NextRequest) {
     // Dispatch OTP via OTPService (WhatsApp or SMS)
     const sendResult = await otpService.dispatch(tenDigits, otp, selectedChannel);
 
+    const channelName = selectedChannel === "sms" ? "SMS" : "WhatsApp";
+
+    if (!sendResult.success && process.env.NODE_ENV === "production") {
+      return NextResponse.json(
+        {
+          error: `Failed to deliver verification code via ${channelName}. Please try again or switch channels.`,
+          channel: selectedChannel,
+          details: sendResult.error,
+        },
+        { status: 503 }
+      );
+    }
+
     const devOtp =
-      process.env.NODE_ENV === "development" || !process.env.NODE_ENV || Boolean(sendResult.devOtp)
+      process.env.NODE_ENV !== "production"
         ? sendResult.devOtp || otp
         : undefined;
-
-    const channelName = selectedChannel === "sms" ? "SMS" : "WhatsApp";
 
     return NextResponse.json({
       success: true,
       channel: selectedChannel,
       message: `Verification OTP sent via ${channelName} to +91 ${tenDigits}`,
-      devOtp, // available for testing
+      devOtp, // strictly development only
       info: sendResult.error ? `${channelName} API note: ${sendResult.error}` : undefined,
     });
   } catch (error: any) {

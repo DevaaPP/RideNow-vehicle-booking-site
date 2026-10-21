@@ -36,6 +36,14 @@ export async function sendWhatsAppOtp(
 
   // Development / fallback mode: Log OTP clearly to console for instant testing
   if (isPlaceholder) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("WhatsApp API credentials missing or unconfigured in production environment");
+      return {
+        success: false,
+        error: "WhatsApp service is unconfigured in production",
+      };
+    }
+
     console.log("\n=======================================================");
     console.log(`💬 [WHATSAPP OTP - DEV/FALLBACK] To: +${formattedPhone}`);
     console.log(`🔐 Verification Code: ${otp}`);
@@ -78,7 +86,7 @@ export async function sendWhatsAppOtp(
       console.error("WhatsApp API dispatch error:", data);
       console.log(`🔐 [FALLBACK WHATSAPP OTP] To: +${formattedPhone} | Code: ${otp}`);
       return {
-        success: process.env.NODE_ENV !== "production",
+        success: false,
         devOtp: process.env.NODE_ENV !== "production" ? otp : undefined,
         error: data?.error?.message || "WhatsApp dispatch failed",
       };
@@ -92,7 +100,7 @@ export async function sendWhatsAppOtp(
     console.error("WhatsApp network exception:", err);
     console.log(`🔐 [FALLBACK WHATSAPP OTP] To: +${formattedPhone} | Code: ${otp}`);
     return {
-      success: process.env.NODE_ENV !== "production",
+      success: false,
       devOtp: process.env.NODE_ENV !== "production" ? otp : undefined,
       error: err?.message || "WhatsApp network error",
     };
