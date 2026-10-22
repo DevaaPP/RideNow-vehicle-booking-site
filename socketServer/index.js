@@ -2,6 +2,7 @@ import express from "express"
 import http from "http"
 import dotenv from "dotenv"
 import cors from "cors"
+import helmet from "helmet"
 import { Server } from "socket.io"
 import crypto from "crypto"
 import mongoose from "mongoose"
@@ -68,6 +69,7 @@ const corsDelegate = (origin, callback) => {
   return callback(new Error(`[SocketCORS] Blocked request from origin: ${origin}`));
 };
 
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 app.use(cors({ origin: corsDelegate, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 

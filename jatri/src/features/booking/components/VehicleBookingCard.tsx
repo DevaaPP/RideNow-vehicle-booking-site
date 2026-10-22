@@ -1,5 +1,7 @@
 "use client";
 
+import React, { memo } from "react";
+
 import { motion } from "framer-motion";
 import {
   Bike, Car, Truck, Zap,
@@ -38,7 +40,7 @@ const TYPE_ICONS: Record<VehicleType, any> = {
   truck: VEHICLE_SVG_ICONS.truck,
 };
 
-export default function VehicleBookingCard({
+function VehicleBookingCard({
   vehicle, distanceKm = 0, isRecommended, onBook,
 }: VehicleProps) {
   const { t } = useTranslation();
@@ -195,7 +197,8 @@ export default function VehicleBookingCard({
             whileTap={{ scale: 0.92 }}
             whileHover={{ scale: 1.04 }}
             onClick={onBook}
-            className="group/btn flex items-center gap-2 bg-[#046A38] hover:bg-[#03532C] text-white text-sm font-bold px-5 py-3 rounded-[8px] transition-colors shadow-sm"
+            aria-label={`Book ${vehicleModel} ${label}`}
+            className="group/btn flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] text-white text-sm font-bold px-5 py-3 min-h-[44px] min-w-[44px] rounded-[8px] transition-colors shadow-sm active:scale-95 touch-manipulation"
           >
             {t("fleet.bookNow", "Book")}
             <motion.div
@@ -211,3 +214,4 @@ export default function VehicleBookingCard({
     </motion.div>
   );
 }
+export default memo(VehicleBookingCard);
