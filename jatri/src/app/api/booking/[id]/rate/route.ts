@@ -4,6 +4,7 @@ import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import Rating from "@/models/rating.model";
 import { auth } from "@/auth";
+import { sanitizeFeedbackText } from "@/lib/validation";
 
 export async function POST(
   req: NextRequest,
@@ -32,6 +33,15 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    // Sanitize feedback comments and tags
+    const sanitizedFeedback = sanitizeFeedbackText(feedback, 500);
+    const sanitizedTags = Array.isArray(tags)
+      ? tags
+          .map((t) => String(t).replace(/<[^>]*>?/gm, "").trim())
+          .filter((t) => t.length > 0 && t.length <= 30)
+          .slice(0, 10)
+      : [];
 
     const booking = await Booking.findById(id);
     if (!booking) {
@@ -77,19 +87,19 @@ export async function POST(
           rider: session.user.id,
           driver: booking.driver,
           rating: numericRating,
-          feedback: typeof feedback === "string" ? feedback.trim() : "",
-          tags: Array.isArray(tags) ? tags : [],
+          feedback: sanitizedFeedback,
+          tags: sanitizedTags,
         },
         { upsert: true, new: true }
       );
 
       // 2. Update Booking with driver rating
       booking.rating = numericRating;
-      if (typeof feedback === "string") {
-        booking.feedback = feedback.trim();
+      if (sanitizedFeedback) {
+        booking.feedback = sanitizedFeedback;
       }
-      if (Array.isArray(tags)) {
-        booking.ratingTags = tags;
+      if (sanitizedTags.length > 0) {
+        booking.ratingTags = sanitizedTags;
       }
       booking.ratedAt = new Date();
       await booking.save();
@@ -127,8 +137,8 @@ export async function POST(
       }
 
       booking.customerRating = numericRating;
-      if (typeof feedback === "string") {
-        booking.customerFeedback = feedback.trim();
+      if (sanitizedFeedback) {
+        booking.customerFeedback = sanitizedFeedback;
       }
       booking.customerRatedAt = new Date();
       await booking.save();
