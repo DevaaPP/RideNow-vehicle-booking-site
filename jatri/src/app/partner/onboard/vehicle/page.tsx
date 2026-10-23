@@ -128,40 +128,40 @@ export default function PartnerVehiclePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
+    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="w-full max-w-xl mx-auto bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 sm:p-10 shadow-sm"
+        className="w-full max-w-xl mx-auto bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-6 sm:p-10 shadow-sm"
       >
         {/* ================= HEADER ================= */}
-        <div className="relative border-b border-[#DED7CA]/70 dark:border-[#29372E] pb-6 mb-6">
+        <div className="relative border-b border-[#DED7CA]/70 dark:border-[#1E3E34] pb-6 mb-6">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
               aria-label="Go back"
-              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] bg-white dark:bg-[#1E2B23] flex items-center justify-center hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#10352C] flex items-center justify-center hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
 
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#929D93]">
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#B9C8BF]">
               Step 01 / 03
             </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
+          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
             Vehicle Fleet Details
           </h1>
 
-          <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B8C2B8] mt-1 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B9C8BF] mt-1 leading-relaxed">
             Select your fleet classification and specify registered vehicle identity.
           </p>
 
           {completed && !editMode && (
-            <div className="mt-4 p-3 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] flex items-center justify-between shadow-xs">
-              <div className="flex items-center gap-2 text-[#10251C] dark:text-[#F3F1E8] text-xs font-semibold">
+            <div className="mt-4 p-3 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2 text-[#10251C] dark:text-[#F7F5ED] text-xs font-semibold">
                 <CheckCircle size={15} className="text-[#123D32] dark:text-[#347858]" />
                 <span>Vehicle details recorded on file</span>
               </div>
@@ -185,7 +185,7 @@ export default function PartnerVehiclePage() {
         >
           {/* VEHICLE TYPE */}
           <div>
-            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#929D93] block mb-2.5">
+            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#B9C8BF] block mb-2.5">
               Vehicle Classification
             </label>
 
@@ -203,7 +203,7 @@ export default function PartnerVehiclePage() {
                       ${
                         active
                           ? "bg-[#123D32] dark:bg-[#28664D] text-white border-[#123D32] dark:border-[#28664D] shadow-xs"
-                          : "border-[#DED7CA] dark:border-[#29372E] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/50 bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]"
+                          : "border-[#DED7CA] dark:border-[#1E3E34] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/50 bg-white dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED]"
                       }`}
                   >
                     <div
@@ -223,7 +223,7 @@ export default function PartnerVehiclePage() {
                       </p>
                       <p
                         className={`text-[10px] leading-tight mt-0.5 font-mono ${
-                          active ? "text-[#E5EBDD]/80" : "text-[#696B64] dark:text-[#929D93]"
+                          active ? "text-[#E5EBDD]/80" : "text-[#696B64] dark:text-[#B9C8BF]"
                         }`}
                       >
                         {v.desc}
@@ -237,7 +237,7 @@ export default function PartnerVehiclePage() {
 
           {/* VEHICLE NUMBER */}
           <div>
-            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#929D93] block mb-1.5">
+            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#B9C8BF] block mb-1.5">
               Registration Certificate (RC) Number
             </label>
             <input
@@ -246,23 +246,23 @@ export default function PartnerVehiclePage() {
                 setVehicleNumber(e.target.value.toUpperCase())
               }
               placeholder="e.g. AS01AB1234"
-              className="w-full border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] p-3 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] transition-colors bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] uppercase font-mono tracking-wider"
+              className="w-full border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] p-3 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] transition-colors bg-white dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] uppercase font-mono tracking-wider"
             />
-            <p className="text-[10px] font-mono text-[#696B64] dark:text-[#929D93] mt-1">
+            <p className="text-[10px] font-mono text-[#696B64] dark:text-[#B9C8BF] mt-1">
               Must match the vehicle RC document uploaded in Step 2.
             </p>
           </div>
 
           {/* VEHICLE MODEL */}
           <div>
-            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#929D93] block mb-1.5">
+            <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#B9C8BF] block mb-1.5">
               Vehicle Model & Manufacturer Specs
             </label>
             <input
               value={vehicleModel}
               onChange={(e) => setVehicleModel(e.target.value)}
               placeholder="e.g. Maruti Suzuki WagonR 2023 / Tata Ace 1.5T"
-              className="w-full border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] p-3 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] transition-colors bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]"
+              className="w-full border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] p-3 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] transition-colors bg-white dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED]"
             />
           </div>
         </div>

@@ -10,23 +10,20 @@
 
 Jaatri pairs an Assamese warm ivory editorial aesthetic for daytime with a deep, organic nighttime forest green dark theme. Cold brutalist blacks, zincs, and generic grays are strictly prohibited.
 
-### A. Semantic Theme Mapping (With Mandated Green-Role Hierarchy)
+### A. Semantic Theme Mapping (Canonical Unified Palette)
 
 | Semantic Role | Light Mode Value | Dark Mode Value | Tailwind Usage |
 |---|---|---|---|
-| **Page / Body Background** | `#F7F1E5` (Warm Ivory) | `#101713` (Night Deep Forest) | `bg-[#F7F1E5] dark:bg-[#101713]` |
-| **Card / Elevated Surface** | `#FAF7F0` (Ivory Light) | `#17211B` (Night Forest Surface) | `bg-[#FAF7F0] dark:bg-[#17211B]` |
-| **Raised Sub-card / Input** | `#FFFFFF` (Pure White) | `#1E2B23` (Night Raised Moss) | `bg-white dark:bg-[#1E2B23]` |
-| **Subtle Highlight / Muted** | `#E5EBDD` (Soft Sage) | `#202B24` (Subtle Dark Surface) | `bg-[#E5EBDD] dark:bg-[#202B24]` |
-| **Primary Text / Headlines** | `#10251C` (Deep Ink) | `#F3F1E8` (Ivory Cream Text) | `text-[#10251C] dark:text-[#F3F1E8]` |
-| **Secondary / Subtitle Text**| `#4A554E` / `#696B64` | `#B8C2B8` (Muted Sage Gray) | `text-[#696B64] dark:text-[#B8C2B8]` |
-| **Muted Meta / Helper Text** | `#889088` | `#929D93` (Muted Olive Text) | `text-[#889088] dark:text-[#929D93]` |
-| **Brand Primary Interactive CTA** | `#046A38` (Primary Emerald) | `#058A48` (Vibrant Emerald) | `bg-[#046A38] dark:bg-[#058A48] text-white hover:bg-[#03532C]` |
-| **Active Selected Surface** | `#1E6048` (Active Emerald Surface) | `#1E6048` / `#1D3428` | `bg-[#1E6048] text-[#F7F1E5]` |
-| **Structural Brand Green** | `#123D32` (Forest Green) | `#123D32` (Night Structural Forest)| `bg-[#123D32] dark:bg-[#17211B]` |
-| **Deep Forest Surface** | `#0D3027` (Deep Forest) | `#0D3027` | `bg-[#0D3027]` |
-| **Default Border / Divider** | `#DED7CA` (Warm Border) | `#34443A` (Forest Border) | `border-[#DED7CA] dark:border-[#34443A]` |
-| **Subtle Border** | `#E8E2D8` (Soft Ivory Line)| `#29372E` (Subtle Night Line)| `border-[#E8E2D8] dark:border-[#29372E]` |
+| **Page / Body Background** | `#FAF7F0` (Warm Ivory Light) | `#061A16` (Twilight Forest Black) | `bg-[#FAF7F0] dark:bg-[#061A16]` |
+| **Card / Primary Container** | `#FFFFFF` / `#FAF7F0` | `#0B2822` (Deep Forest Green Surface) | `bg-white dark:bg-[#0B2822]` |
+| **Raised Sub-card / Elevated Input**| `#FFFFFF` (Pure White) | `#10352C` (Raised Forest Emerald) | `bg-white dark:bg-[#10352C]` |
+| **Active / Hover Highlight Surface** | `#F2ECE1` / `#E5EBDD` | `#143D32` (Active Forest Highlight) | `dark:hover:bg-[#10352C] dark:active:bg-[#143D32]` |
+| **Primary Text / Headlines** | `#10251C` (Deep Forest Ink) | `#F7F5ED` (Ivory Cream Text) | `text-[#10251C] dark:text-[#F7F5ED]` |
+| **Secondary / Subtitle Text**| `#696B64` (Muted Warm Gray) | `#B9C8BF` (Muted Sage Green) | `text-[#696B64] dark:text-[#B9C8BF]` |
+| **Brand Primary Interactive CTA** | `#046A38` (Primary Emerald) | `#046A38` (hover `#03532C`) | `bg-[#046A38] hover:bg-[#03532C] text-white` |
+| **Brand Mint / Accent Highlight** | `#046A38` (Deep Emerald) | `#34D399` (Mint Glow) | `text-[#046A38] dark:text-[#34D399]` |
+| **Default Border / Divider** | `#DED7CA` (Warm Border) | `#24483D` (Deep Forest Border) | `border-[#DED7CA] dark:border-[#24483D]` |
+| **Subtle Border / Divider** | `#E8E2D8` (Soft Ivory Line)| `#1E3E34` (Subtle Night Forest Line)| `border-[#E8E2D8] dark:border-[#1E3E34]` |
 | **Assamese Vermilion Signature Accent**| `#E34222` (Assamese Vermilion) | `#E34222` / `#E06A50` | `text-[#E34222] bg-[#E34222]` |
 | **Gold / Rating Accent** | `#C28B38` (Assam Silk Gold)| `#D7AC62` (Warm Amber Gold) | `text-[#C28B38] dark:text-[#D7AC62]` |
 | **Lime Accent (Badges)** | `#046A38` on `#E5EBDD` | `#A3E635` (Fluorescent Lime) | `text-[#046A38] dark:text-[#A3E635]` |

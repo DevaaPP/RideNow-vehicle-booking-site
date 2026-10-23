@@ -335,7 +335,7 @@ export default function VendorDashboard({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#FAF7F0] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] rounded-[16px] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border border-[#DED7CA] dark:border-[#34443A] shadow-sm font-sans"
+            className="bg-[#FAF7F0] dark:bg-[#0B2822] text-[#10251C] dark:text-[#F7F5ED] rounded-[16px] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border border-[#DED7CA] dark:border-[#24483D] shadow-sm font-sans"
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-[10px] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] flex items-center justify-center shrink-0">
@@ -344,7 +344,7 @@ export default function VendorDashboard({
               <div>
                 <span className="text-[10px] uppercase tracking-widest font-bold text-[#123D32] dark:text-emerald-400">Live Call Session Ready</span>
                 <h2 className="text-xl sm:text-2xl font-serif font-bold mt-0.5 tracking-tight">Video KYC Verification Active</h2>
-                <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-1 font-medium">Verification room is established. Connect now to finalize identity verification.</p>
+                <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-1 font-medium">Verification room is established. Connect now to finalize identity verification.</p>
               </div>
             </div>
             <button
@@ -408,7 +408,7 @@ export default function VendorDashboard({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#FAF7F0] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] rounded-[16px] p-8 sm:p-10 border border-[#DED7CA] dark:border-[#34443A] shadow-sm font-sans"
+          className="bg-[#FAF7F0] dark:bg-[#0B2822] text-[#10251C] dark:text-[#F7F5ED] rounded-[16px] p-8 sm:p-10 border border-[#DED7CA] dark:border-[#24483D] shadow-sm font-sans"
         >
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
@@ -419,7 +419,7 @@ export default function VendorDashboard({
           <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight">
             Partner Account Activated
           </h2>
-          <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-1 max-w-md font-medium">
+          <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-1 max-w-md font-medium">
             All identity credentials and statutory vehicle inspections are verified. You can now toggle online duty and receive ride assignments.
           </p>
 
@@ -452,43 +452,43 @@ export default function VendorDashboard({
   /* Guard against flash while pricing is loading for onboarded or nearly onboarded partners */
   if ((activeStep >= 6 || vendorStep >= 6) && loadingPricing && !initialPricing) {
     return (
-      <section className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] pt-28 pb-20 px-4 md:px-8 font-sans transition-colors">
+      <section className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] pt-28 pb-20 px-4 md:px-8 font-sans transition-colors">
         <div className="max-w-7xl mx-auto space-y-6 animate-pulse">
-          <div className="h-8 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[8px] w-48 border border-[#DED7CA] dark:border-[#34443A]" />
+          <div className="h-8 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[8px] w-48 border border-[#DED7CA] dark:border-[#24483D]" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="h-40 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A]" />
-            <div className="h-40 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A]" />
-            <div className="h-40 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A]" />
+            <div className="h-40 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] border border-[#DED7CA] dark:border-[#24483D]" />
+            <div className="h-40 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] border border-[#DED7CA] dark:border-[#24483D]" />
+            <div className="h-40 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] border border-[#DED7CA] dark:border-[#24483D]" />
           </div>
-          <div className="h-80 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] border border-[#DED7CA] dark:border-[#34443A]" />
+          <div className="h-80 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] border border-[#DED7CA] dark:border-[#24483D]" />
         </div>
       </section>
     );
   }
 
   return (
-    <section className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] px-3 sm:px-6 pt-20 sm:pt-28 pb-16 font-sans transition-colors">
+    <section className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] px-3 sm:px-6 pt-20 sm:pt-28 pb-16 font-sans transition-colors">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
-        <div className="border-b border-[#DED7CA] dark:border-[#34443A] pb-5">
+        <div className="border-b border-[#DED7CA] dark:border-[#24483D] pb-5">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#28664D] inline-block" />
             <span className="text-[10px] font-bold tracking-wider uppercase text-[#123D32] dark:text-[#347858]">
               Partner Verification
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
             Vendor Activation Steps
           </h1>
-          <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1">
+          <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-sm mt-1">
             Complete compliance onboarding to activate live dispatch and receive bookings.
           </p>
         </div>
 
         {/* MOBILE STEPPER */}
-        <div className="block md:hidden bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] p-4 border border-[#DED7CA] dark:border-[#34443A] space-y-3 shadow-xs">
+        <div className="block md:hidden bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] p-4 border border-[#DED7CA] dark:border-[#24483D] space-y-3 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">
               Step 0{activeStep} / 0{TOTAL_STEPS}
             </span>
             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] rounded-[6px]">
@@ -496,7 +496,7 @@ export default function VendorDashboard({
             </span>
           </div>
 
-          <div className="w-full h-1.5 bg-[#F7F1E5] dark:bg-[#101713] rounded-full overflow-hidden border border-[#DED7CA] dark:border-[#34443A]">
+          <div className="w-full h-1.5 bg-[#FAF7F0] dark:bg-[#061A16] rounded-full overflow-hidden border border-[#DED7CA] dark:border-[#24483D]">
             <motion.div
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.3 }}
@@ -521,7 +521,7 @@ export default function VendorDashboard({
                       ? "bg-[#123D32]/10 dark:bg-[#28664D]/25 text-[#123D32] dark:text-[#347858] border border-[#123D32]/30 dark:border-[#28664D]/50 font-semibold"
                       : active
                       ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] font-bold shadow-xs"
-                      : "bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#696B64] dark:text-[#929D93] border border-[#DED7CA] dark:border-[#34443A]"
+                      : "bg-[#FAF7F0] dark:bg-[#10352C] text-[#696B64] dark:text-[#B9C8BF] border border-[#DED7CA] dark:border-[#24483D]"
                   }`}
                 >
                   <span>{completed ? "✓" : `0${step.id}`}</span>
@@ -533,7 +533,7 @@ export default function VendorDashboard({
         </div>
 
         {/* DESKTOP STEPPER */}
-        <div className="hidden md:block bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] p-6 sm:p-8 border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-x-auto">
+        <div className="hidden md:block bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] p-6 sm:p-8 border border-[#DED7CA] dark:border-[#24483D] shadow-xs overflow-x-auto">
           <div className="relative min-w-[700px]">
             <div className="absolute top-6 left-0 w-full h-[2px] bg-[#DED7CA] dark:bg-[#34443A]" />
 
@@ -561,8 +561,8 @@ export default function VendorDashboard({
                         completed
                           ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] border-[#123D32] dark:border-[#28664D] shadow-xs"
                           : active
-                          ? "border-[#123D32] dark:border-[#28664D] bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#123D32] dark:text-[#347858] ring-2 ring-[#123D32]/20 dark:ring-[#28664D]/30 font-bold"
-                          : "border-[#DED7CA] dark:border-[#34443A] text-[#696B64] dark:text-[#929D93] bg-[#FAF7F0] dark:bg-[#1E2B23]"
+                          ? "border-[#123D32] dark:border-[#28664D] bg-[#FAF7F0] dark:bg-[#10352C] text-[#123D32] dark:text-[#347858] ring-2 ring-[#123D32]/20 dark:ring-[#28664D]/30 font-bold"
+                          : "border-[#DED7CA] dark:border-[#24483D] text-[#696B64] dark:text-[#B9C8BF] bg-[#FAF7F0] dark:bg-[#10352C]"
                       }`}
                     >
                       {completed ? (
@@ -575,7 +575,7 @@ export default function VendorDashboard({
                     </div>
 
                     <p className={`mt-2.5 text-xs font-medium uppercase tracking-wider text-center ${
-                      active ? "text-[#123D32] dark:text-[#347858] font-bold" : "text-[#696B64] dark:text-[#929D93]"
+                      active ? "text-[#123D32] dark:text-[#347858] font-bold" : "text-[#696B64] dark:text-[#B9C8BF]"
                     }`}>
                       {step.title}
                     </p>
@@ -669,13 +669,13 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
           <motion.div
             initial={{ scale: 0.98 }}
             animate={{ scale: 1 }}
-            className="bg-[#FAF7F0] dark:bg-[#17211B] w-full max-w-lg rounded-[16px] border border-[#DED7CA] dark:border-[#34443A] shadow-xl overflow-hidden p-6 font-sans"
+            className="bg-[#FAF7F0] dark:bg-[#0B2822] w-full max-w-lg rounded-[16px] border border-[#DED7CA] dark:border-[#24483D] shadow-xl overflow-hidden p-6 font-sans"
           >
-            <div className="border-b border-[#DED7CA] dark:border-[#34443A] pb-4 mb-4">
+            <div className="border-b border-[#DED7CA] dark:border-[#24483D] pb-4 mb-4">
               <span className="text-[10px] uppercase tracking-widest text-[#123D32] dark:text-[#347858] font-bold">
                 Vehicle Compliance & Fleet
               </span>
-              <h2 className="text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight mt-0.5">
+              <h2 className="text-lg font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight mt-0.5">
                 Fleet Category & Exterior Inspection
               </h2>
             </div>
@@ -683,32 +683,32 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
             <div className="space-y-4">
               {/* Fleet Category Selector */}
               <div>
-                <label className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-wider block mb-1.5">
                   Select Fleet Specification
                 </label>
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full text-xs font-semibold p-2.5 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] text-[#10251C] dark:text-[#F3F1E8] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
+                  className="w-full text-xs font-semibold p-2.5 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] text-[#10251C] dark:text-[#F7F5ED] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
                 >
                   {FLEET_CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id} className="dark:bg-[#17211B]">
+                    <option key={cat.id} value={cat.id} className="dark:bg-[#0B2822]">
                       {cat.label}
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-[#696B64] dark:text-[#929D93] mt-1 font-medium">
+                <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] mt-1 font-medium">
                   Ensure your vehicle matches the customer ride requests in your area.
                 </p>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-wider block mb-1.5">
                   Vehicle Exterior Photo
                 </label>
-                <label className="relative h-40 border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] bg-white dark:bg-[#101713] flex items-center justify-center cursor-pointer hover:border-[#123D32] dark:hover:border-[#28664D] transition-colors overflow-hidden">
+                <label className="relative h-40 border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] bg-white dark:bg-[#061A16] flex items-center justify-center cursor-pointer hover:border-[#123D32] dark:hover:border-[#28664D] transition-colors overflow-hidden">
                   {!preview ? (
-                    <div className="flex flex-col items-center gap-1.5 text-[#696B64] dark:text-[#929D93]">
+                    <div className="flex flex-col items-center gap-1.5 text-[#696B64] dark:text-[#B9C8BF]">
                       <ImagePlus size={26} className="text-[#123D32] dark:text-[#347858]" />
                       <span className="text-[10px] uppercase tracking-wider font-semibold">Select Vehicle Photo</span>
                     </div>
@@ -738,10 +738,10 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
               </div>
             </div>
 
-            <div className="pt-5 mt-5 border-t border-[#DED7CA] dark:border-[#34443A] flex gap-3">
+            <div className="pt-5 mt-5 border-t border-[#DED7CA] dark:border-[#24483D] flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 py-2.5 border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] text-xs uppercase font-semibold text-[#10251C] dark:text-[#F3F1E8] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] transition-colors cursor-pointer"
+                className="flex-1 py-2.5 border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] text-xs uppercase font-semibold text-[#10251C] dark:text-[#F7F5ED] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -770,9 +770,9 @@ function StatusCard({ icon, title, desc }: any) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="
-        bg-[#FAF7F0] dark:bg-[#17211B] 
+        bg-[#FAF7F0] dark:bg-[#0B2822] 
         rounded-[12px] 
-        border border-[#DED7CA] dark:border-[#34443A] 
+        border border-[#DED7CA] dark:border-[#24483D] 
         p-5 sm:p-7 
         shadow-sm 
         flex 
@@ -786,10 +786,10 @@ function StatusCard({ icon, title, desc }: any) {
       </div>
 
       <div className="flex-1">
-        <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+        <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
           {title}
         </h3>
-        <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1 font-medium font-body">
+        <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-sm mt-1 font-medium font-body">
           {desc}
         </p>
       </div>
@@ -804,9 +804,9 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
   return (
     <div
       className="
-        bg-[#FAF7F0] dark:bg-[#17211B] 
+        bg-[#FAF7F0] dark:bg-[#0B2822] 
         rounded-[12px] 
-        border border-[#DED7CA] dark:border-[#34443A] 
+        border border-[#DED7CA] dark:border-[#24483D] 
         p-5 sm:p-7 
         shadow-sm 
         flex 
@@ -822,11 +822,11 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
         </div>
 
         <div>
-          <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+          <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
             {title}
           </h3>
           {desc && (
-            <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-1 font-medium font-body">
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-sm mt-1 font-medium font-body">
               {desc}
             </p>
           )}
@@ -880,7 +880,7 @@ function RejectionCard({
         {title}
       </div>
 
-      <div className="bg-[#FAF7F0] dark:bg-[#1E2B23] border border-red-200 dark:border-red-900/50 rounded-[8px] p-3.5 text-xs sm:text-sm font-medium text-[#10251C] dark:text-[#F3F1E8]">
+      <div className="bg-[#FAF7F0] dark:bg-[#10352C] border border-red-200 dark:border-red-900/50 rounded-[8px] p-3.5 text-xs sm:text-sm font-medium text-[#10251C] dark:text-[#F7F5ED]">
         {reason || "No specification provided"}
       </div>
 
@@ -911,8 +911,8 @@ function RejectionCard({
 function PriceInput({ label, value, onChange }: any) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-[#696B64] dark:text-[#929D93] mb-1">{label}</p>
-      <div className="flex items-center gap-2 border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] px-3.5 py-2.5 bg-white dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8]">
+      <p className="text-xs font-semibold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] mb-1">{label}</p>
+      <div className="flex items-center gap-2 border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3.5 py-2.5 bg-white dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED]">
         <IndianRupee size={15} className="text-[#123D32] dark:text-[#347858]" />
         <input
           value={value}
@@ -1448,7 +1448,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   };
 
   return (
-    <section className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] px-3 sm:px-6 pt-20 sm:pt-28 pb-16 relative transition-colors">
+    <section className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] px-3 sm:px-6 pt-20 sm:pt-28 pb-16 relative transition-colors">
       <div className="fixed inset-0 pointer-events-none opacity-20 dark:opacity-10"
         style={{ backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)", backgroundSize: "24px 24px" }}
       />
@@ -1456,9 +1456,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       <div className="relative max-w-7xl mx-auto space-y-5 sm:space-y-8 z-10">
         
         {/* Header Block */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] p-5 sm:p-7 md:p-8 border border-[#DED7CA] dark:border-[#34443A] shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] p-5 sm:p-7 md:p-8 border border-[#DED7CA] dark:border-[#24483D] shadow-sm">
           <div className="flex items-center gap-3.5 sm:gap-4">
-            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-[12px] border border-[#DED7CA] dark:border-[#34443A] overflow-hidden bg-[#123D32] dark:bg-[#28664D]">
+            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-[12px] border border-[#DED7CA] dark:border-[#24483D] overflow-hidden bg-[#123D32] dark:bg-[#28664D]">
               {profilePicture ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -1501,8 +1501,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight truncate">{userData?.name}</h1>
-                <span className="inline-flex items-center gap-1 bg-[#F7F1E5] dark:bg-[#1E2B23] text-[#123D32] dark:text-[#347858] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A]">
+                <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight truncate">{userData?.name}</h1>
+                <span className="inline-flex items-center gap-1 bg-[#F7F1E5] dark:bg-[#10352C] text-[#123D32] dark:text-[#347858] text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[6px] border border-[#DED7CA] dark:border-[#24483D]">
                   Verified Partner
                 </span>
                 {!profilePicture && (
@@ -1511,7 +1511,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   </span>
                 )}
               </div>
-              <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm mt-0.5 font-medium truncate font-body">
+              <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-sm mt-0.5 font-medium truncate font-body">
                 Manage live duty status, real-time GPS telemetry, and fleet ride dispatching
               </p>
             </div>
@@ -1527,7 +1527,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </button>
             <button
               onClick={() => window.location.href = "/partner/bookings"}
-              className="flex items-center justify-center gap-2 border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#F7F1E5] dark:hover:bg-[#1E2B23] bg-[#FAF7F0] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-xs sm:text-sm font-semibold uppercase tracking-wider px-4 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
+              className="flex items-center justify-center gap-2 border border-[#DED7CA] dark:border-[#24483D] hover:bg-[#F7F1E5] dark:hover:bg-[#10352C] bg-[#FAF7F0] dark:bg-[#0B2822] text-[#10251C] dark:text-[#F7F5ED] text-xs sm:text-sm font-semibold uppercase tracking-wider px-4 py-3 rounded-[8px] transition cursor-pointer shadow-sm"
             >
               Ride History
             </button>
@@ -1536,16 +1536,16 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Mandatory Profile Picture Alert Banner */}
         {!profilePicture && (
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans shadow-sm">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center font-bold shrink-0">
                 <Camera size={16} />
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">
                   Mandatory Driver Face Photo Required
                 </p>
-                <p className="text-[11px] text-[#696B64] dark:text-[#929D93] mt-0.5">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5">
                   You must upload a clear facial photograph to complete driver verification and remain active on dispatch.
                 </p>
               </div>
@@ -1592,63 +1592,63 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Today's Shift Performance Bar */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#929D93]">{t("driver.todayEarnings", "Today's Earnings")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#24483D] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#B9C8BF] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#B9C8BF]">{t("driver.todayEarnings", "Today's Earnings")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
                 <IndianRupee size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-none tabular-nums font-mono">
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-none tabular-nums font-mono">
                 ₹{shiftSummary?.todayEarnings ?? 0}
               </p>
-              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium mt-1">Net shift earnings</p>
+              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium mt-1">Net shift earnings</p>
             </div>
           </div>
 
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#929D93]">{t("driver.tripsCompleted", "Trips Completed")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#24483D] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#B9C8BF] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#B9C8BF]">{t("driver.tripsCompleted", "Trips Completed")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
                 <CheckCircle2 size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-none tabular-nums font-mono">
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-none tabular-nums font-mono">
                 {shiftSummary?.todayTrips ?? 0}
               </p>
-              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium mt-1 truncate">
+              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium mt-1 truncate">
                 {shiftSummary?.totalCompleted ? `${shiftSummary.totalCompleted} all-time` : "Today's shift"}
               </p>
             </div>
           </div>
 
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#929D93]">{t("driver.onlineShift", "Online Shift")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#24483D] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#B9C8BF] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#B9C8BF]">{t("driver.onlineShift", "Online Shift")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
                 <Clock size={13} />
               </div>
             </div>
             <div>
-              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-none tabular-nums font-mono">
-                {shiftSummary?.hoursOnline ?? 0}<span className="text-sm font-normal text-[#696B64] dark:text-[#929D93] ml-0.5 font-sans">hrs</span>
+              <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-none tabular-nums font-mono">
+                {shiftSummary?.hoursOnline ?? 0}<span className="text-sm font-normal text-[#696B64] dark:text-[#B9C8BF] ml-0.5 font-sans">hrs</span>
               </p>
-              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium mt-1">Active duty shift</p>
+              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium mt-1">Active duty shift</p>
             </div>
           </div>
 
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#929D93]">{t("driver.rating", "Driver Rating")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 sm:p-5 border border-[#DED7CA] dark:border-[#24483D] shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#B9C8BF] mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#696B64] dark:text-[#B9C8BF]">{t("driver.rating", "Driver Rating")}</span>
+              <div className="w-7 h-7 rounded-[6px] bg-[#F7F1E5] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
                 <Shield size={13} />
               </div>
             </div>
             <div>
               <div className="flex items-baseline gap-1.5 leading-none">
-                <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight tabular-nums font-mono">
+                <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight tabular-nums font-mono">
                   ★ {shiftSummary?.rating ?? 5.0}
                 </p>
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] uppercase tracking-wider ${
@@ -1659,7 +1659,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   {shiftSummary?.acceptanceRate ?? 100}% accept
                 </span>
               </div>
-              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium mt-1">
+              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium mt-1">
                 {shiftSummary?.dailyCancellations ? `${shiftSummary.dailyCancellations} cancelled today` : "Clean shift rating"}
               </p>
             </div>
@@ -1716,7 +1716,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                           {isExpired ? "Expired" : `${alert.daysRemaining} days left`}
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#696B64] dark:text-[#929D93] mt-0.5 leading-snug font-medium">
+                      <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug font-medium">
                         {alert.message}
                       </p>
                     </div>
@@ -1742,15 +1742,15 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
 
           {/* Card 1: Duty Status Command */}
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#929D93] mb-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#B9C8BF] mb-1">
                 Dispatch & Duty Status
               </p>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
                 {isOnline ? "Online — Accepting Trips" : "Offline — Duty Paused"}
               </h2>
-              <p className="text-[#696B64] dark:text-[#B8C2B8] text-xs font-medium mt-1 leading-relaxed font-body">
+              <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1 leading-relaxed font-body">
                 {isOnline
                   ? "Live radar active. You will receive real-time ride dispatch assignments matching your registered fleet."
                   : "Toggle online to start receiving ride dispatch assignments and passenger bookings."}
@@ -1766,10 +1766,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               </div>
             )}
 
-            <div className="bg-[#F7F1E5] dark:bg-[#101713] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#29372E] flex items-center justify-between my-4">
+            <div className="bg-[#FAF7F0] dark:bg-[#061A16] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#1E3E34] flex items-center justify-between my-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+                  <p className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
                     {isOnline ? "Duty: Online" : "Duty: Offline"}
                   </p>
                   {isOnline && isWakeLockActive && (
@@ -1779,7 +1779,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-[#696B64] dark:text-[#929D93] font-semibold uppercase tracking-wider">
+                <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-semibold uppercase tracking-wider">
                   {isOnline ? "Broadcasting live coordinates" : "Unavailable for dispatch"}
                 </p>
               </div>
@@ -1801,10 +1801,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               </button>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-[#DED7CA] dark:border-[#29372E] text-xs text-[#696B64] dark:text-[#929D93]">
+            <div className="flex items-center justify-between pt-2 border-t border-[#DED7CA] dark:border-[#1E3E34] text-xs text-[#696B64] dark:text-[#B9C8BF]">
               <div className="flex items-center gap-1.5 min-w-0">
                 <MapPin size={13} className="text-[#123D32] dark:text-[#347858] shrink-0" />
-                <span className="truncate tabular-nums font-mono text-[11px] text-[#10251C] dark:text-[#F3F1E8]">
+                <span className="truncate tabular-nums font-mono text-[11px] text-[#10251C] dark:text-[#F7F5ED]">
                   {coords
                     ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
                     : "Detecting GPS..."}
@@ -1814,7 +1814,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 type="button"
                 onClick={() => syncDriverLocation()}
                 disabled={isLocating}
-                className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] hover:text-[#123D32] dark:hover:text-[#347858] border border-[#DED7CA] dark:border-[#29372E] hover:border-[#123D32] dark:hover:border-[#28664D] px-2.5 py-1 rounded-[8px] bg-[#FAF7F0] dark:bg-[#17211B] transition cursor-pointer shrink-0 ml-2 shadow-xs"
+                className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] hover:text-[#123D32] dark:hover:text-[#347858] border border-[#DED7CA] dark:border-[#1E3E34] hover:border-[#123D32] dark:hover:border-[#28664D] px-2.5 py-1 rounded-[8px] bg-[#FAF7F0] dark:bg-[#0B2822] transition cursor-pointer shrink-0 ml-2 shadow-xs"
                 title="Refresh and sync GPS location now"
               >
                 <RefreshCw size={11} className={isLocating ? "animate-spin text-[#123D32] dark:text-[#347858]" : "text-[#123D32] dark:text-[#347858]"} />
@@ -1824,52 +1824,52 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           </div>
 
           {/* Card 2: Live Location Tracker & Radar */}
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 flex flex-col justify-between min-h-[310px] shadow-sm">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-6 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#929D93] mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#B9C8BF] mb-1">
                   Live GPS Telemetry
                 </p>
-                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
                   Location Radar
                 </h2>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] text-[#123D32] dark:text-[#347858] text-[10px] font-semibold uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] text-[#123D32] dark:text-[#347858] text-[10px] font-semibold uppercase tracking-wider">
                 <span>Live GPS</span>
               </span>
             </div>
 
-            <div className="flex-1 w-full h-[155px] relative my-3 rounded-[12px] overflow-hidden border border-[#DED7CA] dark:border-[#29372E]">
+            <div className="flex-1 w-full h-[155px] relative my-3 rounded-[12px] overflow-hidden border border-[#DED7CA] dark:border-[#1E3E34]">
               <DriverLocationMap coords={coords} vehicleType={vType} />
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-[#696B64] dark:text-[#929D93] border-t border-[#DED7CA] dark:border-[#29372E] pt-2">
+            <div className="flex items-center justify-between text-[11px] text-[#696B64] dark:text-[#B9C8BF] border-t border-[#DED7CA] dark:border-[#1E3E34] pt-2">
               <span className="truncate">
                 {lastSyncedTime
                   ? `Synced ${lastSyncedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
                   : "Continuous device tracking active"}
               </span>
-              <span className="text-[10px] font-semibold uppercase text-[#123D32] dark:text-[#347858] bg-[#F7F1E5] dark:bg-[#101713] px-2 py-0.5 rounded-[4px] border border-[#DED7CA] dark:border-[#29372E] shrink-0 ml-2">
+              <span className="text-[10px] font-semibold uppercase text-[#123D32] dark:text-[#347858] bg-[#FAF7F0] dark:bg-[#061A16] px-2 py-0.5 rounded-[4px] border border-[#DED7CA] dark:border-[#1E3E34] shrink-0 ml-2">
                 Active Radar
               </span>
             </div>
           </div>
 
           {/* Card 3: Fleet Vehicle Specifications */}
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-6 md:p-8 flex flex-col justify-between min-h-[310px] shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#929D93] mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#B9C8BF] mb-1">
                   Fleet Specifications
                 </p>
-                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight capitalize">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight capitalize">
                   {vType} Fleet
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowPricing(true)}
-                className="text-[#10251C] dark:text-[#F3F1E8] hover:text-[#123D32] dark:hover:text-[#347858] p-2 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] hover:border-[#123D32] dark:hover:border-[#28664D] hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition-all cursor-pointer shadow-xs"
+                className="text-[#10251C] dark:text-[#F7F5ED] hover:text-[#123D32] dark:hover:text-[#347858] p-2 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] hover:border-[#123D32] dark:hover:border-[#28664D] hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition-all cursor-pointer shadow-xs"
                 title="Edit pricing and vehicle details"
               >
                 <Edit3 size={15} />
@@ -1881,40 +1881,40 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 <img
                   src={pricing.imageUrl}
                   alt="Vehicle"
-                  className="w-20 h-20 rounded-[12px] object-cover border border-[#DED7CA] dark:border-[#29372E] shrink-0"
+                  className="w-20 h-20 rounded-[12px] object-cover border border-[#DED7CA] dark:border-[#1E3E34] shrink-0"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-[12px] bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] flex flex-col items-center justify-center text-[#123D32] dark:text-[#347858] shrink-0 gap-1">
+                <div className="w-20 h-20 rounded-[12px] bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] flex flex-col items-center justify-center text-[#123D32] dark:text-[#347858] shrink-0 gap-1">
                   {vType === "auto" ? (
                     <Car size={26} className="text-amber-600" />
                   ) : vType === "bike" || vType === "scooty" ? (
                     <Bike size={26} className="text-[#123D32] dark:text-[#347858]" />
                   ) : vType === "loading" || vType === "truck" ? (
-                    <Truck size={26} className="text-[#10251C] dark:text-[#F3F1E8]" />
+                    <Truck size={26} className="text-[#10251C] dark:text-[#F7F5ED]" />
                   ) : (
                     <Car size={26} className="text-[#123D32] dark:text-[#347858]" />
                   )}
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
                     {vType}
                   </span>
                 </div>
               )}
               <div className="space-y-1.5 flex-1 min-w-0">
-                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
+                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF]">
                   <span className="font-medium">Base Fare:</span>
-                  <span className="tabular-nums text-[#10251C] dark:text-[#F3F1E8] font-mono font-bold">₹{cfg.baseFare}</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">₹{cfg.baseFare}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
+                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF]">
                   <span className="font-medium">Distance Rate:</span>
-                  <span className="tabular-nums text-[#10251C] dark:text-[#F3F1E8] font-mono font-bold">₹{cfg.pricePerKm}/km</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">₹{cfg.pricePerKm}/km</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
+                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF]">
                   <span className="font-medium">Time Charge:</span>
-                  <span className="tabular-nums text-[#10251C] dark:text-[#F3F1E8] font-mono font-bold">₹{cfg.pricePerMinute}/min</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">₹{cfg.pricePerMinute}/min</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#929D93]">
+                <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF]">
                   <span className="font-medium">Demand Multiplier:</span>
-                  <span className="tabular-nums text-[#10251C] dark:text-[#F3F1E8] font-mono font-bold">{cfg.multiplier}x</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">{cfg.multiplier}x</span>
                 </div>
               </div>
             </div>
@@ -1938,19 +1938,19 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         </div>
 
         {/* Recent Trips & Drop-Off Ledger */}
-        <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 md:p-8 shadow-sm space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#DED7CA] dark:border-[#29372E] pb-4">
+        <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-6 md:p-8 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#DED7CA] dark:border-[#1E3E34] pb-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#929D93]">Shift Activity</p>
-              <h2 className="text-xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">Recent Trips & Drop-Off Ledger</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#696B64] dark:text-[#B9C8BF]">Shift Activity</p>
+              <h2 className="text-xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">Recent Trips & Drop-Off Ledger</h2>
             </div>
-            <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] font-medium">Real-time trip records and drop-off arrival times</p>
+            <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] font-medium">Real-time trip records and drop-off arrival times</p>
           </div>
 
           {recentTrips.length === 0 ? (
-            <div className="text-center py-10 bg-[#F7F1E5] dark:bg-[#101713] rounded-[12px] border border-dashed border-[#DED7CA] dark:border-[#29372E]">
-              <p className="text-sm font-bold text-[#10251C] dark:text-[#F3F1E8]">No trips recorded for this shift yet</p>
-              <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-1">Toggle online above to start receiving passenger bookings</p>
+            <div className="text-center py-10 bg-[#FAF7F0] dark:bg-[#061A16] rounded-[12px] border border-dashed border-[#DED7CA] dark:border-[#1E3E34]">
+              <p className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED]">No trips recorded for this shift yet</p>
+              <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-1">Toggle online above to start receiving passenger bookings</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -1977,12 +1977,12 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 return (
                   <div
                     key={trip.id}
-                    className="p-4 rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] bg-[#F7F1E5]/60 dark:bg-[#101713]/60 hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs"
+                    className="p-4 rounded-[12px] border border-[#DED7CA] dark:border-[#1E3E34] bg-[#F7F1E5]/60 dark:bg-[#061A16]/60 hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs"
                   >
                     {/* Route Details */}
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold font-mono uppercase bg-[#F7F1E5] dark:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] px-2 py-0.5 rounded-[4px] border border-[#DED7CA] dark:border-[#29372E]">
+                        <span className="text-[10px] font-bold font-mono uppercase bg-[#F7F1E5] dark:bg-[#0B2822] text-[#10251C] dark:text-[#F7F5ED] px-2 py-0.5 rounded-[4px] border border-[#DED7CA] dark:border-[#1E3E34]">
                           #{trip.id.slice(-6)}
                         </span>
                         <span
@@ -1996,7 +1996,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                         >
                           {trip.status}
                         </span>
-                        <span className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium">
+                        <span className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium">
                           {trip.createdAt
                             ? new Date(trip.createdAt).toLocaleDateString([], {
                                 month: "short",
@@ -2009,16 +2009,16 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                       <div className="grid sm:grid-cols-2 gap-2 text-xs">
                         <div className="flex items-start gap-1.5 min-w-0">
                           <span className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#347858] mt-1 flex-shrink-0" />
-                          <span className="text-[#696B64] dark:text-[#929D93] truncate">{trip.pickupAddress}</span>
+                          <span className="text-[#696B64] dark:text-[#B9C8BF] truncate">{trip.pickupAddress}</span>
                         </div>
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full border border-[#123D32] dark:border-[#347858] bg-[#FAF7F0] dark:bg-[#17211B] mt-1 flex-shrink-0" />
-                          <span className="text-[#10251C] dark:text-[#F3F1E8] font-semibold truncate">{trip.dropAddress}</span>
+                          <span className="w-2 h-2 rounded-full border border-[#123D32] dark:border-[#347858] bg-[#FAF7F0] dark:bg-[#0B2822] mt-1 flex-shrink-0" />
+                          <span className="text-[#10251C] dark:text-[#F7F5ED] font-semibold truncate">{trip.dropAddress}</span>
                         </div>
                       </div>
 
                       {/* Drop-off Time & Timing Info */}
-                      <div className="text-[11px] font-medium text-[#696B64] dark:text-[#929D93] flex items-center gap-2 flex-wrap">
+                      <div className="text-[11px] font-medium text-[#696B64] dark:text-[#B9C8BF] flex items-center gap-2 flex-wrap">
                         {isCompleted && dropTime && (
                           <span className="text-[#123D32] dark:text-[#347858] bg-emerald-50 dark:bg-[#1D3428] px-2 py-0.5 rounded-[4px] border border-emerald-200 dark:border-[#28664D] flex items-center gap-1 font-semibold">
                             <CheckCircle2 size={12} /> Dropped off at {dropTime} ({trip.tripDurationMinutes} mins)
@@ -2039,10 +2039,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     </div>
 
                     {/* Fare / Earnings */}
-                    <div className="text-left md:text-right flex-shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-[#DED7CA] dark:border-[#29372E]">
-                      <p className="text-[10px] uppercase font-bold text-[#696B64] dark:text-[#929D93]">Driver Share</p>
-                      <p className="text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] font-mono">₹{trip.partnerAmount}</p>
-                      <p className="text-[10px] text-[#696B64] dark:text-[#929D93] font-medium">Fare: ₹{trip.fare}</p>
+                    <div className="text-left md:text-right flex-shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-[#DED7CA] dark:border-[#1E3E34]">
+                      <p className="text-[10px] uppercase font-bold text-[#696B64] dark:text-[#B9C8BF]">Driver Share</p>
+                      <p className="text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono">₹{trip.partnerAmount}</p>
+                      <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-medium">Fare: ₹{trip.fare}</p>
                     </div>
                   </div>
                 );
@@ -2077,10 +2077,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 350 }}
-                className="bg-[#FAF7F0] dark:bg-[#17211B] w-full max-w-md rounded-[16px] shadow-2xl border border-[#DED7CA] dark:border-[#29372E] overflow-hidden flex flex-col"
+                className="bg-[#FAF7F0] dark:bg-[#0B2822] w-full max-w-md rounded-[16px] shadow-2xl border border-[#DED7CA] dark:border-[#1E3E34] overflow-hidden flex flex-col"
               >
                 {/* Header */}
-                <div className="bg-[#123D32] dark:bg-[#0D3027] px-6 py-5 flex items-center justify-between text-white border-b border-[#DED7CA]/20 dark:border-[#29372E]">
+                <div className="bg-[#123D32] dark:bg-[#0D3027] px-6 py-5 flex items-center justify-between text-white border-b border-[#DED7CA]/20 dark:border-[#1E3E34]">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
                     <h3 className="font-bold text-xs uppercase tracking-widest text-[#FAF7F0]">{t("driver.incomingRequest", "Incoming Request")}</h3>
@@ -2100,21 +2100,21 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                       <Shield size={18} className="text-[#046A38] dark:text-[#A3E635] flex-shrink-0" />
                       <div>
                         <p className="uppercase tracking-wide text-[10px] font-black text-[#046A38] dark:text-[#A3E635]">Women's Safety Ride</p>
-                        <p className="text-[11px] font-medium text-[#10251C] dark:text-[#F3F1E8]">Passenger requested a verified woman driver</p>
+                        <p className="text-[11px] font-medium text-[#10251C] dark:text-[#F7F5ED]">Passenger requested a verified woman driver</p>
                       </div>
                     </div>
                   )}
                   
                   {/* Locations */}
-                  <div className="bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] p-4 space-y-3">
+                  <div className="bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[12px] p-4 space-y-3">
                     <div className="flex gap-3 items-start">
                       <div className="flex flex-col items-center flex-shrink-0 pt-1">
                         <div className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#347858] border-2 border-white dark:border-[#17211B] shadow-sm" />
                         <div className="w-px bg-[#DED7CA] dark:bg-[#29372E] mt-1 h-8" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider mb-0.5">{t("booking.pickup", "Pickup Location")}</p>
-                        <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] font-bold leading-snug truncate">{pendingRequest.pickupAddress}</p>
+                        <p className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider mb-0.5">{t("booking.pickup", "Pickup Location")}</p>
+                        <p className="text-xs text-[#10251C] dark:text-[#F7F5ED] font-bold leading-snug truncate">{pendingRequest.pickupAddress}</p>
                       </div>
                     </div>
                     <div className="flex gap-3 items-start">
@@ -2122,23 +2122,23 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                         <div className="w-2.5 h-2.5 rounded-[2px] bg-[#E34222] dark:bg-[#E06A50] border-2 border-white dark:border-[#17211B] shadow-sm" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider mb-0.5">{t("booking.drop", "Drop Location")}</p>
-                        <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] font-bold leading-snug truncate">{pendingRequest.dropAddress}</p>
+                        <p className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider mb-0.5">{t("booking.drop", "Drop Location")}</p>
+                        <p className="text-xs text-[#10251C] dark:text-[#F7F5ED] font-bold leading-snug truncate">{pendingRequest.dropAddress}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Estimated Trip Duration & Dropoff Time */}
-                  <div className="bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] p-3.5 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 text-[#696B64] dark:text-[#B8C2B8]">
-                      <Clock size={13} className="text-[#696B64] dark:text-[#929D93]" />
+                  <div className="bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[12px] p-3.5 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-[#696B64] dark:text-[#B9C8BF]">
+                      <Clock size={13} className="text-[#696B64] dark:text-[#B9C8BF]" />
                       <span className="font-medium">{t("driver.estDuration", "Est. Duration")}:</span>
-                      <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">~{pendingRequest.tripDurationMinutes || 15} mins</span>
+                      <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">~{pendingRequest.tripDurationMinutes || 15} mins</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#696B64] dark:text-[#B8C2B8]">
+                    <div className="flex items-center gap-1.5 text-[#696B64] dark:text-[#B9C8BF]">
                       <Navigation size={13} className="text-[#123D32] dark:text-[#347858]" />
                       <span className="font-medium">{t("driver.estDropoff", "Drop-off:")}</span>
-                      <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">
+                      <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">
                         {pendingRequest.estimatedDropoffTime
                           ? new Date(pendingRequest.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
                           : "Shortly"}
@@ -2147,7 +2147,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   </div>
 
                   {/* Earnings Display: Upfront Net Payout (Commission already deducted) */}
-                  <div className="bg-[#123D32] dark:bg-[#0D3027] rounded-[12px] p-5 text-center border border-[#123D32]/30 dark:border-[#29372E] flex flex-col items-center justify-center">
+                  <div className="bg-[#123D32] dark:bg-[#0D3027] rounded-[12px] p-5 text-center border border-[#123D32]/30 dark:border-[#1E3E34] flex flex-col items-center justify-center">
                     <p className="text-[#FAF7F0]/80 text-[10px] uppercase tracking-widest font-bold mb-1">{t("driver.netFare", "Your Net Payout (Take-Home)")}</p>
                     <div className="flex items-center gap-1.5 text-[#FAF7F0] text-4xl font-serif font-black tracking-tight leading-none">
                       <IndianRupee size={24} className="text-[#D7AC62]" />
@@ -2159,14 +2159,14 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 </div>
 
                 {/* Actions */}
-                <div className="px-6 pb-6 pt-2 border-t border-[#DED7CA] dark:border-[#29372E] flex gap-3">
+                <div className="px-6 pb-6 pt-2 border-t border-[#DED7CA] dark:border-[#1E3E34] flex gap-3">
                   <button
                     onClick={() => handleRequestAction(pendingRequest._id, "reject")}
                     disabled={processingAction !== null}
-                    className="flex-1 border border-[#DED7CA] dark:border-[#29372E] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] py-3 rounded-[8px] text-xs uppercase tracking-wider font-bold active:scale-[0.98] transition-all disabled:opacity-40 cursor-pointer shadow-xs"
+                    className="flex-1 border border-[#DED7CA] dark:border-[#1E3E34] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] py-3 rounded-[8px] text-xs uppercase tracking-wider font-bold active:scale-[0.98] transition-all disabled:opacity-40 cursor-pointer shadow-xs"
                   >
                     {processingAction === "reject" ? (
-                      <Loader2 className="animate-spin w-4 h-4 mx-auto text-[#696B64] dark:text-[#929D93]" />
+                      <Loader2 className="animate-spin w-4 h-4 mx-auto text-[#696B64] dark:text-[#B9C8BF]" />
                     ) : (
                       t("driver.reject", "Reject")
                     )}

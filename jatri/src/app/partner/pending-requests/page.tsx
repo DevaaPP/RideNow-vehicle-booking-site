@@ -122,15 +122,15 @@ export default function VendorPendingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713]">
+    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16]">
 
       {/* Top Section */}
-      <div className="bg-[#FAF7F0] dark:bg-[#17211B] border-b border-[#DED7CA] dark:border-[#29372E]">
+      <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border-b border-[#DED7CA] dark:border-[#1E3E34]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          <h1 className="text-2xl sm:text-4xl font-serif font-bold text-[#10251C] dark:text-[#F3F1E8]">
+          <h1 className="text-2xl sm:text-4xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED]">
             Ride Requests
           </h1>
-          <p className="mt-1.5 sm:mt-2 text-[#696B64] dark:text-[#929D93] text-sm sm:text-base font-sans">
+          <p className="mt-1.5 sm:mt-2 text-[#696B64] dark:text-[#B9C8BF] text-sm sm:text-base font-sans">
             Manage incoming ride requests and respond in real time.
           </p>
         </div>
@@ -144,8 +144,8 @@ export default function VendorPendingPage() {
             <Loader2 className="animate-spin w-8 h-8 text-[#123D32] dark:text-[#347858]" />
           </div>
         ) : bookings.length === 0 ? (
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#29372E] p-8 sm:p-16 text-center shadow-xs">
-            <p className="text-[#696B64] dark:text-[#929D93] text-base sm:text-lg font-medium">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] border border-[#DED7CA] dark:border-[#1E3E34] p-8 sm:p-16 text-center shadow-xs">
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-base sm:text-lg font-medium">
               No pending ride requests.
             </p>
           </div>
@@ -158,7 +158,7 @@ export default function VendorPendingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.25 }}
-                className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#29372E] p-4 sm:p-8 shadow-xs hover:shadow-md transition cursor-pointer select-none"
+                className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] border border-[#DED7CA] dark:border-[#1E3E34] p-4 sm:p-8 shadow-xs hover:shadow-md transition cursor-pointer select-none"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-8">
 
@@ -172,7 +172,7 @@ export default function VendorPendingPage() {
                         <p className="text-[10px] sm:text-xs uppercase text-[#123D32] dark:text-[#347858] mb-0.5 sm:mb-1 font-bold tracking-wider">
                           Pickup Location
                         </p>
-                        <p className="text-[#10251C] dark:text-[#F3F1E8] font-semibold text-xs sm:text-base leading-snug">
+                        <p className="text-[#10251C] dark:text-[#F7F5ED] font-semibold text-xs sm:text-base leading-snug">
                           {booking.pickupAddress}
                         </p>
                       </div>
@@ -186,14 +186,14 @@ export default function VendorPendingPage() {
                         <p className="text-[10px] sm:text-xs uppercase text-[#E34222] dark:text-[#E06A50] mb-0.5 sm:mb-1 font-bold tracking-wider">
                           Drop Location
                         </p>
-                        <p className="text-[#10251C] dark:text-[#F3F1E8] font-semibold text-xs sm:text-base leading-snug">
+                        <p className="text-[#10251C] dark:text-[#F7F5ED] font-semibold text-xs sm:text-base leading-snug">
                           {booking.dropAddress}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-[#696B64] dark:text-[#929D93] mt-2 font-medium">
-                      <Clock size={14} className="opacity-70 shrink-0 text-[#696B64] dark:text-[#929D93]" />
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-[#696B64] dark:text-[#B9C8BF] mt-2 font-medium">
+                      <Clock size={14} className="opacity-70 shrink-0 text-[#696B64] dark:text-[#B9C8BF]" />
                       <span>
                         {new Date(booking.createdAt).toLocaleString("en-IN", {
                           day: "2-digit",
@@ -207,12 +207,12 @@ export default function VendorPendingPage() {
                   </div>
 
                   {/* Right Side */}
-                  <div className="flex flex-col justify-between lg:items-end gap-4 sm:gap-6 w-full lg:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-[#DED7CA] dark:border-[#29372E]">
+                  <div className="flex flex-col justify-between lg:items-end gap-4 sm:gap-6 w-full lg:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-[#DED7CA] dark:border-[#1E3E34]">
                     <div className="text-left lg:text-right">
-                      <p className="text-[10px] sm:text-xs tracking-wider text-[#696B64] dark:text-[#929D93] uppercase mb-0.5 sm:mb-1 font-bold">
+                      <p className="text-[10px] sm:text-xs tracking-wider text-[#696B64] dark:text-[#B9C8BF] uppercase mb-0.5 sm:mb-1 font-bold">
                         Estimated Fare
                       </p>
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-2xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] lg:justify-end">
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-2xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F7F5ED] lg:justify-end">
                         <IndianRupee size={20} className="text-[#123D32] dark:text-[#347858]" />
                         {booking.fare}
                       </div>
@@ -222,7 +222,7 @@ export default function VendorPendingPage() {
                       <button
                         onClick={() => handleDeclineOrTimeout(booking._id)}
                         disabled={processingId === booking._id}
-                        className="flex-1 lg:flex-none px-4 sm:px-6 py-2.5 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] bg-[#FAF7F0] dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] text-xs sm:text-sm font-semibold hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                        className="flex-1 lg:flex-none px-4 sm:px-6 py-2.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-[#FAF7F0] dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] text-xs sm:text-sm font-semibold hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                       >
                         Decline
                       </button>
@@ -262,10 +262,10 @@ export default function VendorPendingPage() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] w-full max-w-md rounded-[16px] p-6 shadow-2xl text-[#10251C] dark:text-[#F3F1E8] relative overflow-hidden"
+              className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] w-full max-w-md rounded-[16px] p-6 shadow-2xl text-[#10251C] dark:text-[#F7F5ED] relative overflow-hidden"
             >
               {/* Top Banner */}
-              <div className="flex items-center justify-between mb-6 border-b border-[#DED7CA] dark:border-[#29372E] pb-4">
+              <div className="flex items-center justify-between mb-6 border-b border-[#DED7CA] dark:border-[#1E3E34] pb-4">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#347858] animate-ping" />
                   <span className="text-xs font-serif font-bold uppercase tracking-wider text-[#123D32] dark:text-[#347858]">Incoming Ride Offer</span>
@@ -282,27 +282,27 @@ export default function VendorPendingPage() {
                       strokeDashoffset={125.6 * (1 - timeLeft / 45)}
                     />
                   </svg>
-                  <span className="absolute font-bold text-sm text-[#10251C] dark:text-[#F3F1E8]">{timeLeft}s</span>
+                  <span className="absolute font-bold text-sm text-[#10251C] dark:text-[#F7F5ED]">{timeLeft}s</span>
                 </div>
               </div>
 
               {/* Fare Banner */}
-              <div className="bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] p-5 text-center mb-5">
-                <p className="text-[#696B64] dark:text-[#929D93] text-[10px] uppercase tracking-wider font-bold mb-1">Estimated Fare</p>
-                <div className="text-4xl font-bold text-[#10251C] dark:text-[#F3F1E8] flex items-center justify-center gap-1 font-serif">
+              <div className="bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[12px] p-5 text-center mb-5">
+                <p className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] uppercase tracking-wider font-bold mb-1">Estimated Fare</p>
+                <div className="text-4xl font-bold text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-center gap-1 font-serif">
                   <IndianRupee size={28} className="text-[#123D32] dark:text-[#347858]" /> {activeDispatch.fare}
                 </div>
               </div>
 
               {/* Pickup & Drop Details */}
-              <div className="bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] p-4 space-y-3 mb-6">
+              <div className="bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[12px] p-4 space-y-3 mb-6">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-[6px] bg-[#123D32]/10 dark:bg-[#28664D]/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#123D32]/20 dark:border-[#28664D]/30">
                     <MapPin size={16} className="text-[#123D32] dark:text-[#347858]" />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-[#123D32] dark:text-[#347858] uppercase tracking-wider">Pickup</p>
-                    <p className="text-sm font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug">{activeDispatch.pickupAddress}</p>
+                    <p className="text-sm font-semibold text-[#10251C] dark:text-[#F7F5ED] leading-snug">{activeDispatch.pickupAddress}</p>
                   </div>
                 </div>
                 <div className="h-px bg-[#DED7CA] dark:bg-[#29372E] ml-11" />
@@ -312,7 +312,7 @@ export default function VendorPendingPage() {
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-[#E34222] dark:text-[#E06A50] uppercase tracking-wider">Drop</p>
-                    <p className="text-sm font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug">{activeDispatch.dropAddress}</p>
+                    <p className="text-sm font-semibold text-[#10251C] dark:text-[#F7F5ED] leading-snug">{activeDispatch.dropAddress}</p>
                   </div>
                 </div>
               </div>
@@ -322,7 +322,7 @@ export default function VendorPendingPage() {
                 <button
                   onClick={() => handleDeclineOrTimeout(activeDispatch._id)}
                   disabled={processingId === activeDispatch._id}
-                  className="flex-1 py-3 bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] border border-[#DED7CA] dark:border-[#29372E] text-[#10251C] dark:text-[#F3F1E8] rounded-[8px] text-sm font-bold transition active:scale-95 disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-3 bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] border border-[#DED7CA] dark:border-[#1E3E34] text-[#10251C] dark:text-[#F7F5ED] rounded-[8px] text-sm font-bold transition active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   Decline
                 </button>

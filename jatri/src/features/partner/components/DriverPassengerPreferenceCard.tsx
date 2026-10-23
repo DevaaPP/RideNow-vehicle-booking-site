@@ -66,7 +66,7 @@ export default function DriverPassengerPreferenceCard() {
 
   if (loading) {
     return (
-      <div className="p-5 rounded-[12px] bg-white dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center min-h-[100px]">
+      <div className="p-5 rounded-[12px] bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center min-h-[100px]">
         <Loader2 size={20} className="animate-spin text-[#046A38] dark:text-[#90C8A8]" />
       </div>
     );
@@ -75,7 +75,7 @@ export default function DriverPassengerPreferenceCard() {
   const hasChanges = policy !== initialPolicy;
 
   return (
-    <div className="p-5 rounded-[12px] bg-white dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] shadow-xs flex flex-col gap-4">
+    <div className="p-5 rounded-[12px] bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] shadow-xs flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -103,7 +103,7 @@ export default function DriverPassengerPreferenceCard() {
           className={`flex items-start gap-3 p-4 rounded-[10px] border text-left transition-all min-h-[64px] touch-manipulation cursor-pointer ${
             policy === "all_eligible"
               ? "border-[#046A38] bg-[#FAF7F0] dark:bg-[#123D32]/30 ring-1 ring-[#046A38]"
-              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#17211B] hover:border-zinc-300 dark:hover:border-zinc-700"
+              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0B2822] hover:border-zinc-300 dark:hover:border-zinc-700"
           }`}
         >
           <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">
@@ -130,7 +130,7 @@ export default function DriverPassengerPreferenceCard() {
               ? "opacity-60 cursor-not-allowed border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
               : policy === "women_only"
               ? "border-[#046A38] bg-[#FAF7F0] dark:bg-[#123D32]/30 ring-1 ring-[#046A38] cursor-pointer"
-              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#17211B] hover:border-zinc-300 dark:hover:border-zinc-700 cursor-pointer"
+              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0B2822] hover:border-zinc-300 dark:hover:border-zinc-700 cursor-pointer"
           }`}
         >
           <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">

@@ -118,7 +118,7 @@ const FLEET_STANDARDS = [
 
 export default function FleetPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F1E5] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] justify-between">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] justify-between">
       <Nav />
 
       <main className="flex-1 pt-20 sm:pt-36 pb-24 sm:pb-20">
@@ -134,10 +134,10 @@ export default function FleetPage() {
               <Sparkles size={13} className="text-[#E34222]" />
               <span>Verified Fleet Architecture</span>
             </div>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight leading-[1.08] mb-4">
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-[1.08] mb-4">
               Our Complete Fleet
             </h1>
-            <p className="text-[#696B64] dark:text-[#929D93] text-base sm:text-lg leading-relaxed max-w-2xl">
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-base sm:text-lg leading-relaxed max-w-2xl">
               Engineered for Assam&apos;s diverse transit landscape. Whether navigating Guwahati&apos;s bustling city corridors or transporting cargo along national highways, Jaatri guarantees inspected vehicles, upfront fares, and professional driver partners.
             </p>
           </motion.div>
@@ -151,10 +151,10 @@ export default function FleetPage() {
                 <Sparkles size={10} className="text-[#E34222]" />
                 <span>Verified Fleets</span>
               </div>
-              <h1 className="font-serif text-2xl font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
+              <h1 className="font-serif text-2xl font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
                 Services &amp; Fleet
               </h1>
-              <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-0.5">
+              <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5">
                 Go anywhere, get anything across Assam
               </p>
             </div>
@@ -175,10 +175,10 @@ export default function FleetPage() {
               <p className="text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#E34222] mb-2">
                 TRANSIT TIERS &amp; COMMUTE OPTIONS
               </p>
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-2">
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#10251C] dark:text-[#F7F5ED] tracking-tight mb-2">
                 Choose Your Vehicle Class
               </h2>
-              <p className="text-[#696B64] dark:text-[#929D93] text-sm sm:text-base leading-relaxed max-w-xl">
+              <p className="text-[#696B64] dark:text-[#B9C8BF] text-sm sm:text-base leading-relaxed max-w-xl">
                 From micro-mobility two-wheelers for rapid city transit to comfortable family sedans and commercial logistics carriers across Assam.
               </p>
             </div>
@@ -203,10 +203,10 @@ export default function FleetPage() {
                 <Link
                   href={`/book?vehicle=${category.id}&fresh=true`}
                   aria-label={`${category.name}: ${category.capacity}. ${category.price}. Tap to book directly.`}
-                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] overflow-hidden flex flex-col justify-between h-full group hover:border-[#046A38] dark:hover:border-[#90C8A8]/60 hover:shadow-md transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                  className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] overflow-hidden flex flex-col justify-between h-full group hover:border-[#046A38] dark:hover:border-[#90C8A8]/60 hover:shadow-md transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                 >
                   {/* Top Edge-to-Edge Heroic Vehicle Artwork with Overlay Badges */}
-                  <div className="relative w-full h-32 sm:h-44 overflow-hidden bg-[#F7F1E5] dark:bg-[#101713] border-b border-[#DED7CA]/60 dark:border-[#34443A]/60">
+                  <div className="relative w-full h-32 sm:h-44 overflow-hidden bg-[#FAF7F0] dark:bg-[#061A16] border-b border-[#DED7CA]/60 dark:border-[#24483D]/60">
                     <Image
                       src={category.image}
                       alt={category.name}
@@ -232,7 +232,7 @@ export default function FleetPage() {
                           <span />
                         )}
                         {category.capacity?.toLowerCase().includes("kg") ? (
-                          <span className="text-[8px] sm:text-[9.5px] font-semibold text-[#123D32] dark:text-[#F3F1E8] bg-[#FAF7F0]/90 dark:bg-[#17211B]/90 backdrop-blur-xs border border-[#DED7CA]/60 dark:border-[#34443A]/60 px-1.5 sm:px-2 py-0.5 rounded-full shadow-2xs shrink-0 ml-auto">
+                          <span className="text-[8px] sm:text-[9.5px] font-semibold text-[#123D32] dark:text-[#F7F5ED] bg-[#FAF7F0]/90 dark:bg-[#0B2822]/90 backdrop-blur-xs border border-[#DED7CA]/60 dark:border-[#24483D]/60 px-1.5 sm:px-2 py-0.5 rounded-full shadow-2xs shrink-0 ml-auto">
                             {category.capacity.replace(" Cargo", "").replace(" Freight", "")}
                           </span>
                         ) : null}
@@ -243,19 +243,19 @@ export default function FleetPage() {
                   {/* Card Content & Action Area */}
                   <div className="p-2.5 sm:p-3.5 flex flex-col justify-between flex-1">
                     <div>
-                      <h3 className="font-serif text-[13.5px] sm:text-base font-bold text-[#10251C] dark:text-[#F3F1E8] truncate group-hover:text-[#046A38] dark:group-hover:text-[#90C8A8] transition-colors">
+                      <h3 className="font-serif text-[13.5px] sm:text-base font-bold text-[#10251C] dark:text-[#F7F5ED] truncate group-hover:text-[#046A38] dark:group-hover:text-[#90C8A8] transition-colors">
                         {category.name}
                       </h3>
                     </div>
 
                     {/* Pricing & Direct Tap CTA */}
-                    <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#34443A]/60 flex items-center justify-between mt-2">
+                    <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#24483D]/60 flex items-center justify-between mt-2">
                       <div>
-                        <span className="text-[8.5px] sm:text-[10px] text-[#696B64] dark:text-[#929D93] block leading-tight">
+                        <span className="text-[8.5px] sm:text-[10px] text-[#696B64] dark:text-[#B9C8BF] block leading-tight">
                           <span className="sm:hidden">From</span>
                           <span className="hidden sm:inline">Transparent rate</span>
                         </span>
-                        <p className="text-[#10251C] dark:text-[#F3F1E8] text-xs sm:text-sm font-extrabold sm:font-bold tracking-tight">
+                        <p className="text-[#10251C] dark:text-[#F7F5ED] text-xs sm:text-sm font-extrabold sm:font-bold tracking-tight">
                           <span className="hidden sm:inline">Starting from </span>
                           {category.price.replace("Starting from ", "")}
                         </p>
@@ -285,10 +285,10 @@ export default function FleetPage() {
             <p className="text-[10px] sm:text-[13px] font-semibold uppercase tracking-[0.16em] text-[#E34222] mb-1.5 sm:mb-2">
               VERIFIED MOBILITY STANDARDS
             </p>
-            <h2 className="font-serif text-2xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-1.5 sm:mb-2">
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#10251C] dark:text-[#F7F5ED] tracking-tight mb-1.5 sm:mb-2">
               Engineered for Safety, Speed &amp; Transparency
             </h2>
-            <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-base leading-relaxed">
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-base leading-relaxed">
               Every trip on Jaatri is backed by multi-point physical inspections, real-time GPS telemetry, and honest upfront fare metrics.
             </p>
           </div>
@@ -302,14 +302,14 @@ export default function FleetPage() {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: idx * 0.08 }}
-                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-4 sm:p-6 shadow-2xs hover:border-[#123D32]/40 dark:hover:border-[#90C8A8]/40 transition duration-200"
+                  className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-4 sm:p-6 shadow-2xs hover:border-[#123D32]/40 dark:hover:border-[#90C8A8]/40 transition duration-200"
                 >
                   <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-[8px] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] flex items-center justify-center mb-3 sm:mb-4">
                     <Icon size={19} className="sm:hidden" />
                     <Icon size={22} className="hidden sm:block" />
                   </div>
-                  <h3 className="font-bold text-sm sm:text-base text-[#10251C] dark:text-[#F3F1E8] mb-1 sm:mb-2">{feature.title}</h3>
-                  <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-sm leading-relaxed">{feature.description}</p>
+                  <h3 className="font-bold text-sm sm:text-base text-[#10251C] dark:text-[#F7F5ED] mb-1 sm:mb-2">{feature.title}</h3>
+                  <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-sm leading-relaxed">{feature.description}</p>
                 </motion.div>
               );
             })}
@@ -318,14 +318,14 @@ export default function FleetPage() {
 
         {/* ================= BOTTOM CTA ================= */}
         <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] sm:rounded-[16px] p-5 sm:p-12 text-center shadow-xs">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] sm:rounded-[16px] p-5 sm:p-12 text-center shadow-xs">
             <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.16em] text-[#E34222] mb-1 sm:mb-2 block">
               READY TO COMMUTE?
             </span>
-            <h2 className="font-serif text-2xl sm:text-4xl text-[#10251C] dark:text-[#F3F1E8] max-w-xl mx-auto mb-2 sm:mb-4">
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#10251C] dark:text-[#F7F5ED] max-w-xl mx-auto mb-2 sm:mb-4">
               Fast, reliable rides at your fingertips across Assam.
             </h2>
-            <p className="text-[#696B64] dark:text-[#929D93] text-xs sm:text-base max-w-lg mx-auto mb-6 sm:mb-8">
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-base max-w-lg mx-auto mb-6 sm:mb-8">
               Experience seamless booking with transparent upfront pricing, real-time vehicle dispatch, and verified local drivers.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4">
@@ -337,7 +337,7 @@ export default function FleetPage() {
               </Link>
               <Link
                 href="/partner/onboard/vehicle"
-                className="w-full sm:w-auto px-5 sm:px-6 py-3 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] text-[#10251C] dark:text-[#F3F1E8] font-bold rounded-[8px] transition active:scale-95 text-sm sm:text-base text-center"
+                className="w-full sm:w-auto px-5 sm:px-6 py-3 bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] hover:border-[#123D32] dark:hover:border-[#90C8A8] text-[#10251C] dark:text-[#F7F5ED] font-bold rounded-[8px] transition active:scale-95 text-sm sm:text-base text-center"
               >
                 Drive with Jaatri
               </Link>

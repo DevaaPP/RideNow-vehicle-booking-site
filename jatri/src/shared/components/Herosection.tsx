@@ -228,7 +228,7 @@ export default function HeroSection({
         className="object-cover object-top sm:object-center pointer-events-none"
       />
       {/* Controlled, soft atmospheric gradient overlay to preserve natural golden river tones while ensuring high text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-white/10 to-white/40 dark:from-black/75 dark:via-[#101713]/60 dark:to-[#101713] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-white/10 to-white/40 dark:from-black/75 dark:via-[#061A16]/60 dark:to-[#061A16] pointer-events-none" />
 
       {/* ================= HERO CONTENT CONTAINER ================= */}
       <div className="relative z-10 max-w-7xl mx-auto">
@@ -246,7 +246,7 @@ export default function HeroSection({
           {/* Headline: DM Serif Display in dark forest green (#10251C) with Assamese vermilion (#E34222) brush strokes */}
           <h1
             style={{ fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif" }}
-            className="text-[38px] xs:text-[42px] sm:text-7xl lg:text-[80px] font-normal text-[#10251C] dark:text-[#F3F1E8] display-headline leading-[1.08] sm:leading-[1.05]"
+            className="text-[38px] xs:text-[42px] sm:text-7xl lg:text-[80px] font-normal text-[#10251C] dark:text-[#F7F5ED] display-headline leading-[1.08] sm:leading-[1.05]"
           >
             Assam moves
             <br />
@@ -292,7 +292,7 @@ export default function HeroSection({
             </span>
           </h1>
 
-          <p className="mt-3 sm:mt-5 text-sm sm:text-lg lg:text-xl text-[#10251C]/85 dark:text-[#B8C2B8] font-medium tracking-normal leading-relaxed">
+          <p className="mt-3 sm:mt-5 text-sm sm:text-lg lg:text-xl text-[#10251C]/85 dark:text-[#B9C8BF] font-medium tracking-normal leading-relaxed">
             {t("hero.tagline", "Honest upfront fares. 100% direct driver pay.")}
           </p>
         </div>
@@ -301,14 +301,14 @@ export default function HeroSection({
         <div className="w-full max-w-[660px]">
           <div className="flex flex-col justify-between">
             {/* TRIP MODE SELECTOR: 2-mode segmented control in warm ivory surface */}
-            <div className="grid grid-cols-2 sm:inline-flex sm:self-start items-center gap-1 sm:gap-1.5 p-1 bg-[#F7F1E5] dark:bg-[#17211B] rounded-[10px] mb-3 border border-[#e2dac7] dark:border-[#34443A] shadow-2xs w-full sm:w-auto">
+            <div className="grid grid-cols-2 sm:inline-flex sm:self-start items-center gap-1 sm:gap-1.5 p-1 bg-[#F7F1E5] dark:bg-[#0B2822] rounded-[10px] mb-3 border border-[#e2dac7] dark:border-[#24483D] shadow-2xs w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setTripMode("ride")}
                 className={`py-2 sm:py-2.5 px-3 sm:px-6 rounded-[7px] text-xs sm:text-sm font-bold transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2 shrink-0 ${
                   tripMode === "ride"
                     ? "bg-[#123D32] dark:bg-[#28664D] text-white shadow-xs"
-                    : "text-[#10251C]/80 dark:text-[#F3F1E8]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5"
+                    : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5"
                 }`}
               >
                 <Car className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" strokeWidth={2.5} />
@@ -321,7 +321,7 @@ export default function HeroSection({
                 className={`py-2 sm:py-2.5 px-3 sm:px-6 rounded-[7px] text-xs sm:text-sm font-bold transition active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2 shrink-0 ${
                   tripMode === "cargo"
                     ? "bg-[#123D32] dark:bg-[#28664D] text-white shadow-xs"
-                    : "text-[#10251C]/80 dark:text-[#F3F1E8]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5"
+                    : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5"
                 }`}
               >
                 <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" strokeWidth={2.5} />
@@ -333,7 +333,7 @@ export default function HeroSection({
             <form onSubmit={handleSubmit} className="space-y-3">
               <div ref={containerRef} className="relative z-30">
                 {/* LOCATION PANEL: Restrained ivory surface #F7F1E5, 12px radius, 1px border, minimal shadow */}
-                <div className="relative bg-[#F7F1E5] dark:bg-[#17211B] border border-[#e2dac7] dark:border-[#34443A] rounded-[12px] divide-y divide-[#e2dac7] dark:divide-[#29372E] overflow-hidden shadow-2xs">
+                <div className="relative bg-[#F7F1E5] dark:bg-[#0B2822] border border-[#e2dac7] dark:border-[#24483D] rounded-[12px] divide-y divide-[#e2dac7] dark:divide-[#1E3E34] overflow-hidden shadow-2xs">
                   {/* Vertical transit dotted connector line perfectly centered through the 20px marker icon column */}
                   <div className="absolute left-[25px] sm:left-[29px] top-[26px] bottom-[26px] w-[2px] border-l-2 border-dashed border-forest/30 dark:border-forest/50 pointer-events-none z-10" />
 
@@ -341,7 +341,7 @@ export default function HeroSection({
                   <div className="relative flex items-center gap-3.5 px-4 sm:px-5 py-3.5 transition focus-within:bg-[#FAF7F0] dark:focus-within:bg-[#1E2B23] rounded-none">
                     {/* Green pickup marker (fixed 20px column, centered dot) */}
                     <div className="w-5 h-5 flex items-center justify-center shrink-0 z-20">
-                      <div className="w-4 h-4 rounded-full border-[3px] border-forest dark:border-[#388463] bg-[#F7F1E5] dark:bg-[#17211B] shadow-2xs" />
+                      <div className="w-4 h-4 rounded-full border-[3px] border-forest dark:border-[#388463] bg-[#F7F1E5] dark:bg-[#0B2822] shadow-2xs" />
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -356,9 +356,9 @@ export default function HeroSection({
                           setActiveField("pickup");
                         }}
                         placeholder={t("hero.enterPickup", "Enter pickup point")}
-                        className="w-full text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] placeholder:text-[#10251C]/80 dark:placeholder:text-[#F3F1E8]/60 placeholder:font-bold focus:outline-none bg-transparent"
+                        className="w-full text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] placeholder:text-[#10251C]/80 dark:placeholder:text-[#F7F5ED]/60 placeholder:font-bold focus:outline-none bg-transparent"
                       />
-                      <p className="text-xs text-[#10251C]/50 dark:text-[#929D93] font-medium leading-tight">
+                      <p className="text-xs text-[#10251C]/50 dark:text-[#B9C8BF] font-medium leading-tight">
                         {t("hero.pickupHint", "Use current location or search")}
                       </p>
                     </div>
@@ -372,7 +372,7 @@ export default function HeroSection({
                           setPickupLng(null);
                           setSuggestions([]);
                         }}
-                        className="p-1.5 text-stone-400 dark:text-[#929D93] hover:text-stone-700 dark:hover:text-[#F3F1E8] transition"
+                        className="p-1.5 text-stone-400 dark:text-[#B9C8BF] hover:text-stone-700 dark:hover:text-[#F3F1E8] transition"
                         title="Clear pickup"
                       >
                         <X className="w-4 h-4" />
@@ -380,7 +380,7 @@ export default function HeroSection({
                     )}
 
                     {/* Current-location action right-aligned without overlapping input */}
-                    <div className="pl-3 border-l border-[#e2dac7] dark:border-[#29372E]">
+                    <div className="pl-3 border-l border-[#e2dac7] dark:border-[#1E3E34]">
                       <button
                         type="button"
                         onClick={handleDetectLocation}
@@ -399,7 +399,7 @@ export default function HeroSection({
                   <div className="relative flex items-center gap-3.5 px-4 sm:px-5 py-3.5 transition focus-within:bg-[#FAF7F0] dark:focus-within:bg-[#1E2B23] rounded-none">
                     {/* Vermilion destination marker (fixed 20px column, centered dot) */}
                     <div className="w-5 h-5 flex items-center justify-center shrink-0 z-20">
-                      <div className="w-4 h-4 rounded-full border-[3px] border-[#E34222] dark:border-[#E06A50] bg-[#F7F1E5] dark:bg-[#17211B] shadow-2xs" />
+                      <div className="w-4 h-4 rounded-full border-[3px] border-[#E34222] dark:border-[#E06A50] bg-[#F7F1E5] dark:bg-[#0B2822] shadow-2xs" />
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -414,9 +414,9 @@ export default function HeroSection({
                           setActiveField("drop");
                         }}
                         placeholder={t("hero.enterDrop", "Enter drop destination")}
-                        className="w-full text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] placeholder:text-[#10251C]/80 dark:placeholder:text-[#F3F1E8]/60 placeholder:font-bold focus:outline-none bg-transparent"
+                        className="w-full text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] placeholder:text-[#10251C]/80 dark:placeholder:text-[#F7F5ED]/60 placeholder:font-bold focus:outline-none bg-transparent"
                       />
-                      <p className="text-xs text-[#10251C]/50 dark:text-[#929D93] font-medium leading-tight">
+                      <p className="text-xs text-[#10251C]/50 dark:text-[#B9C8BF] font-medium leading-tight">
                         {t("hero.dropHint", "Where are you going?")}
                       </p>
                     </div>
@@ -430,7 +430,7 @@ export default function HeroSection({
                           setDropLng(null);
                           setSuggestions([]);
                         }}
-                        className="p-1.5 text-stone-400 dark:text-[#929D93] hover:text-stone-700 dark:hover:text-[#F3F1E8] transition"
+                        className="p-1.5 text-stone-400 dark:text-[#B9C8BF] hover:text-stone-700 dark:hover:text-[#F3F1E8] transition"
                         title="Clear destination"
                       >
                         <X className="w-4 h-4" />
@@ -441,14 +441,14 @@ export default function HeroSection({
 
                 {/* AUTOCOMPLETE SUGGESTIONS DROPDOWN */}
                 {activeField && suggestions.length > 0 && (
-                  <div className="absolute left-0 right-0 top-full mt-2 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[10px] shadow-xl border border-[#e2dac7] dark:border-[#34443A] z-50 overflow-hidden max-h-72 overflow-y-auto">
-                    <div className="px-4 py-2 border-b border-[#e2dac7] dark:border-[#29372E] flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-[#929D93] bg-[#F7F1E5] dark:bg-[#1E2B23]">
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[10px] shadow-xl border border-[#e2dac7] dark:border-[#24483D] z-50 overflow-hidden max-h-72 overflow-y-auto">
+                    <div className="px-4 py-2 border-b border-[#e2dac7] dark:border-[#1E3E34] flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-[#B9C8BF] bg-[#F7F1E5] dark:bg-[#10352C]">
                       <span>Suggestions for {activeField === "pickup" ? "Pickup Point" : "Drop Destination"}</span>
                       {isLoadingSuggestions && (
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-forest dark:text-[#388463]" />
                       )}
                     </div>
-                    <div className="divide-y divide-[#e2dac7]/60 dark:divide-[#29372E]">
+                    <div className="divide-y divide-[#e2dac7]/60 dark:divide-[#1E3E34]">
                       {suggestions.map((item, idx) => {
                         const title = item.title || item.name || item.description?.split(",")[0] || "Location";
                         const subtitle = item.subtitle || item.description?.split(",").slice(1).join(",").trim() || "";
@@ -460,17 +460,17 @@ export default function HeroSection({
                               e.preventDefault();
                               handleSelectSuggestion(item, activeField);
                             }}
-                            className="w-full text-left px-4 py-3 hover:bg-[#F7F1E5] dark:hover:bg-[#1E2B23] transition flex items-start gap-3 cursor-pointer group"
+                            className="w-full text-left px-4 py-3 hover:bg-[#F7F1E5] dark:hover:bg-[#10352C] transition flex items-start gap-3 cursor-pointer group"
                           >
                             <div className="w-7 h-7 rounded-[8px] bg-forest/10 dark:bg-forest/20 group-hover:bg-forest text-forest dark:text-[#388463] group-hover:text-white flex items-center justify-center shrink-0 mt-0.5 transition">
                               <MapPin size={14} />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="font-bold text-sm text-[#10251C] dark:text-[#F3F1E8] truncate">
+                              <p className="font-bold text-sm text-[#10251C] dark:text-[#F7F5ED] truncate">
                                 {title}
                               </p>
                               {subtitle && (
-                                <p className="text-xs text-stone-500 dark:text-[#929D93] truncate mt-0.5">
+                                <p className="text-xs text-stone-500 dark:text-[#B9C8BF] truncate mt-0.5">
                                   {subtitle}
                                 </p>
                               )}
@@ -490,10 +490,10 @@ export default function HeroSection({
                     className={`px-5 py-3 rounded-[8px] border text-sm font-bold transition active:scale-[0.97] flex items-center justify-center gap-2 shrink-0 ${
                       isScheduled
                         ? "bg-[#123D32] dark:bg-[#28664D] text-white border-[#123D32] dark:border-[#28664D]"
-                        : "bg-white dark:bg-[#17211B] hover:bg-[#FAF7F0] dark:hover:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#e2dac7] dark:border-[#34443A] shadow-2xs"
+                        : "bg-white dark:bg-[#0B2822] hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#e2dac7] dark:border-[#24483D] shadow-2xs"
                     }`}
                   >
-                    <Calendar className="w-4 h-4 text-[#10251C]/70 dark:text-[#B8C2B8]" />
+                    <Calendar className="w-4 h-4 text-[#10251C]/70 dark:text-[#B9C8BF]" />
                     <span>{isScheduled ? "Scheduled" : "Schedule Later"}</span>
                   </button>
 
@@ -514,32 +514,32 @@ export default function HeroSection({
 
       {/* ================= MOBILE BENEFIT STRIP (Directly beneath booking form on small screens) ================= */}
       <div className="md:hidden mt-5 w-full">
-        <div className="bg-[#F7F1E5] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-3 shadow-2xs grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <div className="bg-[#F7F1E5] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-3 shadow-2xs grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F3F1E8] flex items-center justify-center shrink-0">
-              <IndianRupee className="w-4 h-4 text-[#F7F1E5] dark:text-[#F3F1E8]" strokeWidth={2.4} />
+            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F7F5ED] flex items-center justify-center shrink-0">
+              <IndianRupee className="w-4 h-4 text-[#F7F1E5] dark:text-[#F7F5ED]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
-              <h4 className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug">Transparent Pricing</h4>
-              <p className="text-[10px] text-[#10251C]/70 dark:text-[#929D93]">Know your fare before you ride</p>
+              <h4 className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug">Transparent Pricing</h4>
+              <p className="text-[10px] text-[#10251C]/70 dark:text-[#B9C8BF]">Know your fare before you ride</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F3F1E8] flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-4 h-4 text-[#F7F1E5] dark:text-[#F3F1E8]" strokeWidth={2.4} />
+            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F7F5ED] flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-4 h-4 text-[#F7F1E5] dark:text-[#F7F5ED]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
-              <h4 className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug">100% Direct Driver Pay</h4>
-              <p className="text-[10px] text-[#10251C]/70 dark:text-[#929D93]">Fair earnings for driver partners</p>
+              <h4 className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug">100% Direct Driver Pay</h4>
+              <p className="text-[10px] text-[#10251C]/70 dark:text-[#B9C8BF]">Fair earnings for driver partners</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F3F1E8] flex items-center justify-center shrink-0">
-              <Users className="w-4 h-4 text-[#F7F1E5] dark:text-[#F3F1E8]" strokeWidth={2.4} />
+            <div className="w-8 h-8 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F7F5ED] flex items-center justify-center shrink-0">
+              <Users className="w-4 h-4 text-[#F7F1E5] dark:text-[#F7F5ED]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
-              <h4 className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug">A Local Service for Our People</h4>
-              <p className="text-[10px] text-[#10251C]/70 dark:text-[#929D93]">Built for Assam, by Assam</p>
+              <h4 className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug">A Local Service for Our People</h4>
+              <p className="text-[10px] text-[#10251C]/70 dark:text-[#B9C8BF]">Built for Assam, by Assam</p>
             </div>
           </div>
         </div>
@@ -547,17 +547,17 @@ export default function HeroSection({
 
       {/* ================= REFINED BENEFITS FEATURE STRIP STRADDLING HERO AND FLEET SECTION (DESKTOP) ================= */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-full max-w-5xl px-4 sm:px-6 z-30 hidden md:block pointer-events-auto">
-        <div className="bg-[#F7F1E5] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] py-3.5 lg:py-4 px-4 sm:px-6 shadow-[0_4px_16px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.4)] grid grid-cols-3 divide-x divide-[#DED7CA] dark:divide-[#29372E]">
+        <div className="bg-[#F7F1E5] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] py-3.5 lg:py-4 px-4 sm:px-6 shadow-[0_4px_16px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.4)] grid grid-cols-3 divide-x divide-[#DED7CA] dark:divide-[#1E3E34]">
           {/* Item 1: Transparent Pricing */}
           <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
-            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F3F1E8] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027] dark:border-[#347858]">
-              <IndianRupee className="w-4.5 h-4.5 text-[#F7F1E5] dark:text-[#F3F1E8]" strokeWidth={2.4} />
+            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F7F5ED] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027] dark:border-[#347858]">
+              <IndianRupee className="w-4.5 h-4.5 text-[#F7F1E5] dark:text-[#F7F5ED]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
-              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug tracking-tight">
+              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug tracking-tight">
                 Transparent Pricing
               </h4>
-              <p className="text-[11px] lg:text-xs text-[#10251C]/70 dark:text-[#929D93] font-medium leading-normal mt-0.5">
+              <p className="text-[11px] lg:text-xs text-[#10251C]/70 dark:text-[#B9C8BF] font-medium leading-normal mt-0.5">
                 Know your fare before you ride
               </p>
             </div>
@@ -565,14 +565,14 @@ export default function HeroSection({
 
           {/* Item 2: 100% Direct Driver Pay */}
           <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
-            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F3F1E8] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027] dark:border-[#347858]">
-              <ShieldCheck className="w-4.5 h-4.5 text-[#F7F1E5] dark:text-[#F3F1E8]" strokeWidth={2.4} />
+            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F7F5ED] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027] dark:border-[#347858]">
+              <ShieldCheck className="w-4.5 h-4.5 text-[#F7F1E5] dark:text-[#F7F5ED]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
-              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug tracking-tight">
+              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug tracking-tight">
                 100% Direct Driver Pay
               </h4>
-              <p className="text-[11px] lg:text-xs text-[#10251C]/70 dark:text-[#929D93] font-medium leading-normal mt-0.5">
+              <p className="text-[11px] lg:text-xs text-[#10251C]/70 dark:text-[#B9C8BF] font-medium leading-normal mt-0.5">
                 Fair earnings for driver partners
               </p>
             </div>
@@ -580,14 +580,14 @@ export default function HeroSection({
 
           {/* Item 3: A Local Service for Our People */}
           <div className="flex items-center gap-3 lg:gap-3.5 px-2 sm:px-3 lg:px-4">
-            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F3F1E8] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027] dark:border-[#347858]">
-              <Users className="w-4.5 h-4.5 text-[#F7F1E5] dark:text-[#F3F1E8]" strokeWidth={2.4} />
+            <div className="w-10 h-10 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] dark:text-[#F7F5ED] flex items-center justify-center shrink-0 shadow-2xs border border-[#0D3027] dark:border-[#347858]">
+              <Users className="w-4.5 h-4.5 text-[#F7F1E5] dark:text-[#F7F5ED]" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
-              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug tracking-tight">
+              <h4 className="text-xs sm:text-sm lg:text-[14px] font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug tracking-tight">
                 A Local Service for Our People
               </h4>
-              <p className="text-[11px] lg:text-xs text-[#10251C]/70 dark:text-[#929D93] font-medium leading-normal mt-0.5">
+              <p className="text-[11px] lg:text-xs text-[#10251C]/70 dark:text-[#B9C8BF] font-medium leading-normal mt-0.5">
                 Built for Assam, by Assam
               </p>
             </div>

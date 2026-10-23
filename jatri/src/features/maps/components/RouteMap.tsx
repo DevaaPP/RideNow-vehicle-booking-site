@@ -1306,7 +1306,7 @@ export default function RouteMap({
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] shadow-2xl p-4 flex flex-col gap-3 isolate"
+            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[12px] shadow-2xl p-4 flex flex-col gap-3 isolate"
             style={{ zIndex: 2000 }}
           >
             <div className="flex items-center justify-between">
@@ -1316,21 +1316,21 @@ export default function RouteMap({
                     activePinMode === "pickup" ? "bg-[#046A38]" : "bg-[#E34222]"
                   }`}
                 />
-                <span className="text-xs font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
+                <span className="text-xs font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
                   {activePinMode === "pickup" ? "Confirm Pickup Point" : "Confirm Drop-off Point"}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={handleCancelPin}
-                className="w-7 h-7 rounded-[8px] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] border border-[#DED7CA] dark:border-[#29372E] text-[#696B64] hover:text-[#10251C] transition flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-[8px] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] border border-[#DED7CA] dark:border-[#1E3E34] text-[#696B64] hover:text-[#10251C] transition flex items-center justify-center cursor-pointer"
                 title="Cancel"
               >
                 <X size={14} />
               </button>
             </div>
 
-            <div className="bg-white dark:bg-[#1E2B23] rounded-[8px] p-2.5 border border-[#DED7CA] dark:border-[#29372E] flex items-start gap-2 shadow-xs">
+            <div className="bg-white dark:bg-[#10352C] rounded-[8px] p-2.5 border border-[#DED7CA] dark:border-[#1E3E34] flex items-start gap-2 shadow-xs">
               <MapPin size={15} className={`shrink-0 mt-0.5 ${activePinMode === "pickup" ? "text-[#046A38]" : "text-[#E34222]"}`} />
               <div className="flex-1 min-w-0">
                 {isPinGeocoding ? (
@@ -1339,7 +1339,7 @@ export default function RouteMap({
                     <span>Resolving address...</span>
                   </div>
                 ) : (
-                  <p className="text-xs font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug line-clamp-2">
+                  <p className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] leading-snug line-clamp-2">
                     {pinAddress || "Move map to choose location"}
                   </p>
                 )}
@@ -1374,7 +1374,7 @@ export default function RouteMap({
                   <button
                     type="button"
                     onClick={handleCancelPin}
-                    className="py-2.5 px-3.5 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] text-xs font-semibold bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] transition cursor-pointer"
+                    className="py-2.5 px-3.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] text-xs font-semibold bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] transition cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1395,23 +1395,23 @@ export default function RouteMap({
                 initial={{ opacity: 0, y: -8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-[#FAF7F0]/95 backdrop-blur-xs border border-[#DED7CA] dark:border-[#34443A] px-2.5 py-1.5 md:px-3.5 md:py-2 shadow-sm rounded-[8px]"
+                className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-[#FAF7F0]/95 backdrop-blur-xs border border-[#DED7CA] dark:border-[#24483D] px-2.5 py-1.5 md:px-3.5 md:py-2 shadow-sm rounded-[8px]"
               >
                 {isRouting ? (
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-[#046A38] animate-pulse rounded-full" />
-                    <span className="text-[#10251C] dark:text-[#F3F1E8] text-[11px] md:text-xs font-bold">Finding fastest route...</span>
+                    <span className="text-[#10251C] dark:text-[#F7F5ED] text-[11px] md:text-xs font-bold">Finding fastest route...</span>
                   </div>
                 ) : (
                   <>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[#10251C] dark:text-[#F3F1E8] text-[11px] md:text-xs font-black">
+                      <span className="text-[#10251C] dark:text-[#F7F5ED] text-[11px] md:text-xs font-black">
                         {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
                       </span>
-                      <span className="text-[#696B64] dark:text-[#929D93] text-[10px] md:text-xs font-bold">({km} km)</span>
+                      <span className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] md:text-xs font-bold">({km} km)</span>
                     </div>
                     <span className="w-px h-3 bg-[#DED7CA] dark:bg-[#34443A]" />
-                    <span className="text-[9px] md:text-[10px] text-[#123D32] dark:text-[#347858] font-bold uppercase tracking-wider bg-[#E5EBDD] dark:bg-[#1E2B23] px-1.5 md:px-2 py-0.5 border border-[#DED7CA] dark:border-[#28664D]/40 rounded-[6px]">
+                    <span className="text-[9px] md:text-[10px] text-[#123D32] dark:text-[#347858] font-bold uppercase tracking-wider bg-[#E5EBDD] dark:bg-[#10352C] px-1.5 md:px-2 py-0.5 border border-[#DED7CA] dark:border-[#28664D]/40 rounded-[6px]">
                       Fastest Route
                     </span>
                   </>
@@ -1421,7 +1421,7 @@ export default function RouteMap({
           </AnimatePresence>
 
           {/* Pinpoint Selector Pill (Hidden on mobile when route is already active to prevent map overlaps) */}
-          <div className={`pointer-events-auto items-center gap-1 bg-[#FAF7F0]/95 backdrop-blur-xs border border-[#DED7CA] dark:border-[#34443A] p-1 shadow-sm rounded-[8px] ${
+          <div className={`pointer-events-auto items-center gap-1 bg-[#FAF7F0]/95 backdrop-blur-xs border border-[#DED7CA] dark:border-[#24483D] p-1 shadow-sm rounded-[8px] ${
             p1 && p2 ? "hidden md:flex" : "flex"
           }`}>
             <button
@@ -1430,7 +1430,7 @@ export default function RouteMap({
                 setActivePinMode("pickup");
                 onSelectionModeChange?.("pickup");
               }}
-              className="px-2.5 py-1 text-xs font-bold transition-all flex items-center gap-1.5 text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#E5EBDD] dark:hover:bg-[#1E2B23] rounded-[6px] cursor-pointer"
+              className="px-2.5 py-1 text-xs font-bold transition-all flex items-center gap-1.5 text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#E5EBDD] dark:hover:bg-[#10352C] rounded-[6px] cursor-pointer"
             >
               <span className="w-2.5 h-2.5 bg-[#046A38] flex-shrink-0 rounded-full" />
               <span>Pin Pickup</span>
@@ -1442,7 +1442,7 @@ export default function RouteMap({
                 setActivePinMode("drop");
                 onSelectionModeChange?.("drop");
               }}
-              className="px-2.5 py-1 text-xs font-bold transition-all flex items-center gap-1.5 text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#E5EBDD] dark:hover:bg-[#1E2B23] rounded-[6px] cursor-pointer"
+              className="px-2.5 py-1 text-xs font-bold transition-all flex items-center gap-1.5 text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#E5EBDD] dark:hover:bg-[#10352C] rounded-[6px] cursor-pointer"
             >
               <span className="w-2.5 h-2.5 bg-[#E34222] flex-shrink-0 rounded-full" />
               <span>Pin Drop</span>
@@ -1453,7 +1453,7 @@ export default function RouteMap({
                 type="button"
                 onClick={handleReset}
                 title="Reset pins"
-                className="p-1 text-[#696B64] hover:text-[#10251C] hover:bg-[#E5EBDD] dark:hover:bg-[#1E2B23] transition-all rounded-[6px] cursor-pointer"
+                className="p-1 text-[#696B64] hover:text-[#10251C] hover:bg-[#E5EBDD] dark:hover:bg-[#10352C] transition-all rounded-[6px] cursor-pointer"
               >
                 <RotateCcw size={13} />
               </button>
@@ -1475,17 +1475,17 @@ export default function RouteMap({
           onClick={handleRecenter}
           aria-label="Re-center on route"
           title="Re-center view"
-          className="w-9 h-9 bg-white dark:bg-[#17211B] border border-zinc-300 dark:border-[#34443A] rounded-[8px] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] shadow-sm hover:bg-[#F7F1E5] dark:hover:bg-[#1E2B23] transition-all cursor-pointer"
+          className="w-9 h-9 bg-white dark:bg-[#0B2822] border border-zinc-300 dark:border-[#24483D] rounded-[8px] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED] shadow-sm hover:bg-[#F7F1E5] dark:hover:bg-[#10352C] transition-all cursor-pointer"
         >
           <Crosshair size={18} className="text-[#046A38] dark:text-[#90C8A8]" />
         </button>
 
         {/* Zoom In & Out */}
-        <div className="flex flex-col bg-white dark:bg-[#17211B] border border-zinc-300 dark:border-[#34443A] rounded-[8px] overflow-hidden shadow-sm">
+        <div className="flex flex-col bg-white dark:bg-[#0B2822] border border-zinc-300 dark:border-[#24483D] rounded-[8px] overflow-hidden shadow-sm">
           <button
             onClick={() => mapRef.current?.zoomIn()}
             aria-label="Zoom in"
-            className="w-9 h-9 flex items-center justify-center text-zinc-800 dark:text-[#F3F1E8] hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#1E2B23] transition cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center text-zinc-800 dark:text-[#F7F5ED] hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#10352C] transition cursor-pointer"
           >
             <Plus size={15} />
           </button>
@@ -1493,7 +1493,7 @@ export default function RouteMap({
           <button
             onClick={() => mapRef.current?.zoomOut()}
             aria-label="Zoom out"
-            className="w-9 h-9 flex items-center justify-center text-zinc-800 dark:text-[#F3F1E8] hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#1E2B23] transition cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center text-zinc-800 dark:text-[#F7F5ED] hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#10352C] transition cursor-pointer"
           >
             <Minus size={15} />
           </button>

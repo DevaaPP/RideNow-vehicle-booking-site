@@ -88,7 +88,7 @@ export function GamosaDivider({
       <div className="flex items-center gap-2 px-3 bg-transparent">
         <GamosaDiamond size={15} color={accentColor} />
         {label && (
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[#696B64] dark:text-[#929D93]">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-[#696B64] dark:text-[#B9C8BF]">
             {label}
           </span>
         )}

@@ -62,7 +62,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F1E5] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] justify-between transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] justify-between transition-colors duration-200">
       <Nav />
 
       <main className="flex-1 pt-28 sm:pt-36 pb-20">
@@ -74,14 +74,14 @@ export default function ContactPage() {
             transition={{ duration: 0.5 }}
             className="mb-12 sm:mb-16 max-w-2xl"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#cdd6c3] dark:border-[#34443A] text-xs font-bold uppercase tracking-wider mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#cdd6c3] dark:border-[#24483D] text-xs font-bold uppercase tracking-wider mb-3">
               <MessageSquareQuote size={13} className="text-[#E34222] dark:text-[#E06A50]" />
               <span>Assam Dispatch & Care Desk</span>
             </div>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#10251C] dark:text-[#F3F1E8] tracking-tight mb-4">
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#10251C] dark:text-[#F7F5ED] tracking-tight mb-4">
               Get in Touch with Us
             </h1>
-            <p className="text-[#696B64] dark:text-[#B8C2B8] text-base sm:text-lg leading-relaxed">
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-base sm:text-lg leading-relaxed">
               Have questions regarding booking, fleet onboarding, enterprise packages, or ride safety? Our dedicated local Guwahati support team is here to assist.
             </p>
           </motion.div>
@@ -97,14 +97,14 @@ export default function ContactPage() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: idx * 0.08 }}
-                  className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-6 shadow-2xs hover:border-[#123D32]/50 dark:hover:border-[#28664D]/50 hover:shadow-xs transition duration-200 block"
+                  className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-6 shadow-2xs hover:border-[#123D32]/50 dark:hover:border-[#28664D]/50 hover:shadow-xs transition duration-200 block"
                 >
                   <div className="w-11 h-11 rounded-[8px] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] flex items-center justify-center mb-4">
                     <Icon size={22} />
                   </div>
-                  <h3 className="font-bold text-base text-[#10251C] dark:text-[#F3F1E8] mb-1">{info.title}</h3>
+                  <h3 className="font-bold text-base text-[#10251C] dark:text-[#F7F5ED] mb-1">{info.title}</h3>
                   <p className="font-semibold text-sm text-[#123D32] dark:text-[#A3E635] mb-1">{info.details}</p>
-                  <p className="text-xs text-[#696B64] dark:text-[#B8C2B8]">{info.subtext}</p>
+                  <p className="text-xs text-[#696B64] dark:text-[#B9C8BF]">{info.subtext}</p>
                 </motion.a>
               );
             })}
@@ -117,17 +117,17 @@ export default function ContactPage() {
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="lg:col-span-7 bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-6 sm:p-8 shadow-xs"
+              className="lg:col-span-7 bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] p-6 sm:p-8 shadow-xs"
             >
-              <h2 className="font-serif text-2xl text-[#10251C] dark:text-[#F3F1E8] mb-2">Send us a Message</h2>
-              <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B8C2B8] mb-6">
+              <h2 className="font-serif text-2xl text-[#10251C] dark:text-[#F7F5ED] mb-2">Send us a Message</h2>
+              <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B9C8BF] mb-6">
                 Fill in your details and message. We will respond via email or telephone promptly.
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] mb-1.5">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] mb-1.5">
                       Full Name
                     </label>
                     <input
@@ -137,12 +137,12 @@ export default function ContactPage() {
                       onChange={handleChange}
                       placeholder="e.g. Partha Pratim"
                       required
-                      className="w-full px-3.5 py-2.5 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] text-[#10251C] dark:text-[#F3F1E8] placeholder-[#696B64]/60 dark:placeholder-[#B8C2B8]/40 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] focus:ring-1 focus:ring-[#123D32] transition"
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] text-[#10251C] dark:text-[#F7F5ED] placeholder-[#696B64]/60 dark:placeholder-[#B8C2B8]/40 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] focus:ring-1 focus:ring-[#123D32] transition"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] mb-1.5">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] mb-1.5">
                       Email Address
                     </label>
                     <input
@@ -152,13 +152,13 @@ export default function ContactPage() {
                       onChange={handleChange}
                       placeholder="you@example.com"
                       required
-                      className="w-full px-3.5 py-2.5 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] text-[#10251C] dark:text-[#F3F1E8] placeholder-[#696B64]/60 dark:placeholder-[#B8C2B8]/40 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] focus:ring-1 focus:ring-[#123D32] transition"
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] text-[#10251C] dark:text-[#F7F5ED] placeholder-[#696B64]/60 dark:placeholder-[#B8C2B8]/40 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] focus:ring-1 focus:ring-[#123D32] transition"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] mb-1.5">
                     Subject / Concern
                   </label>
                   <input
@@ -168,12 +168,12 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="e.g. Driver Partner Inquiry, Trip Question"
                     required
-                    className="w-full px-3.5 py-2.5 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] text-[#10251C] dark:text-[#F3F1E8] placeholder-[#696B64]/60 dark:placeholder-[#B8C2B8]/40 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] focus:ring-1 focus:ring-[#123D32] transition"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] text-[#10251C] dark:text-[#F7F5ED] placeholder-[#696B64]/60 dark:placeholder-[#B8C2B8]/40 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] focus:ring-1 focus:ring-[#123D32] transition"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] mb-1.5">
                     Detailed Message
                   </label>
                   <textarea
@@ -183,7 +183,7 @@ export default function ContactPage() {
                     placeholder="Provide your ride reference or question details..."
                     rows={4}
                     required
-                    className="w-full px-3.5 py-2.5 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] text-[#10251C] dark:text-[#F3F1E8] placeholder-[#696B64]/60 dark:placeholder-[#B8C2B8]/40 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] focus:ring-1 focus:ring-[#123D32] transition resize-none"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] text-[#10251C] dark:text-[#F7F5ED] placeholder-[#696B64]/60 dark:placeholder-[#B8C2B8]/40 text-sm focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] focus:ring-1 focus:ring-[#123D32] transition resize-none"
                   ></textarea>
                 </div>
 
@@ -216,31 +216,31 @@ export default function ContactPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="lg:col-span-5 space-y-6"
             >
-              <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-6 sm:p-7 shadow-xs">
+              <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] p-6 sm:p-7 shadow-xs">
                 <div className="flex items-center gap-2.5 text-[#123D32] dark:text-[#A3E635] mb-4">
                   <Clock size={20} />
-                  <h3 className="font-bold text-base text-[#10251C] dark:text-[#F3F1E8]">Operating Hours</h3>
+                  <h3 className="font-bold text-base text-[#10251C] dark:text-[#F7F5ED]">Operating Hours</h3>
                 </div>
 
-                <div className="space-y-3 text-xs sm:text-sm divide-y divide-[#DED7CA]/60 dark:divide-[#34443A]">
+                <div className="space-y-3 text-xs sm:text-sm divide-y divide-[#DED7CA]/60 dark:divide-[#24483D]">
                   <div className="flex justify-between items-center pt-2">
-                    <span className="text-[#696B64] dark:text-[#B8C2B8]">In-Ride GPS Telemetry & SOS</span>
+                    <span className="text-[#696B64] dark:text-[#B9C8BF]">In-Ride GPS Telemetry & SOS</span>
                     <span className="font-bold text-[#123D32] dark:text-[#A3E635]">24 Hours / 7 Days</span>
                   </div>
                   <div className="flex justify-between items-center pt-3">
-                    <span className="text-[#696B64] dark:text-[#B8C2B8]">Driver Onboarding Hub</span>
-                    <span className="font-semibold text-[#10251C] dark:text-[#F3F1E8]">Mon - Sat: 9:00 AM - 6:00 PM</span>
+                    <span className="text-[#696B64] dark:text-[#B9C8BF]">Driver Onboarding Hub</span>
+                    <span className="font-semibold text-[#10251C] dark:text-[#F7F5ED]">Mon - Sat: 9:00 AM - 6:00 PM</span>
                   </div>
                   <div className="flex justify-between items-center pt-3">
-                    <span className="text-[#696B64] dark:text-[#B8C2B8]">Grievance Officer Office</span>
-                    <span className="font-semibold text-[#10251C] dark:text-[#F3F1E8]">Mon - Fri: 10:00 AM - 5:00 PM</span>
+                    <span className="text-[#696B64] dark:text-[#B9C8BF]">Grievance Officer Office</span>
+                    <span className="font-semibold text-[#10251C] dark:text-[#F7F5ED]">Mon - Fri: 10:00 AM - 5:00 PM</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-6 sm:p-7 shadow-xs">
-                <h3 className="font-serif text-xl text-[#10251C] dark:text-[#F3F1E8] mb-2">Our Commitment</h3>
-                <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B8C2B8] leading-relaxed mb-4">
+              <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] p-6 sm:p-7 shadow-xs">
+                <h3 className="font-serif text-xl text-[#10251C] dark:text-[#F7F5ED] mb-2">Our Commitment</h3>
+                <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B9C8BF] leading-relaxed mb-4">
                   Jaatri is dedicated to ethical mobility, fair driver earnings, and passenger transparency across all 35 districts of Assam.
                 </p>
                 <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#E34222] dark:text-[#E06A50]">

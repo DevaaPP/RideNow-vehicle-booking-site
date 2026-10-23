@@ -109,7 +109,7 @@ export default function NotificationToggle({
       className={`relative p-2 rounded-[8px] transition-all flex items-center justify-center active:scale-95 ${
         isSubscribed
           ? "text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
-          : "text-[#10251C]/70 hover:text-[#10251C] hover:bg-black/5 dark:text-[#B8C2B8] dark:hover:text-[#F3F1E8] dark:hover:bg-white/5"
+          : "text-[#10251C]/70 hover:text-[#10251C] hover:bg-black/5 dark:text-[#B9C8BF] dark:hover:text-[#F3F1E8] dark:hover:bg-white/5"
       } ${className}`}
       title={
         isSubscribed

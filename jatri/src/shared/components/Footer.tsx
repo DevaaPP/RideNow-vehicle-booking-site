@@ -25,7 +25,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="w-full bg-[#123D32] dark:bg-[#0A120E] text-[#F7F1E5] dark:text-[#F3F1E8] border-t border-[#426457]/50 dark:border-[#34443A] relative overflow-hidden">
+    <footer className="w-full bg-[#123D32] dark:bg-[#061A16] text-[#F7F1E5] dark:text-[#F7F5ED] border-t border-[#426457]/50 dark:border-[#24483D] relative overflow-hidden">
       {/* Authentic Assamese Gamosa-inspired geometric woven border strip */}
       <GamosaBorder height={18} accentColor="#E34222" />
 
@@ -61,13 +61,13 @@ export default function Footer() {
               {/* Tagline */}
               <p
                 style={{ fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif" }}
-                className="text-lg sm:text-xl text-[#F7F1E5] dark:text-[#F3F1E8] font-normal tracking-tight mt-1"
+                className="text-lg sm:text-xl text-[#F7F1E5] dark:text-[#F7F5ED] font-normal tracking-tight mt-1"
               >
                 {t("footer.tagline", "More than a ride.")}
               </p>
 
               {/* Description */}
-              <p className="mt-2.5 text-[#C4D2C8] dark:text-[#B8C2B8] text-sm leading-relaxed max-w-[340px]">
+              <p className="mt-2.5 text-[#C4D2C8] dark:text-[#B9C8BF] text-sm leading-relaxed max-w-[340px]">
                 {t(
                   "footer.aboutText",
                   "Assam's local mobility platform for everyday journeys, vehicle rentals and deliveries."
@@ -86,7 +86,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={item.name}
-                  className="w-9 h-9 flex items-center justify-center rounded-[8px] border border-[#426457] dark:border-[#34443A] bg-[#0D3027]/70 dark:bg-[#17211B]/80 text-[#C4D2C8] dark:text-[#B8C2B8] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] hover:border-[#D7AC62] hover:bg-[#0D3027] dark:hover:bg-[#1E2B23] transition-all duration-200 cursor-pointer shadow-2xs"
+                  className="w-9 h-9 flex items-center justify-center rounded-[8px] border border-[#426457] dark:border-[#24483D] bg-[#0D3027]/70 dark:bg-[#0B2822]/80 text-[#C4D2C8] dark:text-[#B9C8BF] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] hover:border-[#D7AC62] hover:bg-[#0D3027] dark:hover:bg-[#10352C] transition-all duration-200 cursor-pointer shadow-2xs"
                 >
                   <item.Icon size={16} strokeWidth={2.2} />
                 </motion.a>
@@ -113,7 +113,7 @@ export default function Footer() {
                   <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="text-[#C4D2C8] dark:text-[#B8C2B8] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors duration-150 inline-block leading-relaxed"
+                      className="text-[#C4D2C8] dark:text-[#B9C8BF] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors duration-150 inline-block leading-relaxed"
                     >
                       {item.label}
                     </Link>
@@ -139,7 +139,7 @@ export default function Footer() {
                   <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="text-[#C4D2C8] dark:text-[#B8C2B8] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors duration-150 inline-block leading-relaxed"
+                      className="text-[#C4D2C8] dark:text-[#B9C8BF] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors duration-150 inline-block leading-relaxed"
                     >
                       {item.label}
                     </Link>
@@ -163,7 +163,7 @@ export default function Footer() {
                   <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="text-[#C4D2C8] dark:text-[#B8C2B8] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors duration-150 inline-block leading-relaxed"
+                      className="text-[#C4D2C8] dark:text-[#B9C8BF] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors duration-150 inline-block leading-relaxed"
                     >
                       {item.label}
                     </Link>
@@ -190,7 +190,7 @@ export default function Footer() {
                   <li key={item.label}>
                     <Link
                       href={item.href}
-                      className="text-[#C4D2C8] dark:text-[#B8C2B8] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors duration-150 inline-block leading-relaxed"
+                      className="text-[#C4D2C8] dark:text-[#B9C8BF] hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors duration-150 inline-block leading-relaxed"
                     >
                       {item.label}
                     </Link>
@@ -205,10 +205,10 @@ export default function Footer() {
       </motion.div>
 
       {/* LEVEL C: BOTTOM LEGAL BAR */}
-      <div className="border-t border-[#426457]/70 dark:border-[#34443A] bg-[#0D3027]/75 dark:bg-[#080E0B]">
+      <div className="border-t border-[#426457]/70 dark:border-[#24483D] bg-[#0D3027]/75 dark:bg-[#080E0B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-4">
           {/* Tier 1: Interactive System Controls (Theme & Languages) and Quick Legal Links */}
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-4 text-xs text-[#C4D2C8] dark:text-[#B8C2B8]">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4 text-xs text-[#C4D2C8] dark:text-[#B9C8BF]">
             {/* System Controls: Theme & Languages in unified cluster */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-3.5">
               <ThemeToggle variant="footer" />
@@ -217,7 +217,7 @@ export default function Footer() {
             </div>
 
             {/* Quick Legal Links */}
-            <div className="flex flex-wrap gap-x-4 sm:gap-x-5 gap-y-2 justify-center lg:justify-end text-xs text-[#C4D2C8] dark:text-[#B8C2B8]">
+            <div className="flex flex-wrap gap-x-4 sm:gap-x-5 gap-y-2 justify-center lg:justify-end text-xs text-[#C4D2C8] dark:text-[#B9C8BF]">
               <Link href="/privacy" className="hover:text-[#F7F1E5] dark:hover:text-[#F3F1E8] transition-colors">
                 {t("footer.privacy", "Privacy Policy")}
               </Link>
@@ -243,11 +243,11 @@ export default function Footer() {
           </div>
 
           {/* Tier 2: Clean Sub-divider & Legal Copyright Sign-off */}
-          <div className="pt-3 border-t border-[#426457]/40 dark:border-[#29372E] flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#C4D2C8]/75 dark:text-[#B8C2B8]/75 gap-2 text-center sm:text-left">
+          <div className="pt-3 border-t border-[#426457]/40 dark:border-[#1E3E34] flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#C4D2C8]/75 dark:text-[#B9C8BF]/75 gap-2 text-center sm:text-left">
             <p suppressHydrationWarning>
               © {new Date().getFullYear()} {t("footer.allRights", "RideNow Mobility Technologies Pvt. Ltd. All rights reserved.")}
             </p>
-            <p className="text-[#C4D2C8]/50 dark:text-[#B8C2B8]/50">
+            <p className="text-[#C4D2C8]/50 dark:text-[#B9C8BF]/50">
               Assam moves with you • Built with pride in Assam
             </p>
           </div>

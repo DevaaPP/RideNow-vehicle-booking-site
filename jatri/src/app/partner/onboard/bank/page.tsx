@@ -99,40 +99,40 @@ export default function PartnerBankPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
+    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="w-full max-w-xl mx-auto bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-6 sm:p-10 shadow-sm"
+        className="w-full max-w-xl mx-auto bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-6 sm:p-10 shadow-sm"
       >
         {/* ================= HEADER ================= */}
-        <div className="relative border-b border-[#DED7CA]/70 dark:border-[#29372E] pb-6 mb-6">
+        <div className="relative border-b border-[#DED7CA]/70 dark:border-[#1E3E34] pb-6 mb-6">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
               aria-label="Go back"
-              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] bg-white dark:bg-[#1E2B23] flex items-center justify-center hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#10352C] flex items-center justify-center hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
 
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#929D93]">
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#B9C8BF]">
               Step 03 / 03
             </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
+          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
             Bank &amp; Automated Payout Setup
           </h1>
 
-          <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B8C2B8] mt-1 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B9C8BF] mt-1 leading-relaxed">
             Registered commercial account for immediate daily ride revenue disbursements.
           </p>
 
           {completed && !editMode && (
-            <div className="mt-4 p-3 bg-white dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] flex items-center justify-between shadow-xs">
-              <div className="flex items-center gap-2 text-[#10251C] dark:text-[#F3F1E8] text-xs font-semibold">
+            <div className="mt-4 p-3 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2 text-[#10251C] dark:text-[#F7F5ED] text-xs font-semibold">
                 <CheckCircle size={15} className="text-[#123D32] dark:text-[#347858]" />
                 <span>Bank account details recorded</span>
               </div>
@@ -211,7 +211,7 @@ export default function PartnerBankPage() {
 
         {/* ================= WHY DISABLED ================= */}
         {!canSubmit && editMode && (
-          <div className="mt-4 text-xs font-mono text-[#10251C] dark:text-[#F3F1E8] bg-white dark:bg-[#101713] p-3 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] space-y-1">
+          <div className="mt-4 text-xs font-mono text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#061A16] p-3 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] space-y-1">
             <p className="font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">
               Required Fields Missing:
             </p>
@@ -223,7 +223,7 @@ export default function PartnerBankPage() {
         )}
 
         {/* ================= INFO ================= */}
-        <div className="mt-5 flex items-start gap-2.5 text-xs text-[#696B64] dark:text-[#B8C2B8] bg-white dark:bg-[#101713] p-3.5 rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] shadow-xs">
+        <div className="mt-5 flex items-start gap-2.5 text-xs text-[#696B64] dark:text-[#B9C8BF] bg-white dark:bg-[#061A16] p-3.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] shadow-xs">
           <CheckCircle size={15} className="mt-0.5 shrink-0 text-[#123D32] dark:text-[#347858]" />
           <p className="leading-relaxed">
             Direct IMPS/NEFT bank settlement verifies automatically upon first completed dispatch ride. Zero commission deductions on partner payout.
@@ -284,19 +284,19 @@ function InputFieldMinimal({
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#929D93]">
+        <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#B9C8BF]">
           {label}
         </label>
         {optional && (
-          <span className="text-[10px] font-mono text-[#696B64]/70 dark:text-[#929D93]/70">
+          <span className="text-[10px] font-mono text-[#696B64]/70 dark:text-[#B9C8BF]/70">
             Optional
           </span>
         )}
       </div>
 
-      <div className="flex items-center rounded-[8px] border border-[#DED7CA] dark:border-[#29372E] bg-white dark:bg-[#101713] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition-colors">
+      <div className="flex items-center rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#061A16] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition-colors">
         {icon && (
-          <div className="pl-3 pr-2 text-[#696B64] dark:text-[#929D93] shrink-0">
+          <div className="pl-3 pr-2 text-[#696B64] dark:text-[#B9C8BF] shrink-0">
             {icon}
           </div>
         )}
@@ -305,7 +305,7 @@ function InputFieldMinimal({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
-          className="w-full h-10 px-2.5 text-xs sm:text-sm bg-transparent focus:outline-none font-mono placeholder:text-[#696B64]/60 dark:placeholder:text-[#929D93]/60 text-[#10251C] dark:text-[#F3F1E8]"
+          className="w-full h-10 px-2.5 text-xs sm:text-sm bg-transparent focus:outline-none font-mono placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/60 text-[#10251C] dark:text-[#F7F5ED]"
         />
       </div>
 

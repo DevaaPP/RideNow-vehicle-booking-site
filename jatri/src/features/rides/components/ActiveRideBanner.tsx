@@ -112,7 +112,7 @@ export default function ActiveRideBanner({
 
   if (variant === "inline") {
     return (
-      <div className="bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-4 shadow-xs">
+      <div className="bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] p-4 shadow-xs">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-3 w-3">
@@ -120,10 +120,10 @@ export default function ActiveRideBanner({
               <span className={`relative inline-flex rounded-full h-3 w-3 ${pulseColor}`} />
             </span>
             <div>
-              <p className="text-xs font-black text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-wider">
+              <p className="text-xs font-black text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-wider">
                 {statusLabel}
               </p>
-              <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium truncate max-w-[220px] sm:max-w-md mt-0.5">
+              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium truncate max-w-[220px] sm:max-w-md mt-0.5">
                 To: {activeBooking.dropAddress || "Destination"}
               </p>
             </div>
@@ -149,29 +149,29 @@ export default function ActiveRideBanner({
         exit={{ opacity: 0, y: 30 }}
         className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:bottom-5 right-3 left-3 sm:right-5 sm:left-auto sm:w-96 z-50"
       >
-        <div className="bg-[#FAF7F0]/95 dark:bg-[#17211B]/95 text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[16px] p-4 shadow-2xl backdrop-blur-md">
+        <div className="bg-[#FAF7F0]/95 dark:bg-[#0B2822]/95 text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[16px] p-4 shadow-2xl backdrop-blur-md">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
                 <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${pulseColor}`} />
                 <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${pulseColor}`} />
               </span>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">
+              <span className="text-[11px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">
                 {statusLabel}
               </span>
             </div>
-            <span className="text-[10px] text-[#696B64] dark:text-[#929D93] font-bold">
+            <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-bold">
               Ride #{activeBooking._id.slice(-5)}
             </span>
           </div>
 
-          <div className="text-xs text-[#10251C] dark:text-[#F3F1E8] mb-3 space-y-1">
+          <div className="text-xs text-[#10251C] dark:text-[#F7F5ED] mb-3 space-y-1">
             <p className="truncate font-semibold">
               📍 {activeBooking.pickupAddress?.split(",")[0]} → {activeBooking.dropAddress?.split(",")[0]}
             </p>
             {activeBooking.driver?.name && (
-              <p className="text-[11px] text-[#696B64] dark:text-[#929D93]">
-                Driver: <span className="text-[#10251C] dark:text-[#F3F1E8] font-bold">{activeBooking.driver.name}</span>
+              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF]">
+                Driver: <span className="text-[#10251C] dark:text-[#F7F5ED] font-bold">{activeBooking.driver.name}</span>
                 {activeBooking.vehicle?.number && ` (${activeBooking.vehicle.number})`}
               </p>
             )}

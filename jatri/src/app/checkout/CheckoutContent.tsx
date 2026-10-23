@@ -824,7 +824,7 @@ export default function CheckoutContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] px-3 sm:px-4 py-5 sm:py-10">
+    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] px-3 sm:px-4 py-5 sm:py-10">
 
       {/* subtle dot grid */}
       <div className="fixed inset-0 pointer-events-none opacity-60 dark:opacity-20"
@@ -838,13 +838,13 @@ export default function CheckoutContent() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#DED7CA] dark:border-[#34443A] pb-3"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#DED7CA] dark:border-[#24483D] pb-3"
         >
           <div className="flex items-center gap-2.5">
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="min-w-[44px] min-h-[44px] rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-white dark:hover:bg-[#202B24] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] transition shadow-none cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-w-[44px] min-h-[44px] rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-white dark:hover:bg-[#143D32] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED] transition shadow-none cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
               aria-label="Back to Map"
               title="Back to Map"
             >
@@ -854,7 +854,7 @@ export default function CheckoutContent() {
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E34222]">Step 2 of 2</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8]">
+              <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
                 Review & Confirm Ride
               </h1>
             </div>
@@ -863,7 +863,7 @@ export default function CheckoutContent() {
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-white dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-white dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
               title="Go to Home"
             >
               <HomeIcon size={13} />
@@ -872,7 +872,7 @@ export default function CheckoutContent() {
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#1E2B23] hover:bg-white dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-white dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <Edit2 size={12} />
               <span>Edit Route</span>
@@ -901,10 +901,10 @@ export default function CheckoutContent() {
         )}
 
         {/* ── UNIFIED BOOKING FLOW (ALL IN ONE TYPE) ── */}
-        <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] overflow-hidden shadow-sm">
+        <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] border border-[#DED7CA] dark:border-[#24483D] overflow-hidden shadow-sm">
 
           {/* ══ 1. VEHICLE & TOTAL FARE SUMMARY ROW ══ */}
-          <div className="p-4 sm:p-6 border-b border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] flex items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 border-b border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-12 h-12 bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] rounded-[10px] flex items-center justify-center flex-shrink-0 shadow-2xs border border-[#cdd6c3] dark:border-[#2D4E3A]">
                 <VehicleIcon size={24} className="text-[#123D32] dark:text-[#90C8A8]" />
@@ -920,18 +920,18 @@ export default function CheckoutContent() {
                     </span>
                   )}
                 </div>
-                <h2 className="text-lg sm:text-xl font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight truncate">
+                <h2 className="text-lg sm:text-xl font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight truncate">
                   {vehicleLabel}
                 </h2>
-                <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium truncate mt-0.5">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium truncate mt-0.5">
                   {opt?.tagline || opt?.description || "Verified drivers with upfront guaranteed pricing"}
                 </p>
               </div>
             </div>
 
             <div className="text-right flex-shrink-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">Total Upfront</p>
-              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8] font-mono">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Total Upfront</p>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED] font-mono">
                 ₹{effectiveFare}
               </div>
             </div>
@@ -939,9 +939,9 @@ export default function CheckoutContent() {
 
           <div className="p-4 sm:p-6 space-y-5">
             {/* ══ 2. ROUTE TIMELINE (CLEAN MINIMALIST VERTICAL FLOW) ══ */}
-            <div className="bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] p-3.5 sm:p-4 space-y-3 shadow-2xs">
-              <div className="flex items-center justify-between border-b border-[#DED7CA]/60 dark:border-[#34443A]/60 pb-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">Route Overview</span>
+            <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] p-3.5 sm:p-4 space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-[#DED7CA]/60 dark:border-[#24483D]/60 pb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Route Overview</span>
                 <Link
                   href={editBookUrl}
                   onClick={handleReturnToBook}
@@ -959,8 +959,8 @@ export default function CheckoutContent() {
                   <span className="w-px h-6 bg-[#DED7CA] dark:bg-[#34443A] my-1" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">Pickup</p>
-                  <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug truncate">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Pickup</p>
+                  <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug truncate">
                     {pickup}
                   </p>
                 </div>
@@ -974,8 +974,8 @@ export default function CheckoutContent() {
                     <span className="w-px h-6 bg-[#DED7CA] dark:bg-[#34443A] my-1" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#929D93]">Stop {idx + 1}</p>
-                    <p className="text-xs font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug truncate">{stop.address}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Stop {idx + 1}</p>
+                    <p className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] leading-snug truncate">{stop.address}</p>
                   </div>
                 </div>
               ))}
@@ -987,33 +987,33 @@ export default function CheckoutContent() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[9px] font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">Destination</p>
-                  <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug truncate">
+                  <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug truncate">
                     {drop}
                   </p>
                 </div>
               </div>
 
               {/* Distance and Estimated Travel Time Stats */}
-              <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#34443A]/60 flex items-center justify-between text-[11px] font-mono text-[#696B64] dark:text-[#929D93]">
-                <span>Distance: <strong className="text-[#10251C] dark:text-[#F3F1E8]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
-                <span>Est. Time: <strong className="text-[#10251C] dark:text-[#F3F1E8]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
+              <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#24483D]/60 flex items-center justify-between text-[11px] font-mono text-[#696B64] dark:text-[#B9C8BF]">
+                <span>Distance: <strong className="text-[#10251C] dark:text-[#F7F5ED]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
+                <span>Est. Time: <strong className="text-[#10251C] dark:text-[#F7F5ED]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
               </div>
             </div>
 
             {/* ══ CONTEXTUAL BADGES ══ */}
             {/* Smart Pickup Zone */}
             {isSmartPickup && smartPickupDetails && (
-              <div className="p-3 bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] flex items-start gap-3 text-xs">
+              <div className="p-3 bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] flex items-start gap-3 text-xs">
                 <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   📍
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">
                     Designated Smart Pickup · {smartPickupDetails.walkingTimeText || "Short Walk"}
                   </p>
-                  <p className="font-extrabold text-[#10251C] dark:text-[#F3F1E8] mt-0.5">{smartPickupDetails.spotName} — {smartPickupDetails.venueName}</p>
+                  <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] mt-0.5">{smartPickupDetails.spotName} — {smartPickupDetails.venueName}</p>
                   {smartPickupDetails.instructions && (
-                    <p className="text-[11px] text-[#696B64] dark:text-[#929D93] italic mt-1">&quot;{smartPickupDetails.instructions}&quot;</p>
+                    <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] italic mt-1">&quot;{smartPickupDetails.instructions}&quot;</p>
                   )}
                 </div>
               </div>
@@ -1021,13 +1021,13 @@ export default function CheckoutContent() {
 
             {/* Family Ride Badge */}
             {isFamilyRide && familyMemberDetails && (
-              <div className="p-3 bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] flex items-start gap-3 text-xs">
+              <div className="p-3 bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] flex items-start gap-3 text-xs">
                 <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   👨‍👩‍👧
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">Family Account Ride</p>
-                  <p className="font-extrabold text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">Family Account Ride</p>
+                  <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
                     Booked for: {familyMemberDetails.name} ({familyMemberDetails.relation}) · {familyMemberDetails.phone || ""}
                   </p>
                 </div>
@@ -1036,13 +1036,13 @@ export default function CheckoutContent() {
 
             {/* Scheduled Ride Badge */}
             {isScheduled && scheduledPickupDate && (
-              <div className="p-3 bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] flex items-start gap-3 text-xs">
+              <div className="p-3 bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] flex items-start gap-3 text-xs">
                 <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   ⏰
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">Scheduled Advance Trip</p>
-                  <p className="font-extrabold text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">Scheduled Advance Trip</p>
+                  <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
                     Pickup: {scheduledPickupDate.toLocaleDateString("en-US", {
                       weekday: "short",
                       month: "short",
@@ -1051,24 +1051,24 @@ export default function CheckoutContent() {
                       minute: "2-digit",
                     })}
                   </p>
-                  <p className="text-[11px] text-[#696B64] dark:text-[#929D93] mt-0.5">Driver assigned 15-30 mins prior to pickup time.</p>
+                  <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5">Driver assigned 15-30 mins prior to pickup time.</p>
                 </div>
               </div>
             )}
 
             {/* Logistics Cargo Details */}
             {serviceMode === "logistics" && cargoDetails && (
-              <div className="p-3 bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] flex items-start gap-3 text-xs">
+              <div className="p-3 bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] flex items-start gap-3 text-xs">
                 <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   <Package size={14} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">Goods Transport Details</p>
-                  <p className="font-extrabold text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">Goods Transport Details</p>
+                  <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
                     {cargoDetails.cargoType || "General Cargo"} {cargoDetails.cargoWeightKg ? `· ~${cargoDetails.cargoWeightKg} kg` : ""}
                   </p>
                   {cargoDetails.receiverContact && (
-                    <p className="text-[11px] text-[#696B64] dark:text-[#929D93]">Receiver: {cargoDetails.receiverContact}</p>
+                    <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF]">Receiver: {cargoDetails.receiverContact}</p>
                   )}
                 </div>
               </div>
@@ -1076,19 +1076,19 @@ export default function CheckoutContent() {
 
             {/* ══ 3. ITEMIZED FARE RECEIPT ══ */}
             {computedBreakdown && (
-              <div className="border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] bg-[#FAF7F0]/80 dark:bg-[#1E2B23]/70 p-3.5 sm:p-4">
-                <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] pb-2 border-b border-[#DED7CA] dark:border-[#34443A] flex items-center justify-between">
+              <div className="border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] bg-[#FAF7F0]/80 dark:bg-[#10352C]/70 p-3.5 sm:p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] pb-2 border-b border-[#DED7CA] dark:border-[#24483D] flex items-center justify-between">
                   <span>Guaranteed Upfront Pricing</span>
-                  <span className="font-mono text-[#696B64] dark:text-[#929D93]">No Hidden Costs</span>
+                  <span className="font-mono text-[#696B64] dark:text-[#B9C8BF]">No Hidden Costs</span>
                 </p>
-                <div className="space-y-1.5 text-xs text-[#696B64] dark:text-[#929D93] font-medium pt-2">
+                <div className="space-y-1.5 text-xs text-[#696B64] dark:text-[#B9C8BF] font-medium pt-2">
                   <div className="flex justify-between">
                     <span>Base Flagdown Fare</span>
-                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.baseFare}</span>
+                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{computedBreakdown.baseFare}</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
                     <span>Distance Charge ({computedBreakdown.distanceKm} km × ₹{computedBreakdown.pricePerKm}/km)</span>
-                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.distanceFare}</span>
+                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{computedBreakdown.distanceFare}</span>
                   </div>
                   {computedBreakdown.surgeAmount > 0 && (
                     <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold">
@@ -1098,25 +1098,25 @@ export default function CheckoutContent() {
                   )}
                   <div className="flex justify-between text-[11px]">
                     <span>Platform Service Fee</span>
-                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.platformFee}</span>
+                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{computedBreakdown.platformFee}</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
                     <span>Govt GST / Taxes (5%)</span>
-                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{computedBreakdown.taxes}</span>
+                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{computedBreakdown.taxes}</span>
                   </div>
                   {computedBreakdown.isStudentDiscountApplied && (
-                    <div className="flex justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-extrabold pt-1 border-t border-[#DED7CA] dark:border-[#34443A]">
+                    <div className="flex justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-extrabold pt-1 border-t border-[#DED7CA] dark:border-[#24483D]">
                       <span>🎓 Student Pass Discount (10% OFF)</span>
                       <span>-₹{computedBreakdown.studentDiscount}</span>
                     </div>
                   )}
                   {(computedBreakdown.cancellationDues ? computedBreakdown.cancellationDues > 0 : Number((userData as any)?.outstandingAmount || 0) > 0) && (
-                    <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold pt-1 border-t border-[#DED7CA] dark:border-[#34443A]">
+                    <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold pt-1 border-t border-[#DED7CA] dark:border-[#24483D]">
                       <span>Unsettled Cancellation Dues</span>
                       <span>+₹{computedBreakdown.cancellationDues || Number((userData as any)?.outstandingAmount || 0)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm font-black text-[#10251C] dark:text-[#F3F1E8] pt-2 border-t border-[#DED7CA] dark:border-[#34443A]">
+                  <div className="flex justify-between text-sm font-black text-[#10251C] dark:text-[#F7F5ED] pt-2 border-t border-[#DED7CA] dark:border-[#24483D]">
                     <span>Final Fare</span>
                     <span className="font-mono text-[#123D32] dark:text-[#D7AC62]">₹{effectiveFare}</span>
                   </div>
@@ -1205,7 +1205,7 @@ export default function CheckoutContent() {
                       )}
                     </button>
 
-                    <div className="flex items-center justify-center gap-4 text-[10px] text-[#696B64] dark:text-[#929D93] font-bold uppercase tracking-wider pt-1">
+                    <div className="flex items-center justify-center gap-4 text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-bold uppercase tracking-wider pt-1">
                       <span>• Driver answers in &lt; 2 min</span>
                       <span>• Pay after trip begins</span>
                       <span>• 100% verified fleet</span>
@@ -1244,22 +1244,22 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.35 }}
                     className="py-8 flex flex-col items-center justify-center gap-5 text-center"
                   >
-                    <div className="relative w-16 h-16 rounded-full bg-[#FAF7F0] dark:bg-[#1E2B23] border-2 border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center">
-                      <RotateCcw size={26} className="text-[#10251C] dark:text-[#F3F1E8] animate-spin" />
+                    <div className="relative w-16 h-16 rounded-full bg-[#FAF7F0] dark:bg-[#10352C] border-2 border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center">
+                      <RotateCcw size={26} className="text-[#10251C] dark:text-[#F7F5ED] animate-spin" />
                     </div>
                     <div>
-                      <div className="inline-flex items-center gap-1.5 bg-[#FAF7F0] dark:bg-[#1E2B23] px-3 py-1 rounded-full text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-black uppercase tracking-wider mb-2 border border-[#DED7CA] dark:border-[#34443A]">
+                      <div className="inline-flex items-center gap-1.5 bg-[#FAF7F0] dark:bg-[#10352C] px-3 py-1 rounded-full text-[#10251C] dark:text-[#F7F5ED] text-[10px] font-black uppercase tracking-wider mb-2 border border-[#DED7CA] dark:border-[#24483D]">
                         Auto Re-dispatch Active
                       </div>
-                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Re-matching New Driver</h3>
-                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium max-w-xs mx-auto mt-1">
+                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Re-matching New Driver</h3>
+                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium max-w-xs mx-auto mt-1">
                         Scanning active drivers within 15 km to take over your ride request automatically.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={handleCancelBooking}
-                      className="min-h-[44px] flex items-center gap-2 text-xs font-bold text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition border border-[#DED7CA] dark:border-[#34443A] px-4 py-2 rounded-[8px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                      className="min-h-[44px] flex items-center gap-2 text-xs font-bold text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition border border-[#DED7CA] dark:border-[#24483D] px-4 py-2 rounded-[8px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                     >
                       <XCircle size={13} />
                       <span>Cancel Ride</span>
@@ -1281,12 +1281,12 @@ export default function CheckoutContent() {
                       <CheckCircle2 size={32} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Driver Accepted!</h3>
-                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1">
+                      <h3 className="text-xl font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Driver Accepted!</h3>
+                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1">
                         Trip confirmed. Loading payment options…
                       </p>
                     </div>
-                    <div className="w-48 h-1.5 bg-[#E8E1D5] dark:bg-[#202B24] rounded-full overflow-hidden">
+                    <div className="w-48 h-1.5 bg-[#E8E1D5] dark:bg-[#143D32] rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: "100%" }}
@@ -1363,8 +1363,8 @@ export default function CheckoutContent() {
                       <CheckCircle2 size={30} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Ride Confirmed!</h3>
-                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1 max-w-xs">
+                      <h3 className="text-xl font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Ride Confirmed!</h3>
+                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1 max-w-xs">
                         Your driver is en route to pickup point. Live telemetry active.
                       </p>
                     </div>
@@ -1389,12 +1389,12 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8]">
+                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED]">
                       <XCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Booking Cancelled</h3>
-                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1">Your ride request has been cancelled.</p>
+                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Booking Cancelled</h3>
+                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1">Your ride request has been cancelled.</p>
                     </div>
                     <button
                       type="button"
@@ -1417,12 +1417,12 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#E34222] dark:text-[#E06A50]">
+                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center text-[#E34222] dark:text-[#E06A50]">
                       <XCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Request Declined</h3>
-                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1">Nearby driver was unavailable. Try requesting again.</p>
+                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Request Declined</h3>
+                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1">Nearby driver was unavailable. Try requesting again.</p>
                     </div>
                     <button
                       type="button"
@@ -1445,12 +1445,12 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-amber-600 dark:text-amber-400">
+                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center text-amber-600 dark:text-amber-400">
                       <AlertCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F3F1E8] font-heading">Request Timed Out</h3>
-                      <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium mt-1">No driver accepted within 2 minutes. Please try again.</p>
+                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Request Timed Out</h3>
+                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1">No driver accepted within 2 minutes. Please try again.</p>
                     </div>
                     <button
                       type="button"
@@ -1468,9 +1468,9 @@ export default function CheckoutContent() {
           </div>
 
           {/* Footer trust badge */}
-          <div className="flex items-center justify-center gap-2 py-3 bg-[#FAF7F0] dark:bg-[#17211B] border-t border-[#DED7CA] dark:border-[#34443A]">
-            <ShieldCheck size={13} className="text-[#696B64] dark:text-[#929D93]" />
-            <span className="text-[#696B64] dark:text-[#929D93] text-[10px] font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-center gap-2 py-3 bg-[#FAF7F0] dark:bg-[#0B2822] border-t border-[#DED7CA] dark:border-[#24483D]">
+            <ShieldCheck size={13} className="text-[#696B64] dark:text-[#B9C8BF]" />
+            <span className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] font-bold uppercase tracking-wider">
               Secure & Verified Booking · GPS Tracked
             </span>
           </div>

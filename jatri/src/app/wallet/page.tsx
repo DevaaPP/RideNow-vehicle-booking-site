@@ -207,7 +207,7 @@ export default function WalletPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5] dark:bg-[#101713] text-[#10251C] dark:text-[#F3F1E8] flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] flex flex-col font-sans transition-colors duration-200">
       <Nav />
 
       {/* Subtle Dot Grid Background */}
@@ -230,13 +230,13 @@ export default function WalletPage() {
                 {t("wallet.paymentAndCredits", "Payment & Credits")}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight flex items-center gap-2 sm:gap-3 flex-wrap">
+            <h1 className="text-2xl sm:text-4xl font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight flex items-center gap-2 sm:gap-3 flex-wrap">
               {t("wallet.rideNowCash", "Jaatri Cash")}
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#DED7CA] dark:border-[#34443A]">
+              <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#DED7CA] dark:border-[#24483D]">
                 <Sparkles size={11} /> {t("wallet.oneTapCheckout", "1-Tap Checkout")}
               </span>
             </h1>
-            <p className="text-[#696B64] dark:text-[#B8C2B8] text-xs sm:text-sm mt-1 font-medium">
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-sm mt-1 font-medium">
               {t("wallet.zeroPaymentFailure", "Zero payment failure, instant ride dispatch, and immediate refunds.")}
             </p>
           </div>
@@ -337,35 +337,35 @@ export default function WalletPage() {
 
           {/* Quick Metrics */}
           <div className="flex flex-col gap-4">
-            <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-xs flex items-center gap-4">
+            <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-5 border border-[#DED7CA] dark:border-[#24483D] shadow-xs flex items-center gap-4">
               <div className="w-12 h-12 rounded-[8px] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] flex items-center justify-center flex-shrink-0">
                 <ArrowDownLeft size={22} />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B8C2B8]">{t("wallet.totalAdded", "Total Added")}</p>
-                <p className="text-xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">{t("wallet.totalAdded", "Total Added")}</p>
+                <p className="text-xl font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
                   ₹{summary.totalAdded.toLocaleString("en-IN")}
                 </p>
               </div>
             </div>
 
-            <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-5 border border-[#DED7CA] dark:border-[#34443A] shadow-xs flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#10251C] dark:text-[#F3F1E8] flex items-center justify-center flex-shrink-0">
+            <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-5 border border-[#DED7CA] dark:border-[#24483D] shadow-xs flex items-center gap-4">
+              <div className="w-12 h-12 rounded-[8px] bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-center flex-shrink-0">
                 <ArrowUpRight size={22} />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B8C2B8]">{t("wallet.totalSpent", "Total Spent")}</p>
-                <p className="text-xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] mt-0.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">{t("wallet.totalSpent", "Total Spent")}</p>
+                <p className="text-xl font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
                   ₹{summary.totalSpent.toLocaleString("en-IN")}
                 </p>
               </div>
             </div>
 
-            <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#34443A] shadow-xs flex items-center justify-between text-xs font-bold text-[#696B64] dark:text-[#B8C2B8]">
-              <span className="flex items-center gap-1.5 text-[#696B64] dark:text-[#B8C2B8] font-medium">
+            <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#24483D] shadow-xs flex items-center justify-between text-xs font-bold text-[#696B64] dark:text-[#B9C8BF]">
+              <span className="flex items-center gap-1.5 text-[#696B64] dark:text-[#B9C8BF] font-medium">
                 <Clock size={14} /> {t("wallet.totalTransactions", "Total Transactions")}
               </span>
-              <span className="font-mono text-[#10251C] dark:text-[#F3F1E8] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] px-2.5 py-1 rounded-[6px]">
+              <span className="font-mono text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] px-2.5 py-1 rounded-[6px]">
                 {summary.transactionCount}
               </span>
             </div>
@@ -373,17 +373,17 @@ export default function WalletPage() {
         </div>
 
         {/* PASSBOOK / LEDGER SECTION */}
-        <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-hidden">
+        <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] border border-[#DED7CA] dark:border-[#24483D] shadow-xs overflow-hidden">
           {/* Header & Filter Tabs */}
-          <div className="p-6 border-b border-[#DED7CA] dark:border-[#34443A] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-6 border-b border-[#DED7CA] dark:border-[#24483D] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">{t("wallet.transactions", "Passbook & History")}</h2>
-              <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] mt-0.5 font-medium">
+              <h2 className="text-lg font-bold font-serif text-[#10251C] dark:text-[#F7F5ED]">{t("wallet.transactions", "Passbook & History")}</h2>
+              <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5 font-medium">
                 {t("wallet.ledgerEncrypted", "Every transaction is encrypted and ledger verified.")}
               </p>
             </div>
 
-            <div className="flex items-center gap-1 bg-white/80 dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] p-1 rounded-[8px] self-start sm:self-auto">
+            <div className="flex items-center gap-1 bg-white/80 dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] p-1 rounded-[8px] self-start sm:self-auto">
               {[
                 { id: "all", label: t("common.all", "All") },
                 { id: "credit", label: t("wallet.added", "Added") },
@@ -396,7 +396,7 @@ export default function WalletPage() {
                   className={`px-3 py-1.5 rounded-[6px] text-xs font-bold transition cursor-pointer ${
                     activeFilter === tab.id
                       ? "bg-[#123D32] dark:bg-[#28664D] text-white shadow-xs"
-                      : "text-[#696B64] dark:text-[#B8C2B8] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                      : "text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
                   }`}
                 >
                   {tab.label}
@@ -406,19 +406,19 @@ export default function WalletPage() {
           </div>
 
           {/* Transactions List */}
-          <div className="divide-y divide-[#DED7CA]/60 dark:divide-[#34443A]">
+          <div className="divide-y divide-[#DED7CA]/60 dark:divide-[#24483D]">
             {loading ? (
               <div className="py-16 text-center">
                 <Loader2 size={24} className="animate-spin text-[#123D32] dark:text-[#A3E635] mx-auto mb-2" />
-                <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] font-medium">{t("common.loading", "Loading ledger records…")}</p>
+                <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] font-medium">{t("common.loading", "Loading ledger records…")}</p>
               </div>
             ) : filteredTransactions.length === 0 ? (
               <div className="py-16 text-center px-4">
-                <div className="w-12 h-12 rounded-[10px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#123D32] dark:text-[#A3E635] flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-[10px] bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#123D32] dark:text-[#A3E635] flex items-center justify-center mx-auto mb-3">
                   <Wallet size={20} />
                 </div>
-                <p className="text-sm font-bold text-[#10251C] dark:text-[#F3F1E8]">{t("wallet.noTransactions", "No transactions recorded")}</p>
-                <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] mt-0.5 max-w-xs mx-auto">
+                <p className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED]">{t("wallet.noTransactions", "No transactions recorded")}</p>
+                <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5 max-w-xs mx-auto">
                   {t("wallet.addFundsPrompt", "Add funds to enjoy 1-tap booking or pay with cash on your next ride.")}
                 </p>
                 <button
@@ -436,7 +436,7 @@ export default function WalletPage() {
                 return (
                   <div
                     key={tx._id}
-                    className="p-4 sm:p-5 flex items-center justify-between hover:bg-white/60 dark:hover:bg-[#1E2B23]/60 transition"
+                    className="p-4 sm:p-5 flex items-center justify-between hover:bg-white/60 dark:hover:bg-[#10352C]/60 transition"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
@@ -444,8 +444,8 @@ export default function WalletPage() {
                           isRefund
                             ? "bg-[#faebe8] dark:bg-[#341814] text-[#E34222] dark:text-[#E06A50] border border-[#E34222]/30 dark:border-[#E06A50]/40"
                             : isCredit
-                            ? "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#DED7CA] dark:border-[#34443A]"
-                            : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A]"
+                            ? "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border border-[#DED7CA] dark:border-[#24483D]"
+                            : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D]"
                         }`}
                       >
                         {isRefund ? (
@@ -459,7 +459,7 @@ export default function WalletPage() {
 
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] truncate">
+                          <p className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                             {tx.description}
                           </p>
                           <span
@@ -467,14 +467,14 @@ export default function WalletPage() {
                               isRefund
                                 ? "bg-[#faebe8] dark:bg-[#341814] text-[#E34222] dark:text-[#E06A50] border-[#E34222]/30 dark:border-[#E06A50]/40"
                                 : isCredit
-                                ? "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border-[#DED7CA] dark:border-[#34443A]"
-                                : "bg-white dark:bg-[#1E2B23] text-[#696B64] dark:text-[#B8C2B8] border-[#DED7CA] dark:border-[#34443A]"
+                                ? "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] border-[#DED7CA] dark:border-[#24483D]"
+                                : "bg-white dark:bg-[#10352C] text-[#696B64] dark:text-[#B9C8BF] border-[#DED7CA] dark:border-[#24483D]"
                             }`}
                           >
                             {tx.category.replace("_", " ")}
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#696B64] dark:text-[#B8C2B8] mt-0.5 font-medium">
+                        <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5 font-medium">
                           {new Date(tx.createdAt).toLocaleDateString("en-IN", {
                             day: "2-digit",
                             month: "short",
@@ -489,12 +489,12 @@ export default function WalletPage() {
                     <div className="text-right flex-shrink-0 ml-4">
                       <p
                         className={`text-sm sm:text-base font-bold font-mono ${
-                          isCredit ? "text-[#123D32] dark:text-[#A3E635]" : "text-[#10251C] dark:text-[#F3F1E8]"
+                          isCredit ? "text-[#123D32] dark:text-[#A3E635]" : "text-[#10251C] dark:text-[#F7F5ED]"
                         }`}
                       >
                         {isCredit ? "+" : "-"}₹{tx.amount.toLocaleString("en-IN")}
                       </p>
-                      <p className="text-[10px] text-[#696B64] dark:text-[#B8C2B8] font-medium">
+                      <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-medium">
                         Bal: ₹{tx.balanceAfter.toLocaleString("en-IN")}
                       </p>
                     </div>
@@ -513,7 +513,7 @@ export default function WalletPage() {
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                className="w-full max-w-sm bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] p-6 shadow-2xl border border-[#DED7CA] dark:border-[#34443A]"
+                className="w-full max-w-sm bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] p-6 shadow-2xl border border-[#DED7CA] dark:border-[#24483D]"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
@@ -521,8 +521,8 @@ export default function WalletPage() {
                       <Wallet size={16} />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold font-serif text-[#10251C] dark:text-[#F3F1E8]">{t("wallet.topupModalTitle", "Add Money to Wallet")}</h3>
-                      <p className="text-[11px] text-[#696B64] dark:text-[#B8C2B8] font-medium">UPI · Card · Netbanking</p>
+                      <h3 className="text-base font-bold font-serif text-[#10251C] dark:text-[#F7F5ED]">{t("wallet.topupModalTitle", "Add Money to Wallet")}</h3>
+                      <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium">UPI · Card · Netbanking</p>
                     </div>
                   </div>
                   <button
@@ -530,7 +530,7 @@ export default function WalletPage() {
                       setShowTopupModal(false);
                       setTopupError(null);
                     }}
-                    className="w-7 h-7 rounded-[6px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] transition cursor-pointer"
+                    className="w-7 h-7 rounded-[6px] bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED] transition cursor-pointer"
                   >
                     ✕
                   </button>
@@ -545,11 +545,11 @@ export default function WalletPage() {
 
                 {/* Amount Input */}
                 <div className="mb-4">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B8C2B8] mb-1.5 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] mb-1.5 block">
                     {t("wallet.selectAmount", "Enter Amount")}
                   </label>
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-[8px] border-2 border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#101713] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition">
-                    <span className="text-lg font-bold text-[#696B64] dark:text-[#B8C2B8]">₹</span>
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-[8px] border-2 border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#061A16] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition">
+                    <span className="text-lg font-bold text-[#696B64] dark:text-[#B9C8BF]">₹</span>
                     <input
                       type="number"
                       min={10}
@@ -557,14 +557,14 @@ export default function WalletPage() {
                       value={customAmount}
                       onChange={(e) => setCustomAmount(e.target.value)}
                       placeholder="500"
-                      className="w-full text-xl font-bold text-[#10251C] dark:text-[#F3F1E8] bg-transparent outline-none"
+                      className="w-full text-xl font-bold text-[#10251C] dark:text-[#F7F5ED] bg-transparent outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Preset Chips */}
                 <div className="mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B8C2B8] mb-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] mb-2">
                     {t("wallet.quickAmounts", "Quick Amounts")}
                   </p>
                   <div className="grid grid-cols-3 gap-2">
@@ -576,7 +576,7 @@ export default function WalletPage() {
                         className={`py-2 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
                           customAmount === amt.toString()
                             ? "bg-[#123D32] text-white border-[#123D32] dark:bg-[#28664D] dark:border-[#28664D] shadow-xs"
-                            : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#34443A] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24]"
+                            : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#24483D] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32]"
                         }`}
                       >
                         +₹{amt}
@@ -586,7 +586,7 @@ export default function WalletPage() {
                 </div>
 
                 {/* Security Note */}
-                <div className="p-3 bg-white/70 dark:bg-[#1E2B23]/70 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] mb-4 text-[11px] text-[#696B64] dark:text-[#B8C2B8] flex items-center gap-2">
+                <div className="p-3 bg-white/70 dark:bg-[#10352C]/70 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] mb-4 text-[11px] text-[#696B64] dark:text-[#B9C8BF] flex items-center gap-2">
                   <Zap size={14} className="text-[#123D32] dark:text-[#A3E635] flex-shrink-0" />
                   <span>{t("wallet.topupSecurityNote", "Money added is immediately available for 1-tap bookings & refunds.")}</span>
                 </div>
@@ -596,7 +596,7 @@ export default function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setShowTopupModal(false)}
-                    className="flex-1 py-3 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] transition cursor-pointer"
+                    className="flex-1 py-3 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] transition cursor-pointer"
                   >
                     {t("common.cancel", "Cancel")}
                   </button>

@@ -830,20 +830,20 @@ export default function RidePage() {
 
   /* ── LOADING ── */
   if (loading) return (
-    <div className="h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex items-center justify-center">
+    <div className="h-screen w-full bg-[#FAF7F0] dark:bg-[#061A16] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 rounded-full border-2 border-[#123D32]/20 dark:border-[#28664D]/30 border-t-[#123D32] dark:border-t-[#28664D] animate-spin" />
-        <p className="text-[#10251C]/60 dark:text-[#F3F1E8]/60 text-xs tracking-widest uppercase font-semibold">Loading ride…</p>
+        <p className="text-[#10251C]/60 dark:text-[#F7F5ED]/60 text-xs tracking-widest uppercase font-semibold">Loading ride…</p>
       </div>
     </div>
   );
 
   if (error || !booking) return (
-    <div className="h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex items-center justify-center px-6">
-      <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-6 shadow-sm flex flex-col items-center gap-4 text-center max-w-sm">
+    <div className="h-screen w-full bg-[#FAF7F0] dark:bg-[#061A16] flex items-center justify-center px-6">
+      <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] p-6 shadow-sm flex flex-col items-center gap-4 text-center max-w-sm">
         <AlertCircle size={44} className="text-[#E34222] dark:text-[#E06A50]" />
-        <p className="text-[#10251C] dark:text-[#F3F1E8] font-serif font-bold text-xl">Unable to load ride</p>
-        <p className="text-[#696B64] dark:text-[#929D93] text-xs">{error || "Trip details could not be retrieved. Please check your connection."}</p>
+        <p className="text-[#10251C] dark:text-[#F7F5ED] font-serif font-bold text-xl">Unable to load ride</p>
+        <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs">{error || "Trip details could not be retrieved. Please check your connection."}</p>
         <div className="flex items-center gap-2.5 mt-2 w-full">
           <button
             onClick={() => fetchBooking(false)}
@@ -853,7 +853,7 @@ export default function RidePage() {
           </button>
           <button
             onClick={() => router.push("/bookings")}
-            className="flex-1 bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] py-3 rounded-[8px] font-bold text-xs hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] transition border border-[#DED7CA] dark:border-[#34443A] cursor-pointer"
+            className="flex-1 bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] py-3 rounded-[8px] font-bold text-xs hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] transition border border-[#DED7CA] dark:border-[#24483D] cursor-pointer"
           >
             All Bookings
           </button>
@@ -921,7 +921,7 @@ export default function RidePage() {
   };
 
   return (
-    <div className="h-screen w-full bg-[#F7F1E5] dark:bg-[#101713] flex flex-col lg:flex-row overflow-hidden">
+    <div className="h-screen w-full bg-[#FAF7F0] dark:bg-[#061A16] flex flex-col lg:flex-row overflow-hidden">
 
       {/* ══ MAP ══ */}
       <div className="relative flex-1 h-full z-0">
@@ -944,7 +944,7 @@ export default function RidePage() {
         <div className="absolute top-4 left-4 z-[500] flex items-center gap-2 pointer-events-auto">
           <Link
             href="/"
-            className="h-9 px-3 bg-[#FAF7F0]/95 hover:bg-[#FAF7F0] dark:bg-[#17211B]/95 dark:hover:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition"
+            className="h-9 px-3 bg-[#FAF7F0]/95 hover:bg-[#FAF7F0] dark:bg-[#0B2822]/95 dark:hover:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition"
             title="Back to Home"
           >
             <HomeIcon size={16} className="text-[#123D32] dark:text-[#D7AC62]" />
@@ -957,9 +957,9 @@ export default function RidePage() {
           transition={{ delay: 0.3, duration: 0.3 }}
           className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] pointer-events-none flex flex-col items-center gap-1.5"
         >
-          <div className="flex items-center gap-2 bg-[#FAF7F0]/95 dark:bg-[#17211B]/95 px-3.5 py-1.5 rounded-[8px] shadow-sm border border-[#DED7CA] dark:border-[#34443A] backdrop-blur-sm">
+          <div className="flex items-center gap-2 bg-[#FAF7F0]/95 dark:bg-[#0B2822]/95 px-3.5 py-1.5 rounded-[8px] shadow-sm border border-[#DED7CA] dark:border-[#24483D] backdrop-blur-sm">
             <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-            <span className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">{cfg.label}</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">{cfg.label}</span>
           </div>
           {!isSocketConnected && (
             <div className="flex items-center gap-1.5 bg-amber-500 text-[#10251C] px-2.5 py-1 rounded-[8px] shadow-sm border border-amber-600 font-mono text-[10px] font-bold uppercase tracking-wider">
@@ -974,9 +974,9 @@ export default function RidePage() {
       <motion.div
         initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden lg:flex w-[420px] xl:w-[460px] bg-[#F7F1E5] dark:bg-[#101713] border-l border-[#DED7CA] dark:border-[#34443A] flex-col overflow-hidden flex-shrink-0 z-10"
+        className="hidden lg:flex w-[420px] xl:w-[460px] bg-[#FAF7F0] dark:bg-[#061A16] border-l border-[#DED7CA] dark:border-[#24483D] flex-col overflow-hidden flex-shrink-0 z-10"
       >
-        <div className="bg-[#123D32] dark:bg-[#17261E] px-6 py-5 flex-shrink-0 border-b border-transparent dark:border-[#34443A]/50">
+        <div className="bg-[#123D32] dark:bg-[#17261E] px-6 py-5 flex-shrink-0 border-b border-transparent dark:border-[#24483D]/50">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <Link
@@ -1007,7 +1007,7 @@ export default function RidePage() {
             )}
           </div>
         </div>
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#F7F1E5] dark:bg-[#101713]">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#FAF7F0] dark:bg-[#061A16]">
           <div className="flex-1 overflow-y-auto scrollbar-hide">
             <PanelContent {...panelProps} />
           </div>
@@ -1018,7 +1018,7 @@ export default function RidePage() {
       {/* ══ SWIPE BOTTOM SHEET (< lg) ══ */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <motion.div
-          className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-t-[20px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] dark:border-[#34443A] flex flex-col"
+          className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-t-[20px] shadow-2xl pointer-events-auto overflow-hidden border-t border-[#DED7CA] dark:border-[#24483D] flex flex-col"
           animate={{ height: expanded ? "82vh" : PEEK_H }}
           transition={{ type: "spring", stiffness: 340, damping: 34 }}
         >
@@ -1032,11 +1032,11 @@ export default function RidePage() {
               else if (info.offset.y > 35 || info.velocity.y > 250) setExpanded(false);
             }}
             onClick={() => setExpanded(v => !v)}
-            className="flex-shrink-0 cursor-grab active:cursor-grabbing select-none bg-[#FAF7F0] dark:bg-[#17211B] border-b border-[#DED7CA] dark:border-[#34443A]"
+            className="flex-shrink-0 cursor-grab active:cursor-grabbing select-none bg-[#FAF7F0] dark:bg-[#0B2822] border-b border-[#DED7CA] dark:border-[#24483D]"
           >
             <div className="pt-2 pb-1 flex flex-col items-center">
               <div className="w-12 h-1 bg-[#DED7CA] dark:bg-[#34443A] rounded-full mb-1 cursor-pointer hover:bg-[#123D32]/40 transition-colors" />
-              <span className="text-[9px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-widest">
+              <span className="text-[9px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-widest">
                 {expanded ? "Swipe down for map" : "Swipe up for ride details"}
               </span>
             </div>
@@ -1045,34 +1045,34 @@ export default function RidePage() {
                 <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] leading-tight truncate">{cfg.label}</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] leading-tight truncate">{cfg.label}</p>
                     {!isSocketConnected && (
                       <span className="text-[8px] font-mono font-bold uppercase bg-amber-500 text-[#10251C] px-1.5 py-0.5 rounded-[4px] border border-amber-600">
                         6s Polling
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium leading-tight truncate">{cfg.sublabel}</p>
+                  <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium leading-tight truncate">{cfg.sublabel}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 flex-shrink-0">
                 {isActive && (
                   <div className="text-right">
                     <p className="text-xl font-black text-[#123D32] dark:text-[#D7AC62] leading-none">{Math.round(displayEta)}</p>
-                    <p className="text-[9px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider">min</p>
+                    <p className="text-[9px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">min</p>
                   </div>
                 )}
                 <motion.div
                   animate={{ rotate: expanded ? 180 : 0 }}
                   transition={{ duration: 0.25 }}
-                  className="w-7 h-7 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8]"
+                  className="w-7 h-7 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED]"
                 >
                   <ChevronUp size={14} />
                 </motion.div>
               </div>
             </div>
           </motion.div>
-          <div className="flex-1 overflow-y-auto min-h-0 bg-[#F7F1E5] dark:bg-[#101713]">
+          <div className="flex-1 overflow-y-auto min-h-0 bg-[#FAF7F0] dark:bg-[#061A16]">
             <PanelContent {...panelProps} />
           </div>
           <ActionBar {...panelProps} />
@@ -1092,22 +1092,22 @@ export default function RidePage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.98, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="bg-[#FAF7F0] dark:bg-[#17211B] w-full max-w-md rounded-[16px] shadow-2xl overflow-hidden border border-[#DED7CA] dark:border-[#34443A] flex flex-col max-h-[90vh]"
+              className="bg-[#FAF7F0] dark:bg-[#0B2822] w-full max-w-md rounded-[16px] shadow-2xl overflow-hidden border border-[#DED7CA] dark:border-[#24483D] flex flex-col max-h-[90vh]"
             >
               {/* Header */}
-              <div className="p-4 border-b border-[#DED7CA] dark:border-[#34443A] flex items-center justify-between bg-[#FAF7F0] dark:bg-[#17211B]">
+              <div className="p-4 border-b border-[#DED7CA] dark:border-[#24483D] flex items-center justify-between bg-[#FAF7F0] dark:bg-[#0B2822]">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-[8px] bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
                     <AlertTriangle size={16} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight">{t("cancellation.modalTitle", "Cancel Ride")}</h3>
-                    <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium">{t("cancellation.reviewPolicy", "Review policy & select reason")}</p>
+                    <h3 className="text-sm font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">{t("cancellation.modalTitle", "Cancel Ride")}</h3>
+                    <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium">{t("cancellation.reviewPolicy", "Review policy & select reason")}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowCancelConfirm(false)}
-                  className="w-7 h-7 rounded-[8px] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#E5EBDD] dark:hover:bg-[#1E2B23] flex items-center justify-center text-[#10251C] dark:text-[#F3F1E8] transition cursor-pointer"
+                  className="w-7 h-7 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] hover:bg-[#E5EBDD] dark:hover:bg-[#10352C] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED] transition cursor-pointer"
                 >
                   ✕
                 </button>
@@ -1127,18 +1127,18 @@ export default function RidePage() {
                       {/* Live Status Indicators (Time & Location) */}
                       {hasDriverAccepted && (
                         <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold">
-                          <div className="bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] p-2.5 flex items-center gap-2 text-[#10251C] dark:text-[#F3F1E8] shadow-xs">
+                          <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] p-2.5 flex items-center gap-2 text-[#10251C] dark:text-[#F7F5ED] shadow-xs">
                             <Clock size={14} className="text-[#123D32] dark:text-[#D7AC62] flex-shrink-0" />
                             <div className="min-w-0">
-                              <p className="text-[9px] uppercase tracking-wider text-[#696B64] dark:text-[#929D93] font-bold">Accepted</p>
-                              <p className="truncate font-bold text-[#10251C] dark:text-[#F3F1E8]">{Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago</p>
+                              <p className="text-[9px] uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] font-bold">Accepted</p>
+                              <p className="truncate font-bold text-[#10251C] dark:text-[#F7F5ED]">{Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago</p>
                             </div>
                           </div>
-                          <div className="bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] p-2.5 flex items-center gap-2 text-[#10251C] dark:text-[#F3F1E8] shadow-xs">
+                          <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] p-2.5 flex items-center gap-2 text-[#10251C] dark:text-[#F7F5ED] shadow-xs">
                             <Navigation size={14} className="text-[#123D32] dark:text-[#D7AC62] flex-shrink-0" />
                             <div className="min-w-0">
-                              <p className="text-[9px] uppercase tracking-wider text-[#696B64] dark:text-[#929D93] font-bold">Driver Location</p>
-                              <p className="truncate font-bold text-[#10251C] dark:text-[#F3F1E8]">
+                              <p className="text-[9px] uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] font-bold">Driver Location</p>
+                              <p className="truncate font-bold text-[#10251C] dark:text-[#F7F5ED]">
                                 {hasDriverArrived
                                   ? "At Pickup"
                                   : distanceToPickup > 0
@@ -1152,7 +1152,7 @@ export default function RidePage() {
 
                       {/* Authoritative Dynamic Policy Evaluation Banner */}
                       {fetchingQuote ? (
-                        <div className="bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] p-4 flex items-center justify-center gap-2.5 text-[#696B64] dark:text-[#929D93] text-xs">
+                        <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] p-4 flex items-center justify-center gap-2.5 text-[#696B64] dark:text-[#B9C8BF] text-xs">
                           <span className="w-4 h-4 rounded-full border-2 border-[#123D32]/20 dark:border-[#28664D]/40 border-t-[#123D32] dark:border-t-[#28664D] animate-spin" />
                           <span>{t("cancellation.evaluatingFee", "Evaluating cancellation fee with pricing engine...")}</span>
                         </div>
@@ -1160,7 +1160,7 @@ export default function RidePage() {
                         cancellationQuote.feeApplied && cancellationQuote.fee > 0 ? (
                           <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-900/50 rounded-[10px] p-4 text-left space-y-2.5 shadow-xs">
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5 text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold">
+                              <div className="flex items-center gap-1.5 text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold">
                                 <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
                                 <span>{t("cancellation.feeLabel", "Cancellation Fee:")} ₹{cancellationQuote.fee}</span>
                               </div>
@@ -1169,22 +1169,22 @@ export default function RidePage() {
                               </span>
                             </div>
 
-                            <p className="text-xs font-semibold text-[#10251C] dark:text-[#F3F1E8]">
+                            <p className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED]">
                               <span className="font-bold">{t("cancellation.reasonLabel", "Reason:")}</span> {cancellationQuote.reason}
                             </p>
 
                             {/* Transparent Financial Settlement Breakdown */}
-                            <div className="bg-white dark:bg-[#1E2B23] rounded-[8px] p-3 border border-[#DED7CA]/70 dark:border-[#34443A]/70 space-y-1.5 text-xs">
+                            <div className="bg-white dark:bg-[#10352C] rounded-[8px] p-3 border border-[#DED7CA]/70 dark:border-[#24483D]/70 space-y-1.5 text-xs">
                               {cancellationQuote.isPrepaid ? (
-                                <div className="flex justify-between text-[#696B64] dark:text-[#929D93]">
+                                <div className="flex justify-between text-[#696B64] dark:text-[#B9C8BF]">
                                   <span>{t("cancellation.prepaidRefund", "Refund to Source:")}</span>
                                   <span className="font-bold text-emerald-700 dark:text-emerald-400">₹{Math.max(0, (booking.fare || 0) - cancellationQuote.fee)}</span>
                                 </div>
                               ) : (
                                 <>
-                                  <div className="flex justify-between text-[#696B64] dark:text-[#929D93]">
+                                  <div className="flex justify-between text-[#696B64] dark:text-[#B9C8BF]">
                                     <span>{t("cancellation.walletDeduction", "Deducted from Wallet:")}</span>
-                                    <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{cancellationQuote.willDeductFromWallet}</span>
+                                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{cancellationQuote.willDeductFromWallet}</span>
                                   </div>
                                   {cancellationQuote.willAddToOutstanding > 0 && (
                                     <div className="flex justify-between text-[#E34222] dark:text-[#E06A50] font-bold">
@@ -1194,9 +1194,9 @@ export default function RidePage() {
                                   )}
                                 </>
                               )}
-                              <div className="flex justify-between text-[#696B64] dark:text-[#929D93] pt-1 border-t border-[#DED7CA]/50 dark:border-[#34443A]/50 text-[11px]">
+                              <div className="flex justify-between text-[#696B64] dark:text-[#B9C8BF] pt-1 border-t border-[#DED7CA]/50 dark:border-[#24483D]/50 text-[11px]">
                                 <span>{t("cancellation.driverComp", "Driver Transit Compensation:")}</span>
-                                <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">₹{cancellationQuote.driverCompensation}</span>
+                                <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{cancellationQuote.driverCompensation}</span>
                               </div>
                             </div>
                           </div>
@@ -1206,18 +1206,18 @@ export default function RidePage() {
                               <CheckCircle2 size={16} className="text-[#123D32] dark:text-[#D7AC62] flex-shrink-0" />
                               <span>{t("cancellation.zeroFee", "Zero Cancellation Fee (₹0)")}</span>
                             </div>
-                            <p className="text-xs text-[#123D32]/90 dark:text-[#F3F1E8]/90 font-medium leading-relaxed">
+                            <p className="text-xs text-[#123D32]/90 dark:text-[#F7F5ED]/90 font-medium leading-relaxed">
                               {cancellationQuote.reason || t("cancellation.zeroFeeDesc", "Free cancellation is currently available. You will receive a 100% full refund.")}
                             </p>
                           </div>
                         )
                       ) : (
-                        <div className="bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] p-3.5 text-left shadow-xs">
-                          <div className="flex items-center gap-1.5 text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold mb-1">
+                        <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] p-3.5 text-left shadow-xs">
+                          <div className="flex items-center gap-1.5 text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold mb-1">
                             <CheckCircle2 size={15} className="text-[#123D32] dark:text-[#D7AC62] flex-shrink-0" />
                             <span>{t("cancellation.zeroFee", "Zero Cancellation Fee")}</span>
                           </div>
-                          <p className="text-[11px] text-[#696B64] dark:text-[#929D93] leading-relaxed">
+                          <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] leading-relaxed">
                             {t("cancellation.zeroFeeDesc", "No penalty applies. You can cancel now with full peace of mind.")}
                           </p>
                         </div>
@@ -1228,7 +1228,7 @@ export default function RidePage() {
 
                 {/* Reasons List */}
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] mb-2">{t("cancellation.selectReason", "Please tell us why you are cancelling:")}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] mb-2">{t("cancellation.selectReason", "Please tell us why you are cancelling:")}</p>
                   <div className="space-y-1.5">
                     {CANCELLATION_REASONS.map((r) => {
                       const isSelected = selectedReason === r;
@@ -1243,13 +1243,13 @@ export default function RidePage() {
                           className={`w-full text-left px-3.5 py-2.5 rounded-[8px] text-xs transition-all flex items-center justify-between border cursor-pointer ${
                             isSelected
                               ? "bg-[#123D32] dark:bg-[#28664D] text-white border-[#123D32] dark:border-[#28664D] font-bold shadow-xs"
-                              : "bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#34443A]"
+                              : "bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#24483D]"
                           }`}
                         >
                           <span>{t(REASON_KEY_MAP[r] || r, r)}</span>
                           <span
                             className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center flex-shrink-0 ml-2 ${
-                              isSelected ? "border-white bg-white" : "border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#17211B]"
+                              isSelected ? "border-white bg-white" : "border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#0B2822]"
                             }`}
                           >
                             {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#123D32] dark:bg-[#28664D]" />}
@@ -1264,7 +1264,7 @@ export default function RidePage() {
                       value={customReasonNote}
                       onChange={(e) => setCustomReasonNote(e.target.value)}
                       placeholder="Please specify your cancellation reason..."
-                      className="w-full text-xs p-3 border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] outline-none focus:border-[#123D32] dark:focus:border-[#28664D] mt-2.5 resize-none text-[#10251C] dark:text-[#F3F1E8] bg-white dark:bg-[#1E2B23]"
+                      className="w-full text-xs p-3 border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] outline-none focus:border-[#123D32] dark:focus:border-[#28664D] mt-2.5 resize-none text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C]"
                       rows={2}
                     />
                   )}
@@ -1272,12 +1272,12 @@ export default function RidePage() {
               </div>
 
               {/* Actions Footer */}
-              <div className="p-4 border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] flex gap-3">
+              <div className="p-4 border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822] flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowCancelConfirm(false)}
                   disabled={cancellingRide}
-                  className="flex-1 py-3 border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] rounded-[8px] text-xs font-bold uppercase tracking-wider transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-3 border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F7F5ED] rounded-[8px] text-xs font-bold uppercase tracking-wider transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                 >
                   {t("cancellation.keepRide", "Keep Ride")}
                 </button>
@@ -1313,15 +1313,15 @@ export default function RidePage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.98, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="bg-[#FAF7F0] dark:bg-[#17211B] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden border border-[#DED7CA] dark:border-[#34443A]"
+              className="bg-[#FAF7F0] dark:bg-[#0B2822] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden border border-[#DED7CA] dark:border-[#24483D]"
             >
               <div className="p-6 text-center space-y-4">
                 <div className="w-12 h-12 bg-[#E34222]/10 rounded-[10px] flex items-center justify-center mx-auto text-[#E34222] dark:text-[#E06A50]">
                   <XCircle size={24} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-serif font-bold text-[#10251C] dark:text-[#F3F1E8]">Error</h3>
-                  <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium leading-relaxed">
+                  <h3 className="text-base font-serif font-bold text-[#10251C] dark:text-[#F7F5ED]">Error</h3>
+                  <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium leading-relaxed">
                     {showCancelError}
                   </p>
                 </div>
@@ -1353,15 +1353,15 @@ export default function RidePage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.98, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden text-[#10251C] dark:text-[#F3F1E8]"
+              className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden text-[#10251C] dark:text-[#F7F5ED]"
             >
               <div className="p-6 text-center space-y-4">
                 <div className="w-12 h-12 bg-[#E34222] text-white rounded-[10px] flex items-center justify-center mx-auto shadow-xs">
                   <Siren size={24} />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-base font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8]">Activate Emergency SOS?</h3>
-                  <p className="text-[#696B64] dark:text-[#929D93] text-xs font-medium leading-relaxed">
+                  <h3 className="text-base font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED]">Activate Emergency SOS?</h3>
+                  <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium leading-relaxed">
                     This will immediately alert our emergency security response team, log your live location, and notify emergency contacts.
                   </p>
                 </div>
@@ -1383,7 +1383,7 @@ export default function RidePage() {
                 <button
                   onClick={() => setShowPanicConfirm(false)}
                   disabled={panicLoading}
-                  className="w-full py-2.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] rounded-[8px] text-xs font-bold uppercase tracking-wider border border-[#DED7CA] dark:border-[#34443A] transition cursor-pointer"
+                  className="w-full py-2.5 bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F7F5ED] rounded-[8px] text-xs font-bold uppercase tracking-wider border border-[#DED7CA] dark:border-[#24483D] transition cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1407,7 +1407,7 @@ export default function RidePage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.98, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] p-6 max-w-sm w-full shadow-2xl border border-[#DED7CA] dark:border-[#34443A] text-center relative overflow-hidden"
+              className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] p-6 max-w-sm w-full shadow-2xl border border-[#DED7CA] dark:border-[#24483D] text-center relative overflow-hidden"
             >
               <div className="w-12 h-12 rounded-[10px] bg-[#E34222]/10 border border-[#E34222]/20 text-[#E34222] dark:text-[#E06A50] mx-auto flex items-center justify-center mb-4">
                 <ShieldAlert size={24} />
@@ -1417,8 +1417,8 @@ export default function RidePage() {
                 Route Deviation Detected
               </div>
 
-              <h3 className="text-base font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F3F1E8] mb-1">Are You Safe?</h3>
-              <p className="text-[#696B64] dark:text-[#929D93] text-xs leading-relaxed font-medium mb-5">
+              <h3 className="text-base font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED] mb-1">Are You Safe?</h3>
+              <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs leading-relaxed font-medium mb-5">
                 Your driver appears to have taken an unexpected route
                 {deviationDistance ? ` (${deviationDistance}m off planned route)` : ""}.
                 Please confirm your safety status.
@@ -1567,7 +1567,7 @@ function ActionBar({
 }: any) {
   if (status === "awaiting_payment") {
     return (
-      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] p-3 sm:p-4 shadow-md">
+      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822] p-3 sm:p-4 shadow-md">
         <button
           type="button"
           onClick={onPayNow}
@@ -1589,11 +1589,11 @@ function ActionBar({
 
   if (status === "requested" || status === "scheduled") {
     return (
-      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] p-3 sm:p-4">
+      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822] p-3 sm:p-4">
         <button
           type="button"
           onClick={onCancel}
-          className="w-full bg-white dark:bg-[#1E2B23] hover:bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+          className="w-full bg-white dark:bg-[#10352C] hover:bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
         >
           {status === "scheduled" ? "Cancel Scheduled Ride" : "Cancel Ride Request"}
         </button>
@@ -1603,7 +1603,7 @@ function ActionBar({
 
   if (["confirmed", "started"].includes(status)) {
     return (
-      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B] p-3 sm:p-4 flex gap-2">
+      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822] p-3 sm:p-4 flex gap-2">
         {!booking?.isPanicActive && (
           <button
             type="button"
@@ -1617,7 +1617,7 @@ function ActionBar({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 bg-white dark:bg-[#1E2B23] hover:bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+          className="flex-1 bg-white dark:bg-[#10352C] hover:bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
         >
           Cancel Ride
         </button>
@@ -1654,17 +1654,17 @@ function PanelContent({
       {/* PANIC ALERT ACTIVE BANNER */}
       {booking?.isPanicActive && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-[#E34222]/10 border-2 border-[#E34222] rounded-[12px] p-4 text-[#10251C] dark:text-[#F3F1E8]">
+          <div className="bg-[#E34222]/10 border-2 border-[#E34222] rounded-[12px] p-4 text-[#10251C] dark:text-[#F7F5ED]">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-[8px] bg-[#E34222] text-white flex items-center justify-center flex-shrink-0">
                 <Siren size={18} className="text-white" />
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#E34222] dark:text-[#E06A50]">Emergency SOS Triggered</p>
-                <p className="text-xs font-bold uppercase tracking-wide text-[#10251C] dark:text-[#F3F1E8]">Security Dispatch Notified</p>
+                <p className="text-xs font-bold uppercase tracking-wide text-[#10251C] dark:text-[#F7F5ED]">Security Dispatch Notified</p>
               </div>
             </div>
-            <p className="text-xs text-[#696B64] dark:text-[#929D93] leading-relaxed mb-3">
+            <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] leading-relaxed mb-3">
               Your live location is actively being tracked by safety dispatch. Local law enforcement hotline is available below.
             </p>
             <div className="grid grid-cols-2 gap-2">
@@ -1676,7 +1676,7 @@ function PanelContent({
               </a>
               <a
                 href="tel:18001234567"
-                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] font-bold uppercase tracking-wider px-3 py-2.5 rounded-[8px] text-xs border border-[#DED7CA] dark:border-[#34443A] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F7F5ED] font-bold uppercase tracking-wider px-3 py-2.5 rounded-[8px] text-xs border border-[#DED7CA] dark:border-[#24483D] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
               >
                 <ShieldAlert size={13} className="text-[#123D32] dark:text-[#D7AC62]" /> Security Desk
               </a>
@@ -1688,7 +1688,7 @@ function PanelContent({
       {/* ⏰ ADVANCE SCHEDULED RIDE CARD */}
       {status === "scheduled" && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-4 space-y-3 shadow-xs">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-4 space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center font-bold text-base flex-shrink-0">
@@ -1696,14 +1696,14 @@ function PanelContent({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-wider">
+                    <h3 className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-wider">
                       Ride Scheduled
                     </h3>
                     <span className="text-[9px] font-bold uppercase bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#D7AC62] px-2 py-0.5 rounded-[4px] tracking-wider font-mono">
                       Confirmed
                     </span>
                   </div>
-                  <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] font-semibold mt-0.5">
+                  <p className="text-xs text-[#10251C] dark:text-[#F7F5ED] font-semibold mt-0.5">
                     {booking.scheduledPickupTime
                       ? new Date(booking.scheduledPickupTime).toLocaleDateString("en-US", {
                           weekday: "short",
@@ -1719,22 +1719,22 @@ function PanelContent({
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#1E2B23] rounded-[8px] p-3 border border-[#DED7CA]/60 dark:border-[#34443A]/60 space-y-2 text-xs">
-              <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93]">
-                <span className="font-bold uppercase text-[10px] tracking-wider text-[#696B64] dark:text-[#929D93]">Total Fare</span>
+            <div className="bg-white dark:bg-[#10352C] rounded-[8px] p-3 border border-[#DED7CA]/60 dark:border-[#24483D]/60 space-y-2 text-xs">
+              <div className="flex items-center justify-between text-[#696B64] dark:text-[#B9C8BF]">
+                <span className="font-bold uppercase text-[10px] tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Total Fare</span>
                 <span className="font-bold text-[#123D32] dark:text-[#D7AC62] text-sm">₹{booking.fare}</span>
               </div>
-              <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93]">
-                <span className="font-bold uppercase text-[10px] tracking-wider text-[#696B64] dark:text-[#929D93]">Driver Dispatch</span>
-                <span className="font-medium text-[#10251C] dark:text-[#F3F1E8]">15–30 min before pickup</span>
+              <div className="flex items-center justify-between text-[#696B64] dark:text-[#B9C8BF]">
+                <span className="font-bold uppercase text-[10px] tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Driver Dispatch</span>
+                <span className="font-medium text-[#10251C] dark:text-[#F7F5ED]">15–30 min before pickup</span>
               </div>
-              <div className="flex items-center justify-between text-[#10251C] dark:text-[#F3F1E8] font-bold pt-1 border-t border-[#DED7CA]/40 dark:border-[#34443A]/40">
-                <span className="uppercase text-[10px] tracking-wider text-[#696B64] dark:text-[#929D93]">Cancellation Policy</span>
-                <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">Free up to 60 mins prior</span>
+              <div className="flex items-center justify-between text-[#10251C] dark:text-[#F7F5ED] font-bold pt-1 border-t border-[#DED7CA]/40 dark:border-[#24483D]/40">
+                <span className="uppercase text-[10px] tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Cancellation Policy</span>
+                <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">Free up to 60 mins prior</span>
               </div>
             </div>
 
-            <p className="text-[11px] text-[#696B64] dark:text-[#929D93] leading-snug">
+            <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] leading-snug">
               When the scheduled pickup time nears, our dispatch engine pairs you with the best available driver and activates live tracking.
             </p>
           </div>
@@ -1744,7 +1744,7 @@ function PanelContent({
       {/* SEARCHING (requested) */}
       {status === "requested" && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-4 flex items-center gap-3.5 shadow-xs">
             <div className="relative flex items-center justify-center flex-shrink-0">
               <span className="w-10 h-10 rounded-full bg-[#123D32]/10 dark:bg-[#28664D]/20 animate-ping absolute" />
               <div className="w-10 h-10 rounded-full bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center font-bold text-sm shadow-xs">
@@ -1752,10 +1752,10 @@ function PanelContent({
               </div>
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">
+              <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">
                 {booking.driverPreference === "woman" ? "Finding Verified Woman Driver" : "Finding your driver"}
               </p>
-              <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-0.5 font-medium leading-relaxed">
+              <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5 font-medium leading-relaxed">
                 {booking.driverPreference === "woman"
                   ? "Broadcasting exclusively to nearby verified woman drivers. Zero silent fallback."
                   : "Broadcasting request to all nearby verified drivers. First to accept will confirm your ride."}
@@ -1768,20 +1768,20 @@ function PanelContent({
       {/* 💳 ACTION REQUIRED: INTERACTIVE PAYMENT CONFIRMATION (awaiting_payment) */}
       {status === "awaiting_payment" && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] p-4 text-[#10251C] dark:text-[#F3F1E8] space-y-4 shadow-sm">
-            <div className="flex items-center justify-between border-b border-[#DED7CA]/70 dark:border-[#34443A]/70 pb-3">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] p-4 text-[#10251C] dark:text-[#F7F5ED] space-y-4 shadow-sm">
+            <div className="flex items-center justify-between border-b border-[#DED7CA]/70 dark:border-[#24483D]/70 pb-3">
               <div>
                 <p className="text-[#123D32] dark:text-[#D7AC62] text-[10px] uppercase tracking-widest font-bold flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#D7AC62] animate-pulse" />
                   Driver Accepted • Confirmation Required
                 </p>
-                <h3 className="text-base font-serif font-bold text-[#10251C] dark:text-[#F3F1E8] tracking-tight mt-0.5">
+                <h3 className="text-base font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight mt-0.5">
                   Choose Payment Method
                 </h3>
               </div>
               <div className="text-right">
                 <span className="text-xl font-bold text-[#123D32] dark:text-[#D7AC62] font-mono">₹{booking.fare}</span>
-                <p className="text-[9px] text-[#696B64] dark:text-[#929D93] uppercase tracking-widest font-bold">Total Fare</p>
+                <p className="text-[9px] text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-widest font-bold">Total Fare</p>
               </div>
             </div>
 
@@ -1793,7 +1793,7 @@ function PanelContent({
                 className={`p-3 rounded-[8px] border text-left transition cursor-pointer flex flex-col justify-between min-h-[70px] ${
                   paymentMethod === "cash"
                     ? "bg-[#123D32] dark:bg-[#28664D] text-white border-[#123D32] dark:border-[#28664D] font-bold shadow-xs"
-                    : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/60 font-medium"
+                    : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#24483D] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/60 font-medium"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -1812,7 +1812,7 @@ function PanelContent({
                 className={`p-3 rounded-[8px] border text-left transition cursor-pointer flex flex-col justify-between min-h-[70px] ${
                   paymentMethod === "online"
                     ? "bg-[#123D32] dark:bg-[#28664D] text-white border-[#123D32] dark:border-[#28664D] font-bold shadow-xs"
-                    : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/60 font-medium"
+                    : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#24483D] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/60 font-medium"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -1831,7 +1831,7 @@ function PanelContent({
                 className={`p-3 rounded-[8px] border text-left transition cursor-pointer flex flex-col justify-between min-h-[70px] ${
                   paymentMethod === "wallet"
                     ? "bg-[#123D32] dark:bg-[#28664D] text-white border-[#123D32] dark:border-[#28664D] font-bold shadow-xs"
-                    : "bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/60 font-medium"
+                    : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#24483D] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/60 font-medium"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -1875,22 +1875,22 @@ function PanelContent({
       {/* ETA + DROPOFF + FARE (active, not requested/payment/scheduled) */}
       {isActive && !["requested", "awaiting_payment", "scheduled"].includes(status) && (
         <div className="mx-4 lg:mx-6 grid grid-cols-3 gap-2">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] p-3 flex flex-col justify-between shadow-xs">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] p-3 flex flex-col justify-between shadow-xs">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-[#696B64] dark:text-[#929D93] uppercase tracking-widest font-bold">ETA</span>
+              <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-widest font-bold">ETA</span>
               <Clock size={12} className="text-[#123D32] dark:text-[#D7AC62]" />
             </div>
-            <p className="text-base font-bold text-[#10251C] dark:text-[#F3F1E8] leading-none">
-              {Math.round(displayEta)}<span className="text-[10px] font-normal text-[#696B64] dark:text-[#929D93] ml-0.5">m</span>
+            <p className="text-base font-bold text-[#10251C] dark:text-[#F7F5ED] leading-none">
+              {Math.round(displayEta)}<span className="text-[10px] font-normal text-[#696B64] dark:text-[#B9C8BF] ml-0.5">m</span>
             </p>
           </div>
 
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] p-3 flex flex-col justify-between shadow-xs">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] p-3 flex flex-col justify-between shadow-xs">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-[#696B64] dark:text-[#929D93] uppercase tracking-widest font-bold">Drop</span>
+              <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-widest font-bold">Drop</span>
               <Navigation size={12} className="text-[#123D32] dark:text-[#D7AC62]" />
             </div>
-            <p className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] leading-none truncate">
+            <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] leading-none truncate">
               {booking.estimatedDropoffTime
                 ? new Date(booking.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
                 : `~${booking.tripDurationMinutes || 15}m`}
@@ -1899,8 +1899,8 @@ function PanelContent({
 
           <div className="bg-[#123D32] dark:bg-[#28664D] border border-[#123D32] dark:border-[#28664D] rounded-[10px] p-3 flex flex-col justify-between shadow-xs">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-[#E5EBDD] dark:text-[#F3F1E8]/80 uppercase tracking-widest font-bold">Fare</span>
-              <IndianRupee size={12} className="text-[#E5EBDD] dark:text-[#F3F1E8]" />
+              <span className="text-[10px] text-[#E5EBDD] dark:text-[#F7F5ED]/80 uppercase tracking-widest font-bold">Fare</span>
+              <IndianRupee size={12} className="text-[#E5EBDD] dark:text-[#F7F5ED]" />
             </div>
             <p className="text-base font-bold text-white leading-none font-mono">₹{booking.fare}</p>
           </div>
@@ -1921,7 +1921,7 @@ function PanelContent({
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[#123D32] dark:text-[#D7AC62]">Start Ride PIN</p>
-                <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] font-medium">Share this code with your driver</p>
+                <p className="text-xs text-[#10251C] dark:text-[#F7F5ED] font-medium">Share this code with your driver</p>
               </div>
             </div>
             <div className="bg-[#123D32] dark:bg-[#28664D] px-4 py-1.5 rounded-[8px] shadow-xs">
@@ -1936,7 +1936,7 @@ function PanelContent({
       {/* DRIVER CARD */}
       {showDriver && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mx-4 lg:mx-6">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-4 flex items-center gap-3.5 shadow-xs">
             <div className="relative flex-shrink-0">
               <div className="w-12 h-12 rounded-[10px] bg-[#123D32] dark:bg-[#28664D] text-[#F7F1E5] flex items-center justify-center">
                 <User2 size={24} />
@@ -1946,16 +1946,16 @@ function PanelContent({
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <p className="text-[#10251C] dark:text-[#F3F1E8] font-bold text-sm truncate">{booking.driver?.name || "Your Driver"}</p>
+                  <p className="text-[#10251C] dark:text-[#F7F5ED] font-bold text-sm truncate">{booking.driver?.name || "Your Driver"}</p>
                   {booking.driverPreference === "woman" && (
                     <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded-[4px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-[#1D3428] text-[#046A38] dark:text-[#A3E635] border border-emerald-200 dark:border-[#28664D]">
                       <ShieldCheck size={10} /> Verified Woman Driver
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-1 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] px-2 py-0.5 rounded-[6px] flex-shrink-0">
+                <div className="flex items-center gap-1 bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] px-2 py-0.5 rounded-[6px] flex-shrink-0">
                   <Star size={10} className="text-amber-500 fill-amber-500" />
-                  <span className="text-[#10251C] dark:text-[#F3F1E8] text-xs font-mono font-bold">
+                  <span className="text-[#10251C] dark:text-[#F7F5ED] text-xs font-mono font-bold">
                     {booking.driver?.rating != null
                       ? Number(booking.driver.rating).toFixed(1)
                       : "5.0"}
@@ -1964,9 +1964,9 @@ function PanelContent({
               </div>
               {booking.vehicle && (
                 <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                  <span className="text-[#696B64] dark:text-[#929D93] text-xs font-medium">{booking.vehicle.vehicleModel}</span>
+                  <span className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium">{booking.vehicle.vehicleModel}</span>
                   <span className="text-[#DED7CA] dark:text-[#34443A] text-xs">•</span>
-                  <span className="text-[#10251C] dark:text-[#F3F1E8] text-xs bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] px-2 py-0.5 rounded-[6px] font-mono font-bold tracking-wider">{booking.vehicle.number}</span>
+                  <span className="text-[#10251C] dark:text-[#F7F5ED] text-xs bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] px-2 py-0.5 rounded-[6px] font-mono font-bold tracking-wider">{booking.vehicle.number}</span>
                 </div>
               )}
               <div className="mt-2">
@@ -1991,7 +1991,7 @@ function PanelContent({
               {booking.driverMobileNumber && (
                 <a
                   href={`tel:${booking.driverMobileNumber}`}
-                  className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all px-2 py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] active:scale-[0.98] transition-all px-2 py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer"
                   title="Direct Cellular Phone Call"
                 >
                   <PhoneCall size={13} className="text-[#123D32] dark:text-[#D7AC62]" /> <span>Phone</span>
@@ -1999,7 +1999,7 @@ function PanelContent({
               )}
               {canChat && (
                 <button onClick={onChatToggle}
-                  className={`flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider border cursor-pointer ${chatOpen ? "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#D7AC62] border-[#123D32]/30 dark:border-[#28664D]/50" : "bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] border-[#DED7CA] dark:border-[#34443A]"}`}
+                  className={`flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider border cursor-pointer ${chatOpen ? "bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#D7AC62] border-[#123D32]/30 dark:border-[#28664D]/50" : "bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#24483D]"}`}
                 >
                   <MessageCircle size={13} />
                   <span>{chatOpen ? "Close Chat" : "Message"}</span>
@@ -2027,7 +2027,7 @@ function PanelContent({
                     window.prompt("Copy your live tracking link", shareUrl);
                   }
                 }}
-                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
               >
                 <Share2 size={13} className="text-[#123D32] dark:text-[#D7AC62]" /> <span>Share Trip</span>
               </button>
@@ -2044,7 +2044,7 @@ function PanelContent({
             exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="mx-4 lg:mx-6 overflow-hidden"
           >
-            <div className="rounded-[12px] overflow-hidden border border-[#DED7CA] dark:border-[#34443A] h-[460px] shadow-sm">
+            <div className="rounded-[12px] overflow-hidden border border-[#DED7CA] dark:border-[#24483D] h-[460px] shadow-sm">
               <RideChat currentRole="user" rideId={booking._id.toString()} driverName={booking.driver?.name} />
             </div>
           </motion.div>
@@ -2065,7 +2065,7 @@ function PanelContent({
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[#123D32] dark:text-[#D7AC62]">Drop-off PIN</p>
-                <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] font-medium">Share at destination to end trip</p>
+                <p className="text-xs text-[#10251C] dark:text-[#F7F5ED] font-medium">Share at destination to end trip</p>
               </div>
             </div>
             <div className="bg-[#123D32] dark:bg-[#28664D] px-4 py-1.5 rounded-[8px] shadow-xs">
@@ -2079,21 +2079,21 @@ function PanelContent({
 
       {/* ROUTE CARD */}
       <div className="mx-4 lg:mx-6">
-        <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] overflow-hidden shadow-xs">
-          <div className="flex gap-3 p-3.5 border-b border-[#DED7CA]/70 dark:border-[#34443A]/70">
+        <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] overflow-hidden shadow-xs">
+          <div className="flex gap-3 p-3.5 border-b border-[#DED7CA]/70 dark:border-[#24483D]/70">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
               <div className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#28664D] flex-shrink-0" />
               <div className="w-0.5 bg-[#DED7CA] dark:bg-[#34443A] mt-1 flex-1 min-h-[20px]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-widest mb-0.5">Pickup</p>
-              <p className="text-xs font-semibold text-[#10251C] dark:text-[#F3F1E8] leading-snug">{booking.pickupAddress || "—"}</p>
+              <p className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-widest mb-0.5">Pickup</p>
+              <p className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] leading-snug">{booking.pickupAddress || "—"}</p>
             </div>
           </div>
 
           {/* Intermediate Stops */}
           {booking.stops && booking.stops.length > 0 && booking.stops.map((stop: any, idx: number) => (
-            <div key={idx} className="flex gap-3 p-3.5 border-b border-[#DED7CA]/70 dark:border-[#34443A]/70 bg-white dark:bg-[#1E2B23]">
+            <div key={idx} className="flex gap-3 p-3.5 border-b border-[#DED7CA]/70 dark:border-[#24483D]/70 bg-white dark:bg-[#10352C]">
               <div className="flex flex-col items-center flex-shrink-0 pt-1">
                 <div className="w-4 h-4 rounded-full bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center text-[9px] font-bold">
                   {idx + 1}
@@ -2102,14 +2102,14 @@ function PanelContent({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-wider">Stop {idx + 1}</p>
+                  <p className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">Stop {idx + 1}</p>
                   {stop.completed && (
                     <span className="text-[9px] font-bold bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#D7AC62] px-2 py-0.5 rounded-[4px] uppercase font-mono">
                       Visited
                     </span>
                   )}
                 </div>
-                <p className="text-xs font-medium text-[#10251C] dark:text-[#F3F1E8] leading-snug">{stop.address || "—"}</p>
+                <p className="text-xs font-medium text-[#10251C] dark:text-[#F7F5ED] leading-snug">{stop.address || "—"}</p>
               </div>
             </div>
           ))}
@@ -2119,10 +2119,10 @@ function PanelContent({
               <div className="w-2.5 h-2.5 rounded-full bg-[#E34222] dark:bg-[#E06A50] flex-shrink-0" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-widest mb-0.5">Drop</p>
-              <p className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] leading-snug">{booking.dropAddress || "—"}</p>
+              <p className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-widest mb-0.5">Drop</p>
+              <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug">{booking.dropAddress || "—"}</p>
               {booking.estimatedDropoffTime && (status === "confirmed" || status === "started") && (
-                <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-semibold mt-1 flex items-center gap-1">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-semibold mt-1 flex items-center gap-1">
                   <Clock size={11} className="text-[#123D32] dark:text-[#D7AC62]" />
                   <span>Est. Drop-off by {new Date(booking.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })} (~{booking.tripDurationMinutes || 15}m)</span>
                 </p>
@@ -2134,9 +2134,9 @@ function PanelContent({
                 </p>
               )}
               {booking.dropOtp && status === "started" && (
-                <div className="mt-1.5 inline-flex items-center gap-1.5 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] px-2 py-0.5 rounded-[6px]">
-                  <p className="text-[#10251C] dark:text-[#F3F1E8] text-xs font-bold tracking-widest font-mono">{booking.dropOtp}</p>
-                  <p className="text-[#696B64] dark:text-[#929D93] text-[10px] font-bold uppercase">PIN</p>
+                <div className="mt-1.5 inline-flex items-center gap-1.5 bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] px-2 py-0.5 rounded-[6px]">
+                  <p className="text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold tracking-widest font-mono">{booking.dropOtp}</p>
+                  <p className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] font-bold uppercase">PIN</p>
                 </div>
               )}
             </div>
@@ -2147,7 +2147,7 @@ function PanelContent({
       {/* FAMILY ACCOUNT RIDE CARD */}
       {booking.isFamilyRide && booking.familyMemberDetails && (
         <div className="mx-4 lg:mx-6">
-          <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] p-3.5 flex items-center gap-3 shadow-xs">
+          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-3.5 flex items-center gap-3 shadow-xs">
             <div className="w-9 h-9 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
               👨👩👧
             </div>
@@ -2156,15 +2156,15 @@ function PanelContent({
                 <span className="text-[9px] font-bold uppercase bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#D7AC62] px-2 py-0.5 rounded-[4px] tracking-wider font-mono">
                   Family Ride
                 </span>
-                <span className="text-[10px] text-[#696B64] dark:text-[#929D93] font-bold uppercase">
+                <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-bold uppercase">
                   Central Billing
                 </span>
               </div>
-              <p className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] truncate">
+              <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
                 Rider: {booking.familyMemberDetails.name} ({booking.familyMemberDetails.relation})
               </p>
               {booking.familyMemberDetails.phone && (
-                <p className="text-[11px] text-[#696B64] dark:text-[#929D93] font-medium">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium">
                   Contact: {booking.familyMemberDetails.phone}
                 </p>
               )}

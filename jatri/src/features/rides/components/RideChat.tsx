@@ -181,10 +181,10 @@ export default function RideChat({
   const myInitial    = (currentRole === "user" ? userName : driverName).charAt(0).toUpperCase();
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] overflow-hidden border border-[#DED7CA] dark:border-[#34443A]">
+    <div className="flex flex-col h-full min-h-0 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] overflow-hidden border border-[#DED7CA] dark:border-[#24483D]">
 
       {/* ── HEADER ── */}
-      <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-[#FAF7F0] dark:bg-[#17211B] border-b border-[#DED7CA] dark:border-[#34443A]">
+      <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-[#FAF7F0] dark:bg-[#0B2822] border-b border-[#DED7CA] dark:border-[#24483D]">
         <div className="relative flex-shrink-0">
           <div className="w-9 h-9 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] flex items-center justify-center text-white text-xs font-bold">
             {otherInitial}
@@ -192,7 +192,7 @@ export default function RideChat({
           <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-[#17211B]" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[#10251C] dark:text-[#F3F1E8] leading-none">{otherName}</p>
+          <p className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-none">{otherName}</p>
           <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-0.5">Active now</p>
         </div>
       </div>
@@ -201,18 +201,18 @@ export default function RideChat({
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[#F7F1E5] dark:bg-[#101713]"
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[#FAF7F0] dark:bg-[#061A16]"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <style>{`div::-webkit-scrollbar { display: none; }`}</style>
 
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-3 py-16">
-            <div className="w-12 h-12 rounded-[10px] bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center">
-              <Send size={18} className="text-[#696B64] dark:text-[#929D93]" />
+            <div className="w-12 h-12 rounded-[10px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center">
+              <Send size={18} className="text-[#696B64] dark:text-[#B9C8BF]" />
             </div>
-            <p className="text-sm text-[#10251C] dark:text-[#F3F1E8] font-bold">No messages yet</p>
-            <p className="text-xs text-[#696B64] dark:text-[#929D93]">Start the conversation below</p>
+            <p className="text-sm text-[#10251C] dark:text-[#F7F5ED] font-bold">No messages yet</p>
+            <p className="text-xs text-[#696B64] dark:text-[#B9C8BF]">Start the conversation below</p>
           </div>
         )}
 
@@ -222,7 +222,7 @@ export default function RideChat({
             {/* Date separator */}
             <div className="flex items-center gap-3 py-1">
               <div className="flex-1 h-px bg-[#DED7CA] dark:bg-[#34443A]" />
-              <span className="text-[10px] text-[#696B64] dark:text-[#929D93] font-semibold uppercase tracking-widest">
+              <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-semibold uppercase tracking-widest">
                 {date}
               </span>
               <div className="flex-1 h-px bg-[#DED7CA] dark:bg-[#34443A]" />
@@ -256,11 +256,11 @@ export default function RideChat({
                   <div className={`max-w-[72%] px-3.5 py-2.5 text-sm leading-relaxed rounded-[12px] shadow-xs ${
                     isMine
                       ? "bg-[#123D32] dark:bg-[#28664D] text-white rounded-br-[2px]"
-                      : "bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-[#10251C] dark:text-[#F3F1E8] rounded-bl-[2px]"
+                      : "bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#10251C] dark:text-[#F7F5ED] rounded-bl-[2px]"
                   }`}>
                     <p className="break-words">{msg.text}</p>
                     <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${
-                      isMine ? "text-white/70" : "text-[#696B64] dark:text-[#929D93]"
+                      isMine ? "text-white/70" : "text-[#696B64] dark:text-[#B9C8BF]"
                     }`}>
                       <span>{formatTime(msg.createdAt)}</span>
                       {isMine && (
@@ -301,7 +301,7 @@ export default function RideChat({
               <div className="w-6 h-6 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
                 {otherInitial}
               </div>
-              <div className="bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[12px] rounded-bl-[2px] px-4 py-3 shadow-xs">
+              <div className="bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] rounded-bl-[2px] px-4 py-3 shadow-xs">
                 <div className="flex gap-1 items-center h-3">
                   {[0, 1, 2].map(i => (
                     <motion.span
@@ -342,17 +342,17 @@ export default function RideChat({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex-shrink-0 overflow-hidden border-t border-[#DED7CA] dark:border-[#34443A] bg-[#FAF7F0] dark:bg-[#17211B]"
+            className="flex-shrink-0 overflow-hidden border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822]"
           >
             <div className="px-4 pt-3 pb-2">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Sparkles size={12} className="text-[#123D32] dark:text-[#D7AC62]" />
-                  <span className="text-[11px] font-bold text-[#10251C] dark:text-[#F3F1E8] uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-wider">
                     Quick Suggestions
                   </span>
                 </div>
-                <button onClick={() => setShowAI(false)} className="text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] cursor-pointer">
+                <button onClick={() => setShowAI(false)} className="text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] cursor-pointer">
                   <X size={14} />
                 </button>
               </div>
@@ -362,7 +362,7 @@ export default function RideChat({
                     key={s}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { setInput(s); setShowAI(false); }}
-                    className="text-left text-xs text-[#10251C] dark:text-[#F3F1E8] bg-white dark:bg-[#1E2B23] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] border border-[#DED7CA] dark:border-[#34443A] px-3 py-2 rounded-[8px] transition-all cursor-pointer font-medium"
+                    className="text-left text-xs text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] border border-[#DED7CA] dark:border-[#24483D] px-3 py-2 rounded-[8px] transition-all cursor-pointer font-medium"
                   >
                     {s}
                   </motion.button>
@@ -375,14 +375,14 @@ export default function RideChat({
 
       {/* ── QUICK REPLIES ── */}
       <div
-        className="flex-shrink-0 flex gap-2 px-4 pt-3 pb-2 bg-[#FAF7F0] dark:bg-[#17211B] border-t border-[#DED7CA] dark:border-[#34443A] overflow-x-auto"
+        className="flex-shrink-0 flex gap-2 px-4 pt-3 pb-2 bg-[#FAF7F0] dark:bg-[#0B2822] border-t border-[#DED7CA] dark:border-[#24483D] overflow-x-auto"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {QUICK_REPLIES.map(reply => (
           <button
             key={reply}
             onClick={() => sendMessage(reply)}
-            className="flex-shrink-0 text-[11px] font-bold text-[#10251C] dark:text-[#F3F1E8] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] active:scale-95 px-3 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer"
+            className="flex-shrink-0 text-[11px] font-bold text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] active:scale-95 px-3 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer"
           >
             {reply}
           </button>
@@ -390,8 +390,8 @@ export default function RideChat({
       </div>
 
       {/* ── INPUT ── */}
-      <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-[#FAF7F0] dark:bg-[#17211B]">
-        <div className="flex items-center gap-2 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] pl-3 pr-1.5 py-1.5">
+      <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-[#FAF7F0] dark:bg-[#0B2822]">
+        <div className="flex items-center gap-2 bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] pl-3 pr-1.5 py-1.5">
 
           <motion.button
             whileTap={{ scale: 0.9 }}
@@ -399,7 +399,7 @@ export default function RideChat({
             className={`flex-shrink-0 w-8 h-8 rounded-[6px] flex items-center justify-center transition-all cursor-pointer ${
               showAI
                 ? "bg-[#123D32] dark:bg-[#28664D] text-white"
-                : "bg-[#FAF7F0] dark:bg-[#17211B] text-[#123D32] dark:text-[#D7AC62] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] border border-[#DED7CA] dark:border-[#34443A]"
+                : "bg-[#FAF7F0] dark:bg-[#0B2822] text-[#123D32] dark:text-[#D7AC62] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] border border-[#DED7CA] dark:border-[#24483D]"
             }`}
           >
             <Sparkles size={14} />
@@ -411,7 +411,7 @@ export default function RideChat({
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
             placeholder="Message…"
-            className="flex-1 bg-transparent text-sm text-[#10251C] dark:text-[#F3F1E8] placeholder:text-[#696B64] dark:placeholder:text-[#929D93] focus:outline-none py-1.5 min-w-0"
+            className="flex-1 bg-transparent text-sm text-[#10251C] dark:text-[#F7F5ED] placeholder:text-[#696B64] dark:placeholder:text-[#B9C8BF] focus:outline-none py-1.5 min-w-0"
           />
 
           <motion.button
@@ -421,7 +421,7 @@ export default function RideChat({
             className={`flex-shrink-0 w-8 h-8 rounded-[6px] flex items-center justify-center transition-all cursor-pointer ${
               input.trim()
                 ? "bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white"
-                : "bg-transparent text-[#696B64] dark:text-[#929D93] opacity-40 cursor-not-allowed"
+                : "bg-transparent text-[#696B64] dark:text-[#B9C8BF] opacity-40 cursor-not-allowed"
             }`}
           >
             <Send size={14} />

@@ -48,26 +48,26 @@
   --color-muted-text: #696B64;
 
   /* Semantic Theme Tokens - Light Mode Default */
-  --background: #F7F1E5;
+  --background: #FAF7F0;
   --surface: #FAF7F0;
   --surface-raised: #FFFFFF;
   --surface-subtle: #E5EBDD;
   --surface-warm: #F9EBD7;
-  --surface-inverse: #101713;
-  --surface-active: #1E6048;
+  --surface-inverse: #061A16;
+  --surface-active: #046A38;
   --surface-emerald-light: #DDEBE0;
 
   --text-primary: #10251C;
   --text-secondary: #4A554E;
   --text-muted: #696B64;
-  --text-inverse: #F3F1E8;
+  --text-inverse: #F7F5ED;
 
   /* Switched Green Roles: Emerald is primary interactive, Forest is structural */
   --brand-primary: #046A38;
   --brand-strong: #03532C;
   --brand-hover: #03532C;
   --brand-structural: #123D32;
-  --brand-structural-dark: #0D3027;
+  --brand-structural-dark: #061A16;
   --brand-subtle: #DDEBE0;
   --accent-vermilion: #E34222;
   --accent-gold: #C28B38;
@@ -100,33 +100,33 @@
 
 .dark, html.dark {
   /* Semantic Theme Tokens - Nighttime Forest Green Counterpart */
-  --background: #101713;
-  --surface: #17211B;
-  --surface-raised: #1E2B23;
-  --surface-subtle: #202B24;
-  --surface-warm: #1D2A21;
-  --surface-inverse: #F7F1E5;
-  --surface-active: #1E6048;
-  --surface-emerald-light: #1D3428;
+  --background: #061A16;
+  --surface: #0B2822;
+  --surface-raised: #10352C;
+  --surface-subtle: #08201B;
+  --surface-warm: #0E2F28;
+  --surface-inverse: #FAF7F0;
+  --surface-active: #046A38;
+  --surface-emerald-light: #123D32;
 
-  --text-primary: #F3F1E8;
-  --text-secondary: #B8C2B8;
-  --text-muted: #929D93;
+  --text-primary: #F7F5ED;
+  --text-secondary: #D4DDD7;
+  --text-muted: #B9C8BF;
   --text-inverse: #10251C;
 
   /* Switched Green Roles: Emerald is primary interactive, Forest is structural */
-  --brand-primary: #058A48;
-  --brand-strong: #046A38;
-  --brand-hover: #07A556;
+  --brand-primary: #046A38;
+  --brand-strong: #03532C;
+  --brand-hover: #34D399;
   --brand-structural: #123D32;
-  --brand-structural-dark: #0D3027;
-  --brand-subtle: #1D3428;
+  --brand-structural-dark: #061A16;
+  --brand-subtle: #0B2822;
   --accent-vermilion: #E34222;
   --accent-gold: #D7AC62;
 
-  --border-default: #34443A;
-  --border-subtle: #29372E;
-  --focus-ring: #058A48;
+  --border-default: #24483D;
+  --border-subtle: #1E3E34;
+  --focus-ring: #34D399;
   --overlay: rgba(0, 0, 0, 0.75);
 }
 
@@ -136,13 +136,13 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
-  background-color: #F7F1E5;
+  background-color: #FAF7F0;
   color: #10251C;
 }
 
 html.dark {
-  background-color: #101713;
-  color: #F3F1E8;
+  background-color: #061A16;
+  color: #F7F5ED;
 }
 
 body {
@@ -259,7 +259,7 @@ a, button, select, option, [role="button"] {
 }
 
 .dark .maplibre-map-container {
-  background-color: #101713;
+  background-color: #061A16;
 }
 
 .dark .maplibre-map-container .maplibregl-canvas {
@@ -276,8 +276,8 @@ a, button, select, option, [role="button"] {
 }
 
 .dark .apple-glass-panel {
-  background: rgba(23, 33, 27, 0.88);
-  border: 1px solid rgba(52, 68, 58, 0.7);
+  background: rgba(11, 40, 34, 0.88);
+  border: 1px solid rgba(36, 72, 61, 0.7);
   box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.25);
 }
 
@@ -290,8 +290,8 @@ a, button, select, option, [role="button"] {
 }
 
 .dark .apple-glass-card {
-  background: rgba(30, 43, 35, 0.75);
-  border: 1px solid rgba(52, 68, 58, 0.6);
+  background: rgba(11, 40, 34, 0.78);
+  border: 1px solid rgba(36, 72, 61, 0.6);
   box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.3);
 }
 
@@ -303,8 +303,8 @@ a, button, select, option, [role="button"] {
 }
 
 .dark .apple-glass-topbar {
-  background: rgba(16, 23, 19, 0.85);
-  border-bottom: 1px solid rgba(52, 68, 58, 0.4);
+  background: rgba(6, 26, 22, 0.88);
+  border-bottom: 1px solid rgba(36, 72, 61, 0.5);
 }
 
 /* Apple Tap Feedback (Direct, Physical Spring Response) */
@@ -426,15 +426,15 @@ a, button, select, option, [role="button"] {
   transition: background-color 150ms ease, border-color 150ms ease;
 }
 :is(.dark, html.dark, .dark *) .jaatri-btn-secondary {
-  border-color: #34443A;
-  background-color: #1E2B23;
-  color: #F3F1E8;
+  border-color: #24483D;
+  background-color: #0B2822;
+  color: #F7F5ED;
 }
 .jaatri-btn-secondary:hover {
   background-color: #F7F1E5;
 }
 :is(.dark, html.dark, .dark *) .jaatri-btn-secondary:hover {
-  background-color: #202B24;
+  background-color: #10352C;
 }
 
 /* Continuous-flow Editorial Dividers */
@@ -444,7 +444,7 @@ a, button, select, option, [role="button"] {
   width: 100%;
 }
 :is(.dark, html.dark, .dark *) .editorial-rule {
-  background-color: #34443A;
+  background-color: #24483D;
 }
 
 

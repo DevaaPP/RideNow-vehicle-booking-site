@@ -18,7 +18,7 @@ export default function DriverPreferenceSelector({
   return (
     <div className={`flex flex-col gap-2.5 ${className}`}>
       <div className="flex items-center justify-between">
-        <label className="text-xs font-black uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8] flex items-center gap-1.5">
+        <label className="text-xs font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] flex items-center gap-1.5">
           <Shield size={14} className="text-[#046A38] dark:text-[#90C8A8]" />
           Driver Preference
         </label>
@@ -36,7 +36,7 @@ export default function DriverPreferenceSelector({
           className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
             value === "any"
               ? "border-[#046A38] bg-[#F7F1E5]/70 dark:bg-[#123D32]/30 ring-1 ring-[#046A38]"
-              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#17211B] hover:border-zinc-300 dark:hover:border-zinc-700"
+              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0B2822] hover:border-zinc-300 dark:hover:border-zinc-700"
           }`}
         >
           <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">
@@ -61,7 +61,7 @@ export default function DriverPreferenceSelector({
           className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
             value === "woman"
               ? "border-[#046A38] bg-[#F7F1E5]/70 dark:bg-[#123D32]/30 ring-1 ring-[#046A38]"
-              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#17211B] hover:border-zinc-300 dark:hover:border-zinc-700"
+              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0B2822] hover:border-zinc-300 dark:hover:border-zinc-700"
           }`}
         >
           <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">

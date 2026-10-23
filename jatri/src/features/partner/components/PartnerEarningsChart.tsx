@@ -36,11 +36,11 @@ const CustomTooltip = ({
 }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#FAF7F0] dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#29372E] rounded-[8px] p-3 shadow-md min-w-[130px]">
-        <p className="text-[10px] font-mono font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-widest mb-1">
+      <div className="bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] p-3 shadow-md min-w-[130px]">
+        <p className="text-[10px] font-mono font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-widest mb-1">
           {label}
         </p>
-        <p className="text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] font-mono">
+        <p className="text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono">
           ₹{payload[0].value.toLocaleString("en-IN")}
         </p>
       </div>
@@ -99,33 +99,33 @@ export default function PartnerEarningsChart() {
   ];
 
   return (
-    <div className="bg-[#FAF7F0] dark:bg-[#17211B] rounded-[16px] border border-[#DED7CA] dark:border-[#29372E] p-5 sm:p-7 shadow-sm">
+    <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-5 sm:p-7 shadow-sm">
       {/* Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b border-[#DED7CA] dark:border-[#29372E]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b border-[#DED7CA] dark:border-[#1E3E34]">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#347858] inline-block" />
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#929D93]">
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#B9C8BF]">
               Revenue Analytics
             </span>
           </div>
-          <h2 className="text-lg sm:text-xl font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] tracking-tight">
+          <h2 className="text-lg sm:text-xl font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
             7-Day Performance Ledger
           </h2>
-          <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] mt-0.5 font-sans">
+          <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5 font-sans">
             Daily verified fare settlements
           </p>
         </div>
 
         <div className="sm:text-right">
-          <p className="text-[10px] font-mono font-bold text-[#696B64] dark:text-[#929D93] uppercase tracking-widest mb-0.5">
+          <p className="text-[10px] font-mono font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-widest mb-0.5">
             Trailing 7-Day Gross
           </p>
           <motion.p
             key={total}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F3F1E8] font-mono tracking-tight"
+            className="text-2xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono tracking-tight"
           >
             {fmt(total)}
           </motion.p>
@@ -148,17 +148,17 @@ export default function PartnerEarningsChart() {
             initial={{ opacity: 0, y: 6 }}
             animate={loaded ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: i * 0.05, duration: 0.3 }}
-            className="bg-[#F7F1E5] dark:bg-[#101713] rounded-[12px] border border-[#DED7CA] dark:border-[#29372E] p-3.5 flex flex-col justify-between"
+            className="bg-[#FAF7F0] dark:bg-[#061A16] rounded-[12px] border border-[#DED7CA] dark:border-[#1E3E34] p-3.5 flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between text-[#696B64] dark:text-[#929D93] text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
+            <div className="flex items-center justify-between text-[#696B64] dark:text-[#B9C8BF] text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
               <span>{m.label}</span>
               <span className="text-[#123D32] dark:text-[#347858]">{m.icon}</span>
             </div>
             <div>
-              <p className="text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F3F1E8] font-mono leading-none">
+              <p className="text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono leading-none">
                 {m.value}
               </p>
-              <p className="text-[10px] font-mono text-[#696B64] dark:text-[#929D93] mt-1">{m.sub}</p>
+              <p className="text-[10px] font-mono text-[#696B64] dark:text-[#B9C8BF] mt-1">{m.sub}</p>
             </div>
           </motion.div>
         ))}

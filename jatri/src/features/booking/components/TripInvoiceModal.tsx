@@ -51,10 +51,10 @@ export default function TripInvoiceModal({
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="w-full max-w-2xl bg-white rounded-[14px] shadow-2xl border border-[#DED7CA] dark:border-[#34443A] overflow-hidden flex flex-col my-auto max-h-[95vh]"
+        className="w-full max-w-2xl bg-white rounded-[14px] shadow-2xl border border-[#DED7CA] dark:border-[#24483D] overflow-hidden flex flex-col my-auto max-h-[95vh]"
       >
         {/* Modal Controls Bar (Hidden during Print) */}
-        <div className="print:hidden bg-[#123D32] dark:bg-[#101713] border-b border-[#0D3027] dark:border-[#34443A] px-4 py-3 flex items-center justify-between text-white">
+        <div className="print:hidden bg-[#123D32] dark:bg-[#061A16] border-b border-[#0D3027] dark:border-[#24483D] px-4 py-3 flex items-center justify-between text-white">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#A3E635]" />
             <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider font-mono">

@@ -61,7 +61,7 @@ function VehicleBookingCard({
       whileHover={{ y: -6 }}
       transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
       onClick={onBook}
-      className="relative bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[14px] overflow-hidden flex flex-col group cursor-pointer select-none transition-all shadow-sm"
+      className="relative bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] overflow-hidden flex flex-col group cursor-pointer select-none transition-all shadow-sm"
     >
       {/* Hover border glow */}
       <div className="absolute inset-0 rounded-[14px] border-2 border-transparent group-hover:border-[#046A38] transition-all duration-300 pointer-events-none z-10" />
@@ -80,7 +80,7 @@ function VehicleBookingCard({
       )}
 
       {/* IMAGE AREA */}
-      <div className="relative h-48 bg-white dark:bg-[#1E2B23] flex items-center justify-center overflow-hidden">
+      <div className="relative h-48 bg-white dark:bg-[#10352C] flex items-center justify-center overflow-hidden">
 
         {/* Subtle grid pattern */}
         <div
@@ -108,7 +108,7 @@ function VehicleBookingCard({
         </div>
 
         {/* Rating pill — bottom left */}
-        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-bold px-2 py-1 rounded-[6px] shadow-xs">
+        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] text-[#10251C] dark:text-[#F7F5ED] text-[10px] font-bold px-2 py-1 rounded-[6px] shadow-xs">
           <Star size={9} className="fill-amber-500 text-amber-500" />
           4.8
         </div>
