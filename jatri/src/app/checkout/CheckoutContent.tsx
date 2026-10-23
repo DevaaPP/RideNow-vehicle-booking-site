@@ -240,6 +240,9 @@ export default function CheckoutContent() {
           if (draft.cargoDetails) setCargoDetails(draft.cargoDetails);
           if (draft.pickupDetails) setPickupDetails(draft.pickupDetails);
           if (draft.dropDetails) setDropDetails(draft.dropDetails);
+          if (draft.driverPreference === "any" || draft.driverPreference === "woman") {
+            setDriverPreference(draft.driverPreference);
+          }
         }
       }
       if (typeof window !== "undefined" && window.location.search) {

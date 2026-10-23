@@ -1,3 +1,5 @@
+export { default as DriverPreferenceSelector } from "./components/DriverPreferenceSelector";
+export { default as SmartRideAssistantModal } from "./components/SmartRideAssistantModal";
 export { default as DriverSearchRadar } from "./components/DriverSearchRadar";
 export { default as FamilyRiderSelector } from "./components/FamilyRiderSelector";
 export { default as FareBreakdownCard } from "./components/FareBreakdownCard";

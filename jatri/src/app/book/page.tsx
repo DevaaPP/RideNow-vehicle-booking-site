@@ -42,7 +42,11 @@ import {
   ServiceMode,
   recommendVehicle,
   VehicleOption,
+  RecommendationResult,
 } from "@/lib/vehicleConfig";
+import DriverPreferenceSelector from "@/features/booking/components/DriverPreferenceSelector";
+import SmartRideAssistantModal from "@/features/booking/components/SmartRideAssistantModal";
+import { DriverPreference } from "@/lib/safetyMatching";
 
 const RouteMap = nextDynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
 
@@ -160,27 +164,34 @@ export default function BookPage() {
   const [receiverContact, setReceiverContact] = useState<string>("");
   const [deliveryNotes, setDeliveryNotes] = useState<string>("");
 
-  /* ── SMART VEHICLE MATCHING STATE ── */
-  const [showSmartMatcher, setShowSmartMatcher] = useState<boolean>(false);
-  const [smartPassengers, setSmartPassengers] = useState<number>(1);
-  const [smartLuggage, setSmartLuggage] = useState<"none" | "small" | "large">("none");
-  const [smartPreference, setSmartPreference] = useState<"budget" | "comfort">("budget");
-  const [smartMatchResult, setSmartMatchResult] = useState<{ vehicleId: VehicleType; matchScore: number; reason: string } | null>(null);
+  /* ── DRIVER SAFETY PREFERENCE STATE ── */
+  const [driverPreference, setDriverPreference] = useState<DriverPreference>("any");
+
+  /* ── SMART VEHICLE MATCHING & ASSISTANT STATE ── */
+  const [showSmartAssistantModal, setShowSmartAssistantModal] = useState<boolean>(false);
+  const [smartMatchResult, setSmartMatchResult] = useState<RecommendationResult | null>(null);
+  const [selectionToast, setSelectionToast] = useState<string | null>(null);
 
   useEffect(() => {
-    if (showSmartMatcher) {
-      const rec = recommendVehicle({
-        passengers: smartPassengers,
-        luggage: smartLuggage,
-        preference: smartPreference,
-        isGoods: serviceMode === "logistics",
-        cargoWeightKg,
-      });
-      setSmartMatchResult(rec);
-    } else {
-      setSmartMatchResult(null);
-    }
-  }, [showSmartMatcher, smartPassengers, smartLuggage, smartPreference, serviceMode, cargoWeightKg]);
+    if (!selectionToast) return;
+    const timer = setTimeout(() => setSelectionToast(null), 3500);
+    return () => clearTimeout(timer);
+  }, [selectionToast]);
+
+  const handleSelectFromAssistant = (selectedVehicleId: VehicleType, recommendation: RecommendationResult) => {
+    setVehicle(selectedVehicleId);
+    setSmartMatchResult(recommendation);
+    setShowSmartAssistantModal(false);
+    setSelectionToast(`✨ ${VEHICLE_OPTIONS[selectedVehicleId]?.label || selectedVehicleId} selected for your journey.`);
+
+    setTimeout(() => {
+      const el = document.getElementById(`vehicle-card-${selectedVehicleId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        el.focus?.();
+      }
+    }, 120);
+  };
 
   const [rates, setRates] = useState<any>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
@@ -985,6 +996,9 @@ export default function BookPage() {
     setRouteDistance(null);
     setSelectedSmartPickup(null);
     setSelectedFamilyMember(null);
+    setDriverPreference("any");
+    setSmartMatchResult(null);
+    setSelectionToast(null);
     locateCurrentLocation();
   };
 
@@ -1086,6 +1100,11 @@ export default function BookPage() {
       if (draft?.familyMemberDetails) setSelectedFamilyMember(draft.familyMemberDetails);
       if (draft?.pickupDetails) setPickupDetails(draft.pickupDetails);
       if (draft?.dropDetails) setDropDetails(draft.dropDetails);
+      if (draft?.driverPreference === "any" || draft?.driverPreference === "woman") {
+        setDriverPreference(draft.driverPreference);
+      } else if (urlParams.get("driverPreference") === "woman") {
+        setDriverPreference("woman");
+      }
       if (draft?.isScheduled || urlParams.get("isScheduled") === "true" || urlParams.get("reserve") === "true") {
         setBookingMode("schedule");
         const sched = draft?.scheduledTime || urlParams.get("scheduledTime");
@@ -1349,6 +1368,7 @@ export default function BookPage() {
       dropDetails: finalDropDetails,
       isSmartPickup: Boolean(selectedSmartPickup),
       smartPickupDetails: selectedSmartPickup || null,
+      driverPreference,
       stops: validStops,
       isFamilyRide: Boolean(selectedFamilyMember),
       familyMemberDetails: selectedFamilyMember || null,
@@ -2029,178 +2049,6 @@ export default function BookPage() {
         </button>
       </div>
 
-      {/* ── SMART VEHICLE MATCHING WIDGET ── */}
-      <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[10px] p-3 shadow-xs">
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setShowSmartMatcher(!showSmartMatcher)}
-            className="flex items-center gap-1.5 text-left group cursor-pointer"
-          >
-            <Sparkles size={14} className="text-[#046A38] dark:text-[#347858] flex-shrink-0 animate-pulse" />
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] group-hover:text-[#046A38] transition">
-              Smart Ride Matcher
-            </span>
-            <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-medium ml-1">
-              {showSmartMatcher ? "Hide" : "Find best vehicle"}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowSmartMatcher(!showSmartMatcher)}
-            className="text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] p-1 cursor-pointer"
-          >
-            {showSmartMatcher ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
-        </div>
-
-        <AnimatePresence>
-          {showSmartMatcher && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-3 pt-3 border-t border-[#DED7CA] dark:border-[#1E3E34] space-y-3"
-            >
-              {serviceMode === "passenger" ? (
-                <>
-                  {/* Passengers Chip selector */}
-                  <div>
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] mb-1.5 block">
-                      How many passengers?
-                    </label>
-                    <div className="flex gap-1.5">
-                      {[1, 2, 3, 4, 6].map((num) => (
-                        <button
-                          key={num}
-                          type="button"
-                          onClick={() => setSmartPassengers(num)}
-                          className={`flex-1 py-1.5 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
-                            smartPassengers === num
-                              ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
-                              : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#1E3E34] hover:border-[#046A38]"
-                          }`}
-                        >
-                          {num === 6 ? "5–6 Pax" : `${num} Pax`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Luggage Chip selector */}
-                  <div>
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] mb-1.5 block">
-                      How much luggage?
-                    </label>
-                    <div className="flex gap-1.5">
-                      {(
-                        [
-                          { id: "none", label: "No Bags" },
-                          { id: "small", label: "Small Bag" },
-                          { id: "large", label: "Large Bags" },
-                        ] as const
-                      ).map((lug) => (
-                        <button
-                          key={lug.id}
-                          type="button"
-                          onClick={() => setSmartLuggage(lug.id)}
-                          className={`flex-1 py-1.5 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
-                            smartLuggage === lug.id
-                              ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
-                              : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#1E3E34] hover:border-[#046A38]"
-                          }`}
-                        >
-                          {lug.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Preference Chip selector */}
-                  <div>
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] mb-1.5 block">
-                      Your priority
-                    </label>
-                    <div className="flex gap-1.5">
-                      {(
-                        [
-                          { id: "budget", label: "Lowest Fare" },
-                          { id: "comfort", label: "More Comfort" },
-                        ] as const
-                      ).map((pref) => (
-                        <button
-                          key={pref.id}
-                          type="button"
-                          onClick={() => setSmartPreference(pref.id)}
-                          className={`flex-1 py-1.5 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
-                            smartPreference === pref.id
-                              ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
-                              : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#1E3E34] hover:border-[#046A38]"
-                          }`}
-                        >
-                          {pref.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                /* Logistics Cargo Weight selector */
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] mb-1.5 block">
-                    Estimated Cargo Weight
-                  </label>
-                  <div className="flex gap-1.5">
-                    {[
-                      { wt: 100, label: "<100 kg" },
-                      { wt: 250, label: "250 kg" },
-                      { wt: 500, label: "500 kg" },
-                      { wt: 1000, label: "1,000+ kg" },
-                    ].map((w) => (
-                      <button
-                        key={w.wt}
-                        type="button"
-                        onClick={() => setCargoWeightKg(w.wt)}
-                        className={`flex-1 py-1.5 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
-                          cargoWeightKg === w.wt
-                            ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
-                            : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border-[#DED7CA] dark:border-[#1E3E34] hover:border-[#046A38]"
-                        }`}
-                      >
-                        {w.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recommendation Result Banner */}
-              {smartMatchResult && (
-                <div className="p-2.5 bg-[#E5EBDD] dark:bg-[#1D3428] border border-[#DED7CA] dark:border-[#28664D] rounded-[10px] flex items-center justify-between gap-2 shadow-xs">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-[#123D32] dark:text-[#90C8A8] uppercase">
-                      <span>⭐ Recommended Match:</span>
-                      <span className="font-extrabold underline">
-                        {VEHICLE_OPTIONS[smartMatchResult.vehicleId]?.label}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] leading-snug truncate mt-0.5 font-medium">
-                      {smartMatchResult.reason}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setVehicle(smartMatchResult.vehicleId)}
-                    className="flex-shrink-0 px-2.5 py-1 bg-[#046A38] hover:bg-[#03532C] text-white rounded-[8px] text-[10px] font-bold uppercase tracking-wider transition cursor-pointer shadow-xs"
-                  >
-                    Select
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
 
       {/* ── GOODS TRANSPORT (LOGISTICS) DETAILS INPUTS ── */}
       {serviceMode === "logistics" && (
@@ -2255,6 +2103,54 @@ export default function BookPage() {
         </div>
       )}
 
+      {/* ── SELECTION CONFIRMATION TOAST ── */}
+      <AnimatePresence>
+        {selectionToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs font-bold rounded-[10px] flex items-center justify-between gap-2 shadow-xs"
+          >
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-[#046A38] dark:text-[#90C8A8] shrink-0" />
+              <span>{selectionToast}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectionToast(null)}
+              aria-label="Dismiss notification"
+              className="text-emerald-700 dark:text-emerald-300 p-1 hover:opacity-75 cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── SMART RIDE ASSISTANT ENTRY CARD ── */}
+      {pickupLat && dropLat && (
+        <div className="p-3.5 rounded-[12px] bg-gradient-to-r from-[#FAF7F0] via-[#FAF7F0] to-[#EFE7D8] dark:from-[#17211B] dark:via-[#17211B] dark:to-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="min-w-0">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#046A38] dark:text-[#90C8A8] flex items-center gap-1.5">
+              <Sparkles size={13} className="animate-pulse" />
+              Not sure which ride to choose?
+            </span>
+            <p className="text-xs text-[#696B64] dark:text-[#A2ADA2] font-medium mt-0.5">
+              Let Jaatri find the right ride for your {effectiveDistance ? `${effectiveDistance} km ` : ""}journey.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSmartAssistantModal(true)}
+            className="w-full sm:w-auto px-3.5 py-2 bg-[#046A38] hover:bg-[#03532C] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs min-h-[44px] touch-manipulation active:scale-[0.99]"
+          >
+            <Sparkles size={14} />
+            <span>Help me choose</span>
+          </button>
+        </div>
+      )}
+
       {/* Seamless Unified Vehicle Selection List */}
       <div>
         <div className="flex items-center justify-between mb-2 px-0.5">
@@ -2291,6 +2187,7 @@ export default function BookPage() {
               return (
                 <div
                   key={v.id}
+                  id={`vehicle-card-${v.id}`}
                   role={isLimitOk ? "button" : "group"}
                   aria-pressed={isLimitOk ? isSelected : undefined}
                   aria-disabled={!isLimitOk}
@@ -2328,6 +2225,12 @@ export default function BookPage() {
                     <span className="absolute top-1.5 right-3 bg-[#046A38] text-white text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[4px] shadow-xs flex items-center gap-1">
                       <Sparkles size={8} />
                       <span>Best Match</span>
+                    </span>
+                  )}
+                  {isSmartPick && isSelected && (
+                    <span className="absolute top-1.5 right-3 bg-emerald-100 text-[#046A38] dark:bg-emerald-950 dark:text-[#90C8A8] border border-emerald-300 dark:border-emerald-800 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-[4px] shadow-xs flex items-center gap-1">
+                      <CheckCircle2 size={8} />
+                      <span>Chosen Match</span>
                     </span>
                   )}
                   <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1 mr-2">
@@ -2407,6 +2310,16 @@ export default function BookPage() {
           </div>
         )}
       </div>
+
+      {/* ── DRIVER SAFETY PREFERENCE (FOR PASSENGER RIDES) ── */}
+      {serviceMode === "passenger" && (
+        <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] p-3.5 shadow-xs">
+          <DriverPreferenceSelector
+            value={driverPreference}
+            onChange={setDriverPreference}
+          />
+        </div>
+      )}
 
       {/* Itemized Fare Receipt Accordion */}
       <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[10px] p-3.5 space-y-2 shadow-xs">
@@ -3102,6 +3015,18 @@ export default function BookPage() {
           setShowAuthModal(false);
           pendingCheckoutRef.current = false;
         }}
+      />
+
+      {/* ── SMART RIDE ASSISTANT MODAL / BOTTOM SHEET ── */}
+      <SmartRideAssistantModal
+        isOpen={showSmartAssistantModal}
+        onClose={() => setShowSmartAssistantModal(false)}
+        serviceMode={serviceMode}
+        distanceKm={effectiveDistance}
+        estimateFare={estimateFare}
+        checkLimit={checkLimit}
+        currentVehicle={vehicle}
+        onSelectVehicle={handleSelectFromAssistant}
       />
 
     </div>

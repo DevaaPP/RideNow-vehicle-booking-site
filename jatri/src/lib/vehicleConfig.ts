@@ -132,11 +132,12 @@ export const LOGISTICS_VEHICLES: VehicleOption[] = [
 ];
 
 export interface SmartRecommendationCriteria {
-  passengers: number; // 1, 2, 3, 4+
+  passengers: number; // 1, 2, 3, 4, 5, 6
   luggage: "none" | "small" | "large";
   preference: "budget" | "comfort";
   isGoods?: boolean;
   cargoWeightKg?: number;
+  distanceKm?: number;
 }
 
 export interface RecommendationResult {
@@ -146,19 +147,33 @@ export interface RecommendationResult {
 }
 
 /**
+ * Checks whether a vehicle type is eligible for a given journey road distance.
+ */
+export function isVehicleDistanceEligible(vehicleId: VehicleType, distanceKm?: number): boolean {
+  if (!distanceKm || distanceKm <= 0) return true;
+  if (vehicleId === "bike" || vehicleId === "scooty") return distanceKm <= 15;
+  if (vehicleId === "auto") return distanceKm <= 30;
+  if (vehicleId === "loading") return distanceKm <= 250;
+  return distanceKm <= 500;
+}
+
+/**
  * Deterministic Smart Vehicle Matching Engine.
  * Recommends the optimal vehicle option based on passenger count,
- * luggage volume, comfort preferences, or cargo weight.
+ * luggage volume, comfort preferences, cargo weight, and route distance.
  */
 export function recommendVehicle(criteria: SmartRecommendationCriteria): RecommendationResult {
-  const { passengers, luggage, preference, isGoods, cargoWeightKg = 0 } = criteria;
+  const { passengers, luggage, preference, isGoods, cargoWeightKg = 0, distanceKm } = criteria;
 
   if (isGoods) {
-    if (cargoWeightKg > 500) {
+    if (cargoWeightKg > 500 || (typeof distanceKm === "number" && distanceKm > 250)) {
       return {
         vehicleId: "truck",
         matchScore: 96,
-        reason: "Heavy commercial cargo (>500kg) requires Jaatri Freight 14ft payload",
+        reason:
+          typeof distanceKm === "number" && distanceKm > 250
+            ? "Intercity freight (>250km) requires Jaatri Freight 14ft payload"
+            : "Heavy commercial cargo (>500kg) requires Jaatri Freight 14ft payload",
       };
     }
     return {
@@ -173,7 +188,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     return {
       vehicleId: "priority",
       matchScore: 98,
-      reason: `Jaatri XL Priority comfortably seats ${passengers} passengers with 3 rows of seating & large bags`,
+      reason: `Jaatri XL Priority comfortably seats ${passengers} passengers with 3 rows of seating & bags`,
     };
   }
 
@@ -218,6 +233,15 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
       };
     }
 
+    // Budget priority: check auto 30km distance limit
+    if (typeof distanceKm === "number" && distanceKm > 30) {
+      return {
+        vehicleId: "mini",
+        matchScore: 92,
+        reason: "Route distance exceeds 30km auto limit; Jaatri Mini offers affordable 4-wheeler AC travel",
+      };
+    }
+
     return {
       vehicleId: "auto",
       matchScore: 96,
@@ -243,6 +267,13 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
   }
 
   if (luggage === "small") {
+    if (typeof distanceKm === "number" && distanceKm > 30) {
+      return {
+        vehicleId: "mini",
+        matchScore: 91,
+        reason: "Route distance exceeds 30km auto limit; Jaatri Mini fits your bag with affordable AC comfort",
+      };
+    }
     return {
       vehicleId: "auto",
       matchScore: 92,
@@ -250,7 +281,23 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     };
   }
 
-  // Default solo + budget + no luggage:
+  // Default solo + budget + no luggage: check distance limits
+  if (typeof distanceKm === "number" && distanceKm > 30) {
+    return {
+      vehicleId: "mini",
+      matchScore: 92,
+      reason: "Longer journey (>30km); Jaatri Mini offers our most economical 4-wheeler AC ride",
+    };
+  }
+
+  if (typeof distanceKm === "number" && distanceKm > 15) {
+    return {
+      vehicleId: "auto",
+      matchScore: 94,
+      reason: "Route distance exceeds 15km bike limit; Jaatri Auto offers the lowest fare for this distance",
+    };
+  }
+
   return {
     vehicleId: "bike",
     matchScore: 99,
