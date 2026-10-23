@@ -1411,8 +1411,8 @@ export default function BookPage() {
                 setLocationError(null);
                 setShowLocationSettingsGuide(false);
               }}
-              className="text-[#696B64] hover:text-[#10251C] dark:hover:text-white transition p-1 cursor-pointer flex-shrink-0"
-              title="Dismiss"
+              aria-label="Dismiss location guidance"
+              className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-[8px] text-[#696B64] hover:text-[#10251C] dark:hover:text-white transition cursor-pointer flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <X size={14} />
             </button>
@@ -1423,7 +1423,7 @@ export default function BookPage() {
               type="button"
               onClick={locateCurrentLocation}
               disabled={locating}
-              className="px-3 py-1.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] text-white text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+              className="min-h-[44px] px-3 py-2 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] text-white text-[11px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
             >
               <LocateFixed size={11} className={locating ? "animate-spin" : ""} />
               <span>{locating ? "Detecting..." : "Ask Permission Again"}</span>
@@ -1432,7 +1432,7 @@ export default function BookPage() {
             <button
               type="button"
               onClick={() => setShowLocationSettingsGuide(true)}
-              className="px-3 py-1.5 rounded-[8px] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#29372E] text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="min-h-[44px] px-3 py-2 rounded-[8px] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#29372E] text-[11px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
             >
               <Settings size={11} className="text-[#696B64] dark:text-[#929D93]" />
               <span>Site Settings Guide</span>
@@ -1445,7 +1445,7 @@ export default function BookPage() {
                 setActiveSearchField(null);
                 setMapSelectionMode("pickup");
               }}
-              className="px-3 py-1.5 bg-transparent hover:bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer"
+              className="min-h-[44px] px-3 py-2 rounded-[8px] bg-transparent hover:bg-zinc-800 text-zinc-300 border border-zinc-700 text-[11px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#90C8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
             >
               <MapPin size={11} />
               <span>Set on Map</span>
@@ -1464,8 +1464,9 @@ export default function BookPage() {
             <button
               type="button"
               onClick={() => handleReorderWaypoint(0, 1)}
+              aria-label="Move pickup below the next stop"
               title="Move pickup down"
-              className="w-4 h-5 flex items-center justify-center text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer"
+              className="min-w-[44px] min-h-[44px] -my-2 flex items-center justify-center rounded-[8px] text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <ChevronDown size={12} />
             </button>
@@ -1502,7 +1503,8 @@ export default function BookPage() {
                 setPickupLng(null);
                 setPickupResults([]);
               }}
-              className="p-1 text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+              aria-label="Clear pickup location"
+              className="min-w-[40px] min-h-[40px] rounded-[8px] inline-flex items-center justify-center text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <X size={14} />
             </button>
@@ -1675,7 +1677,7 @@ export default function BookPage() {
           <button
             type="button"
             onClick={handleAddStop}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] border border-dashed border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-bold tracking-tight transition cursor-pointer"
+            className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[6px] border border-dashed border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-[11px] font-bold tracking-tight transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
           >
             <Plus size={12} className="text-[#10251C] dark:text-[#F3F1E8]" />
             <span>Add stop (max 2)</span>
@@ -1690,7 +1692,8 @@ export default function BookPage() {
           type="button"
           onClick={handleSwapLocations}
           title="Swap pickup and destination"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-bold uppercase tracking-wider shadow-2xs transition active:scale-95 cursor-pointer"
+          aria-label="Swap pickup and destination"
+          className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-[11px] font-bold uppercase tracking-wider shadow-2xs transition active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
         >
           <ArrowDownUp size={11} className="text-[#10251C] dark:text-[#F3F1E8]" />
           <span>Swap</span>
@@ -1707,8 +1710,9 @@ export default function BookPage() {
             <button
               type="button"
               onClick={() => handleReorderWaypoint(stops.length + 1, stops.length)}
+              aria-label="Move destination above the previous stop"
               title="Move destination up"
-              className="w-4 h-5 flex items-center justify-center text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer"
+              className="min-w-[44px] min-h-[44px] -my-2 flex items-center justify-center rounded-[8px] text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <ChevronUp size={12} />
             </button>
@@ -1745,7 +1749,8 @@ export default function BookPage() {
                 setDropLng(null);
                 setDropResults([]);
               }}
-              className="p-1 text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+              aria-label="Clear destination location"
+              className="min-w-[40px] min-h-[40px] rounded-[8px] inline-flex items-center justify-center text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222]"
             >
               <X size={14} />
             </button>
@@ -2269,10 +2274,13 @@ export default function BookPage() {
             <p className="text-zinc-500 dark:text-[#929D93] text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
         ) : (
-          <div className="bg-transparent divide-y divide-zinc-100 dark:divide-[#34443A]/40">
-            {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v) => {
+          <div role="group" aria-label={serviceMode === "passenger" ? "Choose a ride vehicle" : "Choose a goods transport vehicle"} className="bg-transparent divide-y divide-zinc-100 dark:divide-[#34443A]/40">
+            {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v, _index, availableVehicles) => {
               const isSelected = vehicle === v.id;
               const isLimitOk = checkLimit(v.id, effectiveDistance);
+              const selectedVehicleIsAvailable = availableVehicles.some((option) => option.id === vehicle && checkLimit(option.id, effectiveDistance));
+              const firstAvailableVehicleId = availableVehicles.find((option) => checkLimit(option.id, effectiveDistance))?.id;
+              const isTabStop = isLimitOk && (isSelected || (!selectedVehicleIsAvailable && v.id === firstAvailableVehicleId));
               const fare = estimateFare(v.id, effectiveDistance);
               const isSmartPick = smartMatchResult?.vehicleId === v.id;
               const Icon = VEHICLE_ICONS[v.id] || Car;
@@ -2283,8 +2291,32 @@ export default function BookPage() {
               return (
                 <div
                   key={v.id}
+                  role={isLimitOk ? "button" : "group"}
+                  aria-pressed={isLimitOk ? isSelected : undefined}
+                  aria-disabled={!isLimitOk}
+                  aria-label={`${v.label}, ₹${fare}${isLimitOk ? "" : ", unavailable for this route"}`}
+                  tabIndex={isTabStop ? 0 : -1}
                   onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                  className={`relative flex items-center justify-between px-3.5 py-3.5 transition-colors cursor-pointer select-none rounded-[10px] my-1 ${
+                  onKeyDown={(event) => {
+                    if (!isLimitOk) return;
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setVehicle(v.id as VehicleType);
+                      return;
+                    }
+                    if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)) {
+                      event.preventDefault();
+                      const options = Array.from(
+                        event.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="button"][aria-disabled="false"]') ?? []
+                      );
+                      const currentIndex = options.indexOf(event.currentTarget);
+                      const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+                      const next = options[(currentIndex + step + options.length) % options.length];
+                      next?.focus();
+                      next?.click();
+                    }
+                  }}
+                  className={`relative flex items-center justify-between px-3.5 py-3.5 transition-colors cursor-pointer select-none rounded-[10px] my-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
                     isSelected
                       ? "bg-[#1E6048] text-[#F7F1E5] shadow-xs"
                       : isSmartPick
@@ -2380,8 +2412,9 @@ export default function BookPage() {
       <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] p-3.5 space-y-2 shadow-xs">
         <button
           type="button"
+          aria-expanded={showFareReceipt}
           onClick={() => setShowFareReceipt(!showFareReceipt)}
-          className="w-full flex items-center justify-between text-left cursor-pointer"
+          className="w-full min-h-[44px] py-1 flex items-center justify-between gap-3 text-left cursor-pointer rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
         >
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#123D32] dark:text-[#347858] flex-shrink-0">
@@ -2436,7 +2469,7 @@ export default function BookPage() {
                   <span>-₹{currentBreakdown.studentDiscount}</span>
                 </div>
               )}
-              <div className="pt-2 border-t border-dashed border-[#DED7CA] dark:border-[#34443A] flex items-center justify-between text-[10px] text-[#696B64] dark:text-[#929D93]">
+              <div className="pt-2 border-t border-dashed border-[#DED7CA] dark:border-[#34443A] flex flex-col gap-1 text-[10px] text-[#696B64] dark:text-[#929D93] sm:flex-row sm:items-center sm:justify-between">
                 <span>Payment Accepted:</span>
                 <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">⚡ UPI (GPay/PhonePe) • Cash • Card</span>
               </div>
