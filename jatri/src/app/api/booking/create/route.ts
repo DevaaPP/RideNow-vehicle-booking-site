@@ -79,7 +79,11 @@ export async function POST(req: Request) {
       serviceMode,
       cargoDetails,
       distanceKm: clientDistanceKm,
+      driverPreference,
+      searchRadiusKm,
     } = body;
+
+    const validDriverPreference = driverPreference === "woman" ? "woman" : "any";
 
     const pLat = Number(pickupLat);
     const pLng = Number(pickupLng);
@@ -233,13 +237,16 @@ export async function POST(req: Request) {
     }
 
     // 1️⃣ Find eligible candidate drivers using DriverMatchingEngine (strictly excluding the requesting passenger)
+    const effectiveRadius = Number(searchRadiusKm) > 0 && Number(searchRadiusKm) <= 30 ? Number(searchRadiusKm) : 10;
     const matchResult = await findEligibleCandidates({
       pickupLng: pLng,
       pickupLat: pLat,
       vehicleType: vehicleKey,
-      maxRadiusKm: 10,
+      maxRadiusKm: effectiveRadius,
       maxCandidates: 10,
       excludeDriverIds: session.user.id ? [session.user.id] : [],
+      driverPreference: validDriverPreference,
+      passengerId: session.user.id,
     });
 
     let nearestVendor: any = null;
@@ -262,6 +269,19 @@ export async function POST(req: Request) {
     // A ghost/synthetic driver must never be assigned — it misleads the rider
     // with a fake location and cannot actually complete the trip.
     if (!nearestVendor || !nearestVehicle) {
+      if (validDriverPreference === "woman") {
+        return NextResponse.json(
+          {
+            success: false,
+            noWomenDriversAvailable: true,
+            message: "No eligible verified woman drivers are available nearby right now.",
+            canExpandSearch: true,
+            canSwitchToAny: true,
+            meta: { requestId },
+          },
+          { status: 404 }
+        );
+      }
       return NextResponse.json(
         {
           success: false,
@@ -483,6 +503,8 @@ export async function POST(req: Request) {
       pickupOtp: generateSecureOtp(4),
       pickupOtpExpires: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
       status: isScheduled ? "scheduled" : "requested",
+      driverPreference: validDriverPreference,
+      matchingPolicyVersion: "v1",
     });
 
     // 4️⃣ Safely broadcast socket events and Web Push to ALL candidate drivers simultaneously

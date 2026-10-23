@@ -39,6 +39,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { setUserData } from "@/redux/userSlice";
 import PartnerEarningsChart from "./PartnerEarningsChart";
 import DriverWalletCard from "./DriverWalletCard";
+import DriverPassengerPreferenceCard from "./DriverPassengerPreferenceCard";
 import dynamic from "next/dynamic";
 import { useTranslation } from "@/context/LanguageContext";
 import { useWakeLock } from "@/shared/hooks/useWakeLock";
@@ -1929,6 +1930,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         {/* Driver Wallet & Bank Withdrawal */}
         <div className="w-full">
           <DriverWalletCard />
+        </div>
+
+        {/* Women's Safety Matching: Driver Passenger Preference */}
+        <div className="w-full">
+          <DriverPassengerPreferenceCard />
         </div>
 
         {/* Recent Trips & Drop-Off Ledger */}

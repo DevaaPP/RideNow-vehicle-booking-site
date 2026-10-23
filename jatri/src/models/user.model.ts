@@ -123,6 +123,17 @@ socketId:string | null
     expiresAt?: Date;
   };
 
+  /* ===== WOMEN'S SAFETY MATCHING ===== */
+  safetyMatching?: {
+    driverCategory?: "woman" | "other" | "undisclosed";
+    driverVerificationStatus?: "not_submitted" | "pending" | "verified" | "rejected" | "expired";
+    verifiedAt?: Date;
+    verificationNotes?: string;
+    womenOnlyEligible?: boolean;
+    consentedAt?: Date;
+  };
+  driverPassengerPolicy?: "all_eligible" | "women_only";
+
   /* ===== WALLET & OUTSTANDING DUES ===== */
   walletBalance: number;
   outstandingAmount?: number; // Unpaid cancellation charges recovered on next ride
@@ -378,6 +389,31 @@ const UserSchema = new Schema<IUser>(
       institution: String,
       verifiedAt: Date,
       expiresAt: Date,
+    },
+
+    /* ===== WOMEN'S SAFETY MATCHING ===== */
+    safetyMatching: {
+      driverCategory: {
+        type: String,
+        enum: ["woman", "other", "undisclosed"],
+        default: "undisclosed",
+      },
+      driverVerificationStatus: {
+        type: String,
+        enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+        default: "not_submitted",
+        index: true,
+      },
+      verifiedAt: { type: Date },
+      verificationNotes: { type: String, trim: true },
+      womenOnlyEligible: { type: Boolean, default: false, index: true },
+      consentedAt: { type: Date },
+    },
+    driverPassengerPolicy: {
+      type: String,
+      enum: ["all_eligible", "women_only"],
+      default: "all_eligible",
+      index: true,
     },
 
     /* ===== WALLET & OUTSTANDING DUES ===== */

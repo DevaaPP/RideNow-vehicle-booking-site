@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import axios from "axios";
 import { haversineDistance } from "@/lib/routeUtils";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
+import { findEligibleCandidates } from "@/lib/driverMatchingEngine";
 
 async function notifySocket(userId: string, event: string, data: any) {
   try {
@@ -81,32 +82,28 @@ export async function POST(
     }
   }
 
-  // Spatial search fallback (strictly 10km limit)
+  // Authoritative Matching Engine candidate search preserving safety preferences
   if (!replacementDriver && booking.pickupLocation?.coordinates) {
     const [lng, lat] = booking.pickupLocation.coordinates;
     const vehicleType = (booking.vehicle as any)?.type || "car";
 
-    const activeVehicles = await Vehicle.find({ type: vehicleType }).lean();
-    const vehicleOwnerIds = activeVehicles.map(v => v.owner.toString());
-
     try {
-      const nearbyVendors = await User.find({
-        _id: { $in: vehicleOwnerIds, $nin: cancelledIds },
-        role: "vendor",
-        isOnline: true,
-        location: {
-          $near: {
-            $geometry: { type: "Point", coordinates: [Number(lng), Number(lat)] },
-            $maxDistance: 10000, // strictly 10km limit
-          },
-        },
-      }).limit(5);
+      const matchResult = await findEligibleCandidates({
+        pickupLng: Number(lng),
+        pickupLat: Number(lat),
+        vehicleType,
+        maxRadiusKm: 15,
+        excludeDriverIds: cancelledIds,
+        driverPreference: booking.driverPreference || "any",
+        passengerId: booking.user,
+        maxCandidates: 5,
+      });
 
-      if (nearbyVendors.length > 0) {
-        replacementDriver = nearbyVendors[0];
+      if (matchResult.success && matchResult.candidates.length > 0) {
+        replacementDriver = await User.findById(matchResult.candidates[0].driverId);
       }
     } catch (e) {
-      console.warn("Spatial search error in manual re-match:", e);
+      console.warn("Matching engine error in manual re-match:", e);
     }
   }
 

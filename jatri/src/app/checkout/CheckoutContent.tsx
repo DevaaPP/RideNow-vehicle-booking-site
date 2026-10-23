@@ -22,6 +22,9 @@ import { DEFAULT_ROAD_TORTUOSITY_FACTOR } from "@/lib/routeUtils";
 import GroupRideCard from "@/features/booking/components/GroupRideCard";
 import DriverSearchRadar from "@/features/booking/components/DriverSearchRadar";
 import PaymentMethodSelector from "@/features/booking/components/PaymentMethodSelector";
+import DriverPreferenceSelector from "@/features/booking/components/DriverPreferenceSelector";
+import NoWomenDriversModal from "@/features/booking/components/NoWomenDriversModal";
+import { DriverPreference } from "@/lib/safetyMatching";
 import { VEHICLE_OPTIONS } from "@/lib/vehicleConfig";
 
 const VEHICLE_ICONS: Record<string, any> = {
@@ -98,6 +101,9 @@ export default function CheckoutContent() {
   const [pickupDetails, setPickupDetails] = useState<any | null>(null);
   const [dropDetails, setDropDetails] = useState<any | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
+  const [driverPreference, setDriverPreference] = useState<DriverPreference>("any");
+  const [noWomenDrivers, setNoWomenDrivers] = useState(false);
+  const [searchRadiusKm, setSearchRadiusKm] = useState<number>(10);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const VehicleIcon = VEHICLE_ICONS[vehicle.toLowerCase()] || Car;
@@ -344,9 +350,22 @@ export default function CheckoutContent() {
   };
 
   /* ── CREATE BOOKING ── */
-  const handleCreateBooking = async () => {
+  const handleCreateBooking = async (overrideOptions?: {
+    overridePreference?: DriverPreference;
+    overrideRadius?: number;
+  }) => {
     if (loading) return;
     setBookingError(null);
+
+    const activePreference = overrideOptions?.overridePreference || driverPreference;
+    const activeRadius = overrideOptions?.overrideRadius || searchRadiusKm;
+
+    if (overrideOptions?.overridePreference) {
+      setDriverPreference(overrideOptions.overridePreference);
+    }
+    if (overrideOptions?.overrideRadius) {
+      setSearchRadiusKm(overrideOptions.overrideRadius);
+    }
 
     if (!userData) {
       setBookingError("Please sign in or create an account to request a ride. Your booking draft is saved.");
@@ -403,6 +422,8 @@ export default function CheckoutContent() {
             coordinates: [dropLat, dropLng],
           } : undefined),
           distanceKm: computedBreakdown?.distanceKm || distanceKm || undefined,
+          driverPreference: activePreference,
+          searchRadiusKm: activeRadius,
         }),
       });
 
@@ -417,6 +438,12 @@ export default function CheckoutContent() {
       if (res.status === 403 && data.requiresPhoneVerification) {
         setBookingError(data.message || "Please verify your WhatsApp mobile number to proceed.");
         window.dispatchEvent(new CustomEvent("open-phone-link-modal"));
+        return;
+      }
+
+      if (res.status === 404 && data.noWomenDriversAvailable) {
+        setNoWomenDrivers(true);
+        setBookingError(null);
         return;
       }
 
@@ -1144,10 +1171,21 @@ export default function CheckoutContent() {
                       </div>
                     )}
 
+                    {/* Driver Preference Selector */}
+                    <div className="pt-1 pb-1">
+                      <DriverPreferenceSelector
+                        value={driverPreference}
+                        onChange={(pref) => {
+                          setDriverPreference(pref);
+                          setSearchRadiusKm(10);
+                        }}
+                      />
+                    </div>
+
                     {/* Booking Confirmation CTA Button */}
                     <button
                       type="button"
-                      onClick={handleCreateBooking}
+                      onClick={() => handleCreateBooking()}
                       disabled={loading || !pickupLat || !dropLat}
                       className="w-full h-13 py-3.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[50px] active:scale-[0.99]"
                     >
@@ -1438,6 +1476,25 @@ export default function CheckoutContent() {
 
       {/* Auth Modal for Quick Login on Checkout */}
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
+
+      {/* Dedicated Woman Driver Availability Modal */}
+      <NoWomenDriversModal
+        isOpen={noWomenDrivers}
+        onClose={() => setNoWomenDrivers(false)}
+        onKeepSearching={() => {
+          setNoWomenDrivers(false);
+          handleCreateBooking({ overridePreference: "woman", overrideRadius: 10 });
+        }}
+        onSearchWiderArea={() => {
+          setNoWomenDrivers(false);
+          handleCreateBooking({ overridePreference: "woman", overrideRadius: 25 });
+        }}
+        onSwitchToAnyDriver={() => {
+          setNoWomenDrivers(false);
+          setDriverPreference("any");
+          handleCreateBooking({ overridePreference: "any", overrideRadius: 10 });
+        }}
+      />
     </div>
   );
 }

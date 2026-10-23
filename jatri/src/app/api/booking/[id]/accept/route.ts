@@ -3,6 +3,7 @@ import connectDb from "@/lib/db";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
+import { evaluateSafetyMatch, isDriverVerifiedWoman, DriverPreference, DriverPassengerPolicy } from "@/lib/safetyMatching";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
@@ -31,7 +32,7 @@ export async function POST(
   const actorRole = userRole === "admin" ? "admin" : "driver";
   const actorId = session.user.id;
 
-  const existingBooking = await Booking.findById(id).select("paymentStatus fare pickupOtp driver status candidateDrivers");
+  const existingBooking = await Booking.findById(id).select("paymentStatus fare pickupOtp driver status candidateDrivers user driverPreference");
   if (!existingBooking) {
     return NextResponse.json({ message: "Booking not found" }, { status: 404 });
   }
@@ -59,6 +60,35 @@ export async function POST(
         {
           message: "You are not an eligible candidate for this ride request.",
           errorCode: "NOT_A_CANDIDATE",
+        },
+        { status: 403 }
+      );
+    }
+
+    // 1.6. Women's Safety Matching Invariants Revalidation
+    const [acceptingDriver, passengerUser] = await Promise.all([
+      User.findById(actorId).select("safetyMatching driverPassengerPolicy").lean(),
+      User.findById((existingBooking as any).user).select("safetyMatching").lean(),
+    ]);
+
+    const driverIsVerified = isDriverVerifiedWoman(acceptingDriver);
+    const driverPolicy = ((acceptingDriver as any)?.driverPassengerPolicy || "all_eligible") as DriverPassengerPolicy;
+    const passengerEligible = Boolean((passengerUser as any)?.safetyMatching?.womenOnlyEligible);
+    const passengerPreference = ((existingBooking as any).driverPreference || "any") as DriverPreference;
+
+    const safetyCheck = evaluateSafetyMatch({
+      passengerDriverPreference: passengerPreference,
+      driverPassengerPolicy: driverPolicy,
+      driverIsVerifiedWoman: driverIsVerified,
+      passengerEligibleForWomenOnly: passengerEligible,
+    });
+
+    if (!safetyCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: safetyCheck.reason || "Incompatible safety preferences between rider and driver.",
+          errorCode: safetyCheck.code || "SAFETY_MATCH_INCOMPATIBLE",
         },
         { status: 403 }
       );

@@ -115,6 +115,8 @@ export interface IBooking extends Document {
   settlementFailedAt?: Date | null;
   settledAt?: Date | null;
 
+  driverPreference?: "any" | "woman";
+  matchingPolicyVersion?: string;
   candidateDrivers: Types.ObjectId[];
   currentDriverIndex: number;
   isPanicActive?: boolean;
@@ -348,6 +350,16 @@ partnerAmount: {
       required: false,
       default: "",
       trim: true,
+    },
+    driverPreference: {
+      type: String,
+      enum: ["any", "woman"],
+      default: "any",
+      index: true,
+    },
+    matchingPolicyVersion: {
+      type: String,
+      default: "v1",
     },
     candidateDrivers: {
       type: [{ type: Schema.Types.ObjectId, ref: "User" }],

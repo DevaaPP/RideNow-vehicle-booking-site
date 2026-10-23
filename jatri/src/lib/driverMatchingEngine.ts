@@ -12,6 +12,7 @@ import { haversineDistance } from "@/lib/routeUtils";
 import { validateServiceArea } from "@/lib/serviceArea";
 import { transitionBookingState } from "@/lib/bookingStateMachine";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
+import { evaluateSafetyMatch, isDriverVerifiedWoman, DriverPreference, DriverPassengerPolicy } from "@/lib/safetyMatching";
 
 export const MAX_ALLOWED_PLATFORM_DUES = 300;
 
@@ -53,6 +54,8 @@ export async function findEligibleCandidates(options: {
   maxRadiusKm?: number;
   excludeDriverIds?: (string | Types.ObjectId)[];
   maxCandidates?: number;
+  driverPreference?: DriverPreference;
+  passengerId?: string | Types.ObjectId;
 }): Promise<MatchingResult> {
   const {
     pickupLng,
@@ -61,6 +64,8 @@ export async function findEligibleCandidates(options: {
     maxRadiusKm = 10,
     excludeDriverIds = [],
     maxCandidates = 5,
+    driverPreference = "any",
+    passengerId,
   } = options;
 
   const logs: string[] = [];
@@ -283,6 +288,14 @@ export async function findEligibleCandidates(options: {
   const MAX_GPS_STALENESS_MS = 24 * 60 * 60 * 1000;
   const MAX_HEARTBEAT_STALENESS_MS = 24 * 60 * 60 * 1000;
 
+  let passengerEligibleForWomenOnly = false;
+  if (passengerId) {
+    try {
+      const passengerUser = await User.findById(passengerId).select("safetyMatching").lean();
+      passengerEligibleForWomenOnly = Boolean(passengerUser?.safetyMatching?.womenOnlyEligible);
+    } catch (_) {}
+  }
+
   const eligibleList: CandidateDriver[] = [];
   const secondaryRadiusList: CandidateDriver[] = [];
 
@@ -290,7 +303,25 @@ export async function findEligibleCandidates(options: {
     const driverIdStr = driver._id.toString();
     if (excludedSet.has(driverIdStr)) continue;
 
-    // A0. Verify driver cancellation dispatch cooldown lockout
+    // A0. Women's Safety Matching Invariants
+    const driverIsVerified = isDriverVerifiedWoman(driver);
+    const driverPolicy = (driver.driverPassengerPolicy || "all_eligible") as DriverPassengerPolicy;
+
+    const safetyMatch = evaluateSafetyMatch({
+      passengerDriverPreference: driverPreference,
+      driverPassengerPolicy: driverPolicy,
+      driverIsVerifiedWoman: driverIsVerified,
+      passengerEligibleForWomenOnly,
+    });
+
+    if (!safetyMatch.allowed) {
+      logs.push(
+        `Driver ${driver._id} excluded by safety policy: ${safetyMatch.reason}`
+      );
+      continue;
+    }
+
+    // A0.1. Verify driver cancellation dispatch cooldown lockout
     if (driver.dispatchBlockedUntil && new Date(driver.dispatchBlockedUntil).getTime() > now) {
       const remainingSecs = Math.round((new Date(driver.dispatchBlockedUntil).getTime() - now) / 1000);
       logs.push(
