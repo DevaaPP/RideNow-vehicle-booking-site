@@ -22,11 +22,20 @@ export async function POST(req: Request) {
       idempotencyKey,
     });
 
+    const effectiveKeyId = (
+      orderData.keyId ||
+      process.env.RAZORPAY_KEY_ID ||
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+      ""
+    ).trim();
+
     return NextResponse.json({
       success: true,
       orderId: orderData.orderId,
       amount: orderData.amount,
       currency: orderData.currency,
+      keyId: effectiveKeyId,
     });
   } catch (error: any) {
     console.error("POST /api/payment/create error:", error);

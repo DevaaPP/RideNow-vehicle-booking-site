@@ -41,38 +41,58 @@ const uploadOnCloudinary = async (file: Blob): Promise<string | null> => {
     return null;
   }
 
-  // ✅ Fallback to local storage if Cloudinary keys are placeholders or not set
-  if (
-    isPlaceholder(process.env.CLOUDINARY_CLOUD_NAME) ||
-    isPlaceholder(process.env.CLOUDINARY_API_KEY) ||
-    isPlaceholder(process.env.CLOUDINARY_API_SECRET)
-  ) {
-    try {
-      console.log("Using local storage fallback for uploads (Cloudinary keys are placeholders)...");
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      
-      const uploadsDir = path.join(process.cwd(), "public", "uploads");
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  // Helper to safely store or encode file when Cloudinary is unavailable or fails
+  const fallbackStorage = (): string => {
+    const isServerless = Boolean(
+      process.env.VERCEL ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+      process.env.NETLIFY ||
+      process.env.SERVERLESS
+    );
+
+    // If running in a standard local Node server with a writable filesystem, attempt public/uploads
+    if (!isServerless) {
+      try {
+        const uploadsDir = path.join(process.cwd(), "public", "uploads");
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
+        const fileName = `upload-${Date.now()}-${Math.random().toString(36).substring(7)}${fileExt}`;
+        const filePath = path.join(uploadsDir, fileName);
+
+        fs.writeFileSync(filePath, buffer);
+        console.log(`[UploadFallback] Stored locally: /uploads/${fileName}`);
+        return `/uploads/${fileName}`;
+      } catch (localFsError: any) {
+        console.warn(
+          `[UploadFallback] Local filesystem write failed (${localFsError?.code || localFsError?.message}). Falling back to safe Data URI.`
+        );
       }
-
-      // Generate a unique filename using timestamp and secure random string with mapped extension
-      const fileName = `upload-${Date.now()}-${Math.random().toString(36).substring(7)}${fileExt}`;
-      const filePath = path.join(uploadsDir, fileName);
-
-      fs.writeFileSync(filePath, buffer);
-      return `/uploads/${fileName}`;
-    } catch (localError) {
-      console.error("Local upload fallback failed:", localError);
-      return null;
+    } else {
+      console.log("[UploadFallback] Serverless environment detected. Using safe Data URI format.");
     }
+
+    // Safe universal fallback: Data URI (works natively in <img src>, PDF viewers, and MongoDB without EROFS crash)
+    return `data:${mime};base64,${buffer.toString("base64")}`;
+  };
+
+  // Check if Cloudinary keys are configured
+  const hasValidCloudinary =
+    !isPlaceholder(process.env.CLOUDINARY_CLOUD_NAME) &&
+    !isPlaceholder(process.env.CLOUDINARY_API_KEY) &&
+    !isPlaceholder(process.env.CLOUDINARY_API_SECRET);
+
+  if (!hasValidCloudinary) {
+    console.log("Using safe upload fallback (Cloudinary keys are placeholders or not configured)...");
+    return fallbackStorage();
   }
 
   try {
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    return new Promise((resolve, reject) => {
+    return await new Promise<string | null>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         { resource_type: "auto" },
         (error, result) => {
@@ -86,8 +106,8 @@ const uploadOnCloudinary = async (file: Blob): Promise<string | null> => {
       uploadStream.end(buffer);
     });
   } catch (error) {
-    console.error("Cloudinary upload failed:", error);
-    return null;
+    console.error("Cloudinary upload failed, falling back to safe storage:", error);
+    return fallbackStorage();
   }
 };
 

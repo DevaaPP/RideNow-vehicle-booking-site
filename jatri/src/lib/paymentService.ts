@@ -83,6 +83,13 @@ export async function createPaymentOrder(params: CreateOrderParams) {
 
   const effectiveIdempotencyKey = idempotencyKey || `order_${booking._id}_${booking.fare}`;
 
+  const effectiveKeyId = (
+    process.env.RAZORPAY_KEY_ID ||
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+    ""
+  ).trim();
+
   // Check existing initiated/pending payment record
   const existingPayment = await Payment.findOne({
     booking: booking._id,
@@ -96,6 +103,7 @@ export async function createPaymentOrder(params: CreateOrderParams) {
       amount: booking.fare * 100,
       currency: "INR",
       paymentId: existingPayment._id,
+      keyId: effectiveKeyId,
     };
   }
 
@@ -141,6 +149,7 @@ export async function createPaymentOrder(params: CreateOrderParams) {
     orderId: order.id,
     amount: order.amount,
     currency: order.currency,
+    keyId: effectiveKeyId,
   };
 }
 

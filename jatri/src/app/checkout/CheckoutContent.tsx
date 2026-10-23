@@ -563,11 +563,17 @@ export default function CheckoutContent() {
 
       const orderData = await orderRes.json();
 
+      if (!orderRes.ok || !orderData.orderId) {
+        setLoading(false);
+        alert(orderData.error || orderData.message || "Failed to create payment order. Please try again.");
+        return;
+      }
+
       const options = {
         key:
+          orderData.keyId ||
           process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
           process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-          (orderData as any)?.keyId ||
           "",
         amount: orderData.amount,
         currency: "INR",

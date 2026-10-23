@@ -244,9 +244,9 @@ export default function RidePage() {
 
         const options = {
           key:
+            orderData.keyId ||
             process.env.NEXT_PUBLIC_RAZORPAY_KEY ||
             process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-            (orderData as any)?.keyId ||
             "",
           amount: orderData.amount,
           currency: "INR",
