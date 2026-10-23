@@ -162,11 +162,85 @@ export default function RootLayout({
                     root.style.colorScheme = 'light';
                     root.style.backgroundColor = '#FAF7F0';
                   }
+
+                  // Zero-delay splash screen resolver: hide instantly if already seen in this session
+                  var splashSeen = false;
+                  try {
+                    splashSeen = sessionStorage.getItem('jaatri_splash_seen') === 'true';
+                  } catch(e) {}
+                  if (splashSeen) {
+                    root.classList.add('splash-hidden');
+                  }
                 } catch(e) {}
               })();
             `,
           }}
         />
+        {/* Critical Instant Splash Screen Styles - Pre-paint full-screen protection */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              html.splash-hidden #jaatri-splash-screen {
+                display: none !important;
+              }
+              #jaatri-splash-screen {
+                position: fixed;
+                inset: 0;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                z-index: 999999;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background-color: #FAF7F0;
+                user-select: none;
+              }
+              html.dark #jaatri-splash-screen {
+                background-color: #061A16;
+              }
+              @media (prefers-color-scheme: dark) {
+                html:not(.light) #jaatri-splash-screen {
+                  background-color: #061A16;
+                }
+              }
+              html:not(.splash-hidden) body {
+                overflow: hidden !important;
+              }
+              html.dark #jaatri-splash-screen .splash-logo-light {
+                display: none !important;
+              }
+              html.dark #jaatri-splash-screen .splash-logo-dark {
+                display: block !important;
+              }
+              html:not(.dark) #jaatri-splash-screen .splash-logo-light {
+                display: block !important;
+              }
+              html:not(.dark) #jaatri-splash-screen .splash-logo-dark {
+                display: none !important;
+              }
+              @media (prefers-color-scheme: dark) {
+                html:not(.light):not(.dark) #jaatri-splash-screen .splash-logo-light {
+                  display: none !important;
+                }
+                html:not(.light):not(.dark) #jaatri-splash-screen .splash-logo-dark {
+                  display: block !important;
+                }
+              }
+            `,
+          }}
+        />
+        <noscript>
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+                #jaatri-splash-screen { display: none !important; }
+                html body { overflow: auto !important; }
+              `,
+            }}
+          />
+        </noscript>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

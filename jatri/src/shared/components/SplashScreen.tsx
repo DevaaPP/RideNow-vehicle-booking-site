@@ -4,24 +4,22 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 export default function SplashScreen() {
-  const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-
-    // If user already saw the splash screen in this browser session, unmount immediately via React state
+    // If user already saw the splash screen in this browser session, unmount immediately
     try {
       if (sessionStorage.getItem("jaatri_splash_seen")) {
         setVisible(false);
+        document.documentElement.classList.add("splash-hidden");
         return;
       }
     } catch (_) {}
 
     let unmountTimer: ReturnType<typeof setTimeout> | undefined;
 
-    // Display splash for 650ms on cold start, then smoothly fade out
+    // Minimum display time for brand impact (650ms), then smoothly fade out
     const fadeTimer = setTimeout(() => {
       setFading(true);
       try {
@@ -31,6 +29,7 @@ export default function SplashScreen() {
       // Once fade animation completes (350ms), unmount safely via React state
       unmountTimer = setTimeout(() => {
         setVisible(false);
+        document.documentElement.classList.add("splash-hidden");
       }, 350);
     }, 650);
 
@@ -40,19 +39,19 @@ export default function SplashScreen() {
     };
   }, []);
 
-  // Avoid SSR hydration discrepancy and safely unmount when finished
-  if (!mounted || !visible) return null;
+  if (!visible) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center select-none bg-[#FAF7F0] dark:bg-[#061A16] transition-all duration-350 ease-out ${
+      id="jaatri-splash-screen"
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center select-none bg-[#FAF7F0] dark:bg-[#061A16] transition-all duration-350 ease-out ${
         fading ? "opacity-0 scale-[1.02] pointer-events-none" : "opacity-100 scale-100 pointer-events-auto"
       }`}
       aria-hidden="true"
     >
       <div className="flex flex-col items-center justify-center text-center px-6 max-w-xs animate-in fade-in zoom-in-95 duration-300">
         {/* Light Theme Logo */}
-        <div className="block dark:hidden">
+        <div className="splash-logo-light">
           <Image
             src="/logojatri.webp"
             alt="Jaatri"
@@ -64,7 +63,7 @@ export default function SplashScreen() {
         </div>
 
         {/* Dark Theme Logo */}
-        <div className="hidden dark:block">
+        <div className="splash-logo-dark">
           <Image
             src="/logojatri-dark.webp"
             alt="Jaatri"
