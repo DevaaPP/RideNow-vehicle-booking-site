@@ -56,6 +56,14 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
+  /* ── WOMEN'S SAFETY MATCHING STATE ── */
+  const [safetyProfile, setSafetyProfile] = useState<{
+    womenOnlyEligible: boolean;
+    consentedAt: string | null;
+  } | null>(null);
+  const [updatingSafety, setUpdatingSafety] = useState(false);
+  const [safetyMessage, setSafetyMessage] = useState<string | null>(null);
+
   /* ── STUDENT PROGRAM STATE ── */
   const [studentData, setStudentData] = useState<any | null>(null);
   const [loadingStudent, setLoadingStudent] = useState(false);
@@ -122,6 +130,41 @@ export default function ProfilePage() {
       );
     } finally {
       setDeletingAccount(false);
+    }
+  };
+
+  useEffect(() => {
+    axios
+      .get("/api/user/safety-matching")
+      .then((res) => {
+        if (res.data?.success) {
+          setSafetyProfile({
+            womenOnlyEligible: Boolean(res.data.safetyMatching?.womenOnlyEligible),
+            consentedAt: res.data.safetyMatching?.consentedAt || null,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleToggleWomenSafety = async (enabled: boolean) => {
+    try {
+      setUpdatingSafety(true);
+      setSafetyMessage(null);
+      const res = await axios.patch("/api/user/safety-matching", {
+        womenOnlyEligible: enabled,
+      });
+      if (res.data?.success) {
+        setSafetyProfile({
+          womenOnlyEligible: Boolean(res.data.safetyMatching?.womenOnlyEligible),
+          consentedAt: res.data.safetyMatching?.consentedAt || null,
+        });
+        setSafetyMessage(res.data.message || "Safety preferences updated successfully.");
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to update safety preference");
+    } finally {
+      setUpdatingSafety(false);
     }
   };
 
@@ -711,6 +754,84 @@ export default function ProfilePage() {
                 </button>
               </div>
             )}
+          </div>
+        </motion.div>
+
+        {/* 🛡️ WOMEN'S SAFETY & PREFERENCE HUB */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="mt-6 sm:mt-8 bg-[#FAF7F0] dark:bg-[#17211B] rounded-[14px] border border-[#DED7CA] dark:border-[#34443A] shadow-xs overflow-hidden"
+        >
+          <div className="p-4 sm:p-8 space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#DED7CA]/60 dark:border-[#34443A]">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-[10px] bg-emerald-50 dark:bg-[#1D3428] text-[#046A38] dark:text-[#A3E635] flex items-center justify-center font-bold shadow-xs shrink-0">
+                  <ShieldCheck size={24} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-bold font-serif text-[#10251C] dark:text-[#F3F1E8] leading-tight">
+                      Women&apos;s Safety Matching
+                    </h3>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-[#1D3428] text-[#046A38] dark:text-[#A3E635] border border-emerald-200 dark:border-[#28664D] px-2 py-0.5 rounded-[4px]">
+                      Zero Silent Fallback
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#696B64] dark:text-[#B8C2B8] font-medium mt-0.5">
+                    Match with verified female drivers and configure safety preferences.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] text-xs font-bold ${
+                  safetyProfile?.womenOnlyEligible
+                    ? "bg-emerald-50 dark:bg-[#1D3428] text-[#046A38] dark:text-[#A3E635] border border-emerald-200 dark:border-[#28664D]"
+                    : "bg-white dark:bg-[#1E2B23] text-[#696B64] dark:text-[#B8C2B8] border border-[#DED7CA] dark:border-[#34443A]"
+                }`}>
+                  {safetyProfile?.womenOnlyEligible ? "Enrolled for Women-Only Rides" : "Standard Preference"}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-5 bg-white/70 dark:bg-[#1E2B23]/70 border border-[#DED7CA] dark:border-[#34443A] rounded-[10px] space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <p className="text-xs text-[#10251C] dark:text-[#F3F1E8] font-bold">
+                    Women-Only Driver Matching Eligibility
+                  </p>
+                  <p className="text-[11px] text-[#696B64] dark:text-[#B8C2B8] leading-relaxed max-w-xl">
+                    I self-attest that I am a woman passenger and request eligibility to be matched with verified female drivers who choose to receive women-only ride requests.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleToggleWomenSafety(!safetyProfile?.womenOnlyEligible)}
+                  disabled={updatingSafety}
+                  className={`shrink-0 px-5 py-2.5 rounded-[8px] text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 ${
+                    safetyProfile?.womenOnlyEligible
+                      ? "bg-white dark:bg-[#1E2B23] text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/60 hover:bg-red-50"
+                      : "bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white shadow-xs"
+                  }`}
+                >
+                  {updatingSafety ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : safetyProfile?.womenOnlyEligible ? (
+                    "Opt Out"
+                  ) : (
+                    "Confirm & Enable"
+                  )}
+                </button>
+              </div>
+
+              {safetyMessage && (
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+                  {safetyMessage}
+                </p>
+              )}
+            </div>
           </div>
         </motion.div>
 

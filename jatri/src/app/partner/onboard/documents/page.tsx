@@ -50,6 +50,7 @@ export default function PartnerDocumentsPage() {
   const [completed, setCompleted] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [existingSummary, setExistingSummary] = useState<any>(null);
+  const [applyForWomenSafety, setApplyForWomenSafety] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +107,9 @@ export default function PartnerDocumentsPage() {
           const profPic = res.data.profilePicture || docsData.profilePictureUrl;
           if (profPic) {
             setProfilePreview(profPic);
+          }
+          if (res.data?.safetyMatching?.driverCategory === "woman") {
+            setApplyForWomenSafety(true);
           }
           setExistingSummary({
             ...docsData,
@@ -176,6 +180,7 @@ export default function PartnerDocumentsPage() {
       if (metadata.rcNumber) formData.append("rcNumber", metadata.rcNumber);
       if (metadata.insurancePolicyNumber) formData.append("insurancePolicyNumber", metadata.insurancePolicyNumber);
       if (metadata.insuranceExpiry) formData.append("insuranceExpiry", metadata.insuranceExpiry);
+      if (applyForWomenSafety) formData.append("applyForWomenSafety", "true");
 
       await axios.post("/api/partner/documents", formData);
 
@@ -480,6 +485,27 @@ export default function PartnerDocumentsPage() {
               />
             </div>
           </div>
+        </div>
+
+        {/* ================= WOMEN'S SAFETY MATCHING PROGRAM ================= */}
+        <div className="mt-6 p-4 rounded-[12px] border border-emerald-200 dark:border-[#28664D]/60 bg-emerald-50/60 dark:bg-[#1D3428]/30">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={applyForWomenSafety}
+              onChange={(e) => setApplyForWomenSafety(e.target.checked)}
+              className="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+            />
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] flex items-center gap-1.5">
+                <ShieldCheck size={16} className="text-emerald-600 dark:text-[#A3E635]" />
+                Apply for Women&apos;s Safety Driver Matching (Female Drivers)
+              </span>
+              <p className="text-[11px] text-[#696B64] dark:text-[#B8C2B8] leading-relaxed">
+                Check this if you are a woman driver. Once verified by our safety team, you can receive requests from passengers who specifically prefer a woman driver, and you will have the option to receive only women-passenger requests.
+              </p>
+            </div>
+          </label>
         </div>
 
         {/* DPDP 2025 INFO */}

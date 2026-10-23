@@ -8,7 +8,7 @@ import {
   Star, MessageCircle, Clock, Zap,
   IndianRupee, XCircle, AlertCircle, AlertTriangle,
   CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
-  ShieldAlert, Siren, PhoneCall, Share2, Navigation, KeyRound
+  ShieldAlert, ShieldCheck, Siren, PhoneCall, Share2, Navigation, KeyRound
 } from "lucide-react";
 import { HomeIcon } from "@/shared/components/icons/AppIcons";
 import Link from "next/link";
@@ -78,6 +78,7 @@ interface BookingDetails {
   completedAt?: string;
   estimatedDropoffTime?: string;
   actualDropoffTime?: string;
+  driverPreference?: "any" | "woman";
   tripDurationMinutes?: number;
   cancelledBy?: string;
   cancellationReason?: string;
@@ -1751,9 +1752,13 @@ function PanelContent({
               </div>
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">Finding your driver</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F3F1E8]">
+                {booking.driverPreference === "woman" ? "Finding Verified Woman Driver" : "Finding your driver"}
+              </p>
               <p className="text-xs text-[#696B64] dark:text-[#929D93] mt-0.5 font-medium leading-relaxed">
-                Broadcasting request to all nearby verified drivers. First to accept will confirm your ride.
+                {booking.driverPreference === "woman"
+                  ? "Broadcasting exclusively to nearby verified woman drivers. Zero silent fallback."
+                  : "Broadcasting request to all nearby verified drivers. First to accept will confirm your ride."}
               </p>
             </div>
           </div>
@@ -1940,7 +1945,14 @@ function PanelContent({
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[#10251C] dark:text-[#F3F1E8] font-bold text-sm truncate">{booking.driver?.name || "Your Driver"}</p>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-[#10251C] dark:text-[#F3F1E8] font-bold text-sm truncate">{booking.driver?.name || "Your Driver"}</p>
+                  {booking.driverPreference === "woman" && (
+                    <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded-[4px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-[#1D3428] text-[#046A38] dark:text-[#A3E635] border border-emerald-200 dark:border-[#28664D]">
+                      <ShieldCheck size={10} /> Verified Woman Driver
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] px-2 py-0.5 rounded-[6px] flex-shrink-0">
                   <Star size={10} className="text-amber-500 fill-amber-500" />
                   <span className="text-[#10251C] dark:text-[#F3F1E8] text-xs font-mono font-bold">

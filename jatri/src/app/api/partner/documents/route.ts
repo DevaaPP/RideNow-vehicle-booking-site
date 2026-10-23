@@ -32,7 +32,7 @@ export async function GET() {
     }).lean();
 
     const user = await User.findById(session.user.id)
-      .select("driverVerificationStatus vendorStatus isVendorBlocked profilePicture")
+      .select("driverVerificationStatus vendorStatus isVendorBlocked profilePicture safetyMatching driverPassengerPolicy")
       .lean();
 
     const expiryEvaluation = evaluateDocumentExpirations(documents);
@@ -43,6 +43,8 @@ export async function GET() {
       profilePicture: user?.profilePicture || documents?.profilePictureUrl || null,
       verificationStatus: user?.driverVerificationStatus || null,
       vendorStatus: user?.vendorStatus || "pending",
+      safetyMatching: user?.safetyMatching || null,
+      driverPassengerPolicy: user?.driverPassengerPolicy || "all_eligible",
       expiryEvaluation,
     });
   } catch (error) {
@@ -115,6 +117,7 @@ export async function POST(req: NextRequest) {
     const aadhaarMaskedNumber = formData.get("aadhaarMaskedNumber") as string | null;
 
     const policeVerificationCertificateNo = formData.get("policeVerificationCertificateNo") as string | null;
+    const applyForWomenSafety = formData.get("applyForWomenSafety") as string | null;
 
     const updatePayload: any = {
       status: "pending",
@@ -256,6 +259,22 @@ export async function POST(req: NextRequest) {
 
     if (profilePicture) {
       user.driverVerificationStatus.face = "pending";
+    }
+
+    if (applyForWomenSafety === "true") {
+      if (!user.safetyMatching) {
+        user.safetyMatching = {
+          driverCategory: "woman",
+          driverVerificationStatus: "pending",
+          womenOnlyEligible: false,
+        };
+      } else {
+        user.safetyMatching.driverCategory = "woman";
+        if (user.safetyMatching.driverVerificationStatus !== "verified") {
+          user.safetyMatching.driverVerificationStatus = "pending";
+        }
+      }
+      user.markModified("safetyMatching");
     }
 
     user.vendorOnboardingStep = Math.max(user.vendorOnboardingStep || 0, 2);

@@ -80,6 +80,29 @@ export default function AdminVendorReviewPage() {
     }
   };
 
+  const handleVerifyWoman = async (action: "approve" | "reject" | "revoke", notes?: string) => {
+    try {
+      setActionLoading(true);
+      const res = await axios.post(`/api/admin/drivers/${id}/verify-woman`, {
+        action,
+        notes: notes || (action === "approve" ? "Verified by Admin" : "Status updated by Admin"),
+      });
+      if (res.data?.success) {
+        setData((prev: any) => ({
+          ...prev,
+          safetyMatching: res.data.safetyMatching,
+        }));
+      } else {
+        alert(res.data?.message || "Failed to update women driver status");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.response?.data?.message || "Error updating women driver status");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const updatePillarStatus = async (pillar: string, status: string) => {
     try {
       setActionLoading(true);
@@ -139,6 +162,74 @@ export default function AdminVendorReviewPage() {
 
         {/* LEFT SIDE */}
         <div className="lg:col-span-2 space-y-5 sm:space-y-8">
+
+          {/* WOMEN'S SAFETY DRIVER VERIFICATION ENGINE */}
+          <AnimatedCard title="Women's Safety Driver Verification" icon={<ShieldCheck size={18} className="text-emerald-600" />}>
+            <div className="space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-gray-800">Declared Driver Category</p>
+                  <p className="text-[11px] text-gray-500 capitalize">
+                    {data.safetyMatching?.driverCategory === "woman" ? "Female Driver (Woman)" : "Standard / Not Specified"}
+                  </p>
+                </div>
+                <span className={`inline-block text-[10px] uppercase font-bold px-2.5 py-1 rounded-full ${
+                  data.safetyMatching?.driverVerificationStatus === "verified"
+                    ? "bg-green-100 text-green-700 border border-green-200"
+                    : data.safetyMatching?.driverVerificationStatus === "pending"
+                    ? "bg-amber-100 text-amber-700 border border-amber-200"
+                    : data.safetyMatching?.driverVerificationStatus === "rejected"
+                    ? "bg-red-100 text-red-700 border border-red-200"
+                    : "bg-gray-100 text-gray-600 border border-gray-200"
+                }`}>
+                  {data.safetyMatching?.driverVerificationStatus || "not_submitted"}
+                </span>
+              </div>
+
+              {data.safetyMatching?.verifiedAt && (
+                <p className="text-[11px] text-gray-500">
+                  Verified On: {new Date(data.safetyMatching.verifiedAt).toLocaleDateString()}
+                </p>
+              )}
+              {data.safetyMatching?.verificationNotes && (
+                <p className="text-[11px] text-gray-500 italic bg-gray-50 p-2 rounded-lg border border-gray-100">
+                  Notes: {data.safetyMatching.verificationNotes}
+                </p>
+              )}
+
+              <div className="pt-2 border-t border-gray-100 flex items-center gap-2">
+                {data.safetyMatching?.driverVerificationStatus !== "verified" ? (
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyWoman("approve", "Approved after document & video KYC review")}
+                    disabled={actionLoading}
+                    className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition disabled:opacity-40 cursor-pointer shadow-xs"
+                  >
+                    Approve as Verified Woman Driver
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyWoman("revoke", "Revoked by admin")}
+                    disabled={actionLoading}
+                    className="flex-1 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition disabled:opacity-40 cursor-pointer shadow-xs"
+                  >
+                    Revoke Woman Driver Status
+                  </button>
+                )}
+                {data.safetyMatching?.driverVerificationStatus === "pending" && (
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyWoman("reject", "Application rejected by admin")}
+                    disabled={actionLoading}
+                    className="py-2 px-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition disabled:opacity-40 cursor-pointer shadow-xs"
+                  >
+                    Reject
+                  </button>
+                )}
+              </div>
+            </div>
+          </AnimatedCard>
 
           {/* 7-PILLAR VERIFICATION STATUS ENGINE */}
           <AnimatedCard title="Driver Verification Status Engine (7 Pillars)" icon={<ShieldCheck size={18} className="text-orange-600" />}>

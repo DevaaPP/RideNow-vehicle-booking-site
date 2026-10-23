@@ -2093,6 +2093,17 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
                 {/* Ride Details */}
                 <div className="p-6 space-y-4">
+
+                  {/* Women's Safety Ride Indicator */}
+                  {pendingRequest.driverPreference === "woman" && (
+                    <div className="bg-emerald-50 dark:bg-[#1D3428] border border-emerald-200 dark:border-[#28664D] rounded-[10px] p-3 flex items-center gap-2.5 text-xs font-bold text-[#046A38] dark:text-[#A3E635]">
+                      <Shield size={18} className="text-[#046A38] dark:text-[#A3E635] flex-shrink-0" />
+                      <div>
+                        <p className="uppercase tracking-wide text-[10px] font-black text-[#046A38] dark:text-[#A3E635]">Women's Safety Ride</p>
+                        <p className="text-[11px] font-medium text-[#10251C] dark:text-[#F3F1E8]">Passenger requested a verified woman driver</p>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Locations */}
                   <div className="bg-[#F7F1E5] dark:bg-[#101713] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] p-4 space-y-3">

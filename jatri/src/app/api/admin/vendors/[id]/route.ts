@@ -37,7 +37,7 @@ export async function GET(
     /* ---------- USER ---------- */
     const user = await User.findById(vendorId)
       .select(
-        "name email mobileNumber role vendorStatus vendorOnboardingStep videoKycStatus videoKycRoomId videoKycRejectionReason vendorRejectionReason driverVerificationStatus isOnline dailyCancellationCount cancellationCount lastCancellationDate dispatchBlockedUntil"
+        "name email mobileNumber role vendorStatus vendorOnboardingStep videoKycStatus videoKycRoomId videoKycRejectionReason vendorRejectionReason driverVerificationStatus isOnline dailyCancellationCount cancellationCount lastCancellationDate dispatchBlockedUntil safetyMatching driverPassengerPolicy"
       )
       .lean();
 
@@ -117,6 +117,8 @@ export async function GET(
         vendorRejectionReason: user.vendorRejectionReason || null,
         driverVerificationStatus: user.driverVerificationStatus || null,
         isOnline: Boolean(user.isOnline),
+        safetyMatching: user.safetyMatching || null,
+        driverPassengerPolicy: user.driverPassengerPolicy || "all_eligible",
 
         /* Shift & Cooldown Analytics */
         shiftAnalytics: {
