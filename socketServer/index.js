@@ -74,17 +74,6 @@ app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false 
 app.use(cors({ origin: corsDelegate, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 
-// ── Public Health & Diagnostic Endpoint ──────────────────────────────────────
-app.get(["/", "/health"], (req, res) => {
-  res.json({
-    status: "ok",
-    service: "RideNow Realtime Socket Gateway",
-    uptimeSeconds: Math.floor(process.uptime()),
-    connectedSockets: io.engine.clientsCount,
-    timestamp: new Date().toISOString(),
-  });
-});
-
 // ── Socket.IO Gateway Server ─────────────────────────────────────────────────
 const io = new Server(server, {
   maxHttpBufferSize: 1e6, // 1MB payload ceiling prevents memory exhaustion attacks
@@ -96,6 +85,17 @@ const io = new Server(server, {
     credentials: true,
     methods: ["GET", "POST"],
   },
+});
+
+// ── Public Health & Diagnostic Endpoint ──────────────────────────────────────
+app.get(["/", "/health"], (req, res) => {
+  res.json({
+    status: "ok",
+    service: "RideNow Realtime Socket Gateway",
+    uptimeSeconds: Math.floor(process.uptime()),
+    connectedSockets: io?.engine?.clientsCount ?? io?.sockets?.sockets?.size ?? 0,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // A share link may show trip status after the ride, but it must never expose

@@ -119,8 +119,11 @@ export default function CheckoutContent() {
   const [bookingBreakdown, setBookingBreakdown] = useState<any>(null);
   const [distanceKm,    setDistanceKm]    = useState<number | null>(null);
 
+  const userOutstandingAmount = Number((userData as any)?.outstandingAmount || 0);
+  const isStudentUser = Boolean(userData?.isStudent);
+
   const computedBreakdown = useMemo(() => {
-    const userOutstanding = Number((userData as any)?.outstandingAmount || 0);
+    const userOutstanding = userOutstandingAmount;
 
     if (bookingBreakdown && (!vehicle || bookingBreakdown.vehicleType?.toLowerCase() === vehicle?.toLowerCase())) {
       if (userOutstanding > 0 && (!bookingBreakdown.cancellationDues || bookingBreakdown.cancellationDues !== userOutstanding)) {
@@ -177,7 +180,7 @@ export default function CheckoutContent() {
       rates,
       undefined,
       0,
-      Boolean(userData?.isStudent),
+      isStudentUser,
       undefined,
       undefined,
       userOutstanding
@@ -192,8 +195,8 @@ export default function CheckoutContent() {
     stops,
     vehicle,
     rates,
-    userData?.isStudent,
-    (userData as any)?.outstandingAmount,
+    isStudentUser,
+    userOutstandingAmount,
   ]);
 
   const effectiveFare = computedBreakdown?.totalFare ?? fare;

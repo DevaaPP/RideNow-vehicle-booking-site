@@ -9,31 +9,37 @@ export default function DriverPassengerPreferenceCard() {
   const [policy, setPolicy] = useState<DriverPassengerPolicy>("all_eligible");
   const [initialPolicy, setInitialPolicy] = useState<DriverPassengerPolicy>("all_eligible");
   const [canActivateWomenOnly, setCanActivateWomenOnly] = useState(false);
-  const [driverVerificationStatus, setDriverVerificationStatus] = useState("not_submitted");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    fetchPreferences();
-  }, []);
+    let isSubscribed = true;
 
-  const fetchPreferences = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get("/api/partner/preferences/safety");
-      if (res.data?.success) {
-        setPolicy(res.data.driverPassengerPolicy || "all_eligible");
-        setInitialPolicy(res.data.driverPassengerPolicy || "all_eligible");
-        setCanActivateWomenOnly(Boolean(res.data.canActivateWomenOnly));
-        setDriverVerificationStatus(res.data.driverVerificationStatus || "not_submitted");
+    async function fetchPreferences() {
+      try {
+        setLoading(true);
+        const res = await axios.get("/api/partner/preferences/safety");
+        if (isSubscribed && res.data?.success) {
+          setPolicy(res.data.driverPassengerPolicy || "all_eligible");
+          setInitialPolicy(res.data.driverPassengerPolicy || "all_eligible");
+          setCanActivateWomenOnly(Boolean(res.data.canActivateWomenOnly));
+        }
+      } catch (err: any) {
+        console.warn("Could not load driver safety preferences:", err);
+      } finally {
+        if (isSubscribed) {
+          setLoading(false);
+        }
       }
-    } catch (err: any) {
-      console.warn("Could not load driver safety preferences:", err);
-    } finally {
-      setLoading(false);
     }
-  };
+
+    fetchPreferences();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, []);
 
   const handleSave = async () => {
     try {

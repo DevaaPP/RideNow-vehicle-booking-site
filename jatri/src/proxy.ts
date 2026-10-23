@@ -13,6 +13,15 @@ const PUBLIC_ROUTES = [
   "/fleet",
   "/search",
   "/settings",
+  "/explore",
+  "/privacy",
+  "/terms",
+  "/payment-terms",
+  "/cancellation-refund",
+  "/partner-terms",
+  "/cookies",
+  "/grievance",
+  "/safety",
 ];
 const PUBLIC_API_ROUTES = [
   "/api/auth",
@@ -22,6 +31,10 @@ const PUBLIC_API_ROUTES = [
   "/api/track",
   "/api/payment/webhook",
   "/api/safety/telemetry",
+  "/api/health",
+  "/api/cron",
+  "/api/legal/consent",
+  "/api/booking/group/join",
 ];
 
 const VENDOR_ONBOARDING_START = "/partner/onboard/vehicle";
@@ -74,7 +87,14 @@ function noCacheResponse(res: NextResponse = NextResponse.next()) {
 }
 
   /* ---------- PUBLIC ROUTES ---------- */
-  if (PUBLIC_ROUTES.includes(pathname)) {
+  const isPublicPage =
+    PUBLIC_ROUTES.includes(pathname) ||
+    pathname === "/track" ||
+    pathname.startsWith("/track/") ||
+    pathname === "/group/join" ||
+    pathname.startsWith("/group/join/");
+
+  if (isPublicPage) {
     return noCacheResponse();
   }
 
