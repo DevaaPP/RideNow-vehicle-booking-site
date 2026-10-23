@@ -57,7 +57,7 @@ export default function MobileBottomNav() {
           <div className="flex items-center justify-around h-[64px] px-2 max-w-lg mx-auto relative">
             {/* 1. Dashboard */}
             <Link
-              href="/partners/dashboard"
+              href="/partners/dashboard" prefetch={true}
               className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
                 pathname === "/partners/dashboard" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
@@ -68,7 +68,7 @@ export default function MobileBottomNav() {
 
             {/* 2. Requests */}
             <Link
-              href="/partner/pending-requests"
+              href="/partner/pending-requests" prefetch={true}
               className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
                 pathname === "/partner/pending-requests" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
@@ -90,7 +90,7 @@ export default function MobileBottomNav() {
 
             {/* 4. Bookings */}
             <Link
-              href="/partner/bookings"
+              href="/partner/bookings" prefetch={true}
               className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
                 pathname === "/partner/bookings" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
@@ -101,7 +101,7 @@ export default function MobileBottomNav() {
 
             {/* 5. Wallet */}
             <Link
-              href="/partner/wallet"
+              href="/partner/wallet" prefetch={true}
               className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
                 pathname === "/partner/wallet" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
@@ -143,7 +143,7 @@ export default function MobileBottomNav() {
         <div className="flex items-center justify-between h-[64px] px-2 max-w-md mx-auto relative">
           {/* Position 1: Home */}
           <Link
-            href="/"
+            href="/" prefetch={true}
             aria-label="Home"
             aria-current={isHomeActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-0.5 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
@@ -172,7 +172,7 @@ export default function MobileBottomNav() {
 
           {/* Position 2: Explore */}
           <Link
-            href="/explore"
+            href="/explore" prefetch={true}
             aria-label="Explore"
             aria-current={isExploreActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-0.5 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
@@ -212,7 +212,7 @@ export default function MobileBottomNav() {
 
           {/* Position 4: Bookings */}
           <Link
-            href="/bookings"
+            href="/bookings" prefetch={true}
             aria-label="Bookings"
             aria-current={isBookingsActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-0.5 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
@@ -241,7 +241,7 @@ export default function MobileBottomNav() {
 
           {/* Position 5: Account */}
           <Link
-            href="/profile"
+            href="/profile" prefetch={true}
             aria-label="Account"
             aria-current={isAccountActive ? "page" : undefined}
             className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-0.5 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${

@@ -1,39 +1,28 @@
 import { auth } from "@/auth";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
-
-import User from "@/models/user.model";
-import connectDb from "@/lib/db";
 import PublicHome from "@/shared/components/PublicHome";
 import { redirect } from "next/navigation";
 import GeoUpdater from "@/features/maps/components/GeoUpdater";
-
 import ActiveRideBanner from "@/features/rides/components/ActiveRideBanner";
 
 export default async function Home() {
   const session = await auth();
 
-  // ✅ DATABASE = SINGLE SOURCE OF TRUTH
-  if (session?.user?.id) {
-    await connectDb();
+  // Instant role redirect checks based on verified session JWT (synced in auth.ts)
+  // Eliminates blocking DB connection latency on every page transition to "/"
+  if (session?.user?.role === "admin") {
+    redirect("/admin/dashboard");
+  }
 
-    const user = await User.findById(session.user.id)
-      .select("role vendorOnboardingStep vendorStatus")
-      .lean();
-
-    if (user?.role === "admin" || session?.user?.role === "admin") {
-      redirect("/admin/dashboard");
-    }
-
-    if (user?.role === "vendor") {
-      redirect("/partners/dashboard");
-    }
+  if (session?.user?.role === "vendor") {
+    redirect("/partners/dashboard");
   }
 
   return (
     <div className="w-full min-h-screen bg-[#FAF7F0] dark:bg-[#061A16]">
       <Nav />
-      <GeoUpdater userId={session?.user?.id}/>
+      <GeoUpdater userId={session?.user?.id} />
       <PublicHome />
 
       {/* Floating active ride recovery pill when user has an ongoing trip */}

@@ -452,7 +452,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             <div>
               <div className="flex items-center justify-between pb-6 border-b border-[#DED7CA]/80 dark:border-[#24483D]">
                 <Link
-                  href="/"
+                  href="/" prefetch={true}
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center active:scale-95 transition"
                 >

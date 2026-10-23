@@ -9,6 +9,7 @@ import CookieConsent from "@/shared/components/CookieConsent";
 import MobileBottomNav from "@/shared/components/MobileBottomNav";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import SplashScreen from "@/shared/components/SplashScreen";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -127,6 +128,13 @@ export default function RootLayout({
       className={`${inter.variable} ${dmSerifDisplay.variable} ${outfit.variable}`}
     >
       <head>
+        {/* Preload Critical Hero and Branding WebP Images for Instant Rendering */}
+        <link rel="preload" as="image" href="/mobile-home/hero_landscape.webp" media="(prefers-color-scheme: light)" type="image/webp" />
+        <link rel="preload" as="image" href="/mobile-home/hero_landscape_dark.webp" media="(prefers-color-scheme: dark)" type="image/webp" />
+        <link rel="preload" as="image" href="/logojatri.webp" media="(prefers-color-scheme: light)" type="image/webp" />
+        <link rel="preload" as="image" href="/logojatri-dark.webp" media="(prefers-color-scheme: dark)" type="image/webp" />
+
+        {/* Instant Theme Resolver & Zero-FOUC Initialization */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -147,10 +155,12 @@ export default function RootLayout({
                     root.classList.add('dark');
                     root.classList.remove('light');
                     root.style.colorScheme = 'dark';
+                    root.style.backgroundColor = '#061A16';
                   } else {
                     root.classList.remove('dark');
                     root.classList.add('light');
                     root.style.colorScheme = 'light';
+                    root.style.backgroundColor = '#FAF7F0';
                   }
                 } catch(e) {}
               })();
@@ -163,6 +173,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] w-full min-h-screen font-sans flex flex-col">
+        <SplashScreen />
         <Provider>
           <ThemeProvider>
             <LanguageProvider>

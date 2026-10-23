@@ -2552,7 +2552,7 @@ export default function BookPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Link
-                href="/"
+                href="/" prefetch={true}
                 className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED] transition cursor-pointer shrink-0"
                 aria-label="Go Home"
                 title="Go Home"
@@ -2568,7 +2568,7 @@ export default function BookPage() {
               >
                 <ArrowLeft size={16} />
               </button>
-              <Link href="/" className="flex items-center gap-1.5 hover:opacity-90 transition cursor-pointer">
+              <Link href="/" prefetch={true} className="flex items-center gap-1.5 hover:opacity-90 transition cursor-pointer">
                 <Image
                   src="/logojatri.png"
                   alt="Jaatri"
@@ -2717,7 +2717,7 @@ export default function BookPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Link
-                    href="/"
+                    href="/" prefetch={true}
                     className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED] transition shrink-0"
                     aria-label="Go Home"
                     title="Go Home"
@@ -2733,7 +2733,7 @@ export default function BookPage() {
                   >
                     <ArrowLeft size={15} />
                   </button>
-                  <Link href="/" className="flex items-center gap-1.5 hover:opacity-90 transition">
+                  <Link href="/" prefetch={true} className="flex items-center gap-1.5 hover:opacity-90 transition">
                     <Image
                       src="/logojatri.png"
                       alt="Jaatri"
@@ -2776,7 +2776,7 @@ export default function BookPage() {
             {/* Floating Top-Left Home / Back CTA over Mobile Map */}
             <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 pointer-events-auto">
               <Link
-                href="/"
+                href="/" prefetch={true}
                 className="h-8 px-2.5 bg-white/95 dark:bg-[#0B2822]/95 hover:bg-white dark:hover:bg-[#10352C] text-zinc-900 dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition"
                 title="Home"
               >
