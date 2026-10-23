@@ -1,0 +1,23 @@
+name: Rides Scheduled Dispatch Cron
+
+on:
+  schedule:
+    # Runs every 10 minutes to dispatch upcoming scheduled rides and sweep stale requests
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run-rides-cron:
+    name: Trigger Scheduled Rides Dispatch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Rides Cron Endpoint
+        run: |
+          ENDPOINT="${{ secrets.PRODUCTION_APP_URL || 'https://ride-now-vehicle-booking-site.vercel.app' }}/api/cron/rides"
+          echo "Pinging: $ENDPOINT"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$ENDPOINT" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "HTTP Status Code: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 204 ]; then
+            echo "Warning: Cron returned status $HTTP_STATUS (check CRON_SECRET or network reachability)"
+          fi
