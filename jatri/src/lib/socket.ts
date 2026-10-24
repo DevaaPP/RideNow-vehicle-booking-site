@@ -71,24 +71,39 @@ export const getSocket = (authData?: { userId?: string; token?: string; tracking
     // Auto-rejoin rooms and re-assert identity whenever connection is established or restored
     const reassertSubscriptions = () => {
       const currentSocket = socket;
-      if (!currentSocket) return;
+      if (!currentSocket || !currentSocket.connected) return;
 
-      // Re-authenticate if token exists
+      const emitRoomJoins = (tokenToUse?: string) => {
+        activeBookingRooms.forEach((trackingToken, bookingId) => {
+          currentSocket.emit("join-booking", {
+            bookingId,
+            trackingToken,
+            token: tokenToUse || savedAuthData.token,
+          });
+        });
+      };
+
       if (savedAuthData.token) {
-        currentSocket.emit("authenticate", { token: savedAuthData.token });
+        // Authenticate with server acknowledgment, then confirm room joins
+        currentSocket.emit("authenticate", { token: savedAuthData.token }, () => {
+          emitRoomJoins(savedAuthData.token);
+        });
+        // Also emit immediately with token in payload for fast-path joining
+        emitRoomJoins(savedAuthData.token);
       } else if (savedAuthData.userId) {
-        // Trigger lazy fetch for background token authentication
-        fetchSocketToken();
+        fetchSocketToken().then((token) => {
+          if (token && currentSocket.connected) {
+            currentSocket.emit("authenticate", { token }, () => {
+              emitRoomJoins(token);
+            });
+            emitRoomJoins(token);
+          } else {
+            emitRoomJoins();
+          }
+        });
+      } else {
+        emitRoomJoins();
       }
-
-      // Rejoin all active booking rooms
-      activeBookingRooms.forEach((trackingToken, bookingId) => {
-        if (trackingToken) {
-          currentSocket.emit("join-booking", { bookingId, trackingToken });
-        } else {
-          currentSocket.emit("join-booking", bookingId);
-        }
-      });
     };
 
     socket.on("connect", reassertSubscriptions);
@@ -135,11 +150,11 @@ export const joinBookingRoom = (bookingId: string, trackingToken?: string) => {
   activeBookingRooms.set(bookingId, trackingToken);
   const s = getSocket();
   if (s && s.connected) {
-    if (trackingToken) {
-      s.emit("join-booking", { bookingId, trackingToken });
-    } else {
-      s.emit("join-booking", bookingId);
-    }
+    s.emit("join-booking", {
+      bookingId,
+      trackingToken,
+      token: savedAuthData.token,
+    });
   }
 };
 

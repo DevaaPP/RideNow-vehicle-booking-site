@@ -466,6 +466,90 @@ export async function settleDriverPlatformDues(params: {
 }
 
 /**
+ * Credits a customer wallet top-up with strict idempotency and dual balance synchronization.
+ */
+export async function creditUserWalletTopup(params: {
+  userId: string | Types.ObjectId;
+  amount: number;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  source?: string;
+}) {
+  await connectDb();
+  const { userId, amount, razorpayOrderId, razorpayPaymentId, source = "Online Payment" } = params;
+  const creditAmount = Math.round(Number(amount));
+
+  if (!creditAmount || isNaN(creditAmount) || creditAmount <= 0) {
+    throw new Error("Invalid wallet top-up amount");
+  }
+
+  // Idempotency: prevent duplicate wallet credit if razorpayPaymentId was already recorded
+  if (razorpayPaymentId) {
+    const existingTx = await WalletTransaction.findOne({
+      razorpayPaymentId,
+      transactionType: "TOPUP",
+      status: "success",
+    });
+
+    if (existingTx) {
+      const wallet = await getOrCreateWallet(userId);
+      return {
+        success: true,
+        isIdempotentReplay: true,
+        creditAmount: existingTx.amount,
+        balanceAfter: wallet.balance,
+        transaction: existingTx,
+      };
+    }
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found for wallet top-up");
+  }
+
+  const wallet = await getOrCreateWallet(user._id);
+  const balanceBefore = wallet.balance || 0;
+  const balanceAfter = balanceBefore + creditAmount;
+
+  // Atomically increment Wallet balance
+  await Wallet.findByIdAndUpdate(wallet._id, {
+    $inc: { balance: creditAmount },
+  });
+
+  // Atomically increment user's walletBalance
+  await User.findByIdAndUpdate(user._id, {
+    $inc: { walletBalance: creditAmount },
+  });
+
+  const txnId = generateTransactionId("TXN_TOPUP");
+
+  const transaction = await WalletTransaction.create({
+    transactionId: txnId,
+    walletId: wallet._id,
+    userId: user._id,
+    type: "credit",
+    transactionType: "TOPUP",
+    category: "topup",
+    amount: creditAmount,
+    balanceBefore,
+    balanceAfter,
+    razorpayPaymentId,
+    razorpayOrderId,
+    description: `Added ₹${creditAmount} via ${source}`,
+    status: "success",
+  });
+
+  return {
+    success: true,
+    isIdempotentReplay: false,
+    creditAmount,
+    balanceAfter,
+    transaction,
+  };
+}
+
+/**
  * Requests a driver payout/withdrawal with duplicate prevention & balance locking.
  */
 export async function requestDriverWithdrawal(params: {

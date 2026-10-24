@@ -416,20 +416,27 @@ io.on("connection", (socket) => {
     User.findByIdAndUpdate(socket.userId, { socketId: socket.id, lastHeartbeat: new Date() }).catch(() => {});
   }
 
-  // Upgrade guest connection to authenticated socket after user signs in
-  socket.on("authenticate", async (data) => {
+  // Upgrade guest connection to authenticated socket after user signs in (supports optional acknowledgment callback)
+  socket.on("authenticate", async (data, ackCb) => {
     const token = data?.token;
-    if (!token) return;
+    if (!token) {
+      if (typeof ackCb === "function") ackCb({ success: false, error: "Missing token" });
+      return;
+    }
 
     const verified = verifySocketToken(token);
     if (!verified?.userId || !mongoose.Types.ObjectId.isValid(verified.userId)) {
       console.warn(`[SocketSecurity] Rejected invalid authenticate token from socket ${socket.id}`);
+      if (typeof ackCb === "function") ackCb({ success: false, error: "Invalid token" });
       return;
     }
 
     try {
       const user = await User.findById(verified.userId).select("_id role isVendorBlocked");
-      if (!user || user.isVendorBlocked) return;
+      if (!user || user.isVendorBlocked) {
+        if (typeof ackCb === "function") ackCb({ success: false, error: "User blocked or not found" });
+        return;
+      }
 
       socket.userId = user._id.toString();
       socket.userRole = user.role || verified.role || "user";
@@ -438,8 +445,10 @@ io.on("connection", (socket) => {
 
       socket.join(`user-${socket.userId}`);
       await User.findByIdAndUpdate(socket.userId, { socketId: socket.id, lastHeartbeat: new Date() });
+      if (typeof ackCb === "function") ackCb({ success: true, userId: socket.userId });
     } catch (err) {
       console.error("[SocketAuth] authenticate event error:", err);
+      if (typeof ackCb === "function") ackCb({ success: false, error: "Authentication failed" });
     }
   });
 
@@ -460,20 +469,41 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Secure Room Joining: Enforces booking access verification
-  socket.on("join-booking", async (payload) => {
-    if (!checkSocketRateLimit(socket.id)) return;
+  // Secure Room Joining: Enforces booking access verification with inline fast-path authentication
+  socket.on("join-booking", async (payload, ackCb) => {
+    if (!checkSocketRateLimit(socket.id)) {
+      if (typeof ackCb === "function") ackCb({ success: false, error: "Rate limit exceeded" });
+      return;
+    }
 
     const bookingId = typeof payload === "string" ? payload : payload?.bookingId;
     const trackingToken = typeof payload === "object" ? payload?.trackingToken : socket.trackingToken;
+    const clientToken = typeof payload === "object" ? payload?.token : null;
 
     if (!bookingId || typeof bookingId !== "string" || !mongoose.Types.ObjectId.isValid(bookingId)) {
+      if (typeof ackCb === "function") ackCb({ success: false, error: "Invalid booking ID" });
       return;
+    }
+
+    // Fast-path inline token verification: If socket is not yet marked authenticated
+    // (e.g. race condition on cellular reconnection or background tab resumption),
+    // authenticate socket immediately if a signed token is provided.
+    if (!socket.userId && (clientToken || socket.handshake?.auth?.token)) {
+      const authToken = clientToken || socket.handshake.auth?.token;
+      const verified = verifySocketToken(authToken);
+      if (verified?.userId && mongoose.Types.ObjectId.isValid(verified.userId)) {
+        socket.userId = verified.userId;
+        socket.userRole = verified.role || "user";
+        socket.data.userId = socket.userId;
+        socket.data.userRole = socket.userRole;
+        socket.join(`user-${socket.userId}`);
+      }
     }
 
     const auth = await verifyBookingAccess(bookingId, socket.userId, socket.userRole, trackingToken);
     if (!auth.allowed) {
       console.warn(`[SocketSecurity] Denied unauthorized join attempt for booking ${bookingId} by socket ${socket.id} (user: ${socket.userId || 'guest'})`);
+      if (typeof ackCb === "function") ackCb({ success: false, error: "Unauthorized" });
       return;
     }
 
@@ -485,6 +515,10 @@ io.on("connection", (socket) => {
       if (!observed.includes(bookingId)) observed.push(bookingId);
       socket.data.publicTrackingBookingIds = observed;
       if (auth.expiresAt) schedulePublicTrackingExpiry(socket, bookingId, auth.expiresAt);
+    }
+
+    if (typeof ackCb === "function") {
+      ackCb({ success: true, room: `booking-${bookingId}`, isObserver: !!auth.isObserver });
     }
   });
 

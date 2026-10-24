@@ -44,6 +44,7 @@ export interface WebhookEventPayload {
         currency: string;
         status: string;
         method: string;
+        notes?: Record<string, any>;
       };
     };
     order?: {
@@ -52,6 +53,7 @@ export interface WebhookEventPayload {
         amount: number;
         receipt: string;
         status: string;
+        notes?: Record<string, any>;
       };
     };
   };
@@ -301,6 +303,86 @@ export async function handleRazorpayWebhook(
     const paymentId = paymentEntity?.id;
 
     if (orderId) {
+      const notesType = orderEntity?.notes?.type || paymentEntity?.notes?.type;
+      const topupUserId = orderEntity?.notes?.userId || paymentEntity?.notes?.userId;
+
+      // 1. Reconcile Customer Wallet Top-Up
+      if (notesType === "wallet_topup" && topupUserId) {
+        const amountPaise = Number(paymentEntity?.amount || orderEntity?.amount || 0);
+        const creditRupees = Math.round(amountPaise / 100);
+
+        if (creditRupees > 0) {
+          const { creditUserWalletTopup } = await import("@/lib/walletLedger");
+          const topupResult = await creditUserWalletTopup({
+            userId: topupUserId,
+            amount: creditRupees,
+            razorpayOrderId: orderId,
+            razorpayPaymentId: paymentId,
+            source: "Online Payment (Webhook Reconciled)",
+          });
+
+          // Emit real-time update to user wallet
+          try {
+            const { emitSocketEvent } = await import("@/lib/socketServerEmit");
+            await emitSocketEvent({
+              userId: topupUserId,
+              event: "wallet-updated",
+              data: {
+                balance: topupResult.balanceAfter,
+                amountCredited: creditRupees,
+              },
+            });
+          } catch (socketErr) {
+            logger.warn("payment.webhook.wallet_socket_emit_failed", { error: String(socketErr) });
+          }
+
+          logger.info("payment.webhook.wallet_topup_reconciled", {
+            userId: topupUserId,
+            orderId,
+            paymentId,
+            amount: creditRupees,
+            isIdempotentReplay: topupResult.isIdempotentReplay,
+          });
+
+          return {
+            success: true,
+            event,
+            message: `Wallet topup of ₹${creditRupees} successfully reconciled via webhook`,
+          };
+        }
+      }
+
+      // 2. Reconcile Driver Platform Dues Settlement
+      const duesDriverId = orderEntity?.notes?.driverId || paymentEntity?.notes?.driverId;
+      if (notesType === "driver_platform_dues_settlement" && duesDriverId) {
+        const amountPaise = Number(paymentEntity?.amount || orderEntity?.amount || 0);
+        const duesRupees = Math.round(amountPaise / 100);
+
+        if (duesRupees > 0) {
+          const { settleDriverPlatformDues } = await import("@/lib/walletLedger");
+          const duesResult = await settleDriverPlatformDues({
+            driverId: duesDriverId,
+            amount: duesRupees,
+            razorpayOrderId: orderId,
+            razorpayPaymentId: paymentId,
+          });
+
+          logger.info("payment.webhook.driver_dues_reconciled", {
+            driverId: duesDriverId,
+            orderId,
+            paymentId,
+            paidAmount: duesResult.paidAmount,
+          });
+
+          return {
+            success: true,
+            event,
+            message: `Driver platform dues settlement of ₹${duesResult.paidAmount} reconciled via webhook`,
+          };
+        }
+      }
+
+      // 3. Reconcile Ride Booking Payment
       const paymentDoc = await Payment.findOne({ orderId });
       if (paymentDoc && paymentDoc.status !== "success") {
         paymentDoc.status = "success";
