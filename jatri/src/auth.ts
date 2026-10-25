@@ -32,6 +32,7 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
@@ -168,8 +169,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
     Google({
-      clientId: (process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID) as string,
-      clientSecret: (process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET) as string
+      clientId: (process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID || "").trim(),
+      clientSecret: (process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET || "").trim(),
+      allowDangerousEmailAccountLinking: true,
     })
   ],
   callbacks:{
@@ -177,22 +179,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({user,account}) {
       if(account?.provider=="google"){
         await connectDb()
-        let dbUser=await User.findOne({email:user.email})
-       if(!dbUser){
-         dbUser=await User.create({
-          name:user.name,
-          email:user.email,
-          isEmailVerified: true
-         })
-       } else if (!dbUser.isEmailVerified) {
-         dbUser.isEmailVerified = true;
-         await dbUser.save();
-       }
+        const email = user.email?.toLowerCase().trim();
+        if (!email) return false;
+        let dbUser = await User.findOne({ email });
+        if(!dbUser){
+          dbUser = await User.create({
+            name: user.name || "User",
+            email,
+            isEmailVerified: true,
+            role: "user",
+          });
+        } else if (!dbUser.isEmailVerified) {
+          dbUser.isEmailVerified = true;
+          await dbUser.save();
+        }
 
-       user.id=dbUser._id.toString()
-       user.role=dbUser.role
+        user.id = dbUser._id.toString();
+        user.role = dbUser.role || "user";
       }
-      return true
+      return true;
     },
     async jwt({token,user,trigger,session}) {
         if(user){
@@ -253,7 +258,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy:"jwt",
     maxAge:10*24*60*60
   },
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "jaatri-nextauth-fallback-secret-key-at-least-32-chars-long"
 })
 
 

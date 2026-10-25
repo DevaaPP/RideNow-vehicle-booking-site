@@ -67,6 +67,7 @@ export default function AuthModal({ open, onClose }: Props) {
 
   // Status & error banners
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -78,6 +79,22 @@ export default function AuthModal({ open, onClose }: Props) {
     return () => {
       document.body.style.overflow = "";
     };
+  }, [open]);
+
+  /* Detect OAuth redirect error if returned from Google */
+  useEffect(() => {
+    if (typeof window === "undefined" || !open) return;
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get("error");
+    if (authError) {
+      if (authError === "OAuthSignin" || authError === "OAuthCallback" || authError === "OAuthCreateAccount") {
+        setErrorMessage("Google sign-in was interrupted or not authorized. Please try again or use Phone/OTP.");
+      } else if (authError === "Configuration") {
+        setErrorMessage("Authentication server configuration error. Please try Phone/OTP login.");
+      } else if (authError === "AccessDenied") {
+        setErrorMessage("Access was denied. Please select a valid Google account.");
+      }
+    }
   }, [open]);
 
   /* Resend timer countdown */
@@ -245,7 +262,18 @@ export default function AuthModal({ open, onClose }: Props) {
 
   /* 🔥 3. GOOGLE LOGIN */
   const handleGoogleLogin = async () => {
-    await signIn("google");
+    try {
+      setGoogleLoading(true);
+      setErrorMessage(null);
+      await signIn("google", {
+        callbackUrl: typeof window !== "undefined" ? window.location.href : "/",
+      });
+    } catch (err: any) {
+      console.error("Google sign-in error:", err);
+      setErrorMessage("Google sign-in could not be completed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   /* ✉️ 4. EMAIL LOGIN */
@@ -363,7 +391,7 @@ export default function AuthModal({ open, onClose }: Props) {
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-[100] flex items-center justify-center px-4"
           >
-            <div className="relative w-full max-w-md rounded-[14px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] shadow-xl p-6 sm:p-7 text-zinc-900 dark:text-[#F7F5ED]">
+            <div className="relative w-full max-w-md rounded-[14px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] shadow-xl p-6 sm:p-7 text-zinc-900 dark:text-[#F7F5ED] max-h-[92dvh] overflow-y-auto">
               {/* CLOSE BUTTON */}
               <button
                 onClick={onClose}
@@ -480,11 +508,19 @@ export default function AuthModal({ open, onClose }: Props) {
 
                     {/* GOOGLE SIGN IN */}
                     <button
+                      type="button"
+                      disabled={googleLoading}
                       onClick={handleGoogleLogin}
-                      className="w-full h-11 rounded-[8px] border border-zinc-300 dark:border-[#24483D] bg-white dark:bg-[#10352C] hover:border-zinc-900 dark:hover:border-[#426457] flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 dark:text-[#F7F5ED] transition active:scale-98"
+                      className="w-full h-11 rounded-[8px] border border-zinc-300 dark:border-[#24483D] bg-white dark:bg-[#10352C] hover:border-zinc-900 dark:hover:border-[#426457] flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 dark:text-[#F7F5ED] transition active:scale-98 disabled:opacity-60"
                     >
-                      <Image src="/google.webp" alt="Google" width={18} height={18} />
-                      <span>{t("auth.continueWithGoogle", "Continue with Google")}</span>
+                      {googleLoading ? (
+                        <Loader2 className="animate-spin text-zinc-600 dark:text-[#B9C8BF]" size={18} />
+                      ) : (
+                        <Image src="/google.webp" alt="Google" width={18} height={18} />
+                      )}
+                      <span>
+                        {googleLoading ? "Connecting to Google…" : t("auth.continueWithGoogle", "Continue with Google")}
+                      </span>
                     </button>
 
                     {/* SWITCH TO EMAIL */}
