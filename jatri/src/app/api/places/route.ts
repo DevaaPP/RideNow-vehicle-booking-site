@@ -39,7 +39,20 @@ async function setCached(key: string, data: any, ttlSec: number = REDIS_PLACES_C
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const action = searchParams.get("action");
+  let action = searchParams.get("action");
+
+  // Intelligent action inferencing if omitted by callers
+  if (!action) {
+    if (searchParams.has("placeId") || searchParams.has("place_id")) {
+      action = "details";
+    } else if (searchParams.has("lat") && (searchParams.has("lng") || searchParams.has("lon"))) {
+      action = "geocode";
+    } else if (searchParams.has("input") || searchParams.has("query") || searchParams.has("q") || searchParams.has("address")) {
+      action = "autocomplete";
+    }
+  } else if (action === "reverse") {
+    action = "geocode";
+  }
 
   // Descriptive User-Agent to prevent rate-limiting from public Photon servers
   const headers = {
@@ -48,7 +61,7 @@ export async function GET(req: NextRequest) {
 
   try {
     if (action === "autocomplete") {
-      const input = (searchParams.get("input") || "").trim();
+      const input = (searchParams.get("input") || searchParams.get("query") || searchParams.get("q") || searchParams.get("address") || "").trim();
       if (!input || input.length < 2) {
         return NextResponse.json({ predictions: [], status: "OK" });
       }
@@ -227,7 +240,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (action === "details") {
-      const placeId = searchParams.get("placeId") || "";
+      const placeId = searchParams.get("placeId") || searchParams.get("place_id") || "";
 
       if (placeId.startsWith("photon_") || placeId.startsWith("nom_")) {
         const parts = placeId.split("_");
@@ -261,8 +274,8 @@ export async function GET(req: NextRequest) {
 
     if (action === "geocode") {
       const lat = searchParams.get("lat");
-      const lng = searchParams.get("lng");
-      const address = (searchParams.get("address") || "").trim();
+      const lng = searchParams.get("lng") || searchParams.get("lon");
+      const address = (searchParams.get("address") || searchParams.get("query") || searchParams.get("q") || "").trim();
 
       const cacheKey = address
         ? `gc_addr_${address.toLowerCase()}`

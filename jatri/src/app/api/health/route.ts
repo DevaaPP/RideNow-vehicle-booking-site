@@ -2,18 +2,38 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 
 export async function GET() {
   const startTime = Date.now();
   try {
-    await connectDb();
-    // Fast ping query to keep database connection pool warm
+    const conn = await connectDb();
+
+    // Check if database connection is open and ready
+    if (!conn || mongoose.connection.readyState !== 1) {
+      return NextResponse.json({
+        status: "degraded",
+        service: "RideNow Web App",
+        database: "disconnected",
+        message: "Database connection not ready. Check MONGODB_URI in environment.",
+        latencyMs: Date.now() - startTime,
+        timestamp: new Date().toISOString(),
+      }, {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      });
+    }
+
+    // Fast ping query to verify database query execution
     await User.findOne().select("_id").lean();
 
     return NextResponse.json({
       status: "ok",
+      service: "RideNow Web App",
       timestamp: new Date().toISOString(),
       latencyMs: Date.now() - startTime,
       database: "connected",
@@ -24,9 +44,16 @@ export async function GET() {
     });
   } catch (error: any) {
     return NextResponse.json({
-      status: "error",
-      message: error?.message || "Health check failed",
+      status: "degraded",
+      service: "RideNow Web App",
+      message: error?.message || "Health check degraded",
       latencyMs: Date.now() - startTime,
-    }, { status: 500 });
+      timestamp: new Date().toISOString(),
+    }, {
+      status: 200,
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    });
   }
 }
