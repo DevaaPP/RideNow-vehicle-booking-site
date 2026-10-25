@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 86400; // 24 hours
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://ride-now-vehicle-booking-site.vercel.app";
+  const baseUrl = "https://ridenow-vehicle-booking-site.vercel.app";
   const now = new Date();
 
   const routes = [

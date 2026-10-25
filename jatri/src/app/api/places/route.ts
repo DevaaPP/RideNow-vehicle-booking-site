@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
   // Descriptive User-Agent to prevent rate-limiting from public Photon servers
   const headers = {
-    "User-Agent": "RideNow-Vehicle-Booking-Site/1.0 (contact: support@ridenow.app; contact_page: https://ride-now-vehicle-booking-site.vercel.app/contact)"
+    "User-Agent": "RideNow-Vehicle-Booking-Site/1.0 (contact: support@ridenow.app; contact_page: https://ridenow-vehicle-booking-site.vercel.app/contact)"
   };
 
   try {

@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Ping Rides Cron Endpoint
         run: |
-          ENDPOINT="${{ secrets.PRODUCTION_APP_URL || 'https://ride-now-vehicle-booking-site.vercel.app' }}/api/cron/rides"
+          ENDPOINT="${{ secrets.PRODUCTION_APP_URL || 'https://ridenow-vehicle-booking-site.vercel.app' }}/api/cron/rides"
           echo "Pinging: $ENDPOINT"
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$ENDPOINT" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")

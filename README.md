@@ -1,7 +1,7 @@
 # 🚗 Jaatri (যাত্ৰী) / RideNow — Hyperlocal Urban Mobility & Logistics Platform
 
 <p align="center">
-  <a href="https://ride-now-vehicle-booking-site.vercel.app" target="_blank" rel="noopener noreferrer">
+  <a href="https://ridenow-vehicle-booking-site.vercel.app" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/🚀%20Live%20Web%20App-Launch%20Jaatri-046A38?style=for-the-badge&logo=safari&logoColor=white" alt="Live Demo" />
   </a>
   <a href="https://github.com/niyar18/RideNow-vehicle-booking-site">
@@ -15,7 +15,7 @@
 ---
 
 ### 🌐 Live Application
-> **Experience Jaatri Live**: [**https://ride-now-vehicle-booking-site.vercel.app**](https://ride-now-vehicle-booking-site.vercel.app)  
+> **Experience Jaatri Live**: [**https://ridenow-vehicle-booking-site.vercel.app**](https://ridenow-vehicle-booking-site.vercel.app)  
 > Full-featured ride-hailing and parcel logistics across Northeast India (Guwahati, Shillong, Kaziranga, Majuli, and beyond). Includes WhatsApp & SMS authentication, live driver dispatch, MapLibre GL vector tracking, and driver wallet settlements.
 
 ---

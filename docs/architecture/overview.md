@@ -85,7 +85,7 @@ Jaatri is architected as a decoupled, multi-service platform:
 | Environment | Web / API Host | Socket Server Host | Database |
 |---|---|---|---|
 | **Development** | `http://localhost:3000` | `http://localhost:5000` | Local or Remote MongoDB Atlas |
-| **Production** | Vercel (`https://ride-now-vehicle-booking-site.vercel.app`) | Render (`https://ridenow-socket.onrender.com` or custom URL) | MongoDB Atlas (Replica Set with SRV) |
+| **Production** | Vercel (`https://ridenow-vehicle-booking-site.vercel.app`) | Render (`https://ridenow-socket.onrender.com` or custom URL) | MongoDB Atlas (Replica Set with SRV) |
 
 ---
 

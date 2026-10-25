@@ -31,7 +31,7 @@ const dmSerifDisplay = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ride-now-vehicle-booking-site.vercel.app"),
+  metadataBase: new URL("https://ridenow-vehicle-booking-site.vercel.app"),
   title: {
     default: "Jaatri (যাত্ৰী) - Smart Vehicle Booking Platform",
     template: "%s | Jaatri",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://ride-now-vehicle-booking-site.vercel.app",
+    url: "https://ridenow-vehicle-booking-site.vercel.app",
     siteName: "Jaatri",
     title: "Jaatri (যাত্ৰী) - Smart Vehicle Booking Platform",
     description:
@@ -114,8 +114,8 @@ export default function RootLayout({
     "@type": "TransportationService",
     name: "Jaatri (যাত্ৰী)",
     alternateName: "RideNow",
-    url: "https://ride-now-vehicle-booking-site.vercel.app",
-    logo: "https://ride-now-vehicle-booking-site.vercel.app/logojatri.png",
+    url: "https://ridenow-vehicle-booking-site.vercel.app",
+    logo: "https://ridenow-vehicle-booking-site.vercel.app/logojatri.png",
     description: "Smart vehicle booking and transparent on-demand transportation platform.",
     areaServed: "IN",
     serviceType: ["Cab Booking", "Auto Rickshaw", "Bike Taxi", "Logistics Delivery"],
