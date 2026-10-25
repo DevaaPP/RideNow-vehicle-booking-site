@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -39,6 +39,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { setUserData } from "@/redux/userSlice";
 import PartnerEarningsChart from "./PartnerEarningsChart";
 import DriverWalletCard from "./DriverWalletCard";
+import DriverWeeklyIncentiveCard from "./DriverWeeklyIncentiveCard";
 import DriverPassengerPreferenceCard from "./DriverPassengerPreferenceCard";
 import dynamic from "next/dynamic";
 import { useTranslation } from "@/context/LanguageContext";
@@ -524,7 +525,7 @@ export default function VendorDashboard({
                       : "bg-[#FAF7F0] dark:bg-[#10352C] text-[#696B64] dark:text-[#B9C8BF] border border-[#DED7CA] dark:border-[#24483D]"
                   }`}
                 >
-                  <span>{completed ? "✓" : `0${step.id}`}</span>
+                  <span>{completed ? "âœ“" : `0${step.id}`}</span>
                   <span>{step.title}</span>
                 </button>
               );
@@ -1066,7 +1067,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     fetchPendingRequest();
     fetchShiftSummary();
 
-    // 🔁 Fast polling fallback every 2 seconds ensures instant notification even on slow networks
+    // ðŸ” Fast polling fallback every 2 seconds ensures instant notification even on slow networks
     const interval = setInterval(() => {
       checkActiveRide();
       fetchPendingRequest();
@@ -1329,7 +1330,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
       if (nextOnline) {
         if (isDebtBlocked) {
-          alert(`Dispatch blocked: You have ₹${platformDues.toFixed(2)} in unpaid platform dues (threshold is ₹${maxAllowedPlatformDues}). Please settle your dues in the Driver Wallet to go online.`);
+          alert(`Dispatch blocked: You have â‚¹${platformDues.toFixed(2)} in unpaid platform dues (threshold is â‚¹${maxAllowedPlatformDues}). Please settle your dues in the Driver Wallet to go online.`);
           router.push("/partner/wallet");
           setLoading(false);
           return;
@@ -1573,11 +1574,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     Dispatch Blocked &bull; Platform Commission Dues Limit Exceeded
                   </p>
                   <span className="bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-200 text-[10px] font-mono px-2 py-0.5 font-bold uppercase rounded-[4px]">
-                    ₹{platformDues.toFixed(2)} Dues
+                    â‚¹{platformDues.toFixed(2)} Dues
                   </span>
                 </div>
                 <p className="text-xs text-red-800/90 dark:text-red-300/90 mt-1 font-body">
-                  You have exceeded the maximum allowed cash ride commission threshold of ₹{maxAllowedPlatformDues}. Settle your platform dues instantly via UPI or card in your Driver Wallet to resume receiving ride assignments.
+                  You have exceeded the maximum allowed cash ride commission threshold of â‚¹{maxAllowedPlatformDues}. Settle your platform dues instantly via UPI or card in your Driver Wallet to resume receiving ride assignments.
                 </p>
               </div>
             </div>
@@ -1601,7 +1602,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
             <div>
               <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-none tabular-nums font-mono">
-                ₹{shiftSummary?.todayEarnings ?? 0}
+                â‚¹{shiftSummary?.todayEarnings ?? 0}
               </p>
               <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium mt-1">Net shift earnings</p>
             </div>
@@ -1649,7 +1650,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             <div>
               <div className="flex items-baseline gap-1.5 leading-none">
                 <p className="text-xl sm:text-3xl font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight tabular-nums font-mono">
-                  ★ {shiftSummary?.rating ?? 5.0}
+                  â˜… {shiftSummary?.rating ?? 5.0}
                 </p>
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] uppercase tracking-wider ${
                   (shiftSummary?.cancellationRate ?? 0) > 10
@@ -1702,7 +1703,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="text-xs font-bold uppercase tracking-wide">
-                          {isExpired ? "Document Expired — Service Restricted" : "Document Expiry Warning"}
+                          {isExpired ? "Document Expired â€” Service Restricted" : "Document Expiry Warning"}
                         </p>
                         <span
                           className={`text-[9px] font-bold px-2 py-0.5 rounded-[4px] uppercase tracking-wider border ${
@@ -1748,7 +1749,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 Dispatch & Duty Status
               </p>
               <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
-                {isOnline ? "Online — Accepting Trips" : "Offline — Duty Paused"}
+                {isOnline ? "Online â€” Accepting Trips" : "Offline â€” Duty Paused"}
               </h2>
               <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1 leading-relaxed font-body">
                 {isOnline
@@ -1759,7 +1760,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
             {isDebtBlocked && (
               <div className="mt-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-[#E34222] dark:text-[#E06A50] text-xs font-medium flex items-center justify-between gap-2">
-                <span className="truncate font-mono text-[11px]">Dues limit reached (₹{platformDues.toFixed(2)} / ₹{maxAllowedPlatformDues})</span>
+                <span className="truncate font-mono text-[11px]">Dues limit reached (â‚¹{platformDues.toFixed(2)} / â‚¹{maxAllowedPlatformDues})</span>
                 <Link href="/partner/wallet" className="underline font-bold text-[#E34222] dark:text-[#E06A50] shrink-0 text-xs uppercase">
                   Settle
                 </Link>
@@ -1902,15 +1903,15 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               <div className="space-y-1.5 flex-1 min-w-0">
                 <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF]">
                   <span className="font-medium">Base Fare:</span>
-                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">₹{cfg.baseFare}</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">â‚¹{cfg.baseFare}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF]">
                   <span className="font-medium">Distance Rate:</span>
-                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">₹{cfg.pricePerKm}/km</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">â‚¹{cfg.pricePerKm}/km</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF]">
                   <span className="font-medium">Time Charge:</span>
-                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">₹{cfg.pricePerMinute}/min</span>
+                  <span className="tabular-nums text-[#10251C] dark:text-[#F7F5ED] font-mono font-bold">â‚¹{cfg.pricePerMinute}/min</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF]">
                   <span className="font-medium">Demand Multiplier:</span>
@@ -1930,6 +1931,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         {/* Driver Wallet & Bank Withdrawal */}
         <div className="w-full">
           <DriverWalletCard />
+        </div>
+
+        {/* Driver Performance & Weekly Incentives Goals */}
+        <div className="w-full">
+          <DriverWeeklyIncentiveCard />
         </div>
 
         {/* Women's Safety Matching: Driver Passenger Preference */}
@@ -2031,8 +2037,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                         )}
                         {isCancelled && (
                           <span className="text-[#E34222] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded-[4px] border border-red-200 dark:border-red-900/50 flex items-center gap-1 font-semibold">
-                            ✕ {trip.cancellationReason || "Cancelled"}
-                            {trip.cancellationFeeApplied ? " • ₹40 Driver Compensation" : " • Free cancel"}
+                            âœ• {trip.cancellationReason || "Cancelled"}
+                            {trip.cancellationFeeApplied ? " â€¢ â‚¹40 Driver Compensation" : " â€¢ Free cancel"}
                           </span>
                         )}
                       </div>
@@ -2041,8 +2047,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     {/* Fare / Earnings */}
                     <div className="text-left md:text-right flex-shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-[#DED7CA] dark:border-[#1E3E34]">
                       <p className="text-[10px] uppercase font-bold text-[#696B64] dark:text-[#B9C8BF]">Driver Share</p>
-                      <p className="text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono">₹{trip.partnerAmount}</p>
-                      <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-medium">Fare: ₹{trip.fare}</p>
+                      <p className="text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono">â‚¹{trip.partnerAmount}</p>
+                      <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-medium">Fare: â‚¹{trip.fare}</p>
                     </div>
                   </div>
                 );
@@ -2063,7 +2069,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           isLive={true}
         />
 
-        {/* ── NEW RIDE REQUEST POPUP MODAL ── */}
+        {/* â”€â”€ NEW RIDE REQUEST POPUP MODAL â”€â”€ */}
         <AnimatePresence>
           {pendingRequest && (
             <motion.div
