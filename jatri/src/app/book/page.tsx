@@ -168,6 +168,7 @@ export default function BookPage() {
 
   /* ── DRIVER SAFETY PREFERENCE STATE ── */
   const [driverPreference, setDriverPreference] = useState<DriverPreference>("any");
+  const [womenDriversCount, setWomenDriversCount] = useState<number | undefined>(undefined);
 
   /* ── SMART VEHICLE MATCHING & ASSISTANT STATE ── */
   const [showSmartAssistantModal, setShowSmartAssistantModal] = useState<boolean>(false);
@@ -1201,7 +1202,12 @@ export default function BookPage() {
           })
         });
         const data = await res.json();
-        if (data.success) setVehicles(data.vehicles);
+        if (data.success) {
+          setVehicles(data.vehicles);
+          if (typeof data.womenDriversCount === "number") {
+            setWomenDriversCount(data.womenDriversCount);
+          }
+        }
       } catch (err) {
         console.error(err);
       }
@@ -2154,6 +2160,17 @@ export default function BookPage() {
             <Sparkles size={14} />
             <span>Help me choose</span>
           </button>
+        </div>
+      )}
+
+      {/* 🛡️ DRIVER SAFETY PREFERENCE (ABOVE VEHICLE GRID) */}
+      {serviceMode === "passenger" && (
+        <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[12px] p-3.5 shadow-xs mb-1">
+          <DriverPreferenceSelector
+            value={driverPreference}
+            onChange={setDriverPreference}
+            womenDriversCount={womenDriversCount}
+          />
         </div>
       )}
 

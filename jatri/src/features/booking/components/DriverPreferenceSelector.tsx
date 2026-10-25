@@ -1,30 +1,52 @@
 "use client";
 
 import React from "react";
-import { Users, Shield, Sparkles } from "lucide-react";
+import { Users, Shield, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 import { DriverPreference } from "@/lib/safetyMatching";
 
 interface DriverPreferenceSelectorProps {
   value: DriverPreference;
   onChange: (value: DriverPreference) => void;
   className?: string;
+  womenDriversCount?: number;
+  isLoadingCount?: boolean;
 }
 
 export default function DriverPreferenceSelector({
   value,
   onChange,
   className = "",
+  womenDriversCount,
+  isLoadingCount = false,
 }: DriverPreferenceSelectorProps) {
   return (
     <div className={`flex flex-col gap-2.5 ${className}`}>
       <div className="flex items-center justify-between">
         <label className="text-xs font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] flex items-center gap-1.5">
           <Shield size={14} className="text-[#046A38] dark:text-[#90C8A8]" />
-          Driver Preference
+          <span>Safety Preferences</span>
         </label>
-        <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
-          Voluntary Safety Choice
-        </span>
+        {womenDriversCount !== undefined && (
+          <span
+            className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+              womenDriversCount > 0
+                ? "bg-emerald-100 text-[#046A38] dark:bg-emerald-950/60 dark:text-[#90C8A8] border border-emerald-300 dark:border-emerald-800"
+                : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
+            }`}
+          >
+            {womenDriversCount > 0 ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
+                <span>{womenDriversCount} {womenDriversCount === 1 ? "driver" : "drivers"} nearby</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle size={10} />
+                <span>Limited availability</span>
+              </>
+            )}
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -32,6 +54,7 @@ export default function DriverPreferenceSelector({
         <button
           type="button"
           aria-pressed={value === "any"}
+          aria-label="Any available driver standard dispatch"
           onClick={() => onChange("any")}
           className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
             value === "any"
@@ -42,10 +65,15 @@ export default function DriverPreferenceSelector({
           <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">
             {value === "any" && <div className="w-2 h-2 rounded-full bg-[#046A38]" />}
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-              <Users size={14} className="text-zinc-500" />
-              Any available driver
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center justify-between gap-1.5">
+              <span className="flex items-center gap-1.5">
+                <Users size={14} className="text-zinc-500" />
+                <span>Any driver</span>
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.2 rounded">
+                Fastest pickup
+              </span>
             </span>
             <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-snug">
               Standard dispatch with highest driver availability nearby.
@@ -57,6 +85,7 @@ export default function DriverPreferenceSelector({
         <button
           type="button"
           aria-pressed={value === "woman"}
+          aria-label="Prefer verified woman driver voluntary safety choice"
           onClick={() => onChange("woman")}
           className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
             value === "woman"
@@ -67,13 +96,18 @@ export default function DriverPreferenceSelector({
           <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">
             {value === "woman" && <div className="w-2 h-2 rounded-full bg-[#046A38]" />}
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-              <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
-              Woman driver
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center justify-between gap-1.5">
+              <span className="flex items-center gap-1.5">
+                <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
+                <span>Woman driver</span>
+              </span>
+              <span className="text-[10px] font-bold text-[#046A38] dark:text-[#90C8A8] bg-[#FAF7F0] dark:bg-[#10352C] px-1.5 py-0.2 rounded border border-[#DED7CA] dark:border-[#24483D]">
+                Verified
+              </span>
             </span>
             <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-snug">
-              Request a verified woman driver. Availability may be limited.
+              Priority match with verified women drivers. Never auto-swapped without consent.
             </span>
           </div>
         </button>

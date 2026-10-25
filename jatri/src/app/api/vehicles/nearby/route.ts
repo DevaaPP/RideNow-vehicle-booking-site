@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
@@ -23,7 +23,7 @@ async function queryNearbyVehicles(
     return { vehicles: [], cached: false };
   }
 
-  // 1️⃣ Find nearby vendors within strictly 10km limit
+  // 1ï¸âƒ£ Find nearby vendors within strictly 10km limit
   let vendors: any[] = [];
   try {
     vendors = await User.find({
@@ -71,7 +71,7 @@ async function queryNearbyVehicles(
 
   const vendorMap = new Map(vendors.map((v) => [v._id.toString(), v.location]));
 
-  // 2️⃣ Get vehicles of those vendors with privacy protection:
+  // 2ï¸âƒ£ Get vehicles of those vendors with privacy protection:
   // Strip driver personal identifiers (owner ID, license plate) & fuzz coordinates (~50-80m)
   const vehicles = await Vehicle.find({
     owner: { $in: vendorIds },
@@ -127,7 +127,23 @@ async function queryNearbyVehicles(
   // Cache in Upstash Redis for 8 seconds
   await redisSet(cacheKey, sanitizedVehicles, 8);
 
-  return { vehicles: sanitizedVehicles, cached: false };
+  // Return with live women drivers count
+  let womenDriversCount = 0;
+  try {
+    womenDriversCount = await User.countDocuments({
+      role: "vendor",
+      isOnline: true,
+      "safetyMatching.driverCategory": "woman",
+      "safetyMatching.driverVerificationStatus": "verified",
+      location: {
+        $geoWithin: {
+          $centerSphere: [[longitude, latitude], 10 / 6378.1],
+        },
+      },
+    });
+  } catch (_) {}
+
+  return { vehicles: sanitizedVehicles, womenDriversCount, cached: false };
 }
 
 export async function POST(req: NextRequest) {
@@ -149,6 +165,7 @@ export async function POST(req: NextRequest) {
       success: true,
       vehicles: result.vehicles,
       cached: result.cached,
+      womenDriversCount: (result as any).womenDriversCount || 0,
     });
   } catch (error: any) {
     console.error("NEARBY API ERROR (POST):", error);
@@ -181,6 +198,7 @@ export async function GET(req: NextRequest) {
       success: true,
       vehicles: result.vehicles,
       cached: result.cached,
+      womenDriversCount: (result as any).womenDriversCount || 0,
     });
   } catch (error: any) {
     console.error("NEARBY API ERROR (GET):", error);
