@@ -1,10 +1,12 @@
-import mongoose, { Schema, Document } from "mongoose";
+﻿import mongoose, { Schema, Document } from "mongoose";
 
 export interface IStudentConfig extends Document {
   discountPercentage: number;      // Default 10%
-  maxDiscountCap: number;          // Default ₹50
-  minFare: number;                 // Default ₹100
+  maxDiscountCap: number;          // Default â‚¹50
+  minFare: number;                 // Default â‚¹100
   validityMonths: number;          // Default 12 months
+  monthlyDiscountCap: number;      // Default ₹200
+  maxMonthlyRides: number;         // Default 10 rides
   eligibleVehicleTypes: string[];  // Default ["bike", "auto", "car"]
   allowStackingWithPromo: boolean; // Default false
   isActive: boolean;               // Default true
@@ -18,6 +20,8 @@ const StudentConfigSchema = new Schema<IStudentConfig>(
     maxDiscountCap: { type: Number, default: 50, min: 0 },
     minFare: { type: Number, default: 100, min: 0 },
     validityMonths: { type: Number, default: 12, min: 1 },
+    monthlyDiscountCap: { type: Number, default: 200, min: 0 },
+    maxMonthlyRides: { type: Number, default: 10, min: 1 },
     eligibleVehicleTypes: {
       type: [String],
       default: ["bike", "auto", "car"],

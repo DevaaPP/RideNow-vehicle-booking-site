@@ -18,6 +18,7 @@ import { getRequestId } from "@/lib/apiResponse";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { rateLimiter } from "@/lib/rateLimit";
+import { getStudentMonthlyStatus, reserveStudentDiscount, releaseStudentDiscountReservation } from "@/lib/studentDiscountEngine";
 
 export async function POST(req: Request) {
   const requestId = getRequestId(req);
@@ -382,6 +383,14 @@ export async function POST(req: Request) {
       );
     }
 
+    const studentStatus = isStudent ? await getStudentMonthlyStatus(session.user.id) : null;
+    const studentSettings = studentStatus
+      ? {
+          remainingMonthlyAllowance: studentStatus.remainingAllowance,
+          remainingMonthlyRides: studentStatus.remainingRides,
+        }
+      : undefined;
+
     // Authoritative distance-only pricing calculation (including any unsettled cancellation dues)
     const breakdown = calculateFareBreakdown(
       vehicleKey,
@@ -391,9 +400,31 @@ export async function POST(req: Request) {
       0,
       isStudent,
       undefined,
-      undefined,
+      studentSettings,
       userOutstanding
     );
+
+    let isStudentReserved = false;
+    let actualReservedDiscount = 0;
+    if (breakdown.isStudentDiscountApplied && (breakdown.studentDiscount || 0) > 0) {
+      const reservation = await reserveStudentDiscount(session.user.id, breakdown.studentDiscount || 0);
+      if (reservation.success && reservation.discountAmount > 0) {
+        isStudentReserved = true;
+        actualReservedDiscount = reservation.discountAmount;
+        if (actualReservedDiscount !== breakdown.studentDiscount) {
+          const diff = (breakdown.studentDiscount || 0) - actualReservedDiscount;
+          breakdown.studentDiscount = actualReservedDiscount;
+          breakdown.discount = actualReservedDiscount;
+          breakdown.totalFare += diff;
+        }
+      } else {
+        const removedDiscount = breakdown.studentDiscount || 0;
+        breakdown.isStudentDiscountApplied = false;
+        breakdown.studentDiscount = 0;
+        breakdown.discount = 0;
+        breakdown.totalFare += removedDiscount;
+      }
+    }
     const calculatedFare = breakdown.totalFare;
     const rideFareOnly = Math.max(0, calculatedFare - userOutstanding);
     const commissionSplit = calculateCommissionSplit(rideFareOnly);
@@ -468,6 +499,7 @@ export async function POST(req: Request) {
       fare: calculatedFare,
       fareBreakdown: breakdown,
       cancellationDuesIncluded: userOutstanding,
+      studentDiscountReserved: isStudentReserved,
       routeCoordinates,
       routeDistanceKm: routeDistance,
       tripDurationMinutes: estimatedDurationMin,

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { GraduationCap, CheckCircle2, Loader2, X, Clock, ArrowLeft, KeyRound } from "lucide-react";
@@ -175,8 +175,12 @@ export default function StudentPassModal({
                   })}
                 </p>
               )}
-              <div className="pt-1 text-[9px] text-emerald-600 border-t border-emerald-100">
-                Minimum fare ₹100 • Cannot combine with promo codes
+              <div className="pt-2 text-[10px] text-emerald-800 font-semibold border-t border-emerald-200/60 flex items-center justify-between">
+                <span>Monthly cap: ₹200 (max 10 rides)</span>
+                <span className="text-[9px] text-emerald-700">Resets 1st, 00:00 IST</span>
+              </div>
+              <div className="pt-1 text-[9px] text-emerald-600">
+                Minimum fare ₹100 · Cannot combine with promo codes
               </div>
             </div>
           ) : isPending ? (

@@ -1,10 +1,11 @@
-/**
+﻿/**
  * RideNow Booking State Machine (Phase 4 Core Architecture)
  * Enforces canonical state transitions, role-based authorization, idempotent state checks,
  * and atomic concurrency locks against race conditions.
  */
 import mongoose, { Types } from "mongoose";
 import Booking, { BookingStatus, IBooking } from "@/models/booking.model";
+import { finalizeStudentDiscountUsage, releaseStudentDiscountReservation } from "@/lib/studentDiscountEngine";
 
 export type AllowedTransitionRole = "user" | "driver" | "admin" | "system";
 

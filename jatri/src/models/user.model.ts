@@ -123,6 +123,14 @@ socketId:string | null
     verifiedAt?: Date;
     expiresAt?: Date;
   };
+  studentMonthlyUsage?: {
+    monthKey: string;
+    discountUsed: number;
+    discountReserved: number;
+    ridesCount: number;
+    reservedRidesCount: number;
+    lastResetAt: Date;
+  };
 
   /* ===== WOMEN'S SAFETY MATCHING ===== */
   safetyMatching?: {
@@ -392,6 +400,14 @@ const UserSchema = new Schema<IUser>(
       expiresAt: Date,
     },
 
+    studentMonthlyUsage: {
+      monthKey: { type: String, default: "" },
+      discountUsed: { type: Number, default: 0, min: 0 },
+      discountReserved: { type: Number, default: 0, min: 0 },
+      ridesCount: { type: Number, default: 0, min: 0 },
+      reservedRidesCount: { type: Number, default: 0, min: 0 },
+      lastResetAt: { type: Date, default: Date.now },
+    },
     /* ===== WOMEN'S SAFETY MATCHING ===== */
     safetyMatching: {
       driverCategory: {

@@ -1,9 +1,10 @@
-export const dynamic = "force-dynamic";
+﻿export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
+import { getStudentMonthlyStatus } from "@/lib/studentDiscountEngine";
 import Wallet from "@/models/wallet.model";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -72,6 +73,15 @@ export async function GET(req: NextRequest) {
             }
         } catch (stuErr) {
             console.warn("[api/me] Student pass auto-expiry check warning:", stuErr);
+        }
+
+        if (user.isStudent) {
+            try {
+                const monthlyStatus = await getStudentMonthlyStatus(user._id);
+                (user as any).studentMonthlyStatus = monthlyStatus;
+            } catch (mErr) {
+                console.warn("[api/me] Student monthly status calculation error:", mErr);
+            }
         }
 
         return NextResponse.json(

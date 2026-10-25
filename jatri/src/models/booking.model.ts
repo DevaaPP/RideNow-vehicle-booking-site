@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+﻿import mongoose, { Schema, Document, Types } from "mongoose";
 
 export type BookingStatus =
   | "requested"
@@ -161,6 +161,8 @@ export interface IBooking extends Document {
     cancellationDues?: number;
   };
   cancellationDuesIncluded?: number;
+  studentDiscountReserved?: boolean;
+  studentDiscountFinalized?: boolean;
   isFamilyRide?: boolean;
   familyMemberDetails?: {
     name: string;
@@ -463,6 +465,8 @@ partnerAmount: {
       cancellationDues: { type: Number, default: 0 },
     },
     cancellationDuesIncluded: { type: Number, default: 0 },
+    studentDiscountReserved: { type: Boolean, default: false },
+    studentDiscountFinalized: { type: Boolean, default: false },
     isMultiStop: {
       type: Boolean,
       default: false,

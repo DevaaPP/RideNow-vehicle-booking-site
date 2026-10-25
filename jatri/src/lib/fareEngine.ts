@@ -218,6 +218,10 @@ export interface StudentProgramEconomics {
   minFare?: number;
   eligibleVehicleTypes?: string[];
   allowStackingWithPromo?: boolean;
+  monthlyDiscountCap?: number;
+  maxMonthlyRides?: number;
+  remainingMonthlyAllowance?: number;
+  remainingMonthlyRides?: number;
 }
 
 export const DEFAULT_STUDENT_CONFIG: Required<StudentProgramEconomics> = {
@@ -226,6 +230,10 @@ export const DEFAULT_STUDENT_CONFIG: Required<StudentProgramEconomics> = {
   minFare: 100,
   eligibleVehicleTypes: ["bike", "auto", "e-rickshaw", "car"],
   allowStackingWithPromo: false,
+  monthlyDiscountCap: 200,
+  maxMonthlyRides: 10,
+  remainingMonthlyAllowance: 200,
+  remainingMonthlyRides: 10,
 };
 
 /**
@@ -291,9 +299,13 @@ export function calculateFareBreakdown(
   const isVehicleEligible = stuCfg.eligibleVehicleTypes.map((t) => t.toLowerCase()).includes(vType);
 
   let calculatedStudentDiscount = 0;
-  if (isStudent && isVehicleEligible && subtotalWithSurge >= stuCfg.minFare) {
+  const ridesLeft = stuCfg.remainingMonthlyRides !== undefined ? stuCfg.remainingMonthlyRides : 10;
+  const budgetLeft = stuCfg.remainingMonthlyAllowance !== undefined ? stuCfg.remainingMonthlyAllowance : 200;
+
+  if (isStudent && isVehicleEligible && subtotalWithSurge >= stuCfg.minFare && ridesLeft > 0 && budgetLeft > 0) {
     const rawDiscount = Math.round(subtotalWithSurge * (stuCfg.discountPercentage / 100));
-    calculatedStudentDiscount = Math.min(rawDiscount, stuCfg.maxDiscountCap);
+    const cappedPerRide = Math.min(rawDiscount, stuCfg.maxDiscountCap);
+    calculatedStudentDiscount = Math.min(cappedPerRide, budgetLeft);
   }
 
   // Anti-Stacking Architecture: Student discount OR Promo discount (never stacked additively)
