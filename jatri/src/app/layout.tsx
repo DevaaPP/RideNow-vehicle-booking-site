@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import type { Metadata } from "next";
 import { Inter, DM_Serif_Display, Outfit } from "next/font/google";
 import "./globals.css";
@@ -104,11 +105,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "TransportationService",
@@ -250,7 +252,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] w-full min-h-screen font-sans flex flex-col">
         <SplashScreen />
-        <Provider>
+        <Provider session={session}>
           <ThemeProvider>
             <LanguageProvider>
               <StoreProvider>

@@ -28,6 +28,7 @@ declare module "next-auth" {
     role: string;
     name: string;
     email: string;
+    lastRoleCheck?: number;
   }
 }
 
@@ -200,45 +201,59 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async jwt({token,user,trigger,session}) {
+        const now = Date.now();
+
         if(user){
-            token.id=user.id,
-            token.name=user.name,
-            token.email=user.email,
-            token.role=user.role
+            token.id=user.id;
+            token.name=user.name;
+            token.email=user.email;
+            token.role=user.role;
+            token.lastRoleCheck = now;
+            return token;
         }
 
-        // 🔥 CRITICAL FIX: Always fetch role from database to sync transitions (user -> vendor)
-        const targetUserId = (token.id as string) || (user?.id as string);
-        if (targetUserId) {
-            await connectDb()
-            const dbUser = await User.findById(targetUserId).select("role email name")
-            if (dbUser) {
-                token.role = dbUser.role
-                token.id = dbUser._id.toString()
-                if (dbUser.email && !token.email) token.email = dbUser.email
-            }
-        } else if (token.email) {
-            await connectDb()
-            const dbUser = await User.findOne({ email: token.email }).select("role")
-            if (dbUser) {
-                token.role = dbUser.role
-                token.id = dbUser._id.toString()
-            }
-        }
-
+        // On explicit role transition or profile update, refresh immediately from DB
         if (trigger === "update") {
             if (token.id) {
-                await connectDb()
-                const dbUser = await User.findById(token.id).select("role name email")
+                await connectDb();
+                const dbUser = await User.findById(token.id).select("role name email");
                 if (dbUser) {
-                    token.role = dbUser.role
-                    if (dbUser.name) token.name = dbUser.name
-                    if (dbUser.email) token.email = dbUser.email
+                    token.role = dbUser.role;
+                    if (dbUser.name) token.name = dbUser.name;
+                    if (dbUser.email) token.email = dbUser.email;
+                    token.lastRoleCheck = now;
+                }
+            }
+            return token;
+        }
+
+        // ⚡ INSTANT IN-MEMORY AUTH (<0.5ms): If role is present and verified within last 5 minutes, bypass DB
+        const lastCheck = (token.lastRoleCheck as number) || 0;
+        const isStale = (now - lastCheck) > (5 * 60 * 1000);
+
+        if (!token.role || isStale) {
+            const targetUserId = token.id as string;
+            if (targetUserId) {
+                await connectDb();
+                const dbUser = await User.findById(targetUserId).select("role email name");
+                if (dbUser) {
+                    token.role = dbUser.role;
+                    token.id = dbUser._id.toString();
+                    if (dbUser.email && !token.email) token.email = dbUser.email;
+                    token.lastRoleCheck = now;
+                }
+            } else if (token.email) {
+                await connectDb();
+                const dbUser = await User.findOne({ email: token.email }).select("role");
+                if (dbUser) {
+                    token.role = dbUser.role;
+                    token.id = dbUser._id.toString();
+                    token.lastRoleCheck = now;
                 }
             }
         }
 
-        return token
+        return token;
     },
     session({session,token}) {
         if(session.user){
