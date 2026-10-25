@@ -107,8 +107,27 @@ const UserSchema = new Schema(
       default: false,
     },
 
+    mobileNumber: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+
+    isMobileVerified: {
+      type: Boolean,
+      default: false,
+    },
+
     otp: String,
     otpExpiresAt: Date,
+    otpFailedAttempts: {
+      type: Number,
+      default: 0,
+    },
+    otpLockedUntil: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

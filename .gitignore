@@ -36,3 +36,10 @@ skills-lock.json
 .images/
 jatri/scripts/
 
+
+# WhatsApp Baileys Session Credentials & Auth Stores
+.baileys_auth/
+**/.baileys_auth/
+baileys_auth_info/
+**/baileys_auth_info/
+*.session.json

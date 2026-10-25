@@ -10,7 +10,9 @@ import { getTrackingExpiry, isTerminalBookingStatus, isTrackingTokenExpired, san
 
 dotenv.config()
 
-import User from "./models/user.models.js"
+import User from "./models/user.models.js";
+import otpRoutes from "./routes/otpRoutes.js";
+import { initializeWhatsApp, baileysService } from "./services/whatsapp/index.js";
 
 // ── Database Connection ──────────────────────────────────────────────────────
 const mongoUri = process.env.MONGODB_URI || process.env.MONGODB_URL;
@@ -73,6 +75,9 @@ const corsDelegate = (origin, callback) => {
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 app.use(cors({ origin: corsDelegate, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
+
+// ── WhatsApp OTP Microservice Endpoints ─────────────────────────────────────
+app.use("/api/otp", otpRoutes);
 
 // ── Socket.IO Gateway Server ─────────────────────────────────────────────────
 const io = new Server(server, {
@@ -691,10 +696,17 @@ io.on("connection", (socket) => {
 // ── Service Startup & Graceful Shutdown ──────────────────────────────────────
 server.listen(port, () => {
   console.log(`RideNow Realtime Socket Gateway listening on port ${port}`);
+  // Initialize persistent WhatsApp pairing & transport service
+  initializeWhatsApp().catch((err) => {
+    console.error("[WhatsApp Service] Startup exception:", err?.message || err);
+  });
 });
 
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
   console.log("SIGTERM received, shutting down gracefully...");
+  try {
+    await baileysService.destroy();
+  } catch (e) {}
   io.close(() => {
     mongoose.connection.close(false).then(() => {
       console.log("MongoDB connection closed. Exiting process.");

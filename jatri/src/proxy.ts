@@ -25,6 +25,7 @@ const PUBLIC_ROUTES = [
 ];
 const PUBLIC_API_ROUTES = [
   "/api/auth",
+  "/api/otp",
   "/api/route",
   "/api/places",
   "/api/vehicles",
