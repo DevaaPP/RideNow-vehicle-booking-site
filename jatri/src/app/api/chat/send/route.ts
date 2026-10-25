@@ -6,6 +6,7 @@ import Booking from "@/models/booking.model";
 import { auth } from "@/auth";
 import { sanitizeChatText } from "@/lib/validation";
 import { rateLimiter } from "@/lib/rateLimit";
+import { maskChatPii, isChatLocked, calculateMessageExpiryDate } from "@/lib/chatPrivacy";
 
 export async function POST(req: Request) {
   try {
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
 
     await connectDb();
 
-    // 4. Tenancy & Participant check: caller must be the rider or driver of this ride
+    // 4. Tenancy & Participant check: caller must be the rider, driver, or admin of this ride
     const booking = await Booking.findById(rideId).select("user driver status");
     if (!booking) {
       return NextResponse.json(
@@ -70,18 +71,40 @@ export async function POST(req: Request) {
       );
     }
 
-    // 5. Prevent role spoofing: sender is derived securely from session tenancy
+    // 5. Post-Ride Communication Lockout
+    // Once ride is completed, cancelled, or expired, reject new messages permanently
+    if (isChatLocked(booking.status)) {
+      return NextResponse.json(
+        {
+          success: false,
+          isLocked: true,
+          message: "This ride has ended. In-app messaging is closed for safety and privacy.",
+        },
+        { status: 403 }
+      );
+    }
+
+    // 6. Contact Masking (PII Protection): Strip phone numbers and email addresses
+    const { maskedText, hadPii } = maskChatPii(textValidation.sanitized);
+
+    // 7. Prevent role spoofing: sender is derived securely from session tenancy
     const authoritativeSender: "user" | "driver" = isRider ? "user" : "driver";
+
+    // 8. Auto-expiring 7-day TTL retention
+    const expiresAt = calculateMessageExpiryDate();
 
     const msg = await ChatMessage.create({
       rideId,
-      text: textValidation.sanitized,
+      text: maskedText,
+      hasPiiMasked: hadPii,
       sender: authoritativeSender,
+      expiresAt,
     });
 
     return NextResponse.json({
       success: true,
       message: msg,
+      hasPiiMasked: hadPii,
     });
   } catch (error: any) {
     console.error("[chat:send] Server error:", error);

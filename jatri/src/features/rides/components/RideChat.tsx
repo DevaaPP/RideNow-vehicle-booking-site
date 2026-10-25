@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, CheckCheck, Clock, ChevronDown, Sparkles, X } from "lucide-react";
+import { Send, CheckCheck, Clock, ChevronDown, Sparkles, X, Shield, Lock } from "lucide-react";
 import axios from "axios";
 import { getSocket } from "@/lib/socket";
 
@@ -36,11 +36,12 @@ export default function RideChat({
   driverName = "Driver",
   userName = "Passenger",
 }: RideChatProps) {
-  const [messages, setMessages]       = useState<Message[]>([]);
-  const [input, setInput]             = useState("");
-  const [isTyping, setIsTyping]       = useState(false);
-  const [showScrollBtn, setShowScrollBtn] = useState(false);
-  const [showAI, setShowAI]           = useState(false);
+  const [messages, setMessages]             = useState<Message[]>([]);
+  const [input, setInput]                   = useState("");
+  const [isTyping, setIsTyping]             = useState(false);
+  const [showScrollBtn, setShowScrollBtn]   = useState(false);
+  const [showAI, setShowAI]                 = useState(false);
+  const [isChatLocked, setIsChatLocked]     = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef   = useRef<HTMLDivElement>(null);
@@ -56,10 +57,13 @@ export default function RideChat({
     // 1. Join booking room on socket server
     socket.emit("join-booking", rideId);
 
-    // 2. Fetch all historical messages for this ride
+    // 2. Fetch all historical active messages for this ride
     axios
       .post(`/api/chat/get-all`, { rideId })
       .then(res => {
+        if (typeof res.data?.isChatLocked === "boolean") {
+          setIsChatLocked(res.data.isChatLocked);
+        }
         if (res.data?.messages) {
           setMessages(res.data.messages.map((m: any) => ({
             id: m._id || m.id,
@@ -103,7 +107,7 @@ export default function RideChat({
   }, [rideId]);
 
   const sendMessage = async (text: string) => {
-    if (!text.trim() || !rideId) return;
+    if (!text.trim() || !rideId || isChatLocked) return;
     const socket = getSocket();
 
     try {
@@ -137,7 +141,10 @@ export default function RideChat({
           ];
         });
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.response?.data?.isLocked) {
+        setIsChatLocked(true);
+      }
       console.error("Failed to send message:", err);
     }
    
@@ -178,26 +185,38 @@ export default function RideChat({
 
   const otherName    = currentRole === "user" ? driverName : userName;
   const otherInitial = otherName.charAt(0).toUpperCase();
-  const myInitial    = (currentRole === "user" ? userName : driverName).charAt(0).toUpperCase();
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] overflow-hidden border border-[#DED7CA] dark:border-[#24483D]">
 
-      {/* ── HEADER ── */}
+      {/* HEADER */}
       <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-[#FAF7F0] dark:bg-[#0B2822] border-b border-[#DED7CA] dark:border-[#24483D]">
         <div className="relative flex-shrink-0">
           <div className="w-9 h-9 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] flex items-center justify-center text-white text-xs font-bold">
             {otherInitial}
           </div>
-          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-[#17211B]" />
+          <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#17211B] ${
+            isChatLocked ? "bg-zinc-400" : "bg-emerald-500"
+          }`} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-none">{otherName}</p>
-          <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-0.5">Active now</p>
+          <p className="text-[11px] font-semibold mt-0.5 text-zinc-500 dark:text-zinc-400">
+            {isChatLocked ? "Ride concluded" : "Active trip"}
+          </p>
         </div>
       </div>
 
-      {/* ── MESSAGES ── */}
+      {/* PRIVACY & RETENTION NOTICE BANNER */}
+      <div className="flex-shrink-0 bg-[#FAF7F0] dark:bg-[#123D32]/25 border-b border-[#DED7CA] dark:border-[#24483D] px-3.5 py-1.5 flex items-center justify-between text-[11px] text-zinc-600 dark:text-zinc-300">
+        <span className="flex items-center gap-1.5 font-medium">
+          <Shield size={12} className="text-[#046A38] dark:text-[#90C8A8] shrink-0" />
+          <span>Private & encrypted · Auto-deletes 7 days after ride</span>
+        </span>
+        <span className="text-[10px] text-emerald-800 dark:text-[#90C8A8] font-bold">PII Protected</span>
+      </div>
+
+      {/* MESSAGES */}
       <div
         ref={containerRef}
         onScroll={handleScroll}
@@ -241,85 +260,45 @@ export default function RideChat({
                   transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                   className={`flex items-end gap-2 ${isMine ? "justify-end" : "justify-start"}`}
                 >
-                  {/* Their avatar */}
                   {!isMine && (
                     <div className="w-6 flex-shrink-0 self-end mb-0.5">
                       {isLast ? (
                         <div className="w-6 h-6 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] flex items-center justify-center text-white text-[9px] font-bold">
                           {otherInitial}
                         </div>
-                      ) : <div className="w-6" />}
-                    </div>
-                  )}
-
-                  {/* Bubble */}
-                  <div className={`max-w-[72%] px-3.5 py-2.5 text-sm leading-relaxed rounded-[12px] shadow-xs ${
-                    isMine
-                      ? "bg-[#123D32] dark:bg-[#28664D] text-white rounded-br-[2px]"
-                      : "bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#10251C] dark:text-[#F7F5ED] rounded-bl-[2px]"
-                  }`}>
-                    <p className="break-words">{msg.text}</p>
-                    <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${
-                      isMine ? "text-white/70" : "text-[#696B64] dark:text-[#B9C8BF]"
-                    }`}>
-                      <span>{formatTime(msg.createdAt)}</span>
-                      {isMine && (
-                        <>
-                          {msg.status === "sent"      && <Clock size={9} />}
-                          {msg.status === "delivered" && <CheckCheck size={10} className="text-white/70" />}
-                          {msg.status === "read"      && <CheckCheck size={10} className="text-emerald-300" />}
-                        </>
+                      ) : (
+                        <div className="w-6" />
                       )}
                     </div>
-                  </div>
-
-                  {/* My avatar */}
-                  {isMine && (
-                    <div className="w-6 flex-shrink-0 self-end mb-0.5">
-                      {isLast ? (
-                        <div className="w-6 h-6 rounded-[6px] bg-[#E5EBDD] dark:bg-[#1D3428] flex items-center justify-center text-[#123D32] dark:text-[#D7AC62] text-[9px] font-bold">
-                          {myInitial}
-                        </div>
-                      ) : <div className="w-6" />}
-                    </div>
                   )}
+
+                  <div className={`max-w-[78%] flex flex-col ${isMine ? "items-end" : "items-start"}`}>
+                    <div
+                      className={`px-3.5 py-2.5 rounded-[12px] text-xs leading-relaxed break-words shadow-xs ${
+                        isMine
+                          ? "bg-[#046A38] text-white rounded-br-[2px]"
+                          : "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-bl-[2px]"
+                      }`}
+                    >
+                      <p>{msg.text}</p>
+                    </div>
+
+                    <div className={`flex items-center gap-1 mt-1 px-0.5 text-[10px] ${
+                      isMine ? "text-emerald-700 dark:text-emerald-400" : "text-[#696B64] dark:text-[#B9C8BF]"
+                    }`}>
+                      <span>{formatTime(msg.createdAt)}</span>
+                      {isMine && <CheckCheck size={12} className="opacity-80" />}
+                    </div>
+                  </div>
                 </motion.div>
               );
             })}
           </div>
         ))}
 
-        {/* Typing indicator */}
-        <AnimatePresence>
-          {isTyping && (
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="flex items-end gap-2"
-            >
-              <div className="w-6 h-6 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">
-                {otherInitial}
-              </div>
-              <div className="bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] rounded-bl-[2px] px-4 py-3 shadow-xs">
-                <div className="flex gap-1 items-center h-3">
-                  {[0, 1, 2].map(i => (
-                    <motion.span
-                      key={i}
-                      className="block w-1.5 h-1.5 bg-[#696B64] dark:bg-[#929D93] rounded-full"
-                      animate={{ y: [0, -4, 0] }}
-                      transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15, ease: "easeInOut" }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <div ref={messagesEndRef} />
 
-        {/* Scroll to bottom */}
+        {/* Scroll to bottom button */}
         <AnimatePresence>
           {showScrollBtn && (
             <motion.button
@@ -335,100 +314,121 @@ export default function RideChat({
         </AnimatePresence>
       </div>
 
-      {/* ── AI SUGGESTIONS PANEL ── */}
-      <AnimatePresence>
-        {showAI && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="flex-shrink-0 overflow-hidden border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822]"
-          >
-            <div className="px-4 pt-3 pb-2">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <Sparkles size={12} className="text-[#123D32] dark:text-[#D7AC62]" />
-                  <span className="text-[11px] font-bold text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-wider">
-                    Quick Suggestions
-                  </span>
-                </div>
-                <button onClick={() => setShowAI(false)} className="text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] cursor-pointer">
-                  <X size={14} />
-                </button>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {AI_SUGGESTIONS.map(s => (
-                  <motion.button
-                    key={s}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => { setInput(s); setShowAI(false); }}
-                    className="text-left text-xs text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] border border-[#DED7CA] dark:border-[#24483D] px-3 py-2 rounded-[8px] transition-all cursor-pointer font-medium"
-                  >
-                    {s}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── QUICK REPLIES ── */}
-      <div
-        className="flex-shrink-0 flex gap-2 px-4 pt-3 pb-2 bg-[#FAF7F0] dark:bg-[#0B2822] border-t border-[#DED7CA] dark:border-[#24483D] overflow-x-auto"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {QUICK_REPLIES.map(reply => (
-          <button
-            key={reply}
-            onClick={() => sendMessage(reply)}
-            className="flex-shrink-0 text-[11px] font-bold text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] active:scale-95 px-3 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer"
-          >
-            {reply}
-          </button>
-        ))}
-      </div>
-
-      {/* ── INPUT ── */}
-      <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-[#FAF7F0] dark:bg-[#0B2822]">
-        <div className="flex items-center gap-2 bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] pl-3 pr-1.5 py-1.5">
-
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setShowAI(v => !v)}
-            className={`flex-shrink-0 w-8 h-8 rounded-[6px] flex items-center justify-center transition-all cursor-pointer ${
-              showAI
-                ? "bg-[#123D32] dark:bg-[#28664D] text-white"
-                : "bg-[#FAF7F0] dark:bg-[#0B2822] text-[#123D32] dark:text-[#D7AC62] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] border border-[#DED7CA] dark:border-[#24483D]"
-            }`}
-          >
-            <Sparkles size={14} />
-          </motion.button>
-
-          <input
-            type="text"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
-            placeholder="Message…"
-            className="flex-1 bg-transparent text-sm text-[#10251C] dark:text-[#F7F5ED] placeholder:text-[#696B64] dark:placeholder:text-[#B9C8BF] focus:outline-none py-1.5 min-w-0"
-          />
-
-          <motion.button
-            whileTap={{ scale: 0.88 }}
-            onClick={() => sendMessage(input)}
-            disabled={!input.trim()}
-            className={`flex-shrink-0 w-8 h-8 rounded-[6px] flex items-center justify-center transition-all cursor-pointer ${
-              input.trim()
-                ? "bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white"
-                : "bg-transparent text-[#696B64] dark:text-[#B9C8BF] opacity-40 cursor-not-allowed"
-            }`}
-          >
-            <Send size={14} />
-          </motion.button>
+      {/* POST-RIDE LOCKED STATE OR INTERACTIVE INPUT */}
+      {isChatLocked ? (
+        <div className="flex-shrink-0 px-4 py-3.5 bg-[#FAF7F0] dark:bg-[#0B2822] border-t border-[#DED7CA] dark:border-[#24483D] text-center flex items-center justify-center gap-2">
+          <Lock size={14} className="text-zinc-500 shrink-0" />
+          <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">
+            This ride has ended. In-app chat is closed for safety and privacy.
+          </span>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* AI SUGGESTIONS PANEL */}
+          <AnimatePresence>
+            {showAI && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex-shrink-0 overflow-hidden border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822]"
+              >
+                <div className="px-4 pt-3 pb-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles size={12} className="text-[#123D32] dark:text-[#D7AC62]" />
+                      <span className="text-[11px] font-bold text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-wider">
+                        Quick Suggestions
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAI(false)}
+                      className="text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] cursor-pointer"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    {AI_SUGGESTIONS.map(s => (
+                      <motion.button
+                        key={s}
+                        type="button"
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => { setInput(s); setShowAI(false); }}
+                        className="text-left text-xs text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] border border-[#DED7CA] dark:border-[#24483D] px-3 py-2 rounded-[8px] transition-all cursor-pointer font-medium"
+                      >
+                        {s}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
+          {/* QUICK REPLIES */}
+          <div
+            className="flex-shrink-0 flex gap-2 px-4 pt-3 pb-2 bg-[#FAF7F0] dark:bg-[#0B2822] border-t border-[#DED7CA] dark:border-[#24483D] overflow-x-auto"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {QUICK_REPLIES.map(reply => (
+              <button
+                key={reply}
+                type="button"
+                onClick={() => sendMessage(reply)}
+                className="flex-shrink-0 text-[11px] font-bold text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] active:scale-95 px-3 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer"
+              >
+                {reply}
+              </button>
+            ))}
+          </div>
+
+          {/* INPUT */}
+          <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-[#FAF7F0] dark:bg-[#0B2822]">
+            <div className="flex items-center gap-2 bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] pl-3 pr-1.5 py-1.5">
+
+              <motion.button
+                type="button"
+                aria-label="Toggle quick suggestions"
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowAI(v => !v)}
+                className={`flex-shrink-0 w-8 h-8 rounded-[6px] flex items-center justify-center transition-all cursor-pointer ${
+                  showAI
+                    ? "bg-[#123D32] dark:bg-[#28664D] text-white"
+                    : "bg-[#FAF7F0] dark:bg-[#0B2822] text-[#123D32] dark:text-[#D7AC62] hover:bg-[#E5EBDD] dark:hover:bg-[#25362C] border border-[#DED7CA] dark:border-[#24483D]"
+                }`}
+              >
+                <Sparkles size={14} />
+              </motion.button>
+
+              <input
+                type="text"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
+                placeholder="Type a message..."
+                className="flex-1 bg-transparent text-sm text-[#10251C] dark:text-[#F7F5ED] placeholder:text-[#696B64] dark:placeholder:text-[#B9C8BF] focus:outline-none py-1.5 min-w-0"
+              />
+
+              <motion.button
+                type="button"
+                aria-label="Send message"
+                whileTap={{ scale: 0.88 }}
+                onClick={() => sendMessage(input)}
+                disabled={!input.trim()}
+                className={`flex-shrink-0 w-8 h-8 rounded-[6px] flex items-center justify-center transition-all cursor-pointer ${
+                  input.trim()
+                    ? "bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white"
+                    : "bg-transparent text-[#696B64] dark:text-[#B9C8BF] opacity-40 cursor-not-allowed"
+                }`}
+              >
+                <Send size={14} />
+              </motion.button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

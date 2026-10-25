@@ -4,6 +4,7 @@ import connectDb from "@/lib/db";
 import ChatMessage from "@/models/chatMessage.model";
 import Booking from "@/models/booking.model";
 import { auth } from "@/auth";
+import { isChatLocked } from "@/lib/chatPrivacy";
 
 export async function POST(req: Request) {
   try {
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
 
     await connectDb();
 
-    // Tenancy & Participant check
+    // 1. Tenancy & Participant check: caller must be participant or admin
     const booking = await Booking.findById(rideId).select("user driver status");
     if (!booking) {
       return NextResponse.json(
@@ -48,13 +49,24 @@ export async function POST(req: Request) {
       );
     }
 
-    const messages = await ChatMessage.find({ rideId })
+    // 2. Query active messages respecting the 7-day TTL retention window
+    // Accounts for MongoDB's asynchronous TTL deletion interval by filtering server-side
+    const now = new Date();
+    const messages = await ChatMessage.find({
+      rideId,
+      $or: [
+        { expiresAt: { $gt: now } },
+        { expiresAt: { $exists: false } },
+      ],
+    })
       .sort({ createdAt: 1 })
       .limit(100)
       .lean();
 
     return NextResponse.json({
       success: true,
+      isChatLocked: isChatLocked(booking.status),
+      bookingStatus: booking.status,
       messages,
     });
   } catch (error: any) {
