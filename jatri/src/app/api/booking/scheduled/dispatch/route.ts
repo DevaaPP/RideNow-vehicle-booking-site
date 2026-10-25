@@ -258,11 +258,35 @@ export async function executeRidesCron(req: Request) {
       }
     }
 
+    // ── 3️⃣ Expire Elapsed Student Verification Passes ─────────────────────
+    let expiredStudentsCount = 0;
+    try {
+      const studentCleanupRes = await User.updateMany(
+        {
+          isStudent: true,
+          "studentVerification.expiresAt": { $lt: now },
+        },
+        {
+          $set: {
+            isStudent: false,
+            "studentVerification.status": "expired",
+          },
+        }
+      );
+      expiredStudentsCount = studentCleanupRes.modifiedCount || 0;
+      if (expiredStudentsCount > 0) {
+        logger.info("cron.expired_students_cleanup", { count: expiredStudentsCount });
+      }
+    } catch (stuErr: any) {
+      logger.warn("cron.expired_students_cleanup_failed", { error: stuErr?.message || String(stuErr) });
+    }
+
     return NextResponse.json({
       success: true,
       timestamp: now.toISOString(),
       scheduledDispatchedCount: dispatchedIds.length,
       staleExpiredCount: expiredIds.length,
+      expiredStudentsCount,
       dispatchedBookingIds: dispatchedIds,
       expiredBookingIds: expiredIds,
     });

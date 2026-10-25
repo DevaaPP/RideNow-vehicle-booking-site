@@ -256,7 +256,11 @@ export default function BookPage() {
       setMobile(tenDigits);
     }
     if (userData?.isStudent !== undefined) {
-      setIsStudent(Boolean(userData.isStudent));
+      const studentVer = (userData as any).studentVerification;
+      const isExpired = Boolean(
+        studentVer?.expiresAt && new Date(studentVer.expiresAt).getTime() < Date.now()
+      );
+      setIsStudent(Boolean(userData.isStudent) && !isExpired);
       setStudentDetails((userData as any).studentDetails || null);
     }
   }, [userData]);

@@ -120,7 +120,11 @@ export default function CheckoutContent() {
   const [distanceKm,    setDistanceKm]    = useState<number | null>(null);
 
   const userOutstandingAmount = Number((userData as any)?.outstandingAmount || 0);
-  const isStudentUser = Boolean(userData?.isStudent);
+  const studentVer = (userData as any)?.studentVerification;
+  const isStudentExpired = Boolean(
+    studentVer?.expiresAt && new Date(studentVer.expiresAt).getTime() < Date.now()
+  );
+  const isStudentUser = Boolean(userData?.isStudent) && !isStudentExpired;
 
   const computedBreakdown = useMemo(() => {
     const userOutstanding = userOutstandingAmount;

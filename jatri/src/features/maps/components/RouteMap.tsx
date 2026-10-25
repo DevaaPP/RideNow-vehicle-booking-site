@@ -1088,7 +1088,7 @@ export default function RouteMap({
     }
   }, [p1, p2, stops, renderRoute, clearRoute, drop, onChange, onCoordinatesChange, pickup, activePinMode, durationMin, reverseGeocodeFull]);
 
-  // 5. Vehicles (Disabled per user request: will add custom vehicle artwork for each vehicle later)
+  // 5. Vehicles (Live nearby fleet markers)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -1096,8 +1096,27 @@ export default function RouteMap({
     vehicleMarkersRef.current.forEach((m) => m.remove());
     vehicleMarkersRef.current = [];
 
-    // Map vehicle markers temporarily disabled per user instruction:
-    // "selecting jaatri premier shows this icons remove them, will add something else for each vehicle later"
+    if (!vehicles || !Array.isArray(vehicles) || vehicles.length === 0) {
+      return;
+    }
+
+    vehicles.forEach((v: any) => {
+      const loc = v.location?.coordinates || [v.lng, v.lat];
+      if (!loc || loc.length < 2) return;
+      const [lng, lat] = loc;
+      if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
+
+      const el = createVehicleMapMarkerEl(v.type);
+      const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+        .setLngLat([lng, lat])
+        .addTo(map);
+      vehicleMarkersRef.current.push(marker);
+    });
+
+    return () => {
+      vehicleMarkersRef.current.forEach((m) => m.remove());
+      vehicleMarkersRef.current = [];
+    };
   }, [vehicles]);
 
   // 6. User GPS Location Beacon (Google Maps pulsating blue halo + dot)

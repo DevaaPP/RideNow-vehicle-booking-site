@@ -52,6 +52,28 @@ export async function GET(req: NextRequest) {
             }
         } catch {}
 
+        // Automatically expire student pass if 12-month validity period has elapsed
+        try {
+            const studentExpiresAt = user.studentVerification?.expiresAt;
+            if (user.isStudent && studentExpiresAt && new Date(studentExpiresAt).getTime() < Date.now()) {
+                user.isStudent = false;
+                if (user.studentVerification) {
+                    user.studentVerification.status = "expired";
+                }
+                await User.updateOne(
+                    { _id: user._id },
+                    {
+                        $set: {
+                            isStudent: false,
+                            "studentVerification.status": "expired",
+                        },
+                    }
+                );
+            }
+        } catch (stuErr) {
+            console.warn("[api/me] Student pass auto-expiry check warning:", stuErr);
+        }
+
         return NextResponse.json(
             user,
             {
