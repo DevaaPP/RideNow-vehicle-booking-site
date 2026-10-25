@@ -1,8 +1,5 @@
 import mongoose, { Connection } from "mongoose";
 
-// Disable buffering globally so queries fail fast with clear errors instead of hanging 10 seconds
-mongoose.set("bufferCommands", false);
-
 interface MongooseCache {
   conn: Connection | null;
   promise: Promise<Connection> | null;
@@ -31,7 +28,7 @@ const connectDb = async (): Promise<Connection | null> => {
 
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,
+      bufferCommands: true,
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       connectTimeoutMS: 10000,

@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await connectDb();
+    const conn = await connectDb();
 
     const { mobileNumber, channel = "whatsapp" } = await req.json();
 
@@ -61,29 +61,37 @@ export async function POST(req: NextRequest) {
     const hashedOtp = await hashOtpCode(otp);
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Find or initialize user
-    let user = await User.findOne({ mobileNumber: tenDigits });
+    // Find or initialize user if database is connected
+    if (conn) {
+      try {
+        let user = await User.findOne({ mobileNumber: tenDigits });
 
-    if (!user) {
-      // Create new user account with mobile number
-      user = await User.create({
-        name: `User ${tenDigits.slice(-4)}`,
-        mobileNumber: tenDigits,
-        email: `${tenDigits}@ridenow.in`,
-        role: "user",
-        isMobileVerified: false,
-        otp: hashedOtp,
-        otpExpiresAt,
-        otpFailedAttempts: 0,
-        otpLockedUntil: null,
-      });
+        if (!user) {
+          // Create new user account with mobile number
+          user = await User.create({
+            name: `User ${tenDigits.slice(-4)}`,
+            mobileNumber: tenDigits,
+            email: `${tenDigits}@ridenow.in`,
+            role: "user",
+            isMobileVerified: false,
+            otp: hashedOtp,
+            otpExpiresAt,
+            otpFailedAttempts: 0,
+            otpLockedUntil: null,
+          });
+        } else {
+          await User.findByIdAndUpdate(user._id, {
+            otp: hashedOtp,
+            otpExpiresAt,
+            otpFailedAttempts: 0,
+            otpLockedUntil: null,
+          });
+        }
+      } catch (dbErr: any) {
+        console.warn("User DB save error in send-otp:", dbErr?.message || dbErr);
+      }
     } else {
-      await User.findByIdAndUpdate(user._id, {
-        otp: hashedOtp,
-        otpExpiresAt,
-        otpFailedAttempts: 0,
-        otpLockedUntil: null,
-      });
+      console.warn("Database connection unavailable during send-otp, proceeding with OTP dispatch");
     }
 
     // Dispatch OTP via OTPService (WhatsApp or SMS)
