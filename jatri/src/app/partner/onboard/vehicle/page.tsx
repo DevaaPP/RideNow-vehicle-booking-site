@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -22,6 +22,7 @@ type VehicleId =
   | "scooty"
   | "bike"
   | "auto"
+  | "e-rickshaw"
   | "mini"
   | "car"
   | "priority"
@@ -32,6 +33,7 @@ const VEHICLES = [
   { id: "scooty", label: "Scooty", icon: Bike, desc: "2-Wheeler Lightweight Commute" },
   { id: "bike", label: "Bike / Moto", icon: Bike, desc: "2-Wheeler Solo Motorcycle" },
   { id: "auto", label: "Auto", icon: Car, desc: "3-Wheeler Doorstep Transit" },
+  { id: "e-rickshaw", label: "Toto (E-Rickshaw)", icon: Car, desc: "3-Wheeler Electric Eco Commute" },
   { id: "mini", label: "Mini (Hatchback)", icon: Car, desc: "4-Wheeler Compact AC (WagonR, Tiago)" },
   { id: "car", label: "Premier (Sedan / Cab)", icon: Car, desc: "4-Wheeler Executive AC (Dzire, Amaze)" },
   { id: "priority", label: "XL Priority (SUV)", icon: Car, desc: "6-Seater Spacious SUV (Ertiga, Innova)" },

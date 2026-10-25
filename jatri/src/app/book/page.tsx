@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 
 
@@ -72,6 +72,7 @@ const VEHICLE_ICONS: Record<VehicleType, any> = {
   scooty: VEHICLE_SVG_ICONS.scooty,
   bike: VEHICLE_SVG_ICONS.bike,
   auto: VEHICLE_SVG_ICONS.auto,
+  "e-rickshaw": VEHICLE_SVG_ICONS["e-rickshaw"] || VEHICLE_SVG_ICONS.auto,
   mini: VEHICLE_SVG_ICONS.mini,
   car: VEHICLE_SVG_ICONS.car,
   priority: VEHICLE_SVG_ICONS.priority,
@@ -110,6 +111,7 @@ const getCategoryBadgeStyle = (category?: string, name?: string) => {
 
 /** Single source of truth for per-vehicle distance bounds (km). */
 const VEHICLE_DISTANCE_LIMITS: Record<string, { minDistance: number; maxDistance: number }> = {
+  "e-rickshaw": { minDistance: 0, maxDistance: 20 },
   bike:    { minDistance: 0, maxDistance: 15 },
   auto:    { minDistance: 0, maxDistance: 30 },
   car:     { minDistance: 0, maxDistance: 500 }, // intercity up to 500 km
@@ -667,7 +669,7 @@ export default function BookPage() {
     }
 
     // For Bike / Auto: If distance > 100 km, prompt switch to RideNow Intercity Car
-    if (dist > 100 && (vehicle === "bike" || vehicle === "auto")) {
+    if (dist > 100 && (vehicle === "bike" || vehicle === "auto" || vehicle === "e-rickshaw")) {
       return {
         valid: false,
         isIntercityPrompt: true,

@@ -1,9 +1,10 @@
-import mongoose, { Schema, Types } from "mongoose";
+﻿import mongoose, { Schema, Types } from "mongoose";
 
 export type VehicleType =
   | "scooty"
   | "bike"
   | "auto"
+  | "e-rickshaw"
   | "mini"
   | "car"
   | "priority"
@@ -53,6 +54,7 @@ const VehicleSchema = new Schema<IVehicle>(
         "scooty",
         "bike",
         "auto",
+        "e-rickshaw",
         "mini",
         "car",
         "priority",

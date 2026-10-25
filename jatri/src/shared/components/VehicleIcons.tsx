@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 
 export interface VehicleIconProps extends React.SVGProps<SVGSVGElement> {
   size?: number;
@@ -188,6 +188,8 @@ export const VEHICLE_SVG_ICONS: Record<string, React.ComponentType<VehicleIconPr
   scooty: ScootyIcon,
   bike: BikeIcon,
   auto: AutoRickshawIcon,
+  "e-rickshaw": AutoRickshawIcon,
+  toto: AutoRickshawIcon,
   mini: CarMiniIcon,
   car: CarPremierIcon,
   premier: CarPremierIcon,

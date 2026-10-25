@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+﻿import mongoose, { Schema, Document } from "mongoose";
 
 export type UserRole = "user" | "vendor" | "admin";
 export type VendorStatus = "pending" | "approved" | "rejected";
@@ -14,6 +14,7 @@ export type VehicleType =
   | "scooty"
   | "bike"
   | "auto"
+  | "e-rickshaw"
   | "mini"
   | "car"
   | "priority"
@@ -277,7 +278,7 @@ const UserSchema = new Schema<IUser>(
 
     currentVehicleType: {
       type: String,
-      enum: ["bike", "auto", "car", "loading", "truck"],
+      enum: ["scooty", "bike", "auto", "e-rickshaw", "mini", "car", "priority", "intercity", "loading", "truck"],
     },
 
     location: {

@@ -1,4 +1,4 @@
-export type VehicleType = "scooty" | "bike" | "auto" | "mini" | "car" | "priority" | "loading" | "truck";
+﻿export type VehicleType = "scooty" | "bike" | "auto" | "e-rickshaw" | "mini" | "car" | "priority" | "loading" | "truck";
 export type ServiceMode = "passenger" | "logistics";
 
 export interface VehicleOption {
@@ -54,6 +54,18 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     etaText: "3–4 min",
     features: ["Doorstep pickup", "Comfortable 3-seater", "Meter rates"],
     recommendedFor: "2 to 3 passengers traveling short-to-medium distances",
+  },
+  "e-rickshaw": {
+    id: "e-rickshaw",
+    label: "Jaatri Toto",
+    categoryTitle: "Jaatri Toto — E-Rickshaw",
+    serviceMode: "passenger",
+    tagline: "Eco-friendly electric 3-wheeler",
+    description: "Silent, zero-emission electric rickshaw for short city hops.",
+    passengerCapacity: 3,
+    etaText: "3-5 min",
+    features: ["Zero emissions", "Quiet & smooth", "Budget-friendly"],
+    recommendedFor: "Short city trips with 1 to 3 passengers on eco-friendly rides",
   },
   mini: {
     id: "mini",
@@ -121,6 +133,7 @@ export const PASSENGER_VEHICLES: VehicleOption[] = [
   VEHICLE_OPTIONS.scooty,
   VEHICLE_OPTIONS.bike,
   VEHICLE_OPTIONS.auto,
+  VEHICLE_OPTIONS["e-rickshaw"],
   VEHICLE_OPTIONS.mini,
   VEHICLE_OPTIONS.car,
   VEHICLE_OPTIONS.priority,
@@ -152,6 +165,7 @@ export interface RecommendationResult {
 export function isVehicleDistanceEligible(vehicleId: VehicleType, distanceKm?: number): boolean {
   if (!distanceKm || distanceKm <= 0) return true;
   if (vehicleId === "bike" || vehicleId === "scooty") return distanceKm <= 15;
+  if (vehicleId === "e-rickshaw") return distanceKm <= 20;
   if (vehicleId === "auto") return distanceKm <= 30;
   if (vehicleId === "loading") return distanceKm <= 250;
   return distanceKm <= 500;

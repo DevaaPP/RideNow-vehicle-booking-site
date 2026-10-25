@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { memo } from "react";
 
@@ -33,6 +33,7 @@ const TYPE_ICONS: Record<VehicleType, any> = {
   scooty: VEHICLE_SVG_ICONS.scooty,
   bike: VEHICLE_SVG_ICONS.bike,
   auto: VEHICLE_SVG_ICONS.auto,
+  "e-rickshaw": VEHICLE_SVG_ICONS["e-rickshaw"] || VEHICLE_SVG_ICONS.auto,
   mini: VEHICLE_SVG_ICONS.mini,
   car: VEHICLE_SVG_ICONS.car,
   priority: VEHICLE_SVG_ICONS.priority,
@@ -101,13 +102,13 @@ function VehicleBookingCard({
           transition={{ duration: 0.35 }}
         />
 
-        {/* Type pill — bottom right */}
+        {/* Type pill â€” bottom right */}
         <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-[#123D32] text-[#F7F1E5] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-[6px]">
           <Icon size={10} />
           {label}
         </div>
 
-        {/* Rating pill — bottom left */}
+        {/* Rating pill â€” bottom left */}
         <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] text-[#10251C] dark:text-[#F7F5ED] text-[10px] font-bold px-2 py-1 rounded-[6px] shadow-xs">
           <Star size={9} className="fill-amber-500 text-amber-500" />
           4.8
@@ -159,7 +160,7 @@ function VehicleBookingCard({
               <Gauge size={11} className="text-zinc-400" />
               <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold">{t("fleet.perKm", "Per km")}</p>
             </div>
-            <p className="text-zinc-900 text-sm font-black">₹{pricePerKm}</p>
+            <p className="text-zinc-900 text-sm font-black">â‚¹{pricePerKm}</p>
           </div>
           <div className="bg-zinc-50 border border-zinc-100 rounded-2xl px-3.5 py-3">
             <div className="flex items-center gap-1.5 mb-1">
@@ -167,7 +168,7 @@ function VehicleBookingCard({
               <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold">{t("booking.waiting", "Waiting")}</p>
             </div>
             <p className="text-zinc-900 text-sm font-black">
-              ₹{waitingCharge}
+              â‚¹{waitingCharge}
               <span className="text-zinc-400 text-[10px] font-normal">/min</span>
             </p>
           </div>

@@ -1,4 +1,4 @@
-export type VehicleType = "bike" | "auto" | "car" | "loading" | "truck";
+﻿export type VehicleType = "scooty" | "bike" | "auto" | "e-rickshaw" | "mini" | "car" | "priority" | "loading" | "truck";
 
 export interface BookingPlace {
   id: string;

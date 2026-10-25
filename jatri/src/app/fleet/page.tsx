@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { ArrowRight, Car, Zap, Shield, TrendingUp, Sparkles, CheckCircle2 } from "lucide-react";
@@ -45,6 +45,15 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     image: "/fleet/auto.webp",
     capacity: "3 Passengers",
     promo: undefined,
+  },
+  {
+    id: "e-rickshaw",
+    name: VEHICLE_OPTIONS["e-rickshaw"].label,
+    description: VEHICLE_OPTIONS["e-rickshaw"].tagline,
+    price: "Starting from ₹8/km",
+    image: "/fleet/auto.webp",
+    capacity: "3 Passengers (Eco)",
+    promo: "Eco-Friendly ♻",
   },
   {
     id: "mini",

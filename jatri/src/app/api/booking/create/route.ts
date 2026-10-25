@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import crypto from "crypto";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
@@ -105,8 +105,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const vehicleKey = String(vehicle).toLowerCase();
-    const VALID_VEHICLES = ["scooty", "bike", "auto", "mini", "car", "priority", "intercity", "loading", "truck"];
+    let vehicleKey = String(vehicle).toLowerCase();
+    if (vehicleKey === "toto" || vehicleKey === "erickshaw" || vehicleKey === "e_rickshaw") { vehicleKey = "e-rickshaw"; }
+    const VALID_VEHICLES = ["scooty", "bike", "auto", "e-rickshaw", "mini", "car", "priority", "intercity", "loading", "truck"];
     if (!VALID_VEHICLES.includes(vehicleKey)) {
       return NextResponse.json(
         {
@@ -347,7 +348,7 @@ export async function POST(req: Request) {
     }
 
     // Validate 100km rule for city fleet vs Intercity/Logistics
-    if (["bike", "auto", "car", "mini", "priority", "scooty"].includes(vehicleKey) && routeDistance > 100) {
+    if (["bike", "auto", "e-rickshaw", "car", "mini", "priority", "scooty"].includes(vehicleKey) && routeDistance > 100) {
       return NextResponse.json(
         {
           success: false,

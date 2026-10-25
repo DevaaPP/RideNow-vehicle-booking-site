@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+﻿import { describe, it, expect } from "vitest";
 import {
   calculateFareBreakdown,
   calculateWaitingFee,
@@ -93,7 +93,7 @@ describe("Fare Engine Pricing Architecture and Calculations", () => {
   });
 
   describe("Fleet Vehicle Types Consistency", () => {
-    const fleets = ["scooty", "bike", "auto", "mini", "car", "priority", "loading", "truck"];
+    const fleets = ["scooty", "bike", "auto", "e-rickshaw", "mini", "car", "priority", "loading", "truck"];
 
     fleets.forEach((fleet) => {
       it(`calculates a positive and valid total fare for ${fleet}`, () => {

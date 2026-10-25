@@ -1,4 +1,4 @@
-/**
+﻿/**
  * RideNow Driver Matching Engine (Phase 5 Architecture)
  * Responsible for driver eligibility filtering, location freshness checks,
  * duplicate assignment prevention, ranked candidate waterfall queues, and timeout escalations.
@@ -94,6 +94,8 @@ export async function findEligibleCandidates(options: {
     candidateTypes = ["bike", "scooty", "two-wheeler", "motorcycle"];
   } else if (normalizedType === "auto") {
     candidateTypes = ["auto", "three-wheeler", "rickshaw"];
+  } else if (normalizedType === "e-rickshaw" || normalizedType === "toto") {
+    candidateTypes = ["e-rickshaw", "toto", "erickshaw", "electric-rickshaw"];
   } else if (normalizedType === "loading") {
     candidateTypes = ["loading", "truck", "commercial", "express"];
   } else if (normalizedType === "truck") {
@@ -169,11 +171,13 @@ export async function findEligibleCandidates(options: {
           // Auto-create matching vehicle for online vendor matching the EXACT requested normalizedType
           const isTwoWheeler = ["scooty", "bike"].includes(normalizedType);
           const isAuto = normalizedType === "auto";
+          const isERickshaw = normalizedType === "e-rickshaw" || normalizedType === "toto";
           const isGoods = ["loading", "truck"].includes(normalizedType);
           const modelName =
             normalizedType === "scooty" ? "Jaatri Scooty" :
             normalizedType === "bike" ? "Jaatri Moto" :
             normalizedType === "auto" ? "Jaatri Auto" :
+            (normalizedType === "e-rickshaw" || normalizedType === "toto") ? "Jaatri Toto" :
             normalizedType === "mini" ? "Jaatri Mini" :
             normalizedType === "priority" ? "Jaatri XL Priority" :
             normalizedType === "truck" ? "Jaatri Heavy Cargo" :
@@ -183,6 +187,8 @@ export async function findEligibleCandidates(options: {
             ? normalizedType
             : isAuto
             ? "auto"
+            : isERickshaw
+            ? "e-rickshaw"
             : isGoods
             ? normalizedType
             : (["mini", "priority"].includes(normalizedType) ? normalizedType : "car");

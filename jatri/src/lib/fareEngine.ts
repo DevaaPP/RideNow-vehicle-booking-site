@@ -1,4 +1,4 @@
-/**
+﻿/**
  * RideNow Pricing Engine (Phase 6 Architecture)
  * Authoritative distance-only upfront pricing, dynamic waiting charge calculations,
  * transparent itemized fare breakdown, and route recalculation.
@@ -87,6 +87,19 @@ export const DEFAULT_VEHICLE_RATES: Record<string, VehicleRateConfig> = {
     multiplier: 1.0,
     minDistance: 0,
     maxDistance: 35,
+  },
+  "e-rickshaw": {
+    baseFare: 20,
+    pricePerKm: 8.0,
+    pricePerMinute: 0,
+    waitingChargePerMinute: 1.5,
+    freeWaitingMinutes: 3,
+    platformFee: 10,
+    taxRate: 0.05,
+    cancellationFee: 20,
+    multiplier: 1.0,
+    minDistance: 0,
+    maxDistance: 20,
   },
   mini: {
     baseFare: 55,
@@ -211,7 +224,7 @@ export const DEFAULT_STUDENT_CONFIG: Required<StudentProgramEconomics> = {
   discountPercentage: 10,
   maxDiscountCap: 50,
   minFare: 100,
-  eligibleVehicleTypes: ["bike", "auto", "car"],
+  eligibleVehicleTypes: ["bike", "auto", "e-rickshaw", "car"],
   allowStackingWithPromo: false,
 };
 
@@ -229,7 +242,8 @@ export function calculateFareBreakdown(
   studentSettings?: StudentProgramEconomics,
   cancellationDues: number = 0
 ): IFareBreakdown {
-  const vType = (vehicleType || "car").toLowerCase();
+  let vType = (vehicleType || "car").toLowerCase();
+  if (vType === "toto" || vType === "erickshaw" || vType === "e_rickshaw") { vType = "e-rickshaw"; }
   const defaultRate = DEFAULT_VEHICLE_RATES[vType] || DEFAULT_VEHICLE_RATES.car;
   const customRate = customRates?.[vType];
   const cfg: VehicleRateConfig = {

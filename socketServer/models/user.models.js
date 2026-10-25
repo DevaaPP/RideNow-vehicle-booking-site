@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+﻿import mongoose, { Schema, Document } from "mongoose";
 
 
 
@@ -83,7 +83,7 @@ const UserSchema = new Schema(
 
     currentVehicleType: {
       type: String,
-      enum: ["scooty", "bike", "auto", "mini", "car", "priority", "loading", "truck"],
+      enum: ["scooty", "bike", "auto", "e-rickshaw", "mini", "car", "priority", "loading", "truck"],
     },
 
     location: {
