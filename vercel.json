@@ -2,5 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "cd jatri && npm run build",
-  "installCommand": "cd jatri && npm install"
+  "installCommand": "cd jatri && npm install",
+  "outputDirectory": "jatri/.next"
 }
