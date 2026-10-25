@@ -129,8 +129,10 @@ export default function RootLayout({
     >
       <head>
         {/* Preload Critical Hero and Branding WebP Images for Instant Rendering */}
-        <link rel="preload" as="image" href="/mobile-home/hero_landscape.webp" media="(prefers-color-scheme: light)" type="image/webp" />
-        <link rel="preload" as="image" href="/mobile-home/hero_landscape_dark.webp" media="(prefers-color-scheme: dark)" type="image/webp" />
+        <link rel="preload" as="image" href="/mobile-home/hero_landscape.webp" media="(max-width: 767px) and (prefers-color-scheme: light)" type="image/webp" />
+        <link rel="preload" as="image" href="/mobile-home/hero_landscape_dark.webp" media="(max-width: 767px) and (prefers-color-scheme: dark)" type="image/webp" />
+        <link rel="preload" as="image" href="/hero/desktop_hero.webp" media="(min-width: 768px) and (prefers-color-scheme: light)" type="image/webp" />
+        <link rel="preload" as="image" href="/hero/desktop_hero_dark.webp" media="(min-width: 768px) and (prefers-color-scheme: dark)" type="image/webp" />
         <link rel="preload" as="image" href="/logojatri.webp" media="(prefers-color-scheme: light)" type="image/webp" />
         <link rel="preload" as="image" href="/logojatri-dark.webp" media="(prefers-color-scheme: dark)" type="image/webp" />
 

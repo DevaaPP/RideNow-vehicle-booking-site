@@ -216,19 +216,41 @@ export default function HeroSection({
   };
 
   return (
-    <section className="relative w-full text-[#10251C] px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32 pb-20 sm:pb-24 lg:pb-28 overflow-visible">
-      {/* ================= HERO BACKGROUND (Assam golden-hour river-and-bridge) ================= */}
-      <Image
-        src="/hero/back.webp"
-        alt="Assam Brahmaputra Bridge Golden Hour River Sunset"
-        fill
-        priority
-        quality={94}
-        sizes="(min-width: 768px) 100vw, 1px"
-        className="object-cover object-top sm:object-center pointer-events-none"
-      />
-      {/* Controlled, soft atmospheric gradient overlay to preserve natural golden river tones while ensuring high text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-white/10 to-white/40 dark:from-black/75 dark:via-[#061A16]/60 dark:to-[#061A16] pointer-events-none" />
+    <section className="relative w-full text-[#10251C] dark:text-[#F7F5ED] px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32 pb-20 sm:pb-24 lg:pb-28 overflow-visible">
+      {/* ================= HERO BACKGROUND: Dual Light & Dark Desktop Panoramas ================= */}
+      {/* Light Theme Landscape (Assam Golden Hour Tea Gardens & River Highway) */}
+      <div className="absolute inset-0 block dark:hidden pointer-events-none select-none overflow-hidden">
+        <Image
+          src="/hero/desktop_hero.webp"
+          alt="Scenic Assam Highway through Tea Gardens at Golden Hour"
+          fill
+          priority
+          quality={92}
+          sizes="(min-width: 768px) 100vw, 1px"
+          className="object-cover object-[center_35%] pointer-events-none"
+        />
+        {/* Horizontal left gradient ensuring contrast for title, search card, and value props */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF7F0]/90 via-[#FAF7F0]/40 to-transparent pointer-events-none" />
+        {/* Soft vertical fade at top and bottom to seamlessly merge with nav and body */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F0]/30 via-transparent to-[#FAF7F0] pointer-events-none" />
+      </div>
+
+      {/* Dark Theme Landscape (Twilight Blue-Hour Valley & Misty Mountain Highway) */}
+      <div className="absolute inset-0 hidden dark:block pointer-events-none select-none overflow-hidden">
+        <Image
+          src="/hero/desktop_hero_dark.webp"
+          alt="Scenic Assam Highway at Twilight Dusk"
+          fill
+          priority
+          quality={92}
+          sizes="(min-width: 768px) 100vw, 1px"
+          className="object-cover object-[center_35%] pointer-events-none"
+        />
+        {/* Horizontal left gradient ensuring crisp white typography and card legibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#061A16]/92 via-[#061A16]/55 to-transparent pointer-events-none" />
+        {/* Soft vertical fade at top and bottom to feather into dark background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#061A16]/40 via-transparent to-[#061A16] pointer-events-none" />
+      </div>
 
       {/* ================= HERO CONTENT CONTAINER ================= */}
       <div className="relative z-10 max-w-7xl mx-auto">
