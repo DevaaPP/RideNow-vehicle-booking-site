@@ -47,6 +47,7 @@ import {
 import DriverPreferenceSelector from "@/features/booking/components/DriverPreferenceSelector";
 import SmartRideAssistantModal from "@/features/booking/components/SmartRideAssistantModal";
 import { DriverPreference } from "@/lib/safetyMatching";
+import { getEstimatedArrivalInfo } from "@/lib/tripTiming";
 
 const RouteMap = nextDynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
 
@@ -2206,6 +2207,13 @@ export default function BookPage() {
               const isFastest =
                 (serviceMode === "passenger" && (v.id === "bike" || v.id === "scooty")) ||
                 (serviceMode === "logistics" && v.id === "loading");
+              const arrivalInfo = getEstimatedArrivalInfo({
+                vehicleType: v.id,
+                distanceKm: hasRoute ? effectiveDistance : 0,
+                etaText: v.etaText,
+                isScheduled: bookingMode === "schedule",
+                scheduledDateTime,
+              });
 
               return (
                 <div
@@ -2285,12 +2293,36 @@ export default function BookPage() {
                         )}
                       </div>
 
-                      {/* Line 2: Clock ETA duration */}
-                      <div className={`text-xs mt-0.5 font-medium flex items-center gap-1 ${
-                        isSelected ? "text-[#F7F1E5]/80" : "text-[#696B64] dark:text-[#B9C8BF]"
+                      {/* Line 2: Clock ETA & Estimated Drop-off Time */}
+                      <div className={`text-xs mt-0.5 font-medium flex items-center gap-1.5 flex-wrap ${
+                        isSelected ? "text-[#F7F1E5]/90" : "text-[#123D32] dark:text-[#90C8A8]"
                       }`}>
-                        {isFastest && <Zap size={11} className="text-amber-500 fill-amber-500 shrink-0" />}
-                        <span className="tabular-nums">{formatEtaTime(v.etaText)}</span>
+                        <Clock size={11} className={`shrink-0 ${
+                          isSelected ? "text-[#F7F1E5]" : "text-[#046A38] dark:text-[#52B788]"
+                        }`} />
+                        {hasRoute && effectiveDistance > 0 ? (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-semibold">{arrivalInfo.displayLine}</span>
+                            {bookingMode === "now" && (
+                              <span className={`text-[11px] ${
+                                isSelected ? "text-[#F7F1E5]/70" : "text-[#696B64] dark:text-[#B9C8BF]"
+                              }`}>
+                                ({v.etaText} away)
+                              </span>
+                            )}
+                            {isFastest && (
+                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider bg-amber-400 text-amber-950 px-1 py-0.2 rounded-[4px]">
+                                <Zap size={8} className="fill-amber-950" /> Fastest
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className={`italic text-[11px] ${
+                            isSelected ? "text-[#F7F1E5]/70" : "text-[#696B64] dark:text-[#B9C8BF]"
+                          }`}>
+                            {t("booking.selectDestForArrival", "Select destination for arrival time")}
+                          </span>
+                        )}
                       </div>
 
                       {/* Line 3: Tagline */}

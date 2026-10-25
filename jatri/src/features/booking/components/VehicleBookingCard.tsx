@@ -24,10 +24,12 @@ interface VehicleProps {
   };
   distanceKm?: number;
   isRecommended?: boolean;
+  scheduledPickupTime?: Date | string | null;
   onBook?: () => void;
 }
 
 import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
+import { getEstimatedArrivalInfo } from "@/lib/tripTiming";
 
 const TYPE_ICONS: Record<VehicleType, any> = {
   scooty: VEHICLE_SVG_ICONS.scooty,
@@ -42,7 +44,7 @@ const TYPE_ICONS: Record<VehicleType, any> = {
 };
 
 function VehicleBookingCard({
-  vehicle, distanceKm = 0, isRecommended, onBook,
+  vehicle, distanceKm = 0, isRecommended, scheduledPickupTime, onBook,
 }: VehicleProps) {
   const { t } = useTranslation();
   const {
@@ -54,6 +56,14 @@ function VehicleBookingCard({
   const label = opt.label;
   const Icon = TYPE_ICONS[type] ?? Car;
   const estimated = Math.round(baseFare + distanceKm * pricePerKm);
+
+  const arrivalInfo = getEstimatedArrivalInfo({
+    vehicleType: type,
+    distanceKm,
+    etaText: opt.etaText,
+    isScheduled: Boolean(scheduledPickupTime),
+    scheduledDateTime: scheduledPickupTime,
+  });
 
   return (
     <motion.div
@@ -146,6 +156,18 @@ function VehicleBookingCard({
                   </>
                 )}
               </div>
+            </div>
+
+            {/* Estimated Arrival Time / Location Prompt */}
+            <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-[#123D32] dark:text-[#90C8A8]">
+              <Clock size={12} className="text-[#046A38] dark:text-[#52B788] shrink-0" />
+              {distanceKm > 0 ? (
+                <span className="font-semibold">{arrivalInfo.displayLine}</span>
+              ) : (
+                <span className="text-zinc-500 dark:text-zinc-400 italic text-[11px]">
+                  {t("booking.selectDestForArrival", "Select destination for arrival time")}
+                </span>
+              )}
             </div>
           </div>
           <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-100 border border-zinc-200 flex items-center justify-center">
