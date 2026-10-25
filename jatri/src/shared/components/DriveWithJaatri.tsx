@@ -25,28 +25,61 @@ export default function DriveWithJaatri() {
       {/* Restrained bottom fade so the photograph blends naturally into the next section */}
       <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-16 bg-gradient-to-t from-[#FAF7F0] via-[#FAF7F0]/50 to-transparent dark:from-[#061A16] dark:via-[#061A16]/50 pointer-events-none z-10" />
 
-      {/* ================= FULL-BLEED PHOTOGRAPHIC COMPOSITION ================= */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden">
+      {/* ================= DESKTOP FULL-BLEED PHOTOGRAPHIC COMPOSITION (>= 640px) ================= */}
+      {/* Light Theme Desktop Panorama */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden hidden sm:block dark:hidden">
         <Image
-          src="/drivejatri.webp"
+          src="/drive/drive_desktop.webp"
           alt="Drive with Jaatri - Assamese Driver Partner with Car and Brahmaputra River"
           fill
           priority
-          quality={95}
+          quality={92}
           sizes="(max-width: 1280px) 100vw, 1280px"
-          className="object-cover object-[85%_center] sm:object-[80%_center] md:object-[82%_center] lg:object-center"
+          className="object-cover object-[80%_center] md:object-[82%_center] lg:object-center pointer-events-none"
         />
+        {/* Soft horizontal ivory gradient protecting copy and benefit cards on the left */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF7F0] via-[#FAF7F0]/95 via-35% to-transparent sm:via-[#FAF7F0]/90 sm:via-42% md:via-[#FAF7F0]/70 md:via-48% lg:via-[#FAF7F0]/25 lg:via-55% lg:to-transparent" />
+      </div>
 
-        {/* Sophisticated Layered Gradient:
-            - Mobile: Strong vertical and horizontal ivory fade to keep stacked copy perfectly legible.
-            - Desktop: Strong left fade fading cleanly into transparent on the right to showcase the driver & branded sedan.
-        */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F0] via-[#FAF7F0]/85 via-35% to-[#FAF7F0] dark:from-[#061A16] dark:via-[#061A16]/85 dark:via-35% dark:to-[#061A16] sm:hidden" />
-        <div className="absolute inset-0 hidden sm:block bg-gradient-to-r from-[#FAF7F0] via-[#FAF7F0]/95 via-35% to-transparent sm:via-[#FAF7F0]/90 sm:via-42% md:via-[#FAF7F0]/75 md:via-48% lg:via-[#FAF7F0]/25 lg:via-55% lg:to-transparent dark:from-[#061A16] dark:via-[#061A16]/95 dark:sm:via-[#061A16]/90 dark:md:via-[#061A16]/75 dark:lg:via-[#061A16]/30" />
+      {/* Dark Theme Desktop Panorama */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden hidden dark:sm:block">
+        <Image
+          src="/drive/drive_desktop_dark.webp"
+          alt="Drive with Jaatri - Assamese Driver Partner at Twilight"
+          fill
+          priority
+          quality={92}
+          sizes="(max-width: 1280px) 100vw, 1280px"
+          className="object-cover object-[80%_center] md:object-[82%_center] lg:object-center pointer-events-none"
+        />
+        {/* Deep forest dark gradient protecting copy and benefit cards on the left */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#061A16] via-[#061A16]/95 via-35% to-transparent sm:via-[#061A16]/90 sm:via-42% md:via-[#061A16]/75 md:via-48% lg:via-[#061A16]/30 lg:via-55% lg:to-transparent" />
       </div>
 
       {/* ================= CONTENT CONTAINER (Grid-aligned with max-w-7xl) ================= */}
       <div className="relative z-20 max-w-7xl mx-auto w-full">
+        {/* On Mobile (< sm): Dedicated mobile partner banner card showcasing the driver and vehicle */}
+        <div className="sm:hidden mb-5 relative w-full aspect-[16/10] rounded-[14px] overflow-hidden border border-[#DED7CA] dark:border-[#24483D] shadow-xs">
+          <Image
+            src="/drive/drive_mobile.webp"
+            alt="Drive with Jaatri - Assamese Driver Partner"
+            fill
+            priority
+            quality={92}
+            sizes="(max-width: 640px) 100vw, 420px"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white">
+            <span className="text-[10px] font-bold tracking-wider uppercase bg-[#046A38] text-white px-2 py-0.5 rounded-[4px] shadow-2xs">
+              Assam Driver Fleet
+            </span>
+            <span className="text-[11px] font-semibold text-white/90 drop-shadow-xs">
+              100% Direct Driver Pay
+            </span>
+          </div>
+        </div>
+
         <div className="max-w-xl lg:max-w-[620px] text-left">
           
           {/* Eyebrow: FOR OUR DRIVER PARTNERS */}
