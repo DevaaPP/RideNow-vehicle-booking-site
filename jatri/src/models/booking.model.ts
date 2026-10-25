@@ -157,12 +157,16 @@ export interface IBooking extends Document {
     discount: number;
     isStudentDiscountApplied?: boolean;
     studentDiscount?: number;
+    isReferralDiscountApplied?: boolean;
+    referralDiscount?: number;
     totalFare: number;
     cancellationDues?: number;
   };
   cancellationDuesIncluded?: number;
   studentDiscountReserved?: boolean;
   studentDiscountFinalized?: boolean;
+  isReferralRide?: boolean;
+  referralDiscountApplied?: number;
   isFamilyRide?: boolean;
   familyMemberDetails?: {
     name: string;
@@ -461,12 +465,16 @@ partnerAmount: {
       discount: { type: Number },
       isStudentDiscountApplied: { type: Boolean, default: false },
       studentDiscount: { type: Number, default: 0 },
+      isReferralDiscountApplied: { type: Boolean, default: false },
+      referralDiscount: { type: Number, default: 0 },
       totalFare: { type: Number },
       cancellationDues: { type: Number, default: 0 },
     },
     cancellationDuesIncluded: { type: Number, default: 0 },
     studentDiscountReserved: { type: Boolean, default: false },
     studentDiscountFinalized: { type: Boolean, default: false },
+    isReferralRide: { type: Boolean, default: false },
+    referralDiscountApplied: { type: Number, default: 0 },
     isMultiStop: {
       type: Boolean,
       default: false,

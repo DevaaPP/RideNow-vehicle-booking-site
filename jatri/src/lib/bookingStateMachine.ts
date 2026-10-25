@@ -6,6 +6,7 @@
 import mongoose, { Types } from "mongoose";
 import Booking, { BookingStatus, IBooking } from "@/models/booking.model";
 import { finalizeStudentDiscountUsage, releaseStudentDiscountReservation } from "@/lib/studentDiscountEngine";
+import { processReferralRewardOnRideCompletion } from "@/lib/referralEngine";
 
 export type AllowedTransitionRole = "user" | "driver" | "admin" | "system";
 
@@ -246,6 +247,26 @@ export async function transitionBookingState(ctx: TransitionContext): Promise<Tr
       message: "State transition failed due to concurrent modification by another request.",
       errorCode: "RACE_CONDITION",
     };
+  }
+
+  // Lifecycle side-effects
+  if (targetStatus === "completed") {
+    try {
+      await finalizeStudentDiscountUsage(updatedBooking);
+    } catch (err) {
+      console.error("[StateMachine] Error finalizing student discount:", err);
+    }
+    try {
+      await processReferralRewardOnRideCompletion(updatedBooking._id);
+    } catch (err) {
+      console.error("[StateMachine] Error processing referral reward:", err);
+    }
+  } else if (["cancelled", "expired", "no_drivers_available", "payment_failed"].includes(targetStatus)) {
+    try {
+      await releaseStudentDiscountReservation(updatedBooking);
+    } catch (err) {
+      console.error("[StateMachine] Error releasing student discount reservation:", err);
+    }
   }
 
   return {

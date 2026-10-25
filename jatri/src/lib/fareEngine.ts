@@ -24,6 +24,8 @@ export interface IFareBreakdown {
   promoDiscount?: number;
   isStudentDiscountApplied?: boolean;
   studentDiscount?: number;
+  isReferralDiscountApplied?: boolean;
+  referralDiscount?: number;
   totalFare: number;
   cancellationFee: number;
   cancellationDues?: number;

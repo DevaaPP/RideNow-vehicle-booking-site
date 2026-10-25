@@ -19,6 +19,7 @@ import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { rateLimiter } from "@/lib/rateLimit";
 import { getStudentMonthlyStatus, reserveStudentDiscount, releaseStudentDiscountReservation } from "@/lib/studentDiscountEngine";
+import { evaluateReferralDiscountForBooking } from "@/lib/referralEngine";
 
 export async function POST(req: Request) {
   const requestId = getRequestId(req);
@@ -425,6 +426,23 @@ export async function POST(req: Request) {
         breakdown.totalFare += removedDiscount;
       }
     }
+    let isReferralApplied = false;
+    let referralDiscountAmount = 0;
+    if (!breakdown.isStudentDiscountApplied) {
+      const referralEval = await evaluateReferralDiscountForBooking({
+        userId: session.user.id,
+        baseFare: breakdown.baseFare + breakdown.distanceFare,
+        isStudent: false,
+      });
+      if (referralEval.isEligible && referralEval.discountAmount > 0) {
+        isReferralApplied = true;
+        referralDiscountAmount = referralEval.discountAmount;
+        breakdown.isReferralDiscountApplied = true;
+        breakdown.referralDiscount = referralDiscountAmount;
+        breakdown.discount = (breakdown.discount || 0) + referralDiscountAmount;
+        breakdown.totalFare = Math.max(0, breakdown.totalFare - referralDiscountAmount);
+      }
+    }
     const calculatedFare = breakdown.totalFare;
     const rideFareOnly = Math.max(0, calculatedFare - userOutstanding);
     const commissionSplit = calculateCommissionSplit(rideFareOnly);
@@ -500,6 +518,8 @@ export async function POST(req: Request) {
       fareBreakdown: breakdown,
       cancellationDuesIncluded: userOutstanding,
       studentDiscountReserved: isStudentReserved,
+      isReferralRide: isReferralApplied,
+      referralDiscountApplied: referralDiscountAmount,
       routeCoordinates,
       routeDistanceKm: routeDistance,
       tripDurationMinutes: estimatedDurationMin,

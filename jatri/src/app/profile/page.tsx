@@ -42,6 +42,7 @@ import { validateStudentEmail } from "@/lib/studentVerification";
 import { useSession } from "next-auth/react";
 import AuthModal from "@/features/auth/components/AuthModal";
 import { performFastSignOut } from "@/lib/authLogout";
+import ReferralShareCard from "@/features/referral/components/ReferralShareCard";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -755,6 +756,16 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
+        </motion.div>
+
+        {/* 🎁 PASSENGER REWARDS & REFERRALS (PHASE 6) */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.06 }}
+          className="mt-6 sm:mt-8"
+        >
+          <ReferralShareCard />
         </motion.div>
 
         {/* 🛡️ WOMEN'S SAFETY & PREFERENCE HUB */}

@@ -17,7 +17,8 @@ export type CleanWalletType =
   | "SETTLE_DUES"
   | "CANCELLATION_CHARGE"
   | "OUTSTANDING_RECOVERY"
-  | "CANCELLATION_COMPENSATION";
+  | "CANCELLATION_COMPENSATION"
+  | "REFERRAL_REWARD";
 
 export type TransactionCategory =
   | "topup"
@@ -140,6 +141,7 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
         "CANCELLATION_CHARGE",
         "OUTSTANDING_RECOVERY",
         "CANCELLATION_COMPENSATION",
+        "REFERRAL_REWARD",
       ],
       default: "EARNING",
       index: true,

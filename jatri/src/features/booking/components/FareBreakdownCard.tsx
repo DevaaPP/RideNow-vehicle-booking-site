@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { IndianRupee, ShieldCheck, GraduationCap, Info } from "lucide-react";
+import { IndianRupee, ShieldCheck, GraduationCap, Info, Gift } from "lucide-react";
 
 interface FareBreakdownCardProps {
   vehicle: string;
@@ -16,6 +16,8 @@ interface FareBreakdownCardProps {
     discount?: number;
     isStudentDiscountApplied?: boolean;
     studentDiscount?: number;
+    isReferralDiscountApplied?: boolean;
+    referralDiscount?: number;
     totalFare: number;
   } | null;
   isStudent?: boolean;
@@ -86,6 +88,15 @@ export default function FareBreakdownCard({
               <GraduationCap size={14} /> Student Pass Discount (10%)
             </span>
             <span>-₹{breakdown.studentDiscount}</span>
+          </div>
+        )}
+
+        {breakdown && breakdown.isReferralDiscountApplied && breakdown.referralDiscount !== undefined && breakdown.referralDiscount > 0 && (
+          <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold items-center">
+            <span className="flex items-center gap-1">
+              <Gift size={14} /> Referral First-Ride Discount
+            </span>
+            <span>-₹{breakdown.referralDiscount}</span>
           </div>
         )}
       </div>

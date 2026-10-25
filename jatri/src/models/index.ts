@@ -51,3 +51,8 @@ export type { IRating } from "./rating.model";
 export { default as AuditLog } from "./auditLog.model";
 export type { IAuditLog } from "./auditLog.model";
 
+export { default as DriverIncentive } from "./driverIncentive.model";
+export type { IDriverIncentive, IncentiveStatus } from "./driverIncentive.model";
+
+export { default as Referral } from "./referral.model";
+export type { IReferral, ReferralStatus } from "./referral.model";

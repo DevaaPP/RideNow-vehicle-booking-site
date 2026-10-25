@@ -147,6 +147,16 @@ socketId:string | null
   walletBalance: number;
   outstandingAmount?: number; // Unpaid cancellation charges recovered on next ride
 
+  /* ===== REWARDS & REFERRALS (PHASE 6) ===== */
+  referralCode?: string;
+  referredBy?: mongoose.Types.ObjectId;
+  referralCount?: number;
+  monthlyReferrals?: {
+    monthKey: string;
+    count: number;
+    lastResetAt: Date;
+  };
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -444,6 +454,32 @@ const UserSchema = new Schema<IUser>(
       default: 0,
       min: 0,
       index: true,
+    },
+
+    /* ===== REWARDS & REFERRALS (PHASE 6) ===== */
+    referralCode: {
+      type: String,
+      sparse: true,
+      unique: true,
+      uppercase: true,
+      trim: true,
+      index: true,
+    },
+    referredBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+      index: true,
+    },
+    referralCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    monthlyReferrals: {
+      monthKey: { type: String, default: "" },
+      count: { type: Number, default: 0, min: 0 },
+      lastResetAt: { type: Date, default: Date.now },
     },
   },
   { timestamps: true }
