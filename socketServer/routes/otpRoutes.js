@@ -228,26 +228,51 @@ router.get("/status", (req, res) => {
  * 📷 GET /api/otp/qr
  * Returns the current QR pairing code if Baileys is in qr_ready state.
  * Requires internal secret or administrative authorization in production.
+ * Hardened with constant-time secret comparison and strict no-store cache headers.
  */
 router.get("/qr", (req, res) => {
+  // Prevent any proxy or browser caching of sensitive pairing secrets
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+
   const authHeader = req.headers["authorization"] || "";
   const secretHeader = req.headers["x-internal-secret"] || "";
+  const bearerToken = authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : "";
+  const candidateSecret = secretHeader || bearerToken;
+
   const internalSecret =
     process.env.SOCKET_INTERNAL_SECRET ||
     process.env.AUTH_SECRET ||
     process.env.NEXTAUTH_SECRET ||
     process.env.INTERNAL_API_SECRET;
 
-  const isAuthorized =
-    Boolean(internalSecret) &&
-    (secretHeader === internalSecret ||
-      authHeader === `Bearer ${internalSecret}`);
+  const timingSafeEqual = (a, b) => {
+    if (!a || !b) return false;
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+  };
 
-  if (process.env.NODE_ENV === "production" && !isAuthorized) {
-    return res.status(403).json({
-      success: false,
-      error: "Forbidden: Administrative pairing authorization required.",
-    });
+  const isAuthorized =
+    Boolean(internalSecret) && timingSafeEqual(candidateSecret, internalSecret);
+
+  if (process.env.NODE_ENV === "production") {
+    if (!internalSecret) {
+      return res.status(503).json({
+        success: false,
+        error: "Pairing service unavailable: internal secret not configured.",
+      });
+    }
+    if (!isAuthorized) {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: Administrative pairing authorization required.",
+      });
+    }
   }
 
   const qrData = baileysService.getQrData();

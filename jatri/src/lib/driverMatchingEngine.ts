@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RideNow Driver Matching Engine (Phase 5 Architecture)
  * Responsible for driver eligibility filtering, location freshness checks,
  * duplicate assignment prevention, ranked candidate waterfall queues, and timeout escalations.
@@ -454,7 +454,8 @@ export async function escalateToNextCandidate(
     }
   }
 
-  const nextIndex = (booking.currentDriverIndex || 0) + 1;
+  const currentIndex = booking.currentDriverIndex || 0;
+  const nextIndex = currentIndex + 1;
   const candidates = booking.candidateDrivers || [];
 
   if (nextIndex < candidates.length) {
@@ -463,17 +464,41 @@ export async function escalateToNextCandidate(
 
     // Verify candidate driver is still online and eligible
     if (nextDriver && nextDriver.isOnline) {
-      booking.driver = nextDriver._id;
-      booking.driverMobileNumber = nextDriver.mobileNumber || "";
-      booking.currentDriverIndex = nextIndex;
-      await booking.save();
+      // Optimistic concurrency lock: only advance if booking is still searching and currentDriverIndex matches
+      const updatedBooking = await Booking.findOneAndUpdate(
+        {
+          _id: booking._id,
+          status: { $in: ["requested", "searching_driver"] },
+          currentDriverIndex: currentIndex,
+        },
+        {
+          $set: {
+            driver: nextDriver._id,
+            driverMobileNumber: nextDriver.mobileNumber || "",
+            currentDriverIndex: nextIndex,
+          },
+          ...(booking.driver
+            ? { $addToSet: { cancelledDriverIds: booking.driver } }
+            : {}),
+        },
+        { new: true }
+      );
+
+      if (!updatedBooking) {
+        return {
+          success: false,
+          status: booking.status,
+          currentDriverIndex: currentIndex,
+          message: "Concurrent escalation or state change in progress.",
+        };
+      }
 
       // Dispatch real-time WebSocket notification to candidate driver
       try {
         await emitSocketEvent({
           userId: nextDriver._id.toString(),
           event: "new-booking",
-          data: booking,
+          data: updatedBooking,
         });
       } catch (err) {
         console.warn("Socket notification error on dispatch escalation:", err);
@@ -481,7 +506,7 @@ export async function escalateToNextCandidate(
 
       return {
         success: true,
-        status: booking.status,
+        status: updatedBooking.status,
         currentDriverIndex: nextIndex,
         nextDriverId: nextDriver._id,
         message: `Escalated to candidate driver index ${nextIndex}.`,

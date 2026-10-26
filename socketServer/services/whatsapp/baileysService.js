@@ -93,11 +93,15 @@ class BaileysWhatsAppService {
             this.qrDataUrl = null;
           }
 
-          console.log("\n=======================================================");
-          console.log("📱 [RideNow WhatsApp OTP Gateway] Scan QR to pair:");
-          console.log("=======================================================\n");
-          qrcodeTerminal.generate(qr, { small: true });
-          console.log("\n(Scan this QR code using WhatsApp on your phone: Linked Devices)\n");
+          if (process.env.NODE_ENV !== "production") {
+            console.log("\n=======================================================");
+            console.log("📱 [RideNow WhatsApp OTP Gateway] Scan QR to pair:");
+            console.log("=======================================================\n");
+            qrcodeTerminal.generate(qr, { small: true });
+            console.log("\n(Scan this QR code using WhatsApp on your phone: Linked Devices)\n");
+          } else {
+            console.log("[WhatsApp Baileys] Pairing QR generated. Fetch via authorized administrative endpoint.");
+          }
         }
 
         // Connection opened successfully

@@ -42,11 +42,10 @@ export function maskChatPii(text: string): MaskPiiResult {
   let hadPii = false;
 
   // 1. Phone numbers:
-  // - Handles 5-5 grouping (+91 98765-43210)
-  // - Handles 3-3-4 grouping (+91 987-654-3210)
-  // - Handles raw 10-digit sequence (9876543210) or 12-digit sequence with 91 prefix
+  // Catches 10-digit Indian mobiles ([6-9]xxxxxxxxx), optional +91/91/0 prefix,
+  // and spaced/hyphenated/dotted evasion patterns (e.g. +91 98765-43210, 987 654 3210).
   const phonePattern =
-    /(?:\+?91[\s.-]?)?(?:0)?\b[6-9]\d{4}[\s.-]?\d{5}\b|(?:\+?91[\s.-]?)?(?:0)?\b[6-9]\d{2}[\s.-]?\d{3}[\s.-]?\d{4}\b|\b(?:91)?[6-9]\d{9}\b/g;
+    /(?:\+91[\s.-]?|\b91[\s.-]?|\b0)?[6-9](?:[\s.-]?\d){9}\b/g;
 
   sanitized = sanitized.replace(phonePattern, () => {
     hadPii = true;
